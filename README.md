@@ -30,19 +30,19 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 
 ---
 
-## 🤖 Supported Providers<!--  -->
+## Supported Providers
 
 <div align="center">
 
 |      Provider      |     Description      | Highlights                         |
 | :----------------: | :------------------: | :--------------------------------- |
-|   🧠 **ZhipuAI**   |   GLM Coding Plan    | `Web Search` `MCP SDK`             |
-|   ⚡ **MiniMax**   |     Coding Plan      | `Web Search` `Global Endpoints`    |
-| 🌙 **MoonshotAI**  |   Kimi For Coding    | `High-quality Responses`           |
-|  🔮 **DeepSeek**   |     DeepSeek AI      | `Fast Inference`                   |
 | 🌐 **Antigravity** |  Google Cloud Code   | `Gemini Models` `Quota Tracking`   |
 |    💻 **Codex**    |        OpenAI        | `GPT-5` `Apply Patch` `Shell Exec` |
-| 🔧 **Compatible**  | OpenAI/Anthropic API | `Custom Models Support`            |
+|    **ZhipuAI**     |   GLM Coding Plan    | `Web Search` `MCP SDK`             |
+|    **MiniMax**     |     Coding Plan      | `Web Search` `Global Endpoints`    |
+|   **MoonshotAI**   |   Kimi For Coding    | `High-quality Responses`           |
+|    **DeepSeek**    |     DeepSeek AI      | `Fast Inference`                   |
+|   **Compatible**   | OpenAI/Anthropic API | `Custom Models Support`            |
 
 </div>
 
@@ -150,13 +150,13 @@ npm run package
 
 | Provider       | Command                                                 |
 | :------------- | :------------------------------------------------------ |
-| 🧠 ZhipuAI     | `Cmd+Shift+P` → `ZhipuAI Configuration Wizard`          |
-| ⚡ MiniMax     | `Cmd+Shift+P` → `Start MiniMax Configuration Wizard`    |
-| 🌙 MoonshotAI  | `Cmd+Shift+P` → `Start MoonshotAI Configuration Wizard` |
-| 🔮 DeepSeek    | `Cmd+Shift+P` → `Set DeepSeek API Key`                  |
 | 🌐 Antigravity | `Cmd+Shift+P` → `Antigravity Login`                     |
 | 💻 Codex       | `Cmd+Shift+P` → `Codex Login`                           |
-| 🔧 Custom      | `Cmd+Shift+P` → `Compatible Provider Settings`          |
+| ZhipuAI        | `Cmd+Shift+P` → `ZhipuAI Configuration Wizard`          |
+| MiniMax        | `Cmd+Shift+P` → `Start MiniMax Configuration Wizard`    |
+| MoonshotAI     | `Cmd+Shift+P` → `Start MoonshotAI Configuration Wizard` |
+| DeepSeek       | `Cmd+Shift+P` → `Set DeepSeek API Key`                  |
+| Custom         | `Cmd+Shift+P` → `Compatible Provider Settings`          |
 
 ### Step 2: Add Multiple Accounts _(Optional)_
 
