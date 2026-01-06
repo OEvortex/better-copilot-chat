@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Copilot Helper Pro
+# Copilot Helper Pro
 
 <img src="logo_ai.png" alt="Copilot Helper Pro" width="150" height="150">
 
@@ -18,13 +18,13 @@
 
 <br/>
 
-[📦 Install](#-installation) · [🚀 Quick Start](#-quick-start) · [✨ Features](#-key-features)
+[Install](#installation) · [Quick Start](#quick-start) · [Features](#key-features)
 
 </div>
 
 ---
 
-## 📖 Overview
+## Overview
 
 A powerful VS Code extension that provides model support for **GitHub Copilot Chat**, seamlessly integrating multiple AI providers including **ZhipuAI**, **MiniMax**, **MoonshotAI**, **DeepSeek**, **Antigravity (Google Cloud Code)**, **Codex (OpenAI)**, and custom **OpenAI/Anthropic** compatible models.
 
@@ -48,69 +48,69 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 👥 Multi-Account Management
+### Multi-Account Management
 
 > **Manage multiple accounts per provider with ease**
 
-- ➕ Add **unlimited accounts** for each AI provider
-- ⚡ Quick switch between accounts with `Ctrl+Shift+Q` / `Cmd+Shift+Q`
-- 📊 Visual account status in the status bar
-- 🔐 Secure credential storage using VS Code Secret Storage
+- Add **unlimited accounts** for each AI provider
+- Quick switch between accounts with `Ctrl+Shift+Q` / `Cmd+Shift+Q`
+- Visual account status in the status bar
+- Secure credential storage using VS Code Secret Storage
 
 ---
 
-### ⚖️ Load Balancing & Auto-Switching
+### Load Balancing & Auto-Switching
 
 > **Automatic load distribution across accounts**
 
-- 🔄 Auto-switch when hitting rate limits or quota exhaustion
-- 📈 Intelligent retry with exponential backoff strategy
-- 📉 Real-time quota monitoring and usage statistics
-- 🔀 Seamless failover without interrupting your workflow
+- Auto-switch when hitting rate limits or quota exhaustion
+- Intelligent retry with exponential backoff strategy
+- Real-time quota monitoring and usage statistics
+- Seamless failover without interrupting your workflow
 
 ---
 
-### ☁️ Antigravity (Google Cloud Code)
+### Antigravity (Google Cloud Code)
 
 > **Access Gemini models via Google Cloud Code**
 
-- 🌊 Streaming responses with real-time output
-- 📊 Rate limit monitoring with automatic fallback
-- 📈 Quota tracking with detailed usage statistics
-- 👥 Multi-account support with intelligent auto-switching
-- 🔏 Signature-based request validation for security
+- Streaming responses with real-time output
+- Rate limit monitoring with automatic fallback
+- Quota tracking with detailed usage statistics
+- Multi-account support with intelligent auto-switching
+- Signature-based request validation for security
 
 ---
 
-### 🤖 Codex (OpenAI)
+### Codex (OpenAI)
 
 > **Full access to OpenAI Codex capabilities**
 
-- 🔓 **Full Access Sandbox Mode**: Unrestricted filesystem and network access
-- 📝 **Apply Patch Tool**: Efficient batch file editing with unified diff format
-- 💻 **Shell Command Execution**: Run terminal commands directly
-- ✅ **Todo List Management**: Track tasks and plan your work session
-- 🧠 **Thinking Blocks**: View model reasoning in real-time
+- **Full Access Sandbox Mode**: Unrestricted filesystem and network access
+- **Apply Patch Tool**: Efficient batch file editing with unified diff format
+- **Shell Command Execution**: Run terminal commands directly
+- **Todo List Management**: Track tasks and plan your work session
+- **Thinking Blocks**: View model reasoning in real-time
 
 ---
 
-### 🎯 Advanced Completion
+### Advanced Completion
 
 > **Smart code completion features**
 
-- 🔮 **FIM (Fill In the Middle)**: Intelligent code completion based on context
-- ✨ **NES (Next Edit Suggestions)**: Predictive editing suggestions
-- 🌐 **Web Search Integration**: Real-time information via ZhipuAI and MiniMax
-- 📊 **Token Usage Tracking**: Monitor your API usage in real-time
+- **FIM (Fill In the Middle)**: Intelligent code completion based on context
+- **NES (Next Edit Suggestions)**: Predictive editing suggestions
+- **Web Search Integration**: Real-time information via ZhipuAI and MiniMax
+- **Token Usage Tracking**: Monitor your API usage in real-time
 
 ---
 
-## 📦 Installation
+## Installation
 
 <details>
-<summary><b>📥 From VS Code Marketplace (Recommended)</b></summary>
+<summary><b>From VS Code Marketplace (Recommended)</b></summary>
 
 1. Open **VS Code**
 2. Go to Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`)
@@ -120,7 +120,7 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 </details>
 
 <details>
-<summary><b>📁 From .vsix File</b></summary>
+<summary><b>From .vsix File</b></summary>
 
 ```bash
 # Download from releases page, then in VS Code:
@@ -130,7 +130,7 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 </details>
 
 <details>
-<summary><b>🔧 Build from Source</b></summary>
+<summary><b>Build from Source</b></summary>
 
 ```bash
 git clone https://github.com/nhatbien/copilot-helper.git
@@ -144,14 +144,14 @@ npm run package
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Step 1: Configure Your Provider
 
 | Provider       | Command                                                 |
 | :------------- | :------------------------------------------------------ |
-| 🌐 Antigravity | `Cmd+Shift+P` → `Antigravity Login`                     |
-| 💻 Codex       | `Cmd+Shift+P` → `Codex Login`                           |
+| Antigravity    | `Cmd+Shift+P` → `Antigravity Login`                     |
+| Codex          | `Cmd+Shift+P` → `Codex Login`                           |
 | ZhipuAI        | `Cmd+Shift+P` → `ZhipuAI Configuration Wizard`          |
 | MiniMax        | `Cmd+Shift+P` → `Start MiniMax Configuration Wizard`    |
 | MoonshotAI     | `Cmd+Shift+P` → `Start MoonshotAI Configuration Wizard` |
@@ -173,9 +173,9 @@ Cmd+Shift+P → "Copilot Helper Pro: Open Account Manager"
 
 ---
 
-## 📚 Detailed Guide: Adding Accounts
+## Detailed Guide: Adding Accounts
 
-### 🎯 How to Add Multiple Accounts
+### How to Add Multiple Accounts
 
 Follow these simple steps to add and manage multiple accounts for any provider:
 
@@ -219,28 +219,28 @@ Toggle the **"Load Balance"** switch to enable automatic account switching when 
 <img src="4.png" alt="Enable Load Balancing" width="800"/>
 </div>
 
-### ✅ Account Management Features
+### Account Management Features
 
-- ✏️ **Edit Account**: Click the edit icon to modify account details
-- 🗑️ **Delete Account**: Remove accounts you no longer need
-- 🔄 **Switch Account**: Use `Ctrl+Shift+Q` / `Cmd+Shift+Q` for quick switching
-- ⚖️ **Load Balance**: Automatically distribute requests across accounts
-- 📊 **Quota Tracking**: Monitor usage and remaining quota in real-time
+- **Edit Account**: Click the edit icon to modify account details
+- **Delete Account**: Remove accounts you no longer need
+- **Switch Account**: Use `Ctrl+Shift+Q` / `Cmd+Shift+Q` for quick switching
+- **Load Balance**: Automatically distribute requests across accounts
+- **Quota Tracking**: Monitor usage and remaining quota in real-time
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 | Requirement            | Version      |
 | :--------------------- | :----------- |
-| 💻 VS Code             | `>= 1.104.0` |
-| 📦 Node.js             | `>= 20.0.0`  |
-| 📦 npm                 | `>= 9.0.0`   |
-| 🤖 GitHub Copilot Chat | Required     |
+| VS Code                | `>= 1.104.0` |
+| Node.js                | `>= 20.0.0`  |
+| npm                    | `>= 9.0.0`   |
+| GitHub Copilot Chat    | Required     |
 
 ---
 
-## 🙏 Credits
+## Credits
 
 <div align="center">
 
@@ -281,8 +281,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 <div align="center">
 
-### 💖 Made with love for the developer community
+### Made with love for the developer community
 
-**[⬆ Back to Top](#-copilot-helper-pro)**
+**[Back to Top](#copilot-helper-pro)**
 
 </div>
