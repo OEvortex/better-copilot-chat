@@ -271,7 +271,7 @@ Special thanks to these amazing projects:
 
 If you find this extension helpful, consider supporting its development:
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/S6S51OF1O4)
+[☕ Support me on Ko-fi](https://ko-fi.com/S6S51OF1O4)
 
 ### Get in Touch
 
