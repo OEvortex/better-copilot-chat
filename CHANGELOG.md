@@ -11,12 +11,11 @@ All notable changes to this project will be documented in this file.
 - Added "(Free)" suffix to OpenCode models with zero pricing (MiniMax M2.1, GLM-4.7, Grok Code, Big Pickle).
 - Global request limit tracking for Chutes provider (5,000 requests/day).
 - Status bar items for Chutes and OpenCode providers.
-- Optional `apiKey` field in `ModelConfig` to support OAuth and dynamic authentication.
 
 ### Fixed
 - Import issue in `TokenCounter.ts` that caused build failures.
 - Refactored `GenericModelProvider` to expose `ExtensionContext` for subclasses.
-- **QwenCli OAuth authentication**: Fixed "Missing Qwen Code CLI API key" error by supporting OAuth token passthrough via `apiKey` field in `ModelConfig`. The OAuth token from `~/.qwen/oauth_creds.json` is now correctly used for API authentication.
+- Fixed Qwen Code CLI authentication issue ("Missing API key") by properly passing OAuth tokens to the OpenAI handler.
 
 ## [0.15.26] - Previous Version
 - Initial release with ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Antigravity, and Codex support.
