@@ -8,6 +8,7 @@ import codex from './codex.json';
 import antigravity from './antigravity.json';
 import chutes from './chutes.json';
 import opencode from './opencode.json';
+import qwencli from './qwencli.json';
 
 const providers = {
     zhipu,
@@ -17,7 +18,8 @@ const providers = {
     codex,
     antigravity,
     chutes,
-    opencode
+    opencode,
+    qwencli
 };
 
 export type ProviderName = keyof typeof providers;

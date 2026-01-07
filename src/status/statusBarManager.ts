@@ -12,6 +12,7 @@ import { MoonshotStatusBar } from './moonshotStatusBar';
 import { ZhipuStatusBar } from './zhipuStatusBar';
 import { ChutesStatusBar } from './chutesStatusBar';
 import { OpenCodeStatusBar } from './opencodeStatusBar';
+import { QwenCliStatusBar } from './qwencliStatusBar';
 import { CompatibleStatusBar } from './compatibleStatusBar';
 import { TokenUsageStatusBar } from './tokenUsageStatusBar';
 import { AntigravityStatusBar } from './antigravityStatusBar';
@@ -52,6 +53,8 @@ export class StatusBarManager {
     static chutes: IStatusBar | undefined;
     /** OpenCode Status Bar */
     static opencode: IStatusBar | undefined;
+    /** Qwen CLI Status Bar */
+    static qwencli: IStatusBar | undefined;
     /** Compatible Provider Status Bar */
     static compatible: ICompatibleStatusBar | undefined;
     /** Model context window usage status bar */
@@ -83,6 +86,10 @@ export class StatusBarManager {
         // Create and register OpenCode status bar
         const opencodeStatusBar = new OpenCodeStatusBar();
         this.registerStatusBar('opencode', opencodeStatusBar);
+
+        // Create and register Qwen CLI status bar
+        const qwencliStatusBar = new QwenCliStatusBar();
+        this.registerStatusBar('qwencli', qwencliStatusBar);
 
         // Create and register Kimi status bar
         const kimiStatusBar = new KimiStatusBar();
@@ -134,6 +141,9 @@ export class StatusBarManager {
                 break;
             case 'opencode':
                 this.opencode = statusBar;
+                break;
+            case 'qwencli':
+                this.qwencli = statusBar;
                 break;
             case 'kimi':
                 this.kimi = statusBar;
@@ -254,6 +264,7 @@ export class StatusBarManager {
         this.zhipu = undefined;
         this.chutes = undefined;
         this.opencode = undefined;
+        this.qwencli = undefined;
         this.kimi = undefined;
         this.deepseek = undefined;
         this.moonshot = undefined;

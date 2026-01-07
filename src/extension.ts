@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { GenericModelProvider } from './providers/common/genericModelProvider';
 import { ZhipuProvider } from './providers/zhipu/zhipuProvider';
 import { ChutesProvider } from './providers/chutes/chutesProvider';
+import { QwenCliProvider } from './providers/qwencli/provider';
 
 import { MiniMaxProvider } from './providers/minimax/minimaxProvider';
 import { CompatibleProvider } from './providers/compatible/compatibleProvider';
@@ -36,7 +37,7 @@ import { CodexRateLimitStatusBar } from './status/codexRateLimitStatusBar';
  */
 const registeredProviders: Record<
     string,
-    GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider | CompatibleProvider | AntigravityProvider | CodexProvider
+    GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider | QwenCliProvider | CompatibleProvider | AntigravityProvider | CodexProvider
 > = {};
 const registeredDisposables: vscode.Disposable[] = [];
 
@@ -85,6 +86,11 @@ async function activateProviders(context: vscode.ExtensionContext): Promise<void
             } else if (providerKey === 'chutes') {
                 // Use specialized provider for chutes (global request limit tracking)
                 const result = ChutesProvider.createAndActivate(context, providerKey, providerConfig);
+                provider = result.provider;
+                disposables = result.disposables;
+            } else if (providerKey === 'qwencli') {
+                // Use specialized provider for qwencli (OAuth via CLI)
+                const result = QwenCliProvider.createAndActivate(context, providerKey, providerConfig);
                 provider = result.provider;
                 disposables = result.disposables;
             } else {

@@ -53,6 +53,7 @@
         "onLanguageModelProvider:chp.deepseek",
         "onLanguageModelProvider:chp.chutes",
         "onLanguageModelProvider:chp.opencode",
+        "onLanguageModelProvider:chp.qwencli",
         "onLanguageModelProvider:chp.codex",
         "onLanguageModelProvider:chp.compatible",
         "onLanguageModelTool:chp_zhipuWebSearch",
@@ -193,6 +194,11 @@
             {
                 "command": "chp.opencode.setApiKey",
                 "title": "Set OpenCode API Key",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.qwencli.login",
+                "title": "Qwen CLI Login (OAuth)",
                 "category": "Copilot ++"
             },
             {
@@ -563,6 +569,11 @@
                 "vendor": "chp.opencode",
                 "displayName": "⦿ OpenCode",
                 "managementCommand": "chp.opencode.setApiKey"
+            },
+            {
+                "vendor": "chp.qwencli",
+                "displayName": "⦿ Qwen Code CLI",
+                "managementCommand": "chp.qwencli.login"
             },
             {
                 "vendor": "chp.compatible",

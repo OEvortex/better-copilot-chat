@@ -40,5 +40,6 @@ export const KnownProviders: Record<string, KnownProviderConfig> = {
     siliconflow: { displayName: 'SiliconFlow' },
     tbox: { displayName: 'Bailian' },
     chutes: { displayName: 'Chutes' },
-    opencode: { displayName: 'OpenCode' }
+    opencode: { displayName: 'OpenCode' },
+    qwencli: { displayName: 'Qwen Code CLI' }
 };
