@@ -58,7 +58,7 @@ export class MoonshotStatusBar extends ProviderStatusBarItem<MoonshotStatusData>
     constructor() {
         const config: StatusBarItemConfig = {
             id: 'chp.statusBar.moonshot',
-            name: 'Copilot Helper Pro: Moonshot Balance',
+            name: 'Copilot ++: Moonshot Balance',
             alignment: vscode.StatusBarAlignment.Right,
             priority: 89, // Priority slightly lower than Kimi
             refreshCommand: 'chp.moonshot.refreshBalance',

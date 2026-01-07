@@ -1,8 +1,8 @@
 <div align="center">
 
-# Copilot Helper Pro
+# Copilot ++
 
-<img src="logo_ai.png" alt="Copilot Helper Pro" width="150" height="150">
+<img src="logo_ai.png" alt="Copilot ++" width="150" height="150">
 
 ### **Supercharge your GitHub Copilot with multiple AI providers**
 
@@ -26,7 +26,7 @@
 
 ## Overview
 
-A powerful VS Code extension that provides model support for **GitHub Copilot Chat**, seamlessly integrating multiple AI providers including **ZhipuAI**, **MiniMax**, **MoonshotAI**, **DeepSeek**, **Antigravity (Google Cloud Code)**, **Codex (OpenAI)**, and custom **OpenAI/Anthropic** compatible models.
+A powerful VS Code extension that provides model support for **GitHub Copilot Chat**, seamlessly integrating multiple AI providers including **ZhipuAI**, **MiniMax**, **MoonshotAI**, **DeepSeek**, **Antigravity (Google Cloud Code)**, **Codex (OpenAI)**, **Chutes**, **OpenCode**, and custom **OpenAI/Anthropic** compatible models.
 
 ---
 
@@ -42,6 +42,8 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 |    **MiniMax**     |     Coding Plan      | `Web Search` `Global Endpoints`    |
 |   **MoonshotAI**   |   Kimi For Coding    | `High-quality Responses`           |
 |    **DeepSeek**    |     DeepSeek AI      | `Fast Inference`                   |
+|     **Chutes**     |      Chutes AI       | `Global Request Limit`             |
+|    **OpenCode**    |     OpenCode AI      | `Claude 4.5` `GPT-5`               |
 |   **Compatible**   | OpenAI/Anthropic API | `Custom Models Support`            |
 
 </div>
@@ -114,7 +116,7 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 
 1. Open **VS Code**
 2. Go to Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`)
-3. Search for **"Copilot Helper Pro"**
+3. Search for **"Copilot ++"**
 4. Click **Install**
 
 </details>
@@ -133,8 +135,8 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 <summary><b>Build from Source</b></summary>
 
 ```bash
-git clone https://github.com/nhatbien/copilot-helper.git
-cd copilot-helper
+git clone https://github.com/OEvortex/better-copilot-chat.git
+cd better-copilot-chat
 npm install
 npm run compile
 npm run package
@@ -161,13 +163,13 @@ npm run package
 ### Step 2: Add Multiple Accounts _(Optional)_
 
 ```
-Cmd+Shift+P → "Copilot Helper Pro: Manage Accounts"
+Cmd+Shift+P → "Copilot ++: Manage Accounts"
 ```
 
 ### Step 3: Enable Load Balancing
 
 ```
-Cmd+Shift+P → "Copilot Helper Pro: Open Account Manager"
+Cmd+Shift+P → "Copilot ++: Open Account Manager"
 → Toggle "Load Balance" for your provider
 ```
 
@@ -184,7 +186,7 @@ Follow these simple steps to add and manage multiple accounts for any provider:
 Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Windows/Linux) and type:
 
 ```
-Copilot Helper Pro: Open Account Manager
+Copilot ++: Open Account Manager
 ```
 
 <div align="center">
@@ -256,12 +258,6 @@ Special thanks to these amazing projects:
 ## � Support & Contact
 
 <div align="center">
-
-### Support This Project
-
-If you find this extension helpful, consider supporting its development:
-
-[☕ Support me on Ko-fi](https://ko-fi.com/S6S51OF1O4)
 
 ### Get in Touch
 

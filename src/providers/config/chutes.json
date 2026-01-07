@@ -1,0 +1,175 @@
+{
+    "displayName": "Chutes",
+    "baseUrl": "https://llm.chutes.ai/v1",
+    "apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "models": [
+        {
+            "id": "qwen3-235b",
+            "name": "Qwen3-235B-A22B-Instruct-2507-TEE",
+            "tooltip": "Qwen3-235B-A22B-Instruct-2507-TEE by Chutes",
+            "maxInputTokens": 262144,
+            "maxOutputTokens": 65536,
+            "model": "Qwen/Qwen3-235B-A22B-Instruct-2507-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "glm-4.7",
+            "name": "GLM-4.7-TEE",
+            "tooltip": "GLM-4.7-TEE by Chutes",
+            "maxInputTokens": 202752,
+            "maxOutputTokens": 65535,
+            "model": "zai-org/GLM-4.7-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "gpt-oss-120b",
+            "name": "gpt-oss-120b-TEE",
+            "tooltip": "gpt-oss-120b-TEE by Chutes",
+            "maxInputTokens": 131072,
+            "maxOutputTokens": 65536,
+            "model": "openai/gpt-oss-120b-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "glm-4.6",
+            "name": "GLM-4.6-TEE",
+            "tooltip": "GLM-4.6-TEE by Chutes",
+            "maxInputTokens": 202752,
+            "maxOutputTokens": 65536,
+            "model": "zai-org/GLM-4.6-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-r1",
+            "name": "DeepSeek-R1-0528-TEE",
+            "tooltip": "DeepSeek-R1-0528-TEE by Chutes",
+            "maxInputTokens": 163840,
+            "maxOutputTokens": 65536,
+            "model": "deepseek-ai/DeepSeek-R1-0528-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "tng-r1t-chimera",
+            "name": "TNG-R1T-Chimera-TEE",
+            "tooltip": "TNG-R1T-Chimera-TEE by Chutes",
+            "maxInputTokens": 163840,
+            "maxOutputTokens": 65536,
+            "model": "tngtech/TNG-R1T-Chimera-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-v3.1",
+            "name": "DeepSeek-V3.1-TEE",
+            "tooltip": "DeepSeek-V3.1-TEE by Chutes",
+            "maxInputTokens": 163840,
+            "maxOutputTokens": 65536,
+            "model": "deepseek-ai/DeepSeek-V3.1-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-v3.1-terminus",
+            "name": "DeepSeek-V3.1-Terminus-TEE",
+            "tooltip": "DeepSeek-V3.1-Terminus-TEE by Chutes",
+            "maxInputTokens": 163840,
+            "maxOutputTokens": 65536,
+            "model": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "kimi-k2-thinking",
+            "name": "Kimi-K2-Thinking-TEE",
+            "tooltip": "Kimi-K2-Thinking-TEE by Chutes",
+            "maxInputTokens": 262144,
+            "maxOutputTokens": 65535,
+            "model": "moonshotai/Kimi-K2-Thinking-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-r1-full",
+            "name": "DeepSeek-R1-TEE",
+            "tooltip": "DeepSeek-R1-TEE by Chutes",
+            "maxInputTokens": 163840,
+            "maxOutputTokens": 163840,
+            "model": "deepseek-ai/DeepSeek-R1-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "minimax-m2.1",
+            "name": "MiniMax-M2.1-TEE",
+            "tooltip": "MiniMax-M2.1-TEE by Chutes",
+            "maxInputTokens": 196608,
+            "maxOutputTokens": 65536,
+            "model": "MiniMaxAI/MiniMax-M2.1-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen3-coder-480b",
+            "name": "Qwen3-Coder-480B-A35B-Instruct-FP8-TEE",
+            "tooltip": "Qwen3-Coder-480B-A35B-Instruct-FP8-TEE by Chutes",
+            "maxInputTokens": 262144,
+            "maxOutputTokens": 262144,
+            "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "glm-4.5",
+            "name": "GLM-4.5-TEE",
+            "tooltip": "GLM-4.5-TEE by Chutes",
+            "maxInputTokens": 131072,
+            "maxOutputTokens": 65536,
+            "model": "zai-org/GLM-4.5-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-v3.2-speciale",
+            "name": "DeepSeek-V3.2-Speciale-TEE",
+            "tooltip": "DeepSeek-V3.2-Speciale-TEE by Chutes",
+            "maxInputTokens": 163840,
+            "maxOutputTokens": 65536,
+            "model": "deepseek-ai/DeepSeek-V3.2-Speciale-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        }
+    ]
+}

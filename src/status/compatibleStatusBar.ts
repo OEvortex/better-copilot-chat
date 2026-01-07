@@ -88,7 +88,7 @@ export class CompatibleStatusBar extends BaseStatusBarItem<CompatibleStatusData>
     constructor() {
         const config: BaseStatusBarItemConfig = {
             id: 'chp.statusBar.compatible',
-            name: 'Copilot Helper Pro: Compatible Balance',
+            name: 'Copilot ++: Compatible Balance',
             alignment: vscode.StatusBarAlignment.Right,
             priority: 10, // Take a low priority value, display on the right
             refreshCommand: 'chp.compatible.refreshBalance',
@@ -195,9 +195,9 @@ export class CompatibleStatusBar extends BaseStatusBarItem<CompatibleStatusData>
                     provider.granted !== undefined ? `${currencySymbol}${provider.granted.toFixed(2)}` : '-';
                 let availableBalance = `${currencySymbol}${provider.balance.toFixed(2)}`;
                 if (provider.balance === Number.MAX_SAFE_INTEGER) {
-                    availableBalance = '无限制';
+                    availableBalance = 'Unlimited';
                 } else if (provider.balance === Number.MIN_SAFE_INTEGER) {
-                    availableBalance = '已耗尽';
+                    availableBalance = 'Exhausted';
                 }
 
                 md.appendMarkdown(
@@ -228,7 +228,7 @@ export class CompatibleStatusBar extends BaseStatusBarItem<CompatibleStatusData>
             const supportedProviders = new Set(BalanceQueryManager.getRegisteredProviders());
             const providerMap = new Map<string, CompatibleProviderBalance>();
 
-            // 按提供商分组模型，只处理支持的提供商
+            // Group models by provider, only process supported providers
             for (const model of models) {
                 if (!model.provider || !supportedProviders.has(model.provider)) {
                     continue;
@@ -244,7 +244,7 @@ export class CompatibleStatusBar extends BaseStatusBarItem<CompatibleStatusData>
                 if (!providerMap.has(model.provider)) {
                     const knownProvider = KnownProviders[model.provider];
 
-                    // 手动刷新时强制查询所有提供商，忽略缓存
+                    // Force query all providers on manual refresh, ignore cache
                     if (isManualRefresh) {
                         providerMap.set(model.provider, {
                             providerId: model.provider,
@@ -337,12 +337,12 @@ export class CompatibleStatusBar extends BaseStatusBarItem<CompatibleStatusData>
      * Check if any provider's cache is expired
      */
     protected shouldRefresh(): boolean {
-        // 检查总体缓存是否存在
+        // Check if overall cache exists
         if (!this.lastStatusData) {
             return true;
         }
 
-        // 检查是否有任何提供商缓存过期
+        // Check if any provider cache is expired
         const models = CompatibleModelManager.getModels();
         const providerIds = new Set<string>();
         for (const model of models) {

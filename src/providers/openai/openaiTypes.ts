@@ -76,14 +76,14 @@ export interface GeminiResponse {
 }
 
 /**
- * 扩展Delta类型以支持reasoning_content字段
+ * Extend Delta type to support reasoning_content field
  */
 export interface ExtendedDelta extends OpenAI.Chat.ChatCompletionChunk.Choice.Delta {
     reasoning_content?: string;
 }
 
 /**
- * 扩展Choice类型以支持兼容旧格式的message字段
+ * Extend Choice type to support message field compatible with old format
  */
 export interface ExtendedChoice extends OpenAI.Chat.Completions.ChatCompletionChunk.Choice {
     message?: {
@@ -93,7 +93,7 @@ export interface ExtendedChoice extends OpenAI.Chat.Completions.ChatCompletionCh
 }
 
 /**
- * 扩展助手消息类型，支持 reasoning_content 字段
+ * Extend assistant message type to support reasoning_content field
  */
 export interface ExtendedAssistantMessageParam extends OpenAI.Chat.ChatCompletionAssistantMessageParam {
     reasoning_content?: string;

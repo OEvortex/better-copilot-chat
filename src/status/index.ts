@@ -4,5 +4,7 @@ export { BaseStatusBarItem, BaseStatusBarItemConfig, StatusBarItemConfig, Cached
 export { ProviderStatusBarItem } from './providerStatusBarItem';
 export { AntigravityStatusBar } from './antigravityStatusBar';
 export { CodexRateLimitStatusBar } from './codexRateLimitStatusBar';
+export { ChutesStatusBar } from './chutesStatusBar';
+export { OpenCodeStatusBar } from './opencodeStatusBar';
 export { registerCombinedQuotaCommand } from './combinedQuotaPopup';
 export { TokenUsageStatusBar, TokenUsageData } from './tokenUsageStatusBar';

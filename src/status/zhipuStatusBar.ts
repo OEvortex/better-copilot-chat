@@ -60,7 +60,7 @@ export class ZhipuStatusBar extends ProviderStatusBarItem<ZhipuStatusData> {
     constructor() {
         const config: StatusBarItemConfig = {
             id: 'chp.statusBar.zhipu',
-            name: 'Copilot Helper Pro: GLM Coding Plan',
+            name: 'Copilot ++: GLM Coding Plan',
             alignment: vscode.StatusBarAlignment.Right,
             priority: 99,
             refreshCommand: 'chp.refreshZhipuUsage',

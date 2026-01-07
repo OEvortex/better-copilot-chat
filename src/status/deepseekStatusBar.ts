@@ -58,7 +58,7 @@ export class DeepSeekStatusBar extends ProviderStatusBarItem<DeepSeekStatusData>
     constructor() {
         const config: StatusBarItemConfig = {
             id: 'chp.statusBar.deepseek',
-            name: 'Copilot Helper Pro: DeepSeek Balance',
+            name: 'Copilot ++: DeepSeek Balance',
             alignment: vscode.StatusBarAlignment.Right,
             priority: 80,
             refreshCommand: 'chp.deepseek.refreshBalance',

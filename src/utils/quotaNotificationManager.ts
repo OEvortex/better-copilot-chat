@@ -38,7 +38,7 @@ export class QuotaNotificationManager {
 
         const modelLabel = modelName ? ` (${modelName})` : '';
         const accountLabel = accountName ? ` [${accountName}]` : '';
-        const message = `Copilot Helper Pro Antigravity quota limit reached${modelLabel}${accountLabel}. Retry in ${this.formatCountdown(delayMs)}.`;
+        const message = `Copilot ++ Antigravity quota limit reached${modelLabel}${accountLabel}. Retry in ${this.formatCountdown(delayMs)}.`;
         // void vscode.window.showWarningMessage(message); // Disabled notification
     }
 
@@ -106,7 +106,7 @@ export class QuotaNotificationManager {
 
         const modelLabel = this.quotaCountdownModel ? ` (${this.quotaCountdownModel})` : '';
         const accountLabel = this.quotaCountdownAccountName ? ` [${this.quotaCountdownAccountName}]` : '';
-        const message = `Copilot Helper Pro Antigravity limited${modelLabel}${accountLabel}: ${this.formatCountdown(remaining)}`;
+        const message = `Copilot ++ Antigravity limited${modelLabel}${accountLabel}: ${this.formatCountdown(remaining)}`;
 
         if (this.quotaCountdownMessage) {
             this.quotaCountdownMessage.dispose();

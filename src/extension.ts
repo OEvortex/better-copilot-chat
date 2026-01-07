@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { GenericModelProvider } from './providers/common/genericModelProvider';
 import { ZhipuProvider } from './providers/zhipu/zhipuProvider';
+import { ChutesProvider } from './providers/chutes/chutesProvider';
 
 import { MiniMaxProvider } from './providers/minimax/minimaxProvider';
 import { CompatibleProvider } from './providers/compatible/compatibleProvider';
@@ -31,19 +32,19 @@ import { registerSettingsPageCommand } from './ui';
 import { CodexRateLimitStatusBar } from './status/codexRateLimitStatusBar';
 
 /**
- * 全局变量 - 存储已注册的提供商实例，用于扩展卸载时的清理
+ * Global variables - Store registered provider instances for cleanup on extension uninstall
  */
 const registeredProviders: Record<
     string,
-    GenericModelProvider | ZhipuProvider | MiniMaxProvider | CompatibleProvider | AntigravityProvider | CodexProvider
+    GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider | CompatibleProvider | AntigravityProvider | CodexProvider
 > = {};
 const registeredDisposables: vscode.Disposable[] = [];
 
-// 内联补全提供商实例（使用轻量级 Shim，延迟加载真正的补全引擎）
+// Inline completion provider instance (using lightweight Shim, lazy loading real completion engine)
 let inlineCompletionProvider: InlineCompletionShim | undefined;
 
 /**
- * 激活提供商 - 基于配置文件动态注册（并行优化版本）
+ * Activate providers - dynamic registration based on config file (parallel optimized version)
  */
 async function activateProviders(context: vscode.ExtensionContext): Promise<void> {
     const startTime = Date.now();
@@ -68,21 +69,26 @@ async function activateProviders(context: vscode.ExtensionContext): Promise<void
             Logger.trace(`Registering provider: ${providerConfig.displayName} (${providerKey})`);
             const providerStartTime = Date.now();
 
-            let provider: GenericModelProvider | ZhipuProvider | MiniMaxProvider;
+            let provider: GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider;
             let disposables: vscode.Disposable[];
 
             if (providerKey === 'zhipu') {
-                // 对 zhipu 使用专门的 provider（配置向导功能）
+                // Use specialized provider for zhipu (config wizard function)
                 const result = ZhipuProvider.createAndActivate(context, providerKey, providerConfig);
                 provider = result.provider;
                 disposables = result.disposables;
             } else if (providerKey === 'minimax') {
-                // 对 minimax 使用专门的 provider（多密钥管理和配置向导）
+                // Use specialized provider for minimax (multi-key management and config wizard)
                 const result = MiniMaxProvider.createAndActivate(context, providerKey, providerConfig);
                 provider = result.provider;
                 disposables = result.disposables;
+            } else if (providerKey === 'chutes') {
+                // Use specialized provider for chutes (global request limit tracking)
+                const result = ChutesProvider.createAndActivate(context, providerKey, providerConfig);
+                provider = result.provider;
+                disposables = result.disposables;
             } else {
-                // 其他提供商使用通用 provider（支持基于 sdkMode 的自动选择）
+                // Other providers use generic provider (supports automatic selection based on sdkMode)
                 const result = GenericModelProvider.createAndActivate(context, providerKey, providerConfig);
                 provider = result.provider;
                 disposables = result.disposables;
@@ -123,12 +129,12 @@ async function activateCompatibleProvider(context: vscode.ExtensionContext): Pro
         Logger.trace('Registering compatible provider...');
         const providerStartTime = Date.now();
 
-        // 创建并激活兼容提供商
+        // Create and activate compatible provider
         const result = CompatibleProvider.createAndActivate(context);
         const provider = result.provider;
         const disposables = result.disposables;
 
-        // 存储注册的提供商和 disposables
+        // Store registered providers and disposables
         registeredProviders['compatible'] = provider;
         registeredDisposables.push(...disposables);
 
@@ -147,7 +153,7 @@ async function activateInlineCompletionProvider(context: vscode.ExtensionContext
         Logger.trace('Registering inline completion provider (Shim mode)...');
         const providerStartTime = Date.now();
 
-        // 创建并激活轻量级 Shim（不包含 @vscode/chat-lib 依赖）
+        // Create and activate lightweight Shim (no @vscode/chat-lib dependency)
         const result = InlineCompletionShim.createAndActivate(context);
         inlineCompletionProvider = result.provider;
         registeredDisposables.push(...result.disposables);
@@ -162,7 +168,7 @@ async function activateInlineCompletionProvider(context: vscode.ExtensionContext
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-    // 将单例实例存储到 globalThis，供 copilot.bundle.js 中的模块使用
+    // Store singleton instances in globalThis for use by modules in copilot.bundle.js
     globalThis.__chp_singletons = {
         CompletionLogger,
         ApiKeyManager,
@@ -173,18 +179,18 @@ export async function activate(context: vscode.ExtensionContext) {
     const activationStartTime = Date.now();
 
     try {
-        Logger.initialize('Copilot Helper Pro'); // 初始化日志管理器
-        StatusLogger.initialize('GitHub Copilot Models Provider Status'); // 初始化高频状态日志管理器
-        CompletionLogger.initialize('Copilot Helper Pro Inline Completion'); // 初始化高频内联补全日志管理器
+        Logger.initialize('Copilot ++'); // Initialize log manager
+        StatusLogger.initialize('GitHub Copilot Models Provider Status'); // Initialize high-frequency status log manager
+        CompletionLogger.initialize('Copilot ++Inline Completion'); // Initialize high-frequency inline completion log manager
 
         const isDevelopment = context.extensionMode === vscode.ExtensionMode.Development;
-        Logger.info(`🔧 Copilot Helper Pro Extension Mode: ${isDevelopment ? 'Development' : 'Production'}`);
+        Logger.info(`🔧 Copilot ++Extension Mode: ${isDevelopment ? 'Development' : 'Production'}`);
         // Check and prompt VS Code log level settings
         if (isDevelopment) {
             Logger.checkAndPromptLogLevel();
         }
 
-        Logger.info('⏱️ Starting Copilot Helper Pro extension activation...');
+        Logger.info('⏱️ Starting Copilot ++extension activation...');
 
         // Step 0: Initialize leader election service
         let stepStartTime = Date.now();
@@ -194,27 +200,27 @@ export async function activate(context: vscode.ExtensionContext) {
         // Step 1: Initialize API key manager
         stepStartTime = Date.now();
         ApiKeyManager.initialize(context);
-        Logger.trace(`⏱️ API密钥管理器初始化完成 (耗时: ${Date.now() - stepStartTime}ms)`);
+        Logger.trace(`⏱️ API key manager initialization complete (time: ${Date.now() - stepStartTime}ms)`);
 
-        // 步骤1.1: 初始化多账户管理器
+        // Step 1.1: Initialize multi-account manager
         stepStartTime = Date.now();
         AccountManager.initialize(context);
-        // 初始化 Account Quota Cache
+        // Initialize Account Quota Cache
         AccountQuotaCache.initialize(context);
         const accountDisposables = registerAccountCommands(context);
         context.subscriptions.push(...accountDisposables);
-        // 初始化账户状态栏
+        // Initialize account status bar
         const accountStatusBar = AccountStatusBar.initialize();
         context.subscriptions.push({ dispose: () => accountStatusBar.dispose() });
-        // 初始化 Codex Rate Limit 状态栏（恢复缓存数据）
+        // Initialize Codex Rate Limit status bar (restore cached data)
         const codexRateLimitStatusBar = CodexRateLimitStatusBar.initialize(context);
         context.subscriptions.push({ dispose: () => codexRateLimitStatusBar.dispose() });
-        // 注册 Combined Quota Popup 命令（Antigravity + Codex 共用）
+        // Register Combined Quota Popup command (shared by Antigravity + Codex)
         registerCombinedQuotaCommand(context);
-        // 初始化账户同步适配器并同步现有账户
+        // Initialize account sync adapter and sync existing accounts
         const accountSyncAdapter = AccountSyncAdapter.initialize();
         context.subscriptions.push({ dispose: () => accountSyncAdapter.dispose() });
-        // 异步同步现有账户（不阻塞启动）
+        // Asynchronously sync existing accounts (non-blocking startup)
         accountSyncAdapter.syncAllAccounts().catch(err => Logger.warn('Account sync failed:', err));
 
         // Listen to account changes and update AntigravityQuotaWatcher config
@@ -254,15 +260,15 @@ export async function activate(context: vscode.ExtensionContext) {
             })
         );
 
-        Logger.trace(`⏱️ 多账户管理器初始化完成 (耗时: ${Date.now() - stepStartTime}ms)`);
+        Logger.trace(`⏱️ Multi-account manager initialization complete (time: ${Date.now() - stepStartTime}ms)`);
 
-        // 步骤1.2: 注册设置页面命令
+        // Step 1.2: Register settings page command
         stepStartTime = Date.now();
         const settingsPageDisposable = registerSettingsPageCommand(context);
         context.subscriptions.push(settingsPageDisposable);
         Logger.trace(`⏱️ Settings page command registered (time: ${Date.now() - stepStartTime}ms)`);
 
-        // 步骤2: 初始化配置管理器
+        // Step 2: Initialize configuration manager
         stepStartTime = Date.now();
         const configDisposable = ConfigManager.initialize();
         context.subscriptions.push(configDisposable);
@@ -280,16 +286,16 @@ export async function activate(context: vscode.ExtensionContext) {
         // Step 3: Activate providers (parallel optimization)
         stepStartTime = Date.now();
         await activateProviders(context);
-        Logger.trace(`⏱️ 模型提供者注册完成 (耗时: ${Date.now() - stepStartTime}ms)`);
-        // 步骤3.1: 激活兼容提供商
+        Logger.trace(`⏱️ Model provider registration complete (time: ${Date.now() - stepStartTime}ms)`);
+        // Step 3.1: Activate compatible provider
         stepStartTime = Date.now();
         await activateCompatibleProvider(context);
-        Logger.trace(`⏱️ 兼容提供商注册完成 (耗时: ${Date.now() - stepStartTime}ms)`);
+        Logger.trace(`⏱️ Compatible provider registration complete (time: ${Date.now() - stepStartTime}ms)`);
 
-        // 步骤3.2: 初始化所有状态栏（包含创建和注册）
+        // Step 3.2: Initialize all status bars (including creation and registration)
         stepStartTime = Date.now();
         await StatusBarManager.initializeAll(context);
-        Logger.trace(`⏱️ 所有状态栏初始化完成 (耗时: ${Date.now() - stepStartTime}ms)`);
+        Logger.trace(`⏱️ All status bars initialization complete (time: ${Date.now() - stepStartTime}ms)`);
 
         // Step 4: Register tools
         stepStartTime = Date.now();
@@ -441,14 +447,14 @@ export async function activate(context: vscode.ExtensionContext) {
         Logger.trace(`⏱️ Copilot helper commands registered (time: ${Date.now() - stepStartTime}ms)`);
 
         const totalActivationTime = Date.now() - activationStartTime;
-        Logger.info(`✅ Copilot Helper Pro extension activation completed (total time: ${totalActivationTime}ms)`);
+        Logger.info(`✅ Copilot ++extension activation completed (total time: ${totalActivationTime}ms)`);
     } catch (error) {
-        const errorMessage = `Copilot Helper Pro extension activation failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        const errorMessage = `Copilot ++extension activation failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
         Logger.error(errorMessage, error instanceof Error ? error : undefined);
 
         // Try to display user-friendly error message
         vscode.window.showErrorMessage(
-            'Copilot Helper Pro extension startup failed. Please check the output window for details.'
+            'Copilot ++extension startup failed. Please check the output window for details.'
         );
         // Re-throw error to let VS Code know extension startup failed
         throw error;
@@ -495,6 +501,6 @@ export function deactivate() {
         CompletionLogger.dispose(); // Clean up inline completion logger
         Logger.dispose(); // Dispose Logger only when extension is destroyed
     } catch (error) {
-        Logger.error('Error during Copilot Helper Pro extension deactivation:', error);
+        Logger.error('Error during Copilot ++extension deactivation:', error);
     }
 }

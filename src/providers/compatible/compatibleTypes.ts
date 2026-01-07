@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 /**
- * 工具调用缓存结构
+ * Tool call buffer structure
  */
 export interface ToolCallBuffer {
     id?: string;

@@ -5,7 +5,7 @@ const path = require('path');
 const isWatch = process.argv.includes('--watch');
 const isDev = process.argv.includes('--dev');
 
-// postinstall.ts 中的资源复制逻辑
+// Resource copying logic from postinstall.ts
 const treeSitterGrammars = [
     'tree-sitter-c-sharp',
     'tree-sitter-cpp',
@@ -33,18 +33,18 @@ async function fileExists(filePath) {
 
 async function platformDir() {
     try {
-        // 查找 @vscode/chat-lib 中的 tokenizer 文件
+        // Find tokenizer files in @vscode/chat-lib
         const chatlibModulePath = require.resolve('@vscode/chat-lib');
-        // chat-lib 的根目录是 dist/src 的父目录
+        // chat-lib root is the parent of dist/src
         const chatlibRoot = path.join(path.dirname(chatlibModulePath), '../..');
 
-        // 先尝试查找平台特定的路径
+        // Try platform-specific path first
         const platformPath = path.join(chatlibRoot, 'dist/src/_internal/platform');
         if (await fileExists(platformPath)) {
             return path.relative(REPO_ROOT, platformPath);
         }
 
-        // 尝试查找 chat-lib 的直接 dist 目录
+        // Try direct dist directory of chat-lib
         const distPath = path.join(chatlibRoot, 'dist');
         if (await fileExists(distPath)) {
             return path.relative(REPO_ROOT, distPath);
@@ -89,7 +89,7 @@ async function copyBuildAssets() {
 
     const filesToCopy = [];
 
-    // 处理 tokenizer 文件
+    // Handle tokenizer files
     if (platform) {
         const vendoredTiktokenFiles = [
             `${platform}/tokenizer/node/cl100k_base.tiktoken`,
@@ -99,7 +99,7 @@ async function copyBuildAssets() {
         filesToCopy.push(...vendoredTiktokenFiles);
     }
 
-    // 处理 tree-sitter 文件
+    // Handle tree-sitter files
     if (wasm) {
         const treeSitterFiles = [
             ...treeSitterGrammars.map(grammar => `${wasm}/${grammar}.wasm`),
@@ -117,7 +117,7 @@ async function copyBuildAssets() {
     await copyStaticAssets(filesToCopy, 'dist');
 }
 
-// 自定义插件处理 ?raw 导入（内嵌资源，不进行 minify）
+// Custom plugin to handle ?raw imports (embedded resources, no minify)
 const rawPlugin = {
     name: 'raw-import',
     setup(build) {
@@ -142,7 +142,7 @@ const rawPlugin = {
 };
 
 // ========================================================================
-// 公共构建选项
+// Common Build Options
 // ========================================================================
 const commonOptions = {
     bundle: true,
@@ -151,49 +151,49 @@ const commonOptions = {
     platform: 'node',
     sourcemap: isDev,
     minify: !isDev,
-    // 使用 mainFields 优先选择 ESM 模块格式
-    // 这解决了 jsonc-parser UMD 模块的相对路径问题
+    // Use mainFields to prioritize ESM module format
+    // This solves relative path issues with jsonc-parser UMD module
     mainFields: ['module', 'main'],
-    // 确保正确解析模块
+    // Ensure correct module resolution
     resolveExtensions: ['.ts', '.js', '.mjs', '.json'],
-    // 添加自定义插件
+    // Add custom plugins
     plugins: [rawPlugin],
-    // 日志级别
+    // Log level
     logLevel: 'info'
 };
 
 // ========================================================================
-// 主扩展构建选项
-// - 不包含 @vscode/chat-lib 相关的重型依赖
-// - 使用轻量级的 InlineCompletionShim 进行延迟加载
+// Main Extension Build Options
+// - Does not include heavy dependencies related to @vscode/chat-lib
+// - Uses lightweight InlineCompletionShim for lazy loading
 // ========================================================================
 /** @type {import('esbuild').BuildOptions} */
 const extensionBuildOptions = {
     ...commonOptions,
     entryPoints: ['./src/extension.ts'],
     outfile: 'dist/extension.js',
-    // 排除 copilot.bundle 模块和 @vscode/chat-lib，避免重复打包
+    // Exclude copilot.bundle module and @vscode/chat-lib to avoid duplicate bundling
     external: [...commonOptions.external, './copilot.bundle', '@vscode/chat-lib']
 };
 
 // ========================================================================
-// Copilot 模块构建选项
-// - 包含 @vscode/chat-lib 和相关重型依赖
-// - 在首次触发补全时延迟加载
+// Copilot Module Build Options
+// - Includes @vscode/chat-lib and related heavy dependencies
+// - Lazy loaded on first completion trigger
 // ========================================================================
 /** @type {import('esbuild').BuildOptions} */
 const copilotBuildOptions = {
     ...commonOptions,
     entryPoints: ['./src/copilot/copilot.bundle.ts'],
     outfile: 'dist/copilot.bundle.js',
-    // 只排除 vscode 本身，保留 @vscode/chat-lib 及其依赖，确保被打包到 bundle 中
+    // Only exclude vscode itself, keep @vscode/chat-lib and its dependencies to ensure they are bundled
     external: ['vscode']
 };
 
 async function build() {
     try {
         if (isWatch) {
-            // Watch 模式：同时监听两个入口点
+            // Watch mode: listen to both entry points simultaneously
             console.log('Starting watch mode for extension and copilot bundles...');
 
             const [extensionCtx, copilotCtx] = await Promise.all([
@@ -204,7 +204,7 @@ async function build() {
             await Promise.all([extensionCtx.watch(), copilotCtx.watch()]);
             console.log('Watching for changes in both extension.js and copilot.bundle.js...');
         } else {
-            // 构建前清理 dist 目录
+            // Clean dist directory before build
             console.log('Cleaning dist directory...');
             if (fs.existsSync('dist')) {
                 await fs.promises.rm('dist', { recursive: true, force: true });
@@ -213,7 +213,7 @@ async function build() {
                 console.log('No dist directory to clean.');
             }
 
-            // 并行构建两个入口点
+            // Build both entry points in parallel
             console.log('Building extension.js and copilot.bundle.js...');
             const startTime = Date.now();
 
@@ -225,7 +225,7 @@ async function build() {
             const buildTime = Date.now() - startTime;
             console.log(`Build completed successfully in ${buildTime}ms.`);
 
-            // 构建完成后复制资源文件
+            // Copy resource files after build
             await copyBuildAssets();
             console.log('Asset copying completed.');
         }

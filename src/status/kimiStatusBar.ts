@@ -66,7 +66,7 @@ export class KimiStatusBar extends ProviderStatusBarItem<KimiStatusData> {
     constructor() {
         const config: StatusBarItemConfig = {
             id: 'chp.statusBar.kimi',
-            name: 'Copilot Helper Pro: Kimi For Coding',
+            name: 'Copilot ++: Kimi For Coding',
             alignment: vscode.StatusBarAlignment.Right,
             priority: 90,
             refreshCommand: 'chp.kimi.refreshUsage',
@@ -321,27 +321,27 @@ export class KimiStatusBar extends ProviderStatusBarItem<KimiStatusData> {
                 }
             };
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : '未知错误';
-            Logger.error(`余量查询异常: ${errorMessage}`);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            Logger.error(`Remaining query exception: ${errorMessage}`);
             return {
                 success: false,
-                error: `查询异常: ${errorMessage}`
+                error: `Query exception: ${errorMessage}`
             };
         }
     }
 
     /**
-     * 检查是否需要高亮警告（已使用百分比高于阈值或任意窗口已使用高于阈值）
+     * Check if highlight warning is needed (used percentage above threshold or any window used above threshold)
      */
     protected shouldHighlightWarning(data: KimiStatusData): boolean {
         const { summary, windows } = data;
 
-        // 检查总体百分比是否高于阈值
+        // Check if overall percentage is above threshold
         if (summary.usage_percentage >= this.HIGH_USAGE_THRESHOLD) {
             return true;
         }
 
-        // 检查是否存在任意窗口已使用高于阈值
+        // Check if any window used is above threshold
         if (windows.length > 0) {
             for (const window of windows) {
                 const windowPercentage = window.detail.limit > 0 ? (window.detail.used / window.detail.limit) * 100 : 0;

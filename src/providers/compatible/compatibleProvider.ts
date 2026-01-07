@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  独立兼容提供商
- *  继承 GenericModelProvider，重写必要方法以支持完全用户配置
+ *  Independent Compatible Provider
+ *  Inherits GenericModelProvider, overriding necessary methods to support full user configuration
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -21,8 +21,8 @@ import { configProviders } from '../config';
 import { ToolCallBuffer } from './compatibleTypes';
 
 /**
- * 独立兼容模型提供商类
- * 继承 GenericModelProvider，重写模型配置获取方法
+ * Independent Compatible Model Provider Class
+ * Inherits GenericModelProvider, overriding model configuration retrieval methods
  */
 export class CompatibleProvider extends GenericModelProvider {
     private static readonly PROVIDER_KEY = 'compatible';
@@ -30,16 +30,16 @@ export class CompatibleProvider extends GenericModelProvider {
     private retryManager: RetryManager;
 
     constructor(context: vscode.ExtensionContext) {
-        // 创建一个虚拟的 ProviderConfig，实际模型配置从 CompatibleModelManager 获取
+        // Create a virtual ProviderConfig, actual model configurations are retrieved from CompatibleModelManager
         const virtualConfig: ProviderConfig = {
             displayName: 'Compatible',
-            baseUrl: 'https://api.openai.com/v1', // 默认值，实际使用时会覆盖
+            baseUrl: 'https://api.openai.com/v1', // Default value, will be overridden during actual use
             apiKeyTemplate: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-            models: [] // 空模型列表，实际从 CompatibleModelManager 获取
+            models: [] // Empty model list, actual retrieved from CompatibleModelManager
         };
         super(context, CompatibleProvider.PROVIDER_KEY, virtualConfig);
 
-        // 为 Compatible 配置特定的重试参数
+        // Configure specific retry parameters for Compatible
         this.retryManager = new RetryManager({
             maxAttempts: 3,
             initialDelayMs: 1000,
@@ -48,17 +48,17 @@ export class CompatibleProvider extends GenericModelProvider {
             jitterEnabled: true
         });
 
-        this.getProviderConfig(); // 初始化配置缓存
-        // 监听 CompatibleModelManager 的变更事件
+        this.getProviderConfig(); // Initialize configuration cache
+        // Listen for CompatibleModelManager change events
         this.modelsChangeListener = CompatibleModelManager.onDidChangeModels(() => {
-            Logger.debug('[compatible] 接收到模型变化事件，刷新配置和缓存');
-            this.getProviderConfig(); // 刷新配置缓存
-            // 清除模型缓存
+            Logger.debug('[compatible] Received model change event, refreshing configuration and cache');
+            this.getProviderConfig(); // Refresh configuration cache
+            // Clear model cache
             this.modelInfoCache
                 ?.invalidateCache(CompatibleProvider.PROVIDER_KEY)
-                .catch(err => Logger.warn('[compatible] 清除缓存失败:', err));
+                .catch(err => Logger.warn('[compatible] Failed to clear cache:', err));
             this._onDidChangeLanguageModelChatInformation.fire();
-            Logger.debug('[compatible] 已触发语言模型信息变化事件');
+            Logger.debug('[compatible] Triggered language model information change event');
         });
     }
 
@@ -68,13 +68,13 @@ export class CompatibleProvider extends GenericModelProvider {
     }
 
     /**
-     * 重写：获取动态的提供商配置
-     * 从 CompatibleModelManager 获取用户配置的模型
+     * Override: Get dynamic provider configuration
+     * Retrieve user-configured models from CompatibleModelManager
      */
     getProviderConfig(): ProviderConfig {
         try {
             const models = CompatibleModelManager.getModels();
-            // 将 CompatibleModelManager 的模型转换为 ModelConfig 格式
+            // Convert CompatibleModelManager models to ModelConfig format
             const modelConfigs: ModelConfig[] = models.map(model => {
                 let customHeader = model.customHeader;
                 if (model.provider) {
@@ -115,17 +115,17 @@ export class CompatibleProvider extends GenericModelProvider {
                 };
             });
 
-            Logger.debug(`Compatible Provider 加载了 ${modelConfigs.length} 个用户配置的模型`);
+            Logger.debug(`Compatible Provider loaded ${modelConfigs.length} user-configured models`);
 
             this.cachedProviderConfig = {
                 displayName: 'Compatible',
-                baseUrl: 'https://api.openai.com/v1', // 默认值，模型级别的配置会覆盖
+                baseUrl: 'https://api.openai.com/v1', // Default value, model-level configuration will override
                 apiKeyTemplate: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
                 models: modelConfigs
             };
         } catch (error) {
-            Logger.error('获取 Compatible Provider 配置失败:', error);
-            // 返回基础配置作为后备
+            Logger.error('Failed to get Compatible Provider configuration:', error);
+            // Return basic configuration as backup
             this.cachedProviderConfig = {
                 displayName: 'Compatible',
                 baseUrl: 'https://api.openai.com/v1',
@@ -137,25 +137,25 @@ export class CompatibleProvider extends GenericModelProvider {
     }
 
     /**
-     * 重写：提供语言模型聊天信息
-     * 直接获取最新的动态配置，不依赖构造时的配置
-     * 检查所有模型涉及的提供商的 API Key
-     * 集成模型缓存机制以提高性能
+     * Override: Provide language model chat information
+     * Get the latest dynamic configuration directly, not relying on configuration at construction time
+     * Check API Keys for providers involved in all models
+     * Integrate model caching mechanism to improve performance
      */
     async provideLanguageModelChatInformation(
         options: { silent: boolean },
         _token: vscode.CancellationToken
     ): Promise<LanguageModelChatInformation[]> {
         try {
-            // 获取 API 密钥的哈希值用于缓存验证
+            // Get API key hash for cache validation
             const apiKeyHash = await this.getApiKeyHash();
 
-            // 快速路径：检查缓存
+            // Fast path: check cache
             let cachedModels = await this.modelInfoCache?.getCachedModels(CompatibleProvider.PROVIDER_KEY, apiKeyHash);
             if (cachedModels) {
-                Logger.trace(`✓ Compatible Provider 缓存命中: ${cachedModels.length} 个模型`);
+                Logger.trace(`✓ Compatible Provider cache hit: ${cachedModels.length} models`);
 
-                // 读取用户上次选择的模型并标记为默认（仅当启用记忆功能时）
+                // Read user's last selected model and mark as default (only if memory is enabled)
                 const rememberLastModel = ConfigManager.getRememberLastModel();
                 if (rememberLastModel) {
                     const lastSelectedId = this.modelInfoCache?.getLastSelectedModel(CompatibleProvider.PROVIDER_KEY);
@@ -167,48 +167,48 @@ export class CompatibleProvider extends GenericModelProvider {
                     }
                 }
 
-                // 后台异步更新缓存
+                // Background asynchronous cache update
                 this.updateModelCacheAsync(apiKeyHash);
                 return cachedModels;
             }
 
-            // 获取最新的动态配置
+            // Get latest dynamic configuration
             const currentConfig = this.providerConfig;
-            // 如果没有模型，直接返回空列表
+            // If no models, return empty list directly
             if (currentConfig.models.length === 0) {
-                // 异步触发新增模型流程，但不阻塞配置获取
+                // Trigger new model addition process asynchronously, but do not block configuration retrieval
                 if (!options.silent) {
                     setImmediate(async () => {
                         try {
                             await CompatibleModelManager.configureModelOrUpdateAPIKey();
                         } catch {
-                            Logger.debug('自动触发新增模型失败或被用户取消');
+                            Logger.debug('Automatically triggering new model addition failed or was cancelled by user');
                         }
                     });
                 }
                 return [];
             }
 
-            // 获取所有模型涉及的提供商（去重）
+            // Get providers involved in all models (deduplicate)
             const providers = new Set<string>();
             for (const model of currentConfig.models) {
                 if (model.provider) {
                     providers.add(model.provider);
                 }
             }
-            // 检查每个提供商的 API Key
+            // Check API Key for each provider
             for (const provider of providers) {
                 if (!options.silent) {
-                    // 非静默模式下，使用 ensureApiKey 逐一确认和设置
+                    // In non-silent mode, use ensureApiKey to confirm and set one by one
                     const hasValidKey = await ApiKeyManager.ensureApiKey(provider, provider, false);
                     if (!hasValidKey) {
-                        Logger.warn(`Compatible Provider 用户未设置提供商 "${provider}" 的 API 密钥`);
+                        Logger.warn(`Compatible Provider: user has not set API key for provider "${provider}"`);
                         return [];
                     }
                 }
             }
 
-            // 将最新配置中的模型转换为 VS Code 所需的格式
+            // Convert models from the latest configuration to VS Code format
             let modelInfos = currentConfig.models.map(model => {
                 const info = this.modelConfigToInfo(model);
                 const sdkModeDisplay = model.sdkMode === 'anthropic' ? 'Anthropic' : 'OpenAI';
@@ -227,7 +227,7 @@ export class CompatibleProvider extends GenericModelProvider {
                 return { ...info, detail: `${sdkModeDisplay} Compatible` };
             });
 
-            // 读取用户上次选择的模型并标记为默认（仅当启用记忆功能时）
+            // Read user's last selected model and mark as default (only if memory is enabled)
             const rememberLastModel = ConfigManager.getRememberLastModel();
             if (rememberLastModel) {
                 const lastSelectedId = this.modelInfoCache?.getLastSelectedModel(CompatibleProvider.PROVIDER_KEY);
@@ -239,19 +239,19 @@ export class CompatibleProvider extends GenericModelProvider {
                 }
             }
 
-            Logger.debug(`Compatible Provider 提供了 ${modelInfos.length} 个模型信息`); // 后台异步更新缓存
+            Logger.debug(`Compatible Provider provided ${modelInfos.length} model information`); // Background asynchronous cache update
             this.updateModelCacheAsync(apiKeyHash);
 
             return modelInfos;
         } catch (error) {
-            Logger.error('获取 Compatible Provider 模型信息失败:', error);
+            Logger.error('Failed to get Compatible Provider model information:', error);
             return [];
         }
     }
 
     /**
-     * 重写：异步更新模型缓存
-     * 需要正确设置 detail 字段以显示 SDK 模式
+     * Override: Update model cache asynchronously
+     * Need to correctly set detail field to display SDK mode
      */
     protected override updateModelCacheAsync(apiKeyHash: string): void {
         (async () => {
@@ -278,14 +278,14 @@ export class CompatibleProvider extends GenericModelProvider {
 
                 await this.modelInfoCache?.cacheModels(CompatibleProvider.PROVIDER_KEY, models, apiKeyHash);
             } catch (err) {
-                Logger.trace('[compatible] 后台缓存更新失败:', err instanceof Error ? err.message : String(err));
+                Logger.trace('[compatible] Background cache update failed:', err instanceof Error ? err.message : String(err));
             }
         })();
     }
 
     /**
-     * 重写：提供语言模型聊天响应
-     * 使用最新的动态配置处理请求，并添加失败重试机制
+     * Override: Provide language model chat response
+     * Process request using latest dynamic configuration and add failure retry mechanism
      */
     async provideLanguageModelChatResponse(
         model: LanguageModelChatInformation,
@@ -294,37 +294,37 @@ export class CompatibleProvider extends GenericModelProvider {
         progress: Progress<vscode.LanguageModelResponsePart>,
         token: vscode.CancellationToken
     ): Promise<void> {
-        // 保存用户选择的模型及其提供商（仅当启用记忆功能时）
+        // Save user's selected model and its provider (only if memory is enabled)
         const rememberLastModel = ConfigManager.getRememberLastModel();
         if (rememberLastModel) {
             this.modelInfoCache
                 ?.saveLastSelectedModel(CompatibleProvider.PROVIDER_KEY, model.id)
-                .catch(err => Logger.warn('[compatible] 保存模型选择失败:', err));
+                .catch(err => Logger.warn('[compatible] Failed to save model selection:', err));
         }
 
         try {
-            // 获取最新的动态配置
+            // Get latest dynamic configuration
             const currentConfig = this.providerConfig;
 
-            // 查找对应的模型配置
+            // Find corresponding model configuration
             const modelConfig = currentConfig.models.find(m => m.id === model.id);
             if (!modelConfig) {
-                const errorMessage = `Compatible Provider 未找到模型: ${model.id}`;
+                const errorMessage = `Compatible Provider could not find model: ${model.id}`;
                 Logger.error(errorMessage);
                 throw new Error(errorMessage);
             }
 
-            // 检查 API 密钥（使用 throwError: false 允许静默失败）
+            // Check API key (use throwError: false to allow silent failure)
             const hasValidKey = await ApiKeyManager.ensureApiKey(
                 modelConfig.provider!,
                 currentConfig.displayName,
                 false
             );
             if (!hasValidKey) {
-                throw new Error(`模型 ${modelConfig.name} 的 API 密钥尚未设置`);
+                throw new Error(`API key for model ${modelConfig.name} has not been set yet`);
             }
 
-            // 根据模型的 sdkMode 选择使用的 handler
+            // Select handler based on model's sdkMode
             const sdkMode = modelConfig.sdkMode || 'openai';
             let sdkName = 'OpenAI SDK';
             if (sdkMode === 'anthropic') {
@@ -333,13 +333,13 @@ export class CompatibleProvider extends GenericModelProvider {
                 sdkName = 'OpenAI SSE';
             }
 
-            Logger.info(`Compatible Provider 开始处理请求 (${sdkName}): ${modelConfig.name}`);
+            Logger.info(`Compatible Provider starts processing request (${sdkName}): ${modelConfig.name}`);
 
-            // 计算输入 token 数量并更新状态栏
+            // Calculate input token count and update status bar
             await this.updateTokenUsageStatusBar(model, messages, modelConfig, options);
 
             try {
-                // 使用重试机制执行请求
+                // Execute request using retry mechanism
                 await this.retryManager.executeWithRetry(
                     async () => {
                         if (sdkMode === 'anthropic') {
@@ -352,7 +352,7 @@ export class CompatibleProvider extends GenericModelProvider {
                                 token
                             );
                         } else if (sdkMode === 'openai-sse') {
-                            // OpenAI 模式：使用自定义 SSE 流处理
+                            // OpenAI mode: use custom SSE stream processing
                             await this.handleRequestWithCustomSSE(
                                 model,
                                 modelConfig,
@@ -376,23 +376,23 @@ export class CompatibleProvider extends GenericModelProvider {
                     this.providerConfig.displayName
                 );
             } catch (error) {
-                const errorMessage = `错误: ${error instanceof Error ? error.message : '未知错误'}`;
+                const errorMessage = `Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
                 Logger.error(errorMessage);
                 throw error;
             } finally {
-                Logger.info(`✅ Compatible Provider: ${model.name} 请求已完成`);
-                // 延时更新状态栏以反映最新余额
+                Logger.info(`✅ Compatible Provider: ${model.name} Request completed`);
+                // Delay updating status bar to reflect latest balance
                 StatusBarManager.compatible?.delayedUpdate(modelConfig.provider!, 2000);
             }
         } catch (error) {
-            Logger.error('Compatible Provider 处理请求失败:', error);
+            Logger.error('Compatible Provider failed to process request:', error);
             throw error;
         }
     }
 
     /**
-     * 解析内容中的 <thinking>...</thinking> 标签
-     * 返回解析结果，包含思考内容和普通内容的分离
+     * Parse <thinking>...</thinking> tags in content
+     * Return parsing result, including separation of thinking content and normal content
      */
     private parseThinkingTags(
         content: string,
@@ -412,10 +412,10 @@ export class CompatibleProvider extends GenericModelProvider {
 
         while (currentBuffer.length > 0) {
             if (insideTag) {
-                // 在 thinking 标签内，查找结束标签
+                // Inside thinking tag, search for end tag
                 const endIndex = currentBuffer.indexOf('</thinking>');
                 if (endIndex !== -1) {
-                    // 找到结束标签
+                    // End tag found
                     const thinkingContent = currentBuffer.substring(0, endIndex);
                     if (thinkingContent.length > 0) {
                         thinkingParts.push(thinkingContent);
@@ -423,10 +423,10 @@ export class CompatibleProvider extends GenericModelProvider {
                     currentBuffer = currentBuffer.substring(endIndex + '</thinking>'.length);
                     insideTag = false;
                 } else {
-                    // 没有找到结束标签，检查是否有部分结束标签
+                    // End tag not found, check if there is a partial end tag
                     const partialEndMatch = this.findPartialTag(currentBuffer, '</thinking>');
                     if (partialEndMatch.found) {
-                        // 有部分结束标签，保留到下次处理
+                        // Partial end tag found, keeping for next processing
                         const thinkingContent = currentBuffer.substring(0, partialEndMatch.index);
                         if (thinkingContent.length > 0) {
                             thinkingParts.push(thinkingContent);
@@ -434,16 +434,16 @@ export class CompatibleProvider extends GenericModelProvider {
                         remainingBuffer = currentBuffer.substring(partialEndMatch.index);
                         currentBuffer = '';
                     } else {
-                        // 没有部分结束标签，全部是思考内容
+                        // No partial end tag, all is thinking content
                         thinkingParts.push(currentBuffer);
                         currentBuffer = '';
                     }
                 }
             } else {
-                // 不在 thinking 标签内，查找开始标签
+                // Not inside thinking tag, search for start tag
                 const startIndex = currentBuffer.indexOf('<thinking>');
                 if (startIndex !== -1) {
-                    // 找到开始标签
+                    // Start tag found
                     const beforeThinking = currentBuffer.substring(0, startIndex);
                     if (beforeThinking.length > 0) {
                         contentParts.push(beforeThinking);
@@ -451,10 +451,10 @@ export class CompatibleProvider extends GenericModelProvider {
                     currentBuffer = currentBuffer.substring(startIndex + '<thinking>'.length);
                     insideTag = true;
                 } else {
-                    // 没有找到开始标签，检查是否有部分开始标签
+                    // Start tag not found, check if there is a partial start tag
                     const partialStartMatch = this.findPartialTag(currentBuffer, '<thinking>');
                     if (partialStartMatch.found) {
-                        // 有部分开始标签，保留到下次处理
+                        // Partial start tag found, keeping for next processing
                         const normalContent = currentBuffer.substring(0, partialStartMatch.index);
                         if (normalContent.length > 0) {
                             contentParts.push(normalContent);
@@ -462,7 +462,7 @@ export class CompatibleProvider extends GenericModelProvider {
                         remainingBuffer = currentBuffer.substring(partialStartMatch.index);
                         currentBuffer = '';
                     } else {
-                        // 没有部分开始标签，全部是普通内容
+                        // No partial start tag, all is normal content
                         contentParts.push(currentBuffer);
                         currentBuffer = '';
                     }
@@ -479,10 +479,10 @@ export class CompatibleProvider extends GenericModelProvider {
     }
 
     /**
-     * 查找部分标签（用于处理跨 chunk 的标签）
+     * Find partial tags (used for tags across chunks)
      */
     private findPartialTag(content: string, tag: string): { found: boolean; index: number } {
-        // 从内容末尾开始，检查是否有标签的前缀
+        // From end of content, check if there is a tag prefix
         for (let i = 1; i < tag.length; i++) {
             const suffix = content.substring(content.length - i);
             const prefix = tag.substring(0, i);
@@ -494,7 +494,7 @@ export class CompatibleProvider extends GenericModelProvider {
     }
 
     /**
-     * 使用自定义 SSE 流处理的请求方法
+     * Request method using custom SSE stream processing
      */
     private async handleRequestWithCustomSSE(
         model: vscode.LanguageModelChatInformation,
@@ -507,15 +507,15 @@ export class CompatibleProvider extends GenericModelProvider {
         const provider = modelConfig.provider || this.providerKey;
         const apiKey = await ApiKeyManager.getApiKey(provider);
         if (!apiKey) {
-            throw new Error(`缺少 ${provider} API 密钥`);
+            throw new Error(`Missing ${provider} API key`);
         }
 
         const baseURL = modelConfig.baseUrl || 'https://api.openai.com/v1';
         const url = `${baseURL}/chat/completions`;
 
-        Logger.info(`[${model.name}] 处理 ${messages.length} 条消息，使用自定义 SSE 处理`);
+        Logger.info(`[${model.name}] Process ${messages.length} messages using custom SSE processing`);
 
-        // 构建请求参数
+        // Build request parameters
         const requestBody: OpenAI.Chat.ChatCompletionCreateParamsStreaming = {
             model: modelConfig.model || model.id,
             messages: this.openaiHandler.convertMessagesToOpenAI(
@@ -529,26 +529,26 @@ export class CompatibleProvider extends GenericModelProvider {
             top_p: ConfigManager.getTopP()
         };
 
-        // 添加工具支持（如果有）
+        // Add tool support (if any)
         if (options.tools && options.tools.length > 0 && model.capabilities?.toolCalling) {
             requestBody.tools = this.openaiHandler.convertToolsToOpenAI([...options.tools]);
             requestBody.tool_choice = 'auto';
         }
 
-        // 合并extraBody参数（如果有）
+        // Merge extraBody parameters (if any)
         if (modelConfig.extraBody) {
             const filteredExtraBody = modelConfig.extraBody;
             Object.assign(requestBody, filteredExtraBody);
-            Logger.trace(`${model.name} 合并了 extraBody 参数: ${JSON.stringify(filteredExtraBody)}`);
+            Logger.trace(`${model.name} merged extraBody parameters: ${JSON.stringify(filteredExtraBody)}`);
         }
 
-        Logger.debug(`[${model.name}] 发送 API 请求`);
+        Logger.debug(`[${model.name}] Send API request`);
 
         const abortController = new AbortController();
         const cancellationListener = token.onCancellationRequested(() => abortController.abort());
 
         try {
-            // 处理 customHeader 中的 API 密钥替换
+            // Handle API key replacement in customHeader
             const processedCustomHeader = ApiKeyManager.processCustomHeader(modelConfig?.customHeader, apiKey);
 
             const response = await fetch(url, {
@@ -564,33 +564,33 @@ export class CompatibleProvider extends GenericModelProvider {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`API请求失败: ${response.status} ${response.statusText} - ${errorText}`);
+                throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`);
             }
 
             if (!response.body) {
-                throw new Error('响应体为空');
+                throw new Error('Response body is empty');
             }
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let buffer = '';
             let hasReceivedContent = false;
-            let hasThinkingContent = false; // 标记是否输出了 thinking 内容
+            let hasThinkingContent = false; // Mark whether thinking content was output
             let chunkCount = 0;
             const toolCallsBuffer = new Map<number, ToolCallBuffer>();
-            let currentThinkingId: string | null = null; // 思维链追踪
-            let thinkingContentBuffer: string = ''; // 思考内容缓存
-            const MAX_THINKING_BUFFER_LENGTH = 10; // 思考内容缓存的最大长度
+            let currentThinkingId: string | null = null; // Chain of thought tracking
+            let thinkingContentBuffer: string = ''; // Thinking content cache
+            const MAX_THINKING_BUFFER_LENGTH = 10; // Maximum length of thinking content cache
             
-            // 用于解析 <thinking>...</thinking> 标签的状态
-            let isInsideThinkingTag = false; // 是否在 <thinking> 标签内
-            let thinkingTagBuffer: string = ''; // 用于累积可能的标签片段
-            let pendingContentBuffer: string = ''; // 用于累积待输出的普通内容
+            // State for parsing <thinking>...</thinking> tags
+            let isInsideThinkingTag = false; // Whether inside <thinking> tag
+            let thinkingTagBuffer: string = ''; // Used to accumulate possible tag fragments
+            let pendingContentBuffer: string = ''; // Used to accumulate normal content to be output
 
             try {
                 while (true) {
                     if (token.isCancellationRequested) {
-                        Logger.warn(`[${model.name}] 用户取消了请求`);
+                        Logger.warn(`[${model.name}] User cancelled request`);
                         break;
                     }
 
@@ -608,53 +608,53 @@ export class CompatibleProvider extends GenericModelProvider {
                             continue;
                         }
 
-                        // 处理 SSE 数据行
+                        // Process SSE data line
                         if (line.startsWith('data:')) {
                             const data = line.substring(5).trim();
 
                             if (data === '[DONE]') {
-                                Logger.debug(`[${model.name}] 收到流结束标记`);
+                                Logger.debug(`[${model.name}] Received end of stream marker`);
                                 continue;
                             }
 
                             try {
                                 const chunk = JSON.parse(data);
                                 chunkCount++;
-                                // 输出完整的 chunk 到 trace 日志
+                                // Output full chunk to trace log
                                 // Logger.trace(`[${model.name}] Chunk #${chunkCount}: ${JSON.stringify(chunk)}`);
 
                                 let hasContent = false;
 
-                                // 检查是否是包含usage信息的最终chunk
+                                // Check if it is the final chunk containing usage information
                                 if (chunk.usage && (!chunk.choices || chunk.choices.length === 0)) {
-                                    Logger.debug(`[${model.name}] 收到使用统计信息: ${JSON.stringify(chunk.usage)}`);
-                                    // 继续处理下一个chunk，不设置 hasReceivedContent
+                                    Logger.debug(`[${model.name}] Received usage statistics: ${JSON.stringify(chunk.usage)}`);
+                                    // Continue to next chunk, do not set hasReceivedContent
                                 } else {
-                                    // 处理正常的choices
+                                    // Process normal choices
                                     for (const choice of chunk.choices || []) {
                                         const delta = choice.delta as ExtendedDelta | undefined;
 
-                                        // 处理思考内容（reasoning_content）- 使用缓冲累积策略
+                                        // Process thinking content (reasoning_content) - use buffer accumulation strategy
                                         if (
                                             delta &&
                                             delta.reasoning_content &&
                                             typeof delta.reasoning_content === 'string'
                                         ) {
                                             Logger.trace(
-                                                `[${model.name}] 接收到思考内容: ${delta.reasoning_content.length} 字符, 内容="${delta.reasoning_content}"`
+                                                `[${model.name}] Received thinking content: ${delta.reasoning_content.length} characters, content="${delta.reasoning_content}"`
                                             );
-                                            // 如果当前没有 active id，则生成一个用于本次思维链
+                                            // If currently no active id, generate one for this chain of thought
                                             if (!currentThinkingId) {
                                                 currentThinkingId = `thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-                                                Logger.trace(`[${model.name}] 创建新思维链 ID: ${currentThinkingId}`);
+                                                Logger.trace(`[${model.name}] Create new chain of thought ID: ${currentThinkingId}`);
                                             }
 
-                                            // 将思考内容添加到缓冲
+                                            // Add thinking content to buffer
                                             thinkingContentBuffer += delta.reasoning_content;
 
-                                            // 检查是否达到报告条件
+                                            // Check if report condition is met
                                             if (thinkingContentBuffer.length >= MAX_THINKING_BUFFER_LENGTH) {
-                                                // 达到最大长度，立即报告
+                                                // Reached maximum length, report immediately
                                                 try {
                                                     progress.report(
                                                         new vscode.LanguageModelThinkingPart(
@@ -662,48 +662,48 @@ export class CompatibleProvider extends GenericModelProvider {
                                                             currentThinkingId
                                                         )
                                                     );
-                                                    thinkingContentBuffer = ''; // 清空缓冲
-                                                    hasThinkingContent = true; // 标记已输出 thinking 内容
+                                                    thinkingContentBuffer = ''; // Clear buffer
+                                                    hasThinkingContent = true; // Mark thinking content was output
                                                 } catch (e) {
-                                                    Logger.trace(`[${model.name}] 报告思考内容失败: ${String(e)}`);
+                                                    Logger.trace(`[${model.name}] Failed to report thinking content: ${String(e)}`);
                                                 }
                                             } else {
-                                                // 即使没有立即报告，也标记有 thinking 内容
+                                                // Mark thinking content present even if not reported immediately
                                                 hasThinkingContent = true;
                                             }
                                         }
 
-                                        // 处理文本内容（即使 delta 存在但可能为空对象）
-                                        // 支持解析 <thinking>...</thinking> 标签
+                                        // Process text content (even if delta exists but may be an empty object)
+                                        // Support parsing <thinking>...</thinking> tags
                                         if (delta && delta.content && typeof delta.content === 'string') {
                                             Logger.trace(
-                                                `[${model.name}] 输出文本内容: ${delta.content.length} 字符, preview=${delta.content}`
+                                                `[${model.name}] Output text content: ${delta.content.length} characters, preview=${delta.content}`
                                             );
                                             
-                                            // 解析 <thinking>...</thinking> 标签
+                                            // Parse <thinking>...</thinking> tags
                                             const parseResult = this.parseThinkingTags(
                                                 delta.content,
                                                 isInsideThinkingTag,
                                                 thinkingTagBuffer
                                             );
                                             
-                                            // 更新状态
+                                            // Update state
                                             isInsideThinkingTag = parseResult.isInsideThinkingTag;
                                             thinkingTagBuffer = parseResult.remainingTagBuffer;
                                             
-                                            // 处理思考内容
+                                            // Process thinking content
                                             for (const thinkingPart of parseResult.thinkingParts) {
                                                 if (thinkingPart.length > 0) {
-                                                    // 如果当前没有 active id，则生成一个用于本次思维链
+                                                    // If currently no active id, generate one for this chain of thought
                                                     if (!currentThinkingId) {
                                                         currentThinkingId = `thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-                                                        Logger.trace(`[${model.name}] 创建新思维链 ID (from tag): ${currentThinkingId}`);
+                                                        Logger.trace(`[${model.name}] Create new chain of thought ID (from tag): ${currentThinkingId}`);
                                                     }
                                                     
-                                                    // 将思考内容添加到缓冲
+                                                    // Add thinking content to buffer
                                                     thinkingContentBuffer += thinkingPart;
                                                     
-                                                    // 检查是否达到报告条件
+                                                    // Check if report condition is met
                                                     if (thinkingContentBuffer.length >= MAX_THINKING_BUFFER_LENGTH) {
                                                         try {
                                                             progress.report(
@@ -712,10 +712,10 @@ export class CompatibleProvider extends GenericModelProvider {
                                                                     currentThinkingId
                                                                 )
                                                             );
-                                                            thinkingContentBuffer = ''; // 清空缓冲
+                                                            thinkingContentBuffer = ''; // Clear buffer
                                                             hasThinkingContent = true;
                                                         } catch (e) {
-                                                            Logger.trace(`[${model.name}] 报告思考内容失败 (from tag): ${String(e)}`);
+                                                            Logger.trace(`[${model.name}] Failed to report thinking content (from tag): ${String(e)}`);
                                                         }
                                                     } else {
                                                         hasThinkingContent = true;
@@ -723,10 +723,10 @@ export class CompatibleProvider extends GenericModelProvider {
                                                 }
                                             }
                                             
-                                            // 处理普通内容
+                                            // Process normal content
                                             for (const contentPart of parseResult.contentParts) {
                                                 if (contentPart.length > 0) {
-                                                    // 遇到可见 content 前，如果有缓存的思考内容，先报告出来
+                                                    // Before meeting visible content, if there is cached thinking content, report it first
                                                     if (thinkingContentBuffer.length > 0 && currentThinkingId) {
                                                         try {
                                                             progress.report(
@@ -735,25 +735,25 @@ export class CompatibleProvider extends GenericModelProvider {
                                                                     currentThinkingId
                                                                 )
                                                             );
-                                                            thinkingContentBuffer = ''; // 清空缓冲
+                                                            thinkingContentBuffer = ''; // Clear buffer
                                                             hasThinkingContent = true;
                                                         } catch (e) {
-                                                            Logger.trace(`[${model.name}] 报告剩余思考内容失败: ${String(e)}`);
+                                                            Logger.trace(`[${model.name}] Failed to report remaining thinking content: ${String(e)}`);
                                                         }
                                                     }
 
-                                                    // 然后结束当前思维链
+                                                    // Then end current chain of thought
                                                     if (currentThinkingId && !isInsideThinkingTag) {
                                                         try {
                                                             Logger.trace(
-                                                                `[${model.name}] 在输出content前结束思维链 ID: ${currentThinkingId}`
+                                                                `[${model.name}] End chain of thought before outputting content ID: ${currentThinkingId}`
                                                             );
                                                             progress.report(
                                                                 new vscode.LanguageModelThinkingPart('', currentThinkingId)
                                                             );
                                                         } catch (e) {
                                                             Logger.trace(
-                                                                `[${model.name}] 发送 thinking done(id=${currentThinkingId}) 失败: ${String(e)}`
+                                                                `[${model.name}] Failed to send thinking done(id=${currentThinkingId}) failure: ${String(e)}`
                                                             );
                                                         }
                                                         currentThinkingId = null;
@@ -765,14 +765,14 @@ export class CompatibleProvider extends GenericModelProvider {
                                             }
                                         }
 
-                                        // 处理工具调用 - 支持分块数据的累积处理
+                                        // Process tool calls - support cumulative processing of chunked data
                                         if (delta && delta.tool_calls && Array.isArray(delta.tool_calls)) {
                                             for (const toolCall of delta.tool_calls) {
                                                 const toolIndex = toolCall.index ?? 0;
 
-                                                // 检查是否有工具调用开始（tool_calls 存在但还没有 arguments）
+                                                // Check if a tool call starts (tool_calls exists but no arguments yet)
                                                 if (toolIndex !== undefined && !toolCall.function?.arguments) {
-                                                    // 在工具调用开始时，如果有缓存的思考内容，先报告出来
+                                                    // At tool call start, if there is cached thinking content, report it first
                                                     if (thinkingContentBuffer.length > 0 && currentThinkingId) {
                                                         try {
                                                             progress.report(
@@ -781,34 +781,34 @@ export class CompatibleProvider extends GenericModelProvider {
                                                                     currentThinkingId
                                                                 )
                                                             );
-                                                            // 结束当前思维链
+                                                            // End current chain of thought
                                                             progress.report(
                                                                 new vscode.LanguageModelThinkingPart(
                                                                     '',
                                                                     currentThinkingId
                                                                 )
                                                             );
-                                                            thinkingContentBuffer = ''; // 清空缓冲
-                                                            hasThinkingContent = true; // 标记已输出 thinking 内容
+                                                            thinkingContentBuffer = ''; // Clear buffer
+                                                            hasThinkingContent = true; // Mark thinking content was output
                                                         } catch (e) {
                                                             Logger.trace(
-                                                                `[${model.name}] 报告剩余思考内容失败: ${String(e)}`
+                                                                `[${model.name}] Failed to report remaining thinking content: ${String(e)}`
                                                             );
                                                         }
                                                     }
                                                     Logger.trace(
-                                                        `🔧 [${model.name}] 工具调用开始: ${toolCall.function?.name || 'unknown'} (索引: ${toolIndex})`
+                                                        `🔧 [${model.name}] Tool call start: ${toolCall.function?.name || 'unknown'} (index: ${toolIndex})`
                                                     );
                                                 }
 
-                                                // 获取或创建工具调用缓存
+                                                // Get or create tool call cache
                                                 let bufferedTool = toolCallsBuffer.get(toolIndex);
                                                 if (!bufferedTool) {
                                                     bufferedTool = { arguments: '' };
                                                     toolCallsBuffer.set(toolIndex, bufferedTool);
                                                 }
 
-                                                // 累积工具调用数据
+                                                // Accumulate tool call data
                                                 if (toolCall.id) {
                                                     bufferedTool.id = toolCall.id;
                                                 }
@@ -817,42 +817,42 @@ export class CompatibleProvider extends GenericModelProvider {
                                                 }
                                                 if (toolCall.function?.arguments) {
                                                     const newArgs = toolCall.function.arguments;
-                                                    // 检查是否是重复数据：新数据是否已经包含在当前累积的字符串中
-                                                    // 某些 API（如 DeepSeek）可能会重复发送之前的 arguments 片段
+                                                    // Check if duplicate data: whether new data is already included in current cumulative string
+                                                    // Some APIs (e.g. DeepSeek) may repeatedly send previous arguments fragments
                                                     if (bufferedTool.arguments.endsWith(newArgs)) {
-                                                        // 完全重复，跳过
+                                                        // Complete duplicate, skip
                                                         Logger.trace(
-                                                            `[${model.name}] 跳过重复的工具调用参数 [${toolIndex}]: "${newArgs}"`
+                                                            `[${model.name}] Skip duplicate tool call parameters [${toolIndex}]: "${newArgs}"`
                                                         );
                                                     } else if (
                                                         bufferedTool.arguments.length > 0 &&
                                                         newArgs.startsWith(bufferedTool.arguments)
                                                     ) {
-                                                        // 新数据包含了旧数据（完全重复+新增），只取新增部分
+                                                        // New data includes old data (full duplicate + new), only take new part
                                                         const incrementalArgs = newArgs.substring(
                                                             bufferedTool.arguments.length
                                                         );
                                                         bufferedTool.arguments += incrementalArgs;
                                                         Logger.trace(
-                                                            `[${model.name}] 检测到部分重复，提取增量部分 [${toolIndex}]: "${incrementalArgs}"`
+                                                            `[${model.name}] Partial duplication detected, extract incremental part [${toolIndex}]: "${incrementalArgs}"`
                                                         );
                                                     } else {
-                                                        // 正常累积
+                                                        // Normal accumulation
                                                         bufferedTool.arguments += newArgs;
                                                     }
                                                 }
 
                                                 Logger.trace(
-                                                    `[${model.name}] 累积工具调用数据 [${toolIndex}]: name=${bufferedTool.name}, args_length=${bufferedTool.arguments.length}`
+                                                    `[${model.name}] Accumulate tool call data [${toolIndex}]: name=${bufferedTool.name}, args_length=${bufferedTool.arguments.length}`
                                                 );
                                             }
                                         }
 
-                                        // 检查是否完成
+                                        // Check if complete
                                         if (choice.finish_reason) {
-                                            Logger.debug(`[${model.name}] 流已结束，原因: ${choice.finish_reason}`);
+                                            Logger.debug(`[${model.name}] Stream ended, reason: ${choice.finish_reason}`);
 
-                                            // 如果有缓存的思考内容，先报告出来
+                                            // If there is cached thinking content, report it first
                                             if (thinkingContentBuffer.length > 0 && currentThinkingId) {
                                                 try {
                                                     progress.report(
@@ -861,29 +861,29 @@ export class CompatibleProvider extends GenericModelProvider {
                                                             currentThinkingId
                                                         )
                                                     );
-                                                    thinkingContentBuffer = ''; // 清空缓冲
-                                                    hasThinkingContent = true; // 标记已输出 thinking 内容
+                                                    thinkingContentBuffer = ''; // Clear buffer
+                                                    hasThinkingContent = true; // Mark thinking content was output
                                                 } catch (e) {
-                                                    Logger.trace(`[${model.name}] 报告剩余思考内容失败: ${String(e)}`);
+                                                    Logger.trace(`[${model.name}] Failed to report remaining thinking content: ${String(e)}`);
                                                 }
                                             }
 
-                                            // 如果有未结束的思维链，在 finish_reason 时结束它
+                                            // If there is an unended chain of thought, end it at finish_reason
                                             if (currentThinkingId && choice.finish_reason !== 'length') {
                                                 try {
                                                     Logger.trace(
-                                                        `[${model.name}] 流结束前结束思维链 ID: ${currentThinkingId}`
+                                                        `[${model.name}] End chain of thought before stream ends ID: ${currentThinkingId}`
                                                     );
                                                     progress.report(
                                                         new vscode.LanguageModelThinkingPart('', currentThinkingId)
                                                     );
                                                 } catch (e) {
-                                                    Logger.warn(`[${model.name}] 结束思维链失败: ${String(e)}`);
+                                                    Logger.warn(`[${model.name}] Failed to end chain of thought: ${String(e)}`);
                                                 }
                                                 currentThinkingId = null;
                                             }
 
-                                            // 如果是工具调用结束，处理缓存中的工具调用
+                                            // If it is end of tool calls, process tool calls in cache
                                             if (choice.finish_reason === 'tool_calls') {
                                                 let toolProcessed = false;
                                                 for (const [toolIndex, bufferedTool] of toolCallsBuffer.entries()) {
@@ -902,32 +902,32 @@ export class CompatibleProvider extends GenericModelProvider {
                                                             );
 
                                                             Logger.info(
-                                                                `[${model.name}] 成功处理工具调用: ${bufferedTool.name}, args: ${bufferedTool.arguments}`
+                                                                `[${model.name}] Successfully processed tool call: ${bufferedTool.name}, args: ${bufferedTool.arguments}`
                                                             );
                                                             toolProcessed = true;
                                                         } catch (error) {
                                                             Logger.error(
-                                                                `[${model.name}] 无法解析工具调用参数: ${bufferedTool.name}, args: ${bufferedTool.arguments}, error: ${error}`
+                                                                `[${model.name}] Unable to parse tool call parameters: ${bufferedTool.name}, args: ${bufferedTool.arguments}, error: ${error}`
                                                             );
                                                         }
                                                     } else {
                                                         Logger.warn(
-                                                            `[${model.name}] 不完整的工具调用 [${toolIndex}]: name=${bufferedTool.name}, args_length=${bufferedTool.arguments.length}`
+                                                            `[${model.name}] Incomplete tool call [${toolIndex}]: name=${bufferedTool.name}, args_length=${bufferedTool.arguments.length}`
                                                         );
                                                     }
                                                 }
 
                                                 if (toolProcessed) {
                                                     hasContent = true;
-                                                    Logger.trace(`[${model.name}] 工具调用已处理，标记为已接收内容`);
+                                                    Logger.trace(`[${model.name}] Tool call processed, marked as content received`);
                                                 }
                                             } else if (choice.finish_reason === 'stop') {
-                                                // 对于 stop，只有在真正接收到内容时才标记（不包括仅有思考内容的情况）
+                                                // For stop, only mark when content is actually received (excluding only thinking content cases)
                                                 if (!hasContent) {
-                                                    Logger.trace(`[${model.name}] finish_reason=stop，未收到文本内容`);
+                                                    Logger.trace(`[${model.name}] finish_reason=stop, no text content received`);
                                                 }
-                                                // 注意：不再强制设置 hasContent = true
-                                                // 只有在前面真正接收到文本或工具调用时，hasContent 才会是 true
+                                                // Note: no longer forcibly set hasContent = true
+                                                // Only when text or tool call was actually received earlier will hasContent be true
                                             }
                                         }
                                     }
@@ -937,7 +937,7 @@ export class CompatibleProvider extends GenericModelProvider {
                                     hasReceivedContent = true;
                                 }
                             } catch (error) {
-                                Logger.error(`[${model.name}] 解析 JSON 失败: ${data}`, error);
+                                Logger.error(`[${model.name}] Failed to parse JSON: ${data}`, error);
                             }
                         }
                     }
@@ -947,21 +947,21 @@ export class CompatibleProvider extends GenericModelProvider {
             }
 
             Logger.trace(
-                `[${model.name}] SSE 流处理统计: ${chunkCount} 个 chunk, hasReceivedContent=${hasReceivedContent}`
+                `[${model.name}] SSE stream processing statistics: ${chunkCount} chunks, hasReceivedContent=${hasReceivedContent}`
             );
 
-            Logger.debug(`[${model.name}] 流处理完成`);
+            Logger.debug(`[${model.name}] Stream processing complete`);
 
-            // 只有在输出了 thinking 内容但没有输出 content 时才添加 <think/> 占位符
+            // Only add <think/> placeholder if thinking content was output but no content was output
             if (hasThinkingContent && !hasReceivedContent) {
                 progress.report(new vscode.LanguageModelTextPart('<think/>'));
-                Logger.warn(`[${model.name}] 消息流结束时只有思考内容没有文本内容，添加了 <think/> 占位符作为输出`);
+                Logger.warn(`[${model.name}] End of message stream has only thinking content and no text content, added <think/> placeholder as output`);
             }
 
-            Logger.debug(`[${model.name}] API请求完成`);
+            Logger.debug(`[${model.name}] API request complete`);
         } catch (error) {
             if (error instanceof Error && error.name === 'AbortError') {
-                Logger.warn(`[${model.name}] 用户取消了请求`);
+                Logger.warn(`[${model.name}] User cancelled request`);
                 throw new vscode.CancellationError();
             }
             throw error;
@@ -971,41 +971,41 @@ export class CompatibleProvider extends GenericModelProvider {
     }
 
     /**
-     * 注册命令
+     * Register commands
      */
     private static registerCommands(context: vscode.ExtensionContext): vscode.Disposable[] {
         const disposables: vscode.Disposable[] = [];
-        // 注册 manageModels 命令
+        // Register manageModels command
         disposables.push(
             vscode.commands.registerCommand('chp.compatible.manageModels', async () => {
                 try {
                     await CompatibleModelManager.configureModelOrUpdateAPIKey();
                 } catch (error) {
-                    Logger.error('管理 Compatible 模型失败:', error);
+                    Logger.error('Failed to manage Compatible models:', error);
                     vscode.window.showErrorMessage(
-                        `管理模型失败: ${error instanceof Error ? error.message : '未知错误'}`
+                        `Failed to manage models: ${error instanceof Error ? error.message : 'Unknown error'}`
                     );
                 }
             })
         );
         disposables.forEach(disposable => context.subscriptions.push(disposable));
-        Logger.debug('Compatible Provider 命令已注册');
+        Logger.debug('Compatible Provider commands registered');
         return disposables;
     }
 
     /**
-     * 静态工厂方法 - 创建并激活提供商
+     * Static factory method - Create and activate provider
      */
     static createAndActivate(context: vscode.ExtensionContext): {
         provider: CompatibleProvider;
         disposables: vscode.Disposable[];
     } {
-        Logger.trace('Compatible Provider 已激活!');
-        // 创建提供商实例
+        Logger.trace('Compatible Provider activated!');
+        // Create provider instance
         const provider = new CompatibleProvider(context);
-        // 注册语言模型聊天提供商
+        // Register language model chat provider
         const providerDisposable = vscode.lm.registerLanguageModelChatProvider('chp.compatible', provider);
-        // 注册命令
+        // Register commands
         const commandDisposables = this.registerCommands(context);
         const disposables = [providerDisposable, ...commandDisposables];
         disposables.forEach(disposable => context.subscriptions.push(disposable));

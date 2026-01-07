@@ -1,6 +1,6 @@
 ﻿/*---------------------------------------------------------------------------------------------
- *  JSON Schema 提供者
- *  动态生成 Copilot Helper Pro 配置的 JSON Schema，为 settings.json 提供智能提示
+ *  JSON Schema Provider
+ *  Dynamically generates JSON Schema for Copilot ++ configuration, providing intellisense for settings.json
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -13,7 +13,7 @@ import { KnownProviders } from './knownProviders';
 import { CompatibleModelManager } from './compatibleModelManager';
 
 /**
- * 扩展的 JSON Schema 接口，支持 VS Code 特有的 enumDescriptions 属性
+ * Extended JSON Schema interface, supports VS Code specific enumDescriptions property
  */
 declare module 'json-schema' {
     interface JSONSchema7 {
@@ -22,8 +22,8 @@ declare module 'json-schema' {
 }
 
 /**
- * JSON Schema 提供者类
- * 动态生成 Copilot Helper Pro 配置的 JSON Schema，为 settings.json 提供智能提示
+ * JSON Schema Provider class
+ * Dynamically generates JSON Schema for Copilot ++ configuration, providing intellisense for settings.json
  */
 export class JsonSchemaProvider {
     private static readonly SCHEMA_URI = 'chp-settings://root/schema.json';
@@ -31,14 +31,14 @@ export class JsonSchemaProvider {
     private static lastSchemaHash: string | null = null;
 
     /**
-     * 初始化 JSON Schema 提供者
+     * Initialize JSON Schema provider
      */
     static initialize(): void {
         if (this.schemaProvider) {
             this.schemaProvider.dispose();
         }
 
-        // 注册 JSON Schema 内容提供者，使用正确的 scheme
+        // Register JSON Schema content provider, use correct scheme
         this.schemaProvider = vscode.workspace.registerTextDocumentContentProvider('chp-settings', {
             provideTextDocumentContent: (uri: vscode.Uri): string => {
                 if (uri.toString() === this.SCHEMA_URI) {
@@ -49,14 +49,14 @@ export class JsonSchemaProvider {
             }
         });
 
-        // 监听文件系统访问，动态更新 schema
+        // Listen for filesystem access, dynamically update schema
         vscode.workspace.onDidOpenTextDocument(document => {
             if (document.uri.scheme === 'chp-settings') {
                 this.updateSchema();
             }
         });
 
-        // 监听配置变化，及时更新 schema
+        // Listen for configuration changes, update schema promptly
         vscode.workspace.onDidChangeConfiguration(e => {
             if (e.affectsConfiguration('chp')) {
                 this.invalidateCache();
@@ -67,7 +67,7 @@ export class JsonSchemaProvider {
     }
 
     /**
-     * 使缓存失效，触发 schema 更新
+     * Invalidate cache, trigger schema update
      */
     private static invalidateCache(): void {
         this.lastSchemaHash = null;
@@ -75,87 +75,87 @@ export class JsonSchemaProvider {
     }
 
     /**
-     * 更新 Schema
+     * Update Schema
      */
     private static updateSchema(): void {
         try {
-            // 生成新的 schema
+            // Generate new schema
             const newSchema = this.getProviderOverridesSchema();
             const newHash = this.generateSchemaHash(newSchema);
 
-            // 如果 schema 没有变化，跳过更新
+            // If schema hasn't changed, skip update
             if (this.lastSchemaHash === newHash) {
                 return;
             }
 
             this.lastSchemaHash = newHash;
 
-            // 触发内容更新
+            // Trigger content update
             const uri = vscode.Uri.parse(this.SCHEMA_URI);
             vscode.workspace.textDocuments.forEach(doc => {
                 if (doc.uri.toString() === this.SCHEMA_URI) {
-                    // 重新生成 schema 内容
+                    // Regenerate schema content
                     const newContent = JSON.stringify(newSchema, null, 2);
                     const edit = new vscode.WorkspaceEdit();
                     edit.replace(uri, new vscode.Range(0, 0, doc.lineCount, 0), newContent);
                     vscode.workspace.applyEdit(edit);
-                    Logger.info('JSON Schema 已更新');
+                    Logger.info('JSON Schema updated');
                 }
             });
         } catch (error) {
-            Logger.error('更新 JSON Schema 失败:', error);
+            Logger.error('Failed to update JSON Schema:', error);
         }
     }
 
     /**
-     * 生成 schema 的哈希值用于缓存比较
+     * Generate schema hash for cache comparison
      */
     private static generateSchemaHash(schema: JSONSchema7): string {
         return JSON.stringify(schema, Object.keys(schema).sort());
     }
 
     /**
-     * 获取提供商覆盖配置的 JSON Schema
+     * Get JSON Schema for provider override configuration
      */
     static getProviderOverridesSchema(): JSONSchema7 {
         const providerConfigs = ConfigManager.getConfigProvider();
         const patternProperties: Record<string, JSONSchema7> = {};
         const propertyNames: JSONSchema7 = {
             type: 'string',
-            description: '提供商配置键名',
+            description: 'Provider configuration key name',
             enum: Object.keys(providerConfigs),
             enumDescriptions: Object.entries(providerConfigs).map(([key, config]) => config.displayName || key)
         };
 
-        // 为每个提供商生成 schema
+        // Generate schema for each provider
         for (const [providerKey, config] of Object.entries(providerConfigs)) {
             patternProperties[`^${providerKey}$`] = this.createProviderSchema(providerKey, config);
         }
 
-        // 获取所有可用的提供商ID
+        // Get all available provider IDs
         const { providerIds, enumDescriptions: allProviderDescriptions } = this.getAllAvailableProviders();
 
         return {
             $schema: 'http://json-schema.org/draft-07/schema#',
             $id: this.SCHEMA_URI,
-            title: 'Copilot Helper Pro Configuration Schema',
-            description: 'Schema for Copilot Helper Pro configuration with dynamic model ID suggestions',
+            title: 'Copilot ++ Configuration Schema',
+            description: 'Schema for Copilot ++ configuration with dynamic model ID suggestions',
             type: 'object',
             properties: {
                 'chp.providerOverrides': {
                     type: 'object',
                     description:
-                        '提供商配置覆盖。允许覆盖提供商的baseUrl和模型配置，支持添加新模型或覆盖现有模型的参数。',
+                        'Provider configuration overrides. Allows overriding provider baseUrl and model configuration, supports adding new models or overriding existing model parameters.',
                     patternProperties,
                     propertyNames
                 },
                 'chp.fimCompletion.modelConfig': {
                     type: 'object',
-                    description: 'FIM (Fill-in-the-Middle) 补全模式配置',
+                    description: 'FIM (Fill-in-the-Middle) completion mode configuration',
                     properties: {
                         provider: {
                             type: 'string',
-                            description: 'FIM补全使用的提供商ID',
+                            description: 'Provider ID used for FIM completion',
                             enum: providerIds,
                             enumDescriptions: allProviderDescriptions
                         }
@@ -164,11 +164,11 @@ export class JsonSchemaProvider {
                 },
                 'chp.nesCompletion.modelConfig': {
                     type: 'object',
-                    description: 'NES (Next Edit Suggestion) 补全模式配置',
+                    description: 'NES (Next Edit Suggestion) completion mode configuration',
                     properties: {
                         provider: {
                             type: 'string',
-                            description: 'NES补全使用的提供商ID',
+                            description: 'Provider ID used for NES completion',
                             enum: providerIds,
                             enumDescriptions: allProviderDescriptions
                         }
@@ -177,41 +177,41 @@ export class JsonSchemaProvider {
                 },
                 'chp.compatibleModels': {
                     type: 'array',
-                    description: 'Compatible Provider 的自定义模型配置。',
+                    description: 'Custom model configuration for Compatible Provider.',
                     default: [],
                     items: {
                         type: 'object',
                         properties: {
                             id: {
                                 type: 'string',
-                                description: '模型ID',
+                                description: 'Model ID',
                                 minLength: 1
                             },
                             name: {
                                 type: 'string',
-                                description: '模型显示名称',
+                                description: 'Model display name',
                                 minLength: 1
                             },
                             tooltip: {
                                 type: 'string',
-                                description: '模型描述'
+                                description: 'Model description'
                             },
                             provider: {
                                 type: 'string',
                                 description:
-                                    '模型提供商标识符。从下拉列表选择现有提供商ID，或输入新ID创建自定义提供商。',
+                                    'Model provider identifier. Select an existing provider ID from the dropdown list, or enter a new ID to create a custom provider.',
                                 anyOf: [
                                     {
                                         type: 'string',
                                         enum: providerIds,
-                                        description: '选择现有提供商ID'
+                                        description: 'Select existing provider ID'
                                     },
                                     {
                                         type: 'string',
                                         minLength: 3,
                                         maxLength: 100,
                                         pattern: '^[a-zA-Z0-9_-]+$',
-                                        description: '新增自定义提供商ID（允许字母、数字、下划线、连字符）'
+                                        description: 'Add new custom provider ID (allows letters, numbers, underscores, hyphens)'
                                     }
                                 ]
                             },
@@ -219,41 +219,41 @@ export class JsonSchemaProvider {
                                 type: 'string',
                                 enum: ['openai', 'openai-sse', 'anthropic'],
                                 enumDescriptions: [
-                                    'OpenAI SDK 标准模式，使用官方 OpenAI SDK 进行请求响应处理',
-                                    'OpenAI SSE 兼容模式，使用插件内实现的SSE解析逻辑进行流式响应处理',
-                                    'Anthropic SDK 标准模式，使用官方 Anthropic SDK 进行请求响应处理'
+                                    'OpenAI SDK standard mode, uses official OpenAI SDK for request/response processing',
+                                    'OpenAI SSE compatibility mode, uses in-plugin SSE parsing logic for streaming response processing',
+                                    'Anthropic SDK standard mode, uses official Anthropic SDK for request/response processing'
                                 ],
-                                description: 'SDK模式默认为 openai。',
+                                description: 'SDK mode defaults to openai.',
                                 default: 'openai'
                             },
                             baseUrl: {
                                 type: 'string',
-                                description: 'API基础URL',
+                                description: 'API base URL',
                                 format: 'uri'
                             },
                             model: {
                                 type: 'string',
-                                description: 'API请求时使用的模型名称（可选，默认使用模型ID）'
+                                description: 'Model name used for API requests (optional, defaults to model ID)'
                             },
                             maxInputTokens: {
                                 type: 'number',
-                                description: '最大输入token数量',
+                                description: 'Maximum input token count',
                                 minimum: 128
                             },
                             maxOutputTokens: {
                                 type: 'number',
-                                description: '最大输出token数量',
+                                description: 'Maximum output token count',
                                 minimum: 8
                             },
                             outputThinking: {
                                 type: 'boolean',
-                                description: '是否在聊天界面显示思考过程（推荐thinking模型启用，如Claude Sonnet/Opus 4.5）',
+                                description: 'Whether to show thinking process in chat interface (recommended for thinking models like Claude Sonnet/Opus 4.5)',
                                 default: true
                             },
                             includeThinking: {
                                 type: 'boolean',
                                 description:
-                                    '多轮对话是否注入思考内容到上下文（thinking模型必须启用）\n默认值为 true，推荐thinking模型启用以保持上下文\n当模型要求多轮对话中的工具消息必须包含思考内容时需设置为 true',
+                                    'Whether to inject thinking content into context for multi-turn conversations (must be enabled for thinking models)\nDefaults to true, recommended for thinking models to maintain context\nMust be set to true when the model requires tool messages in multi-turn conversations to include thinking content',
                                 default: true
                             },
                             capabilities: {
@@ -261,28 +261,28 @@ export class JsonSchemaProvider {
                                 properties: {
                                     toolCalling: {
                                         type: 'boolean',
-                                        description: '是否支持工具调用'
+                                        description: 'Whether tool calling is supported'
                                     },
                                     imageInput: {
                                         type: 'boolean',
-                                        description: '是否支持图像输入'
+                                        description: 'Whether image input is supported'
                                     }
                                 },
                                 required: ['toolCalling', 'imageInput']
                             },
                             customHeader: {
                                 type: 'object',
-                                description: '自定义HTTP头部配置，支持 ${APIKEY} 占位符替换',
+                                description: 'Custom HTTP header configuration, supports ${APIKEY} placeholder replacement',
                                 additionalProperties: {
                                     type: 'string',
-                                    description: 'HTTP头部值'
+                                    description: 'HTTP header value'
                                 }
                             },
                             extraBody: {
                                 type: 'object',
-                                description: '额外的请求体参数，将在API请求中合并到请求体中',
+                                description: 'Extra request body parameters, will be merged into the request body in API requests',
                                 additionalProperties: {
-                                    description: '额外的请求体参数值'
+                                    description: 'Extra request body parameter value'
                                 }
                             }
                         },
@@ -295,56 +295,56 @@ export class JsonSchemaProvider {
     }
 
     /**
-     * 为特定提供商创建 JSON Schema
+     * Create JSON Schema for a specific provider
      */
     private static createProviderSchema(providerKey: string, config: ProviderConfig): JSONSchema7 {
         const modelIds = config.models?.map(model => model.id) || [];
 
-        // 创建 id 属性的 schema，支持选择现有模型ID或输入自定义ID
+        // Create schema for id property, supports selecting existing model ID or entering custom ID
         const idProperty: JSONSchema7 = {
             anyOf: [
                 {
                     type: 'string',
                     enum: modelIds,
-                    description: '覆盖现有模型ID'
+                    description: 'Override existing model ID'
                 },
                 {
                     type: 'string',
                     minLength: 3,
                     maxLength: 100,
                     pattern: '^[a-zA-Z0-9._-]+$',
-                    description: '新增自定义模型ID（允许字母、数字、下划线、连字符和点号）'
+                    description: 'Add new custom model ID (allows letters, numbers, underscores, hyphens, and dots)'
                 }
             ],
-            description: '从下拉列表选择现有模型ID，或输入新ID创建自定义配置'
+            description: 'Select an existing model ID from the dropdown list, or enter a new ID to create a custom configuration'
         };
 
         const modelProperty: JSONSchema7 = {
             type: 'string',
             minLength: 1,
-            description: '覆盖API请求时使用的模型名称或端点ID'
+            description: 'Override model name or endpoint ID used for API requests'
         };
 
         return {
             type: 'object',
-            description: `${config.displayName || providerKey} 配置覆盖`,
+            description: `${config.displayName || providerKey} configuration overrides`,
             properties: {
                 baseUrl: {
                     type: 'string',
-                    description: '覆盖提供商级别的API基础URL',
+                    description: 'Override provider-level API base URL',
                     format: 'uri'
                 },
                 customHeader: {
                     type: 'object',
-                    description: '提供商级别的自定义HTTP头部，支持 ${APIKEY} 占位符替换',
+                    description: 'Provider-level custom HTTP headers, supports ${APIKEY} placeholder replacement',
                     additionalProperties: {
                         type: 'string',
-                        description: 'HTTP头部值'
+                        description: 'HTTP header value'
                     }
                 },
                 models: {
                     type: 'array',
-                    description: '模型覆盖配置列表',
+                    description: 'Model override configuration list',
                     minItems: 1,
                     items: {
                         type: 'object',
@@ -355,52 +355,52 @@ export class JsonSchemaProvider {
                                 type: 'string',
                                 minLength: 1,
                                 description:
-                                    '在模型选择器中显示的友好名称。\r\n对于自定义模型ID有效，不会覆盖预置模型的名称。'
+                                    'Friendly name displayed in model selector.\r\nValid for custom model IDs, will not override preset model names.'
                             },
                             tooltip: {
                                 type: 'string',
                                 minLength: 1,
                                 description:
-                                    '作为悬停工具提示显示的详细描述。\r\n对于自定义模型ID有效，不会覆盖预置模型的描述。'
+                                    'Detailed description displayed as hover tooltip.\r\nValid for custom model IDs, will not override preset model descriptions.'
                             },
                             maxInputTokens: {
                                 type: 'number',
                                 minimum: 1,
                                 maximum: 2000000,
-                                description: '覆盖最大输入token数量'
+                                description: 'Override maximum input token count'
                             },
                             maxOutputTokens: {
                                 type: 'number',
                                 minimum: 1,
                                 maximum: 200000,
-                                description: '覆盖最大输出token数量'
+                                description: 'Override maximum output token count'
                             },
                             sdkMode: {
                                 type: 'string',
                                 enum: ['openai', 'anthropic'],
-                                description: '覆盖SDK模式：openai（OpenAI兼容格式）或 anthropic（Anthropic兼容格式）'
+                                description: 'Override SDK mode: openai (OpenAI compatible format) or anthropic (Anthropic compatible format)'
                             },
                             baseUrl: {
                                 type: 'string',
-                                description: '覆盖模型级别的API基础URL',
+                                description: 'Override model-level API base URL',
                                 format: 'uri'
                             },
                             outputThinking: {
                                 type: 'boolean',
-                                description: '是否在聊天界面显示思考过程（推荐thinking模型启用，默认true）',
+                                description: 'Whether to show thinking process in chat interface (recommended for thinking models, default true)',
                                 default: true
                             },
                             capabilities: {
                                 type: 'object',
-                                description: '模型能力配置',
+                                description: 'Model capabilities configuration',
                                 properties: {
                                     toolCalling: {
                                         type: 'boolean',
-                                        description: '是否支持工具调用'
+                                        description: 'Whether tool calling is supported'
                                     },
                                     imageInput: {
                                         type: 'boolean',
-                                        description: '是否支持图像输入'
+                                        description: 'Whether image input is supported'
                                     }
                                 },
                                 required: ['toolCalling', 'imageInput'],
@@ -408,17 +408,17 @@ export class JsonSchemaProvider {
                             },
                             customHeader: {
                                 type: 'object',
-                                description: '模型自定义HTTP头部，支持 ${APIKEY} 占位符替换',
+                                description: 'Model custom HTTP headers, supports ${APIKEY} placeholder replacement',
                                 additionalProperties: {
                                     type: 'string',
-                                    description: 'HTTP头部值'
+                                    description: 'HTTP header value'
                                 }
                             },
                             extraBody: {
                                 type: 'object',
-                                description: '额外的请求体参数（可选）',
+                                description: 'Extra request body parameters (optional)',
                                 additionalProperties: {
-                                    description: '额外的请求体参数值'
+                                    description: 'Extra request body parameter value'
                                 }
                             }
                         },
@@ -432,20 +432,20 @@ export class JsonSchemaProvider {
     }
 
     /**
-     * 获取所有可用的提供商ID（包括内置、已知、自定义和历史提供商）
+     * Get all available provider IDs (including built-in, known, custom, and historical providers)
      */
     private static getAllAvailableProviders(): { providerIds: string[]; enumDescriptions: string[] } {
         const providerIds: string[] = [];
         const enumDescriptions: string[] = [];
 
         try {
-            // 1. 获取内置提供商
+            // 1. Get built-in providers
             for (const [providerId, config] of Object.entries(configProviders)) {
                 providerIds.push(providerId);
                 enumDescriptions.push(config.displayName || providerId);
             }
 
-            // 2. 获取已知提供商
+            // 2. Get known providers
             for (const [providerId, config] of Object.entries(KnownProviders)) {
                 if (!providerIds.includes(providerId)) {
                     providerIds.push(providerId);
@@ -453,7 +453,7 @@ export class JsonSchemaProvider {
                 }
             }
 
-            // 3. 获取自定义模型中的历史提供商
+            // 3. Get historical providers from custom models
             const customModels = CompatibleModelManager.getModels();
             const customProviders = new Set<string>();
 
@@ -463,26 +463,26 @@ export class JsonSchemaProvider {
                 }
             }
 
-            // 添加自定义提供商
+            // Add custom providers
             for (const providerId of Array.from(customProviders).sort()) {
                 providerIds.push(providerId);
-                enumDescriptions.push('自定义提供商：' + providerId);
+                enumDescriptions.push('Custom Provider: ' + providerId);
             }
         } catch (error) {
-            Logger.error('获取可用提供商列表失败:', error);
+            Logger.error('Failed to get available provider list:', error);
         }
 
         return { providerIds, enumDescriptions };
     }
 
     /**
-     * 清理资源
+     * Dispose resources
      */
     static dispose(): void {
         if (this.schemaProvider) {
             this.schemaProvider.dispose();
             this.schemaProvider = null;
         }
-        Logger.trace('动态 JSON Schema 提供者已清理');
+        Logger.trace('Dynamic JSON Schema provider cleaned up');
     }
 }

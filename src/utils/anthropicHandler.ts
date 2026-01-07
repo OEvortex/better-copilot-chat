@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
  *  Anthropic SDK Handler
- *  处理使用 Anthropic SDK 的模型请求
+ *  Processes model requests using Anthropic SDK
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -14,8 +14,8 @@ import type { ModelConfig } from '../types/sharedTypes';
 import { OpenAIHandler } from '../providers/openai/openaiHandler';
 
 /**
- * Anthropic 兼容处理器类
- * 接收完整的提供商配置，使用 Anthropic SDK 处理流式聊天完成
+ * Anthropic compatible handler class
+ * Receives complete provider configuration, uses Anthropic SDK to handle streaming chat completion
  */
 export class AnthropicHandler {
     constructor(
@@ -23,62 +23,62 @@ export class AnthropicHandler {
         public readonly displayName: string,
         private readonly baseURL?: string
     ) {
-        // provider、displayName 和 baseURL 由调用方传入
+        // provider, displayName and baseURL are passed by the caller
     }
 
     /**
-     * 创建 Anthropic 客户端
-     * 每次都创建新的客户端实例，与 OpenAIHandler 保持一致
+     * Create Anthropic client
+     * Create a new client instance every time, consistent with OpenAIHandler
      */
     private async createAnthropicClient(modelConfig?: ModelConfig): Promise<Anthropic> {
         const providerKey = modelConfig?.provider || this.provider;
         const currentApiKey = await ApiKeyManager.getApiKey(providerKey);
         if (!currentApiKey) {
-            throw new Error(`缺少 ${this.displayName} API密钥`);
+            throw new Error(`Missing ${this.displayName} API key`);
         }
 
-        // 使用模型配置的 baseUrl 或提供商默认的 baseURL
+        // Use model configuration baseUrl or provider's default baseURL
         let baseUrl = modelConfig?.baseUrl || this.baseURL;
         if (providerKey === 'minimax-coding') {
-            // 针对 MiniMax 国际站进行 baseUrl 覆盖设置
+            // Override baseUrl settings for MiniMax international site
             const endpoint = ConfigManager.getMinimaxEndpoint();
             if (baseUrl && endpoint === 'minimax.io') {
                 baseUrl = baseUrl.replace('api.minimaxi.com', 'api.minimax.io');
             }
         }
         if (providerKey === 'zhipu') {
-            // 针对智谱AI国际站进行 baseUrl 覆盖设置
+            // Override baseUrl settings for Zhipu AI international site
             const endpoint = ConfigManager.getZhipuEndpoint();
             if (baseUrl && endpoint === 'api.z.ai') {
                 baseUrl = baseUrl.replace('open.bigmodel.cn', 'api.z.ai');
             }
         }
 
-        // 构建默认头部，包含提供商级别和模型级别的 customHeader
+        // Build default headers, including provider-level and model-level customHeader
         const defaultHeaders: Record<string, string> = {
             'User-Agent': VersionManager.getUserAgent(this.provider)
         };
 
-        // 处理模型级别的 customHeader
+        // Process model-level customHeader
         const processedCustomHeader = ApiKeyManager.processCustomHeader(modelConfig?.customHeader, currentApiKey);
         if (Object.keys(processedCustomHeader).length > 0) {
             Object.assign(defaultHeaders, processedCustomHeader);
-            Logger.debug(`${this.displayName} 应用自定义头部: ${JSON.stringify(modelConfig!.customHeader)}`);
+            Logger.debug(`${this.displayName} apply custom headers: ${JSON.stringify(modelConfig!.customHeader)}`);
         }
 
         const client = new Anthropic({
             apiKey: currentApiKey,
             baseURL: baseUrl,
-            authToken: currentApiKey, // 解决 Minimax 报错： Please carry the API secret key in the 'Authorization' field of the request header
+            authToken: currentApiKey, // Fix Minimax error: Please carry the API secret key in the 'Authorization' field of the request header
             defaultHeaders: defaultHeaders
         });
 
-        Logger.info(`${this.displayName} Anthropic 兼容客户端已创建`);
+        Logger.info(`${this.displayName} Anthropic compatible client created`);
         return client;
     }
 
     /**
-     * 处理 Anthropic SDK 请求
+     * Process Anthropic SDK request
      */
     async handleRequest(
         model: vscode.LanguageModelChatInformation,
@@ -92,10 +92,10 @@ export class AnthropicHandler {
             const client = await this.createAnthropicClient(modelConfig);
             const { messages: anthropicMessages, system } = apiMessageToAnthropicMessage(modelConfig, messages);
 
-            // 准备工具定义
+            // Prepare tool definitions
             const tools: Anthropic.Messages.Tool[] = options.tools ? convertToAnthropicTools([...options.tools]) : [];
 
-            // 使用模型配置中的 model 字段，如果没有则使用 model.id
+            // Use model field from model configuration, if none, use model.id
             const modelId = modelConfig.model || model.id;
 
             const createParams: Anthropic.MessageCreateParamsStreaming = {
@@ -107,47 +107,47 @@ export class AnthropicHandler {
                 top_p: ConfigManager.getTopP()
             };
 
-            // 合并extraBody参数（如果有）
+            // Merge extraBody parameters (if any)
             if (modelConfig.extraBody) {
-                // 过滤掉不可修改的核心参数
+                // Filter out core parameters that cannot be modified
                 const filteredExtraBody = OpenAIHandler.filterExtraBodyParams(modelConfig.extraBody);
                 Object.assign(createParams, filteredExtraBody);
                 if (Object.keys(filteredExtraBody).length > 0) {
-                    Logger.trace(`${model.name} 合并了 extraBody 参数: ${JSON.stringify(filteredExtraBody)}`);
+                    Logger.trace(`${model.name} merged extraBody parameters: ${JSON.stringify(filteredExtraBody)}`);
                 }
             }
 
-            // 添加系统消息（如果有）
+            // Add system message (if any)
             if (system.text) {
                 createParams.system = [system];
             }
 
-            // 添加工具（如果有）
+            // Add tools (if any)
             if (tools.length > 0) {
                 createParams.tools = tools;
             }
 
             Logger.debug(
-                `[${model.name}] 发送 Anthropic API 请求，包含 ${anthropicMessages.length} 条消息，使用模型: ${modelId}`
+                `[${model.name}] Send Anthropic API request, containing ${anthropicMessages.length} messages, using model: ${modelId}`
             );
 
             const stream = await client.messages.create(createParams);
 
-            // 使用完整的流处理函数
+            // Use full stream processing function
             const result = await this.handleAnthropicStream(stream, progress, token, modelConfig);
-            Logger.info(`[${model.name}] Anthropic 请求完成`, result.usage);
+            Logger.info(`[${model.name}] Anthropic request completed`, result.usage);
         } catch (error) {
             Logger.error(`[${model.name}] Anthropic SDK error:`, error);
 
-            // 提供详细的错误信息
-            let errorMessage = `[${model.name}] Anthropic API调用失败`;
+            // Provide detailed error message
+            let errorMessage = `[${model.name}] Anthropic API call failed`;
             if (error instanceof Error) {
                 if (error.message.includes('401')) {
-                    errorMessage += ': API密钥无效，请检查配置';
+                    errorMessage += ': Invalid API key, please check configuration';
                 } else if (error.message.includes('429')) {
-                    errorMessage += ': 请求频率限制，请稍后重试';
+                    errorMessage += ': Request rate limit, please try again later';
                 } else if (error.message.includes('500')) {
-                    errorMessage += ': 服务器错误，请稍后重试';
+                    errorMessage += ': Server error, please try again later';
                 } else {
                     errorMessage += `: ${error.message}`;
                 }
@@ -159,9 +159,9 @@ export class AnthropicHandler {
     }
 
     /**
-     * 处理 Anthropic 流式响应
-     * 参照官方文档：https://docs.anthropic.com/en/api/messages-streaming
-     * 参照官方实现：https://github.com/microsoft/vscode-copilot-chat/blob/main/src/extension/byok/vscode-node/anthropicProvider.ts
+     * Handle Anthropic streaming response
+     * Refer to official documentation: https://docs.anthropic.com/en/api/messages-streaming
+     * Refer to official implementation: https://github.com/microsoft/vscode-copilot-chat/blob/main/src/extension/byok/vscode-node/anthropicProvider.ts
      */
     private async handleAnthropicStream(
         stream: AsyncIterable<Anthropic.Messages.MessageStreamEvent>,
@@ -170,20 +170,20 @@ export class AnthropicHandler {
         modelConfig?: ModelConfig
     ): Promise<{ usage?: { inputTokens: number; outputTokens: number; totalTokens: number } }> {
         let pendingToolCall: { toolId?: string; name?: string; jsonInput?: string } | undefined;
-        // let pendingServerToolCall: { toolId?: string; name?: string; jsonInput?: string; type?: string } | undefined; // 暂不支持 web_search
+        // let pendingServerToolCall: { toolId?: string; name?: string; jsonInput?: string; type?: string } | undefined; // web_search not supported yet
         let pendingThinking: { thinking?: string; signature?: string } | undefined;
         let pendingRedactedThinking: { data: string } | undefined;
         let usage: { inputTokens: number; outputTokens: number; totalTokens: number } | undefined;
 
-        // 思考内容缓存的最大长度，达到这个范围时报告
+        // Maximum length of thinking content cache, report when reached
         const MAX_THINKING_BUFFER_LENGTH = 20;
-        // 当前正在输出的思维链 ID
+        // ID of the chain of thought currently being output
         let currentThinkingId: string | null = null;
-        // 追踪是否有输出过有效的文本内容
+        // Track whether valid text content has been output
         let hasOutputContent = false;
-        // 标记是否输出了 thinking 内容
+        // Mark whether thinking content was output
         let hasThinkingContent = false;
-        // 文本输出缓冲，避免过小分片导致 progressive render 频繁
+        // Text output buffer to avoid frequent progressive renders due to small fragments
         let pendingTextBuffer = '';
         let lastTextFlushTime = 0;
         const TEXT_BUFFER_WORD_THRESHOLD = 20;
@@ -215,19 +215,19 @@ export class AnthropicHandler {
             }
         };
 
-        Logger.debug('开始处理 Anthropic 流式响应');
+        Logger.debug('Start processing Anthropic streaming response');
 
         try {
             for await (const chunk of stream) {
                 if (token.isCancellationRequested) {
-                    Logger.debug('流处理被取消');
+                    Logger.debug('Stream processing cancelled');
                     flushTextBuffer(true);
-                    // 使用统一方法处理剩余思考内容
-                    this.reportRemainingThinkingContent(progress, pendingThinking, currentThinkingId, '流取消');
+                    // Use unified method to handle remaining thinking content
+                    this.reportRemainingThinkingContent(progress, pendingThinking, currentThinkingId, 'stream cancellation');
                     break;
                 }
 
-                // 处理特殊类型 - web_search_tool_result (暂不支持)
+                // Process special type - web_search_tool_result (not supported yet)
                 /*
                 if (
                     chunk.type === 'content_block_start' &&
@@ -235,15 +235,15 @@ export class AnthropicHandler {
                     chunk.content_block.type === 'web_search_tool_result'
                 ) {
                     if (!pendingServerToolCall || !pendingServerToolCall.toolId) {
-                        Logger.warn('收到web_search_tool_result但没有待处理的服务器工具调用');
+                        Logger.warn('Received web_search_tool_result but no pending server tool call');
                         continue;
                     }
 
                     const resultBlock = chunk.content_block as Anthropic.Messages.WebSearchToolResultBlock;
-                    // 处理web搜索中的潜在错误
+                    // Handle potential errors in web search
                     if (!Array.isArray(resultBlock.content)) {
                         Logger.error(
-                            `Web搜索错误: ${(resultBlock.content as Anthropic.Messages.WebSearchToolResultError).error_code}`
+                            `Web search error: ${(resultBlock.content as Anthropic.Messages.WebSearchToolResultError).error_code}`
                         );
                         continue;
                     }
@@ -256,7 +256,7 @@ export class AnthropicHandler {
                         encrypted_content: result.encrypted_content
                     }));
 
-                    // 根据Anthropic的web_search_tool_result规范格式化
+                    // Format according to Anthropic's web_search_tool_result specification
                     const toolResult = {
                         type: 'web_search_tool_result',
                         tool_use_id: pendingServerToolCall.toolId,
@@ -265,7 +265,7 @@ export class AnthropicHandler {
 
                     const searchResults = JSON.stringify(toolResult, null, 2);
 
-                    // 向用户报告搜索结果
+                    // Report search results to user
                     progress.report(
                         new vscode.LanguageModelToolResultPart(pendingServerToolCall.toolId!, [
                             new vscode.LanguageModelTextPart(searchResults)
@@ -277,10 +277,10 @@ export class AnthropicHandler {
                 }
                 */
 
-                // 处理不同的事件类型
+                // Handle different event types
                 switch (chunk.type) {
                     case 'message_start':
-                        // 消息开始 - 收集初始使用统计
+                        // Message start - collect initial usage statistics
                         usage = {
                             inputTokens:
                                 (chunk.message.usage.input_tokens ?? 0) +
@@ -289,20 +289,20 @@ export class AnthropicHandler {
                             outputTokens: 1,
                             totalTokens: -1
                         };
-                        Logger.trace(`消息流开始 - 初始输入tokens: ${usage.inputTokens}`);
+                        Logger.trace(`Message stream start - initial input tokens: ${usage.inputTokens}`);
                         break;
 
                     case 'content_block_start':
-                        // 内容块开始
+                        // Content block start
                         if (chunk.content_block.type === 'tool_use') {
-                            // 在工具调用开始前，使用统一方法处理剩余思考内容
+                            // Before tool call starts, use unified method to handle remaining thinking content
                             this.reportRemainingThinkingContent(
                                 progress,
                                 pendingThinking,
                                 currentThinkingId,
-                                '工具调用开始'
+                                'tool call start'
                             );
-                            // 清空 pendingThinking 内容和ID，避免重复处理
+                            // Clear pendingThinking content and ID to avoid duplicate processing
                             if (pendingThinking) {
                                 pendingThinking.thinking = '';
                             }
@@ -313,34 +313,34 @@ export class AnthropicHandler {
                                 name: chunk.content_block.name,
                                 jsonInput: ''
                             };
-                            Logger.trace(`工具调用开始: ${chunk.content_block.name}`);
+                            Logger.trace(`Tool call start: ${chunk.content_block.name}`);
                         } else if (chunk.content_block.type === 'thinking') {
-                            // 标记思考块开始
+                            // Mark thinking block start
                             pendingThinking = {
                                 thinking: '',
                                 signature: ''
                             };
-                            // 生成思考块ID
+                            // Generate thinking block ID
                             currentThinkingId = `thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-                            // 标记已输出 thinking 内容
+                            // Mark whether thinking content was output
                             hasThinkingContent = true;
-                            Logger.trace('思考块开始 (流式输出)');
+                            Logger.trace('Thinking block start (streaming output)');
                         } else if (chunk.content_block.type === 'text') {
-                            // 在文本块开始前，使用统一方法处理剩余思考内容
+                            // Before text block starts, use unified method to handle remaining thinking content
                             this.reportRemainingThinkingContent(
                                 progress,
                                 pendingThinking,
                                 currentThinkingId,
-                                '文本块开始'
+                                'text block start'
                             );
-                            // 清空 pendingThinking 内容和ID，避免重复处理
+                            // Clear pendingThinking content and ID to avoid duplicate processing
                             if (pendingThinking) {
                                 pendingThinking.thinking = '';
                             }
                             currentThinkingId = null;
-                            Logger.trace('文本块开始');
+                            Logger.trace('Text block start');
                         } /* else if (chunk.content_block.type === 'server_tool_use') {
-                            // 处理服务器端工具使用（例如 web_search）(暂不支持)
+                            // Handle server-side tool use (e.g. web_search) (not supported yet)
                             pendingServerToolCall = {
                                 toolId: chunk.content_block.id,
                                 name: chunk.content_block.name,
@@ -348,28 +348,28 @@ export class AnthropicHandler {
                                 type: chunk.content_block.name
                             };
                             progress.report(new vscode.LanguageModelTextPart('\n'));
-                            Logger.trace(`服务器工具调用开始: ${chunk.content_block.name}`);
+                            Logger.trace(`Server tool call start: ${chunk.content_block.name}`);
                         } */ else if (chunk.content_block.type === 'redacted_thinking') {
                             const redactedBlock = chunk.content_block as Anthropic.Messages.RedactedThinkingBlock;
                             pendingRedactedThinking = {
                                 data: redactedBlock.data
                             };
-                            Logger.trace('加密思考块开始');
+                            Logger.trace('Encrypted thinking block start');
                         }
                         break;
 
                     case 'content_block_delta':
-                        // 内容块增量更新
+                        // Content block incremental update
                         if (chunk.delta.type === 'text_delta') {
-                            // 文本内容增量
+                            // Text content incremental delta
                             pendingTextBuffer += chunk.delta.text;
                             flushTextBuffer(false);
-                            // 标记已有输出内容
+                            // Mark existing output content
                             hasOutputContent = true;
                         } else if (chunk.delta.type === 'input_json_delta' && pendingToolCall) {
-                            // 工具调用参数增量
+                            // Tool call parameter delta
                             pendingToolCall.jsonInput = (pendingToolCall.jsonInput || '') + chunk.delta.partial_json;
-                            // 尝试解析累积的JSON，看是否完整
+                            // Try to parse accumulated JSON to see if it is complete
                             try {
                                 const parsedJson = JSON.parse(pendingToolCall.jsonInput);
                                 progress.report(
@@ -381,29 +381,29 @@ export class AnthropicHandler {
                                 );
                                 pendingToolCall = undefined;
                             } catch {
-                                // JSON尚未完整，继续累积
+                                // JSON not complete yet, continuing to accumulate
                             }
-                            // 工具调用也算作输出内容
+                            // Tool call also counts as output content
                             hasOutputContent = true;
                         } /* else if (chunk.delta.type === 'input_json_delta' && pendingServerToolCall) {
-                            // 服务器工具调用参数增量 (暂不支持)
+                            // Server tool call parameter delta (not supported yet)
                             pendingServerToolCall.jsonInput =
                                 (pendingServerToolCall.jsonInput || '') + chunk.delta.partial_json;
                         } */ else if (chunk.delta.type === 'thinking_delta') {
-                            // 思考内容增量 - 只累积到 pendingThinking，用缓冲机制报告
+                            // Thinking content delta - only accumulate to pendingThinking, report using buffer mechanism
                             const thinkingDelta = chunk.delta.thinking || '';
 
                             if (pendingThinking) {
-                                // 累积到 pendingThinking
+                                // Accumulate to pendingThinking
                                 pendingThinking.thinking = (pendingThinking.thinking || '') + thinkingDelta;
 
-                                // 检查模型配置中的 outputThinking 设置
-                                const shouldOutputThinking = modelConfig?.outputThinking !== false; // 默认 true
+                                // Check outputThinking setting in model configuration
+                                const shouldOutputThinking = modelConfig?.outputThinking !== false; // default true
                                 if (shouldOutputThinking) {
-                                    // 用 pendingThinking 的内容作为缓冲进行报告
+                                    // Use pendingThinking's content as buffer for reporting
                                     const currentThinkingContent = pendingThinking.thinking || '';
 
-                                    // 当内容达到最大长度时报告
+                                    // Report when content reaches maximum length
                                     if (currentThinkingContent.length >= MAX_THINKING_BUFFER_LENGTH) {
                                         if (!currentThinkingId) {
                                             currentThinkingId = `thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -414,29 +414,29 @@ export class AnthropicHandler {
                                                     currentThinkingContent
                                                 )
                                             );
-                                            // 清空 pendingThinking 的内容，避免重复报告
+                                            // Clear pendingThinking content to avoid duplicate reporting
                                             pendingThinking.thinking = '';
                                         } catch (e) {
-                                            Logger.trace(`报告思考内容失败: ${String(e)}`);
+                                            Logger.trace(`Failed to report thinking content: ${String(e)}`);
                                         }
                                     }
                                 } else {
-                                    Logger.trace('⏭️ 跳过思考内容输出：配置为不输出thinking');
+                                    Logger.trace('⏭️ Skip thinking content output: configured not to output thinking');
                                 }
                             }
                         } else if (chunk.delta.type === 'signature_delta') {
-                            // 累积签名
+                            // Accumulate signature
                             if (pendingThinking) {
                                 pendingThinking.signature =
                                     (pendingThinking.signature || '') + (chunk.delta.signature || '');
                             }
                         } /* else if (chunk.delta.type === 'citations_delta') {
-                            // 处理引用增量
+                            // Handle citation delta
                             if ('citation' in chunk.delta) {
                                 const citation = chunk.delta
                                     .citation as Anthropic.Messages.CitationsWebSearchResultLocation;
                                 if (citation.type === 'web_search_result_location') {
-                                    // 根据Anthropic规范格式化引用
+                                    // Format citation according to Anthropic specification
                                     const citationData = {
                                         type: 'web_search_result_location',
                                         url: citation.url,
@@ -445,13 +445,13 @@ export class AnthropicHandler {
                                         cited_text: citation.cited_text
                                     };
 
-                                    // 将引用格式化为可读的块引用和源链接
-                                    const referenceText = `\n> "${citation.cited_text}" — [来源](${citation.url})\n\n`;
+                                    // Format citation as readable blockquote and source link
+                                    const referenceText = `\n> "${citation.cited_text}" — [Source](${citation.url})\n\n`;
 
-                                    // 向用户报告格式化的引用文本
+                                    // Report formatted citation text to user
                                     progress.report(new vscode.LanguageModelTextPart(referenceText));
 
-                                    // 以正确格式存储引用数据，用于多轮对话
+                                    // Store citation data in correct format for multi-turn dialogue
                                     progress.report(
                                         new vscode.LanguageModelToolResultPart('citation', [
                                             new vscode.LanguageModelTextPart(JSON.stringify(citationData, null, 2))
@@ -463,7 +463,7 @@ export class AnthropicHandler {
                         break;
 
                     case 'content_block_stop':
-                        // 内容块停止
+                        // Content block stop
                         if (pendingToolCall) {
                             try {
                                 const parsedJson = JSON.parse(pendingToolCall.jsonInput || '{}');
@@ -474,23 +474,23 @@ export class AnthropicHandler {
                                         parsedJson
                                     )
                                 );
-                                Logger.debug(`工具调用完成: ${pendingToolCall.name}`);
+                                Logger.debug(`Tool call complete: ${pendingToolCall.name}`);
                             } catch (e) {
-                                Logger.error(`解析工具调用 JSON 失败 (${pendingToolCall.name}):`, e);
+                                Logger.error(`Failed to parse tool call JSON (${pendingToolCall.name}):`, e);
                             }
                             pendingToolCall = undefined;
                         } else if (pendingThinking) {
-                            // 处理思考块结束 - 统一处理思考内容和签名信息
+                            // Handle thinking block end - unified handling of thinking content and signature info
                             let hasReportedContent = false;
 
-                            // 如果有思考内容，先报告并可能添加签名元数据
+                            // If there is thinking content, report first and possibly add signature metadata
                             const finalThinkingContent = pendingThinking.thinking || '';
                             if (finalThinkingContent.length > 0 && currentThinkingId) {
                                 const finalThinkingPart = new vscode.LanguageModelTextPart(
                                     finalThinkingContent
                                 );
 
-                                // 如果有签名，添加到元数据中
+                                // If there is signature, add to metadata
                                 // if (pendingThinking.signature) {
                                 //     finalThinkingPart.metadata = {
                                 //         signature: pendingThinking.signature,
@@ -499,12 +499,12 @@ export class AnthropicHandler {
                                 // }
 
                                 progress.report(finalThinkingPart);
-                                // 结束当前思维链
+                                // End current chain of thought
                                 progress.report(new vscode.LanguageModelTextPart(''));
                                 hasReportedContent = true;
                             }
 
-                            // 如果只有签名但没有思考内容，创建一个包含签名元数据的空思考部分
+                            // If only signature but no thinking content, create an empty thinking part with signature metadata
                             if (!hasReportedContent && pendingThinking.signature) {
                                 const signaturePart = new vscode.LanguageModelTextPart('');
                                 // signaturePart.metadata = {
@@ -515,87 +515,87 @@ export class AnthropicHandler {
                             }
 
                             pendingThinking = undefined;
-                            Logger.debug('思考块完成');
+                            Logger.debug('Thinking block complete');
                         } else if (pendingRedactedThinking) {
                             pendingRedactedThinking = undefined;
-                            Logger.debug('加密思考块完成');
+                            Logger.debug('Encrypted thinking block complete');
                         }
                         break;
 
                     case 'message_delta':
-                        // 消息增量 - 更新使用统计
+                        // Message delta - update usage statistics
                         if (usage && chunk.usage) {
-                            // 更新输入 tokens（如果有更新）
+                            // Update input tokens (if updated)
                             if (chunk.usage.input_tokens !== undefined && chunk.usage.input_tokens !== null) {
                                 usage.inputTokens =
                                     chunk.usage.input_tokens +
                                     (chunk.usage.cache_creation_input_tokens ?? 0) +
                                     (chunk.usage.cache_read_input_tokens ?? 0);
                             }
-                            // 更新输出 tokens（如果有更新）
+                            // Update output tokens (if updated)
                             if (chunk.usage.output_tokens !== undefined && chunk.usage.output_tokens !== null) {
                                 usage.outputTokens = chunk.usage.output_tokens;
                             }
-                            // 重新计算总数
+                            // Recalculate total
                             usage.totalTokens = usage.inputTokens + usage.outputTokens;
 
                             Logger.trace(
-                                `Token使用更新 - 输入: ${usage.inputTokens}, 输出: ${usage.outputTokens}, 总计: ${usage.totalTokens}`
+                                `Token usage update - Input: ${usage.inputTokens}, Output: ${usage.outputTokens}, Total: ${usage.totalTokens}`
                             );
                         }
-                        // 记录停止原因
+                        // Record stop reason
                         if (chunk.delta.stop_reason) {
-                            Logger.trace(`消息停止原因: ${chunk.delta.stop_reason}`);
+                            Logger.trace(`Message stop reason: ${chunk.delta.stop_reason}`);
                         }
                         break;
 
                     case 'message_stop':
-                        // 消息停止 - 使用统一方法处理剩余思考内容
+                        // Message stop - use unified method to handle remaining thinking content
                         flushTextBuffer(true);
-                        this.reportRemainingThinkingContent(progress, pendingThinking, currentThinkingId, '消息流结束');
-                        // 清空 pendingThinking 内容和ID，避免重复处理
+                        this.reportRemainingThinkingContent(progress, pendingThinking, currentThinkingId, 'message stream end');
+                        // Clear pendingThinking content and ID to avoid duplicate processing
                         if (pendingThinking) {
                             pendingThinking.thinking = '';
                         }
                         currentThinkingId = null;
-                        // 只有在输出了 thinking 内容但没有输出 content 时才添加 <think/> 占位符
+                        // Only add <think/> placeholder if thinking content was output but no content was output
                         if (hasThinkingContent && !hasOutputContent) {
                             progress.report(new vscode.LanguageModelTextPart('<think/>'));
-                            Logger.warn('消息流结束时只有思考内容没有文本内容，添加了 <think/> 占位符作为输出');
+                            Logger.warn('Only thinking content and no text content at end of message stream, added <think/> placeholder as output');
                         }
-                        Logger.trace('消息流完成');
+                        Logger.trace('Message stream complete');
                         break;
 
                     default:
-                        // 未知事件类型 - 根据官方建议优雅处理
-                        // 可能包括 ping 事件或未来的新事件类型
-                        Logger.trace('收到其他事件类型');
+                        // Unknown event type - handle gracefully according to official suggestions
+                        // May include ping events or future new event types
+                        Logger.trace('Received other event types');
                         break;
                 }
             }
         } catch (error) {
-            Logger.error('处理 Anthropic 流时出错:', error);
-            // 错误处理逻辑移到 finally 块中统一处理
+            Logger.error('Error processing Anthropic stream:', error);
+            // Error handling logic moved to finally block for unified handling
             throw error;
         } finally {
             flushTextBuffer(true);
-            // 统一处理未报告的思考内容（包括正常完成、错误、取消等情况）
-            this.reportRemainingThinkingContent(progress, pendingThinking, currentThinkingId, '流处理结束');
+            // Unified handling of unreported thinking content (including normal completion, error, cancellation, etc.)
+            this.reportRemainingThinkingContent(progress, pendingThinking, currentThinkingId, 'stream processing end');
         }
 
         if (usage) {
             Logger.debug(
-                `流处理完成 - 最终使用统计: 输入=${usage.inputTokens}, 输出=${usage.outputTokens}, 总计=${usage.totalTokens}`
+                `Stream processing complete - final usage statistics: Input=${usage.inputTokens}, Output=${usage.outputTokens}, Total=${usage.totalTokens}`
             );
         } else {
-            Logger.warn('流处理完成但未获取到使用统计信息');
+            Logger.warn('Stream processing complete but usage statistics not obtained');
         }
 
         return { usage };
     }
 
     /**
-     * 统一处理剩余思考内容的报告
+     * Unified handling of reporting remaining thinking content
      */
     private reportRemainingThinkingContent(
         progress: vscode.Progress<vscode.LanguageModelResponsePart2>,
@@ -607,11 +607,11 @@ export class AnthropicHandler {
         if (thinkingContent.length > 0 && currentThinkingId) {
             try {
                 progress.report(new vscode.LanguageModelTextPart(thinkingContent));
-                Logger.trace(`${context}时报告剩余思考内容: ${thinkingContent.length}字符`);
-                // 结束当前思维链
+                Logger.trace(`reporting remaining thinking content at ${context}: ${thinkingContent.length} characters`);
+                // End current chain of thought
                 progress.report(new vscode.LanguageModelThinkingPart('', currentThinkingId));
             } catch (e) {
-                Logger.trace(`${context}时报告思考内容失败: ${String(e)}`);
+                Logger.trace(`failed to report thinking content at ${context}: ${String(e)}`);
             }
         }
     }

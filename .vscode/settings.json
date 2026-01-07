@@ -15,7 +15,7 @@
     "extensions.experimental.affinity": {
         "vicanent.copilot-helper-pro": 1
     },
-    // 编辑器配置：统一使用4个空格缩进
+    // Editor configuration: use 4 spaces for indentation
     "editor.tabSize": 4,
     "editor.insertSpaces": true,
     "editor.detectIndentation": false,
@@ -39,16 +39,16 @@
         "editor.tabSize": 4,
         "editor.insertSpaces": true
     },
-    // 调试配置优化
+    // Debug configuration optimization
     "debug.javascript.usePreview": true,
     "debug.openDebug": "openOnDebugBreak",
-    // esbuild 相关优化
+    // esbuild related optimizations
     "eslint.validate": [
         "javascript",
         "typescript"
     ],
     "typescript.preferences.includePackageJsonAutoImports": "auto",
-    // 为提供商配置提供 JSON Schema 校验和提示
+    // Provide JSON Schema validation and hints for provider configuration
     "json.schemas": [
         {
             "fileMatch": [
@@ -61,7 +61,7 @@
     "chp.topP": 1.0, // 0.0-1.0
     "chp.maxTokens": 256000, // 32-256000
     "chp.editToolMode": "claude", // claude/gpt-5/none
-    "chp.rememberLastModel": true, // 记住上次使用的模型
+    "chp.rememberLastModel": true, // Remember the last used model
     "chp.zhipu.search.enableMCP": true,
-    "chatgpt.openOnStartup": false // 启用`联网搜索MCP`（Coding Plan专属）
+    "chatgpt.openOnStartup": false // Enable `Network Search MCP` (Coding Plan exclusive)
 }

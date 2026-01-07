@@ -78,7 +78,7 @@ export class TokenUsageStatusBar {
             11
         );
 
-        this.statusBarItem.name = 'Copilot Helper Pro: Model Context Window Usage';
+        this.statusBarItem.name = 'Copilot ++: Model Context Window Usage';
 
         // Initial display
         this.updateUI(this.defaultData);
@@ -220,7 +220,7 @@ export class TokenUsageStatusBar {
 
         // If default data (no request), show hint
         if (data.inputTokens === 0 && data.maxInputTokens === 0) {
-            md.appendMarkdown('💡 Displayed after sending any request provided by Copilot Helper Pro\n');
+            md.appendMarkdown('💡 Displayed after sending any request provided by Copilot ++\n');
             return md;
         }
 

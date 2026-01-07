@@ -1,0 +1,293 @@
+{
+    "displayName": "OpenCode",
+    "baseUrl": "https://opencode.ai/zen/v1",
+    "apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "models": [
+        {
+            "id": "claude-opus-4-5",
+            "name": "Claude Opus 4.5",
+            "tooltip": "Claude Opus 4.5 by OpenCode",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-opus-4-1",
+            "name": "Claude Opus 4.1",
+            "tooltip": "Claude Opus 4.1 by OpenCode",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-sonnet-4",
+            "name": "Claude Sonnet 4",
+            "tooltip": "Claude Sonnet 4 by OpenCode",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-sonnet-4-5",
+            "name": "Claude Sonnet 4.5",
+            "tooltip": "Claude Sonnet 4.5 by OpenCode",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-3-5-haiku",
+            "name": "Claude 3.5 Haiku",
+            "tooltip": "Claude 3.5 Haiku by OpenCode",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-haiku-4-5",
+            "name": "Claude Haiku 4.5",
+            "tooltip": "Claude Haiku 4.5 by OpenCode",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-3-pro",
+            "name": "Gemini 3 Pro",
+            "tooltip": "Gemini 3 Pro by OpenCode",
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-3-flash",
+            "name": "Gemini 3 Flash",
+            "tooltip": "Gemini 3 Flash by OpenCode",
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.2",
+            "name": "GPT-5.2",
+            "tooltip": "GPT-5.2 by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.1",
+            "name": "GPT-5.1",
+            "tooltip": "GPT-5.1 by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5",
+            "name": "GPT-5",
+            "tooltip": "GPT-5 by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.1-codex-max",
+            "name": "GPT-5.1 Codex Max",
+            "tooltip": "GPT-5.1 Codex Max by OpenCode",
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.1-codex",
+            "name": "GPT-5.1 Codex",
+            "tooltip": "GPT-5.1 Codex by OpenCode",
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5-codex",
+            "name": "GPT-5 Codex",
+            "tooltip": "GPT-5 Codex by OpenCode",
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.1-codex-mini",
+            "name": "GPT-5.1 Codex Mini",
+            "tooltip": "GPT-5.1 Codex Mini by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5-nano",
+            "name": "GPT-5 Nano",
+            "tooltip": "GPT-5 Nano by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "qwen3-coder",
+            "name": "Qwen3 Coder",
+            "tooltip": "Qwen3 Coder by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "glm-4.6",
+            "name": "GLM-4.6",
+            "tooltip": "GLM-4.6 by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "kimi-k2",
+            "name": "Kimi K2",
+            "tooltip": "Kimi K2 by OpenCode",
+            "maxInputTokens": 262000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "kimi-k2-thinking",
+            "name": "Kimi K2 Thinking",
+            "tooltip": "Kimi K2 Thinking by OpenCode",
+            "maxInputTokens": 262000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "minimax-m2.1-free",
+            "name": "MiniMax M2.1 Free",
+            "tooltip": "MiniMax M2.1 Free by OpenCode",
+            "maxInputTokens": 197000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "glm-4.7-free",
+            "name": "GLM-4.7 Free",
+            "tooltip": "GLM-4.7 Free by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "grok-code",
+            "name": "Grok Code",
+            "tooltip": "Grok Code by OpenCode",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "alpha-glm-4.7",
+            "name": "Alpha GLM 4.7",
+            "tooltip": "Alpha GLM 4.7 by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "alpha-gd4",
+            "name": "Alpha GD4",
+            "tooltip": "Alpha GD4 by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "big-pickle",
+            "name": "Big Pickle",
+            "tooltip": "Big Pickle by OpenCode",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        }
+    ]
+}

@@ -301,7 +301,7 @@ button {
     color: var(--vscode-list-activeSelectionForeground);
 }
 
-/* 全局错误提示条样式 */
+/* Global error banner styles */
 .error-banner {
     display: none;
     position: sticky;

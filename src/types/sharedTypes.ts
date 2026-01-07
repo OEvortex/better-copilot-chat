@@ -87,17 +87,17 @@ export interface ModelOverride {
     /** Override baseUrl */
     baseUrl?: string;
     /**
-     * 模型特定的自定义HTTP头部（可选）
-     * 如果提供，将在API请求中附加这些自定义头部
+     * Model-specific custom HTTP headers (optional)
+     * If provided, will append these custom headers in API requests
      */
     customHeader?: Record<string, string>;
     /**
-     * 额外的请求体参数（可选）
-     * 如果提供，将在API请求中合并到请求体中
+     * Extra request body parameters (optional)
+     * If provided, will be merged into request body in API requests
      */
     extraBody?: Record<string, unknown>;
     /**
-     * 是否在聊天界面显示思考过程（推荐thinking模型启用）
+     * Whether to show thinking process in chat interface (recommended for thinking models)
      */
     outputThinking?: boolean;
 }

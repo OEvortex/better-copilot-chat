@@ -1,6 +1,6 @@
 /**
- * UI 模块导出
- * 提供可视化界面组件
+ * UI module exports
+ * Provides visual interface components
  */
 
 export { ModelEditor } from './modelEditor';

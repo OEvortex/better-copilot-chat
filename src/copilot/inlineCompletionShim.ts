@@ -149,7 +149,7 @@ export class InlineCompletionShim implements vscode.InlineCompletionItemProvider
                         .getConfiguration('chp.nesCompletion')
                         .update('manualOnly', newState, vscode.ConfigurationTarget.Global);
                     vscode.window.showInformationMessage(
-                        `Copilot Helper Pro: Next Edit Suggestion Trigger Mode: ${newState ? 'Manual Trigger' : 'Auto Trigger'}`
+                        `Copilot ++: Next Edit Suggestion Trigger Mode: ${newState ? 'Manual Trigger' : 'Auto Trigger'}`
                     );
                     CompletionLogger.info(
                         `[InlineCompletionShim] NES manual trigger mode ${newState ? 'enabled' : 'disabled'}`

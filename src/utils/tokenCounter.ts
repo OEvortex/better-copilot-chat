@@ -1,6 +1,6 @@
 ﻿/*---------------------------------------------------------------------------------------------
  *  Token Counter
- *  处理所有 token 计数相关的逻辑
+ *  Handles all logic related to token counting
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -15,14 +15,14 @@ import { createTokenizer, getRegexByEncoder, getSpecialTokensByEncoder, TikToken
 import { Logger } from './logger';
 
 /**
- * 全局共享的 tokenizer 实例和扩展路径
+ * Globally shared tokenizer instance and extension path
  */
 let sharedTokenizerPromise: TikTokenizer | null = null;
 let extensionPath: string | null = null;
 let sharedTokenCounterInstance: TokenCounter | null = null;
 
 /**
- * 简单的 LRU 缓存实现
+ * Simple LRU cache implementation
  */
 class LRUCache<T> {
     private cache = new Map<string, T>();
@@ -31,7 +31,7 @@ class LRUCache<T> {
     get(key: string): T | undefined {
         const value = this.cache.get(key);
         if (value !== undefined) {
-            // 将访问过的项移到最后（最近使用）
+            // Move accessed item to the end (most recently used)
             this.cache.delete(key);
             this.cache.set(key, value);
         }
@@ -42,7 +42,7 @@ class LRUCache<T> {
         if (this.cache.has(key)) {
             this.cache.delete(key);
         } else if (this.cache.size >= this.maxSize) {
-            // 删除最老的项（第一个）
+            // Delete the oldest item (first one)
             const firstKey = this.cache.keys().next().value;
             if (firstKey) {
                 this.cache.delete(firstKey);
@@ -53,44 +53,44 @@ class LRUCache<T> {
 }
 
 /**
- * Token 计数器类
- * 负责计算消息、系统消息和工具定义的 token 数量
- * 同时管理全局共享的 tokenizer 实例
+ * Token Counter class
+ * Responsible for calculating the number of tokens for messages, system messages, and tool definitions
+ * Also manages the globally shared tokenizer instance
  */
 export class TokenCounter {
     /**
-     * 文本 token 数的缓存（LRU，容量 5000）
+     * Cache for text token counts (LRU, capacity 5000)
      */
     private tokenCache = new LRUCache<number>(5000);
 
     /**
-     * 设置扩展路径
-     * 必须在创建 TokenCounter 实例之前调用
+     * Set extension path
+     * Must be called before creating a TokenCounter instance
      */
     static setExtensionPath(path: string): void {
         extensionPath = path;
-        Logger.trace('✓ [TokenCounter] 扩展路径已设置');
+        Logger.trace('✓ [TokenCounter] Extension path set');
     }
 
     /**
-     * 获取全局共享的 TokenCounter 实例（单例）
+     * Get globally shared TokenCounter instance (singleton)
      */
     static getInstance(): TokenCounter {
         if (!sharedTokenCounterInstance) {
             sharedTokenCounterInstance = new TokenCounter();
-            Logger.trace('✓ [TokenCounter] 全局实例已创建');
+            Logger.trace('✓ [TokenCounter] Global instance created');
         }
         return sharedTokenCounterInstance;
     }
 
     /**
-     * 获取共享的 tokenizer 实例（懒加载，全局单例）
+     * Get shared tokenizer instance (lazy loading, global singleton)
      */
     static getSharedTokenizer(): TikTokenizer {
         if (!sharedTokenizerPromise) {
-            Logger.trace('🔧 [TokenCounter] 首次请求 tokenizer，正在初始化全局共享实例...');
+            Logger.trace('🔧 [TokenCounter] First request for tokenizer, initializing global shared instance...');
             if (!extensionPath) {
-                throw new Error('[TokenCounter] 扩展路径未初始化，请先调用 TokenCounter.setExtensionPath()');
+                throw new Error('[TokenCounter] Extension path not initialized, please call TokenCounter.setExtensionPath() first');
             }
             const basePath = vscode.Uri.file(extensionPath!);
             const tokenizerPath = vscode.Uri.joinPath(basePath, 'dist', 'o200k_base.tiktoken').fsPath;
@@ -99,80 +99,80 @@ export class TokenCounter {
                 getSpecialTokensByEncoder('o200k_base'),
                 getRegexByEncoder('o200k_base')
             );
-            Logger.trace('✓ [TokenCounter] tokenizer 初始化完成');
+            Logger.trace('✓ [TokenCounter] Tokenizer initialization complete');
         }
         return sharedTokenizerPromise;
     }
 
     constructor(private tokenizer?: TikTokenizer) {
-        // 如果没有传入 tokenizer，则使用共享实例
+        // If no tokenizer is passed, use the shared instance
         if (!this.tokenizer) {
             this.tokenizer = TokenCounter.getSharedTokenizer();
         }
     }
 
     /**
-     * 计算文本的 token 数（带缓存）
+     * Calculate text token count (with cache)
      */
     private getTextTokenLength(text: string): number {
         if (!text) {
             return 0;
         }
 
-        // 先查缓存
+        // Check cache first
         const cacheValue = this.tokenCache.get(text);
         if (cacheValue !== undefined) {
-            // Logger.trace(`[缓存命中] "${text.substring(0, 20)}..." -> ${cacheValue} tokens`);
+            // Logger.trace(`[Cache Hit] "${text.substring(0, 20)}..." -> ${cacheValue} tokens`);
             return cacheValue;
         }
 
-        // 缓存未命中，计算 token 数
+        // Cache miss, calculate token count
         const tokenCount = this.tokenizer!.encode(text).length;
 
-        // 存入缓存
+        // Store in cache
         this.tokenCache.put(text, tokenCount);
-        // Logger.trace(`[缓存写入] "${text.substring(0, 20)}..." -> ${tokenCount} tokens`);
+        // Logger.trace(`[Cache Write] "${text.substring(0, 20)}..." -> ${tokenCount} tokens`);
 
         return tokenCount;
     }
 
     /**
-     * 计算单个文本或消息对象的 token 数
+     * Calculate token count for a single text or message object
      */
     async countTokens(_model: LanguageModelChatInformation, text: string | LanguageModelChatMessage): Promise<number> {
         if (typeof text === 'string') {
             const stringTokens = this.tokenizer!.encode(text).length;
-            Logger.trace(`[Token计数] 字符串: ${stringTokens} tokens (长度: ${text.length})`);
+            Logger.trace(`[Token Count] String: ${stringTokens} tokens (Length: ${text.length})`);
             return stringTokens;
         }
 
-        // 处理 LanguageModelChatMessage 对象
+        // Handle LanguageModelChatMessage object
         try {
             const objectTokens = await this.countMessageObjectTokens(text as unknown as Record<string, unknown>);
             return objectTokens;
         } catch (error) {
-            Logger.warn('[Token计数] 计算消息对象 token 失败，使用简化计算:', error);
-            // 降级处理：将消息对象转为 JSON 字符串计算
+            Logger.warn('[Token Count] Failed to calculate message object tokens, using simplified calculation:', error);
+            // Fallback: convert message object to JSON string for calculation
             const fallbackTokens = this.tokenizer!.encode(JSON.stringify(text)).length;
-            Logger.trace(`[Token计数] 降级计算: ${fallbackTokens} tokens`);
+            Logger.trace(`[Token Count] Fallback calculation: ${fallbackTokens} tokens`);
             return fallbackTokens;
         }
     }
 
     /**
-     * 递归计算消息对象中的 token 数量
-     * 支持文本、图片、工具调用等复杂内容
+     * Recursively calculate token count in message objects
+     * Supports text, images, tool calls, and other complex content
      */
     async countMessageObjectTokens(obj: Record<string, unknown>, depth: number = 0): Promise<number> {
         let numTokens = 0;
         // const indent = '  '.repeat(depth);
 
-        // 每个对象/消息都需要一些额外的 token 用于分隔和格式化
+        // Each object/message needs some extra tokens for separation and formatting
         if (depth === 0) {
-            // 消息分隔符和基础格式化开销（3个token比1个更准确）
+            // Message separator and basic formatting overhead (3 tokens is more accurate than 1)
             const overheadTokens = 3;
             numTokens += overheadTokens;
-            // Logger.trace(`${indent}[开销] 消息分隔符: ${overheadTokens} tokens`);
+            // Logger.trace(`${indent}[Overhead] Message separator: ${overheadTokens} tokens`);
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -182,29 +182,29 @@ export class TokenCounter {
             }
 
             if (typeof value === 'string') {
-                // 字符串内容直接计算 token（使用缓存）
+                // String content directly calculated (using cache)
                 const tokens = this.getTextTokenLength(value);
                 numTokens += tokens;
-                // Logger.trace(`${indent}[${key}] 字符串: ${tokens} tokens`);
+                // Logger.trace(`${indent}[${key}] String: ${tokens} tokens`);
             } else if (typeof value === 'number' || typeof value === 'boolean') {
-                // 数字和布尔值也计算 token（使用缓存）
+                // Numbers and booleans also calculated (using cache)
                 const tokens = this.getTextTokenLength(String(value));
                 numTokens += tokens;
                 // Logger.trace(`${indent}[${key}] ${typeof value}: ${tokens} tokens`);
             } else if (Array.isArray(value)) {
-                // 数组处理
-                // Logger.trace(`${indent}[${key}] 数组 (${value.length} 项)`);
+                // Array handling
+                // Logger.trace(`${indent}[${key}] Array (${value.length} items)`);
                 for (const item of value) {
                     if (typeof item === 'string') {
                         const tokens = this.getTextTokenLength(item);
                         numTokens += tokens;
-                        // Logger.trace(`${indent}  [value] 字符串: ${tokens} tokens`);
+                        // Logger.trace(`${indent}  [value] String: ${tokens} tokens`);
                     } else if (typeof item === 'number' || typeof item === 'boolean') {
                         const tokens = this.getTextTokenLength(String(item));
                         numTokens += tokens;
                         // Logger.trace(`${indent}  [${typeof item}] ${typeof item}: ${tokens} tokens`);
                     } else if (item && typeof item === 'object') {
-                        // 嵌套对象数组
+                        // Nested object array
                         const itemTokens = await this.countMessageObjectTokens(
                             item as Record<string, unknown>,
                             depth + 2
@@ -213,7 +213,7 @@ export class TokenCounter {
                     }
                 }
             } else if (typeof value === 'object') {
-                // Logger.trace(`${indent}[${key}] 对象类型`);
+                // Logger.trace(`${indent}[${key}] Object type`);
                 const nestedTokens = await this.countMessageObjectTokens(value as Record<string, unknown>, depth + 1);
                 numTokens += nestedTokens;
             }
@@ -223,8 +223,8 @@ export class TokenCounter {
     }
 
     /**
-     * 计算多条消息的总 token 数
-     * 包括常规消息、系统消息和工具定义
+     * Calculate total token count for multiple messages
+     * Includes regular messages, system messages, and tool definitions
      */
     async countMessagesTokens(
         model: LanguageModelChatInformation,
@@ -233,9 +233,9 @@ export class TokenCounter {
         options?: ProvideLanguageModelChatResponseOptions
     ): Promise<number> {
         let totalTokens = 0;
-        // Logger.trace(`[Token计数] 开始计算 ${messages.length} 条消息的 token...`);
+        // Logger.trace(`[Token Count] Starting calculation for ${messages.length} messages...`);
 
-        // 计算消息 token
+        // Calculate message tokens
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < messages.length; i++) {
             const message = messages[i];
@@ -244,48 +244,48 @@ export class TokenCounter {
                 message as unknown as string | LanguageModelChatMessage
             );
             totalTokens += messageTokens;
-            // Logger.trace(`[Token计数] 消息 #${i + 1}: ${messageTokens} tokens (累计: ${totalTokens})`);
+            // Logger.trace(`[Token Count] Message #${i + 1}: ${messageTokens} tokens (Cumulative: ${totalTokens})`);
         }
 
         const sdkMode = modelConfig?.sdkMode || 'openai';
 
         if (sdkMode === 'anthropic') {
-            // 为 Anthropic SDK 模式添加系统消息和工具的 token 成本
-            // 计算系统消息的 token 成本
+            // Add system message and tool token costs for Anthropic SDK mode
+            // Calculate system message token cost
             const systemMessageTokens = this.countSystemMessageTokens(messages);
             if (systemMessageTokens > 0) {
                 totalTokens += systemMessageTokens;
-                // Logger.trace(`[Token计数] 系统消息: ${systemMessageTokens} tokens (累计: ${totalTokens})`);
+                // Logger.trace(`[Token Count] System message: ${systemMessageTokens} tokens (Cumulative: ${totalTokens})`);
             }
 
-            // 计算工具定义的 token 成本
+            // Calculate tool definition token cost
             const toolsTokens = this.countToolsTokens(options?.tools);
             if (toolsTokens > 0) {
                 totalTokens += toolsTokens;
                 // Logger.trace(
-                //     `[Token计数] 工具定义 (${options?.tools?.length || 0} 个): ${toolsTokens} tokens (累计: ${totalTokens})`
+                //     `[Token Count] Tool definitions (${options?.tools?.length || 0}): ${toolsTokens} tokens (Cumulative: ${totalTokens})`
                 // );
             }
         } else if (sdkMode === 'openai') {
-            // OpenAI SDK 模式：工具成本与 Anthropic 相同（都使用 1.1 倍）
+            // OpenAI SDK mode: tool cost same as Anthropic (both use 1.1x)
             const toolsTokens = this.countToolsTokens(options?.tools);
             if (toolsTokens > 0) {
                 totalTokens += toolsTokens;
                 // Logger.trace(
-                //     `[Token计数] 工具定义 (${options?.tools?.length || 0} 个): ${toolsTokens} tokens (累计: ${totalTokens})`
+                //     `[Token Count] Tool definitions (${options?.tools?.length || 0}): ${toolsTokens} tokens (Cumulative: ${totalTokens})`
                 // );
             }
         }
 
         // Logger.info(
-        //     `[Token计数] 总计: ${messages.length} 条消息${sdkMode === 'anthropic' ? ' + 系统消息 + 工具定义' : ' (OpenAI SDK)'}, ${totalTokens} tokens`
+        //     `[Token Count] Total: ${messages.length} messages${sdkMode === 'anthropic' ? ' + system message + tool definitions' : ' (OpenAI SDK)'}, ${totalTokens} tokens`
         // );
         return totalTokens;
     }
 
     /**
-     * 计算系统消息的 token 数
-     * 从消息列表中提取所有系统消息并合并计算
+     * Calculate system message token count
+     * Extract all system messages from the message list and calculate combined
      */
     private countSystemMessageTokens(messages: Array<LanguageModelChatMessage>): number {
         let systemText = '';
@@ -302,26 +302,26 @@ export class TokenCounter {
             return 0;
         }
 
-        // 计算系统消息的 token 数 - 使用缓存机制
+        // Calculate system message token count - using cache mechanism
         const systemTokens = this.getTextTokenLength(systemText);
 
-        // Anthropic 的系统消息处理会添加一些额外的格式化 token
-        // 经实际测试，系统消息包装开销约为 25-30 tokens
+        // Anthropic's system message processing adds some extra formatting tokens
+        // Based on testing, system message wrapping overhead is about 25-30 tokens
         const systemOverhead = 28;
         const totalSystemTokens = systemTokens + systemOverhead;
 
         Logger.debug(
-            `[Token计数] 系统消息详情: 内容 ${systemTokens} tokens + 包装开销 ${systemOverhead} tokens = ${totalSystemTokens} tokens`
+            `[Token Count] System message details: Content ${systemTokens} tokens + Wrapping overhead ${systemOverhead} tokens = ${totalSystemTokens} tokens`
         );
         return totalSystemTokens;
     }
 
     /**
-     * 计算工具定义的 token 数
-     * 遵循官方 VS Code Copilot 实现：
-     * - 基础开销：16 tokens（工具数组开销）
-     * - 每个工具：8 tokens + 对象内容 token 数
-     * - 最后乘以 1.1 的安全系数（官方标准）
+     * Calculate tool definition token count
+     * Follows official VS Code Copilot implementation:
+     * - Base overhead: 16 tokens (tool array overhead)
+     * - Each tool: 8 tokens + object content token count
+     * - Finally multiplied by 1.1 safety factor (official standard)
      */
     private countToolsTokens(tools?: readonly LanguageModelChatTool[]): number {
         const baseToolTokens = 16;
@@ -335,24 +335,24 @@ export class TokenCounter {
         const baseTokensPerTool = 8;
         for (const tool of tools) {
             numTokens += baseTokensPerTool;
-            // 计算工具对象的 token 数（name、description、parameters）
+            // Calculate tool object token count (name, description, parameters)
             const toolObj = {
                 name: tool.name,
                 description: tool.description || '',
                 input_schema: tool.inputSchema
             };
-            // 简单的启发式方法：遍历对象并计算 token（使用缓存）
+            // Simple heuristic: traverse object and calculate tokens (using cache)
             for (const [, value] of Object.entries(toolObj)) {
                 if (typeof value === 'string') {
                     numTokens += this.getTextTokenLength(value);
                 } else if (value && typeof value === 'object') {
-                    // 对于 JSON 对象，使用 JSON 字符串编码（使用缓存）
+                    // For JSON objects, use JSON string encoding (using cache)
                     numTokens += this.getTextTokenLength(JSON.stringify(value));
                 }
             }
         }
 
-        // 使用官方标准的 1.1 安全系数
+        // Use official standard 1.1 safety factor
         return Math.floor(numTokens * 1.1);
     }
 }

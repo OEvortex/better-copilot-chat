@@ -68,29 +68,29 @@ export interface StatusBarItemConfig extends BaseStatusBarItemConfig {
  * @template T Status data type
  */
 export abstract class BaseStatusBarItem<T> {
-    // ==================== 实例成员 ====================
+    // ==================== Instance members ====================
     protected statusBarItem: vscode.StatusBarItem | undefined;
     protected context: vscode.ExtensionContext | undefined;
     protected readonly config: BaseStatusBarItemConfig;
 
-    // 状态数据
+    // Status data
     protected lastStatusData: CachedStatusData<T> | null = null;
 
-    // 定时器
+    // Timers
     protected updateDebouncer: NodeJS.Timeout | undefined;
     protected cacheUpdateTimer: NodeJS.Timeout | undefined;
 
-    // 时间戳
+    // Timestamps
     protected lastDelayedUpdateTime = 0;
 
-    // 标志位
+    // Flags
     protected isLoading = false;
     protected initialized = false;
 
-    // 常量配置
-    protected readonly MIN_DELAYED_UPDATE_INTERVAL = 30000; // 最小延时更新间隔 30 秒
-    protected readonly CACHE_UPDATE_INTERVAL = 10000; // 缓存加载间隔 10 秒
-    protected readonly HIGH_USAGE_THRESHOLD = 80; // 高使用率阈值 80%
+    // Constant configuration
+    protected readonly MIN_DELAYED_UPDATE_INTERVAL = 30000; // Minimum delayed update interval 30 seconds
+    protected readonly CACHE_UPDATE_INTERVAL = 10000; // Cache loading interval 10 seconds
+    protected readonly HIGH_USAGE_THRESHOLD = 80; // High usage threshold 80%
 
     /**
      * Constructor
@@ -287,7 +287,7 @@ export abstract class BaseStatusBarItem<T> {
      * @param delayMs Delay time (milliseconds)
      */
     delayedUpdate(delayMs = 2000): void {
-        // 清除之前的防抖定时器
+        // Clear previous debounce timer
         if (this.updateDebouncer) {
             clearTimeout(this.updateDebouncer);
         }
@@ -295,7 +295,7 @@ export abstract class BaseStatusBarItem<T> {
         const now = Date.now();
         const timeSinceLastUpdate = now - this.lastDelayedUpdateTime;
 
-        // 如果距离上次更新不足阈值，则等到满阈值再执行
+        // If time since last update is less than threshold, wait until threshold is met
         const finalDelayMs =
             timeSinceLastUpdate < this.MIN_DELAYED_UPDATE_INTERVAL
                 ? this.MIN_DELAYED_UPDATE_INTERVAL - timeSinceLastUpdate

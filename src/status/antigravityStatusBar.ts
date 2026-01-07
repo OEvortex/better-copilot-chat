@@ -47,13 +47,13 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
     constructor() {
         const config: StatusBarItemConfig = {
             id: 'chp.statusBar.antigravity',
-            name: 'Copilot Helper Pro: Antigravity Quota',
+            name: 'Copilot ++: Antigravity Quota',
             alignment: vscode.StatusBarAlignment.Right,
             priority: 98,
             refreshCommand: 'chp.antigravity.refreshAndShowQuota', // Use custom command
             apiKeyProvider: ProviderKey.Antigravity,
             cacheKeyPrefix: ProviderKey.Antigravity,
-            logPrefix: 'Antigravity状态栏',
+            logPrefix: 'Antigravity Status Bar',
             icon: '$(cloud)'
         };
         super(config);

@@ -9,17 +9,17 @@
         "displayName": {
             "type": "string",
             "minLength": 1,
-            "description": "在提供商选择器中显示的用户友好名称。"
+            "description": "User-friendly name displayed in the provider selector."
         },
         "baseUrl": {
             "type": "string",
             "format": "uri",
-            "description": "OpenAI 兼容请求的基础 URL。"
+            "description": "Base URL for OpenAI compatible requests."
         },
         "apiKeyTemplate": {
             "type": "string",
             "minLength": 16,
-            "description": "指导用户预期 API 密钥格式的占位符模式。"
+            "description": "Placeholder pattern to guide users on the expected API key format."
         },
         "models": {
             "type": "array",
@@ -27,7 +27,7 @@
             "items": {
                 "$ref": "#/$defs/model"
             },
-            "description": "提供商公开的模型列表。"
+            "description": "List of models exposed by the provider."
         }
     },
     "$defs": {
@@ -38,11 +38,11 @@
             "properties": {
                 "toolCalling": {
                     "type": "boolean",
-                    "description": "模型是否可以执行工具/函数调用。"
+                    "description": "Whether the model can perform tool/function calling."
                 },
                 "imageInput": {
                     "type": "boolean",
-                    "description": "模型是否接受图像输入。"
+                    "description": "Whether the model accepts image input."
                 }
             }
         },
@@ -54,32 +54,32 @@
                 "id": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "发送给提供商 API 的标识符。"
+                    "description": "Identifier sent to the provider API."
                 },
                 "name": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "在模型选择器中显示的名称。"
+                    "description": "Name displayed in the model selector."
                 },
                 "tooltip": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "作为悬停工具提示显示的详细描述。"
+                    "description": "Detailed description displayed as a hover tooltip."
                 },
                 "maxInputTokens": {
                     "type": "integer",
                     "minimum": 1,
-                    "description": "提供商接受的最大输入令牌数。"
+                    "description": "Maximum number of input tokens accepted by the provider."
                 },
                 "maxOutputTokens": {
                     "type": "integer",
                     "minimum": 1,
-                    "description": "提供商在单个响应中可以生成的最大令牌数。"
+                    "description": "Maximum number of tokens the provider can generate in a single response."
                 },
                 "version": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "可选的提供商特定版本标签。"
+                    "description": "Optional provider-specific version tag."
                 },
                 "capabilities": {
                     "$ref": "#/$defs/capabilities"
@@ -87,48 +87,48 @@
                 "provider": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "模型特定的提供商标识符。用于指定该模型使用的提供商进行API密钥查找，使得同一提供商下的不同模型可以使用不同的API密钥。"
+                    "description": "Model-specific provider identifier. Used to specify the provider for API key lookup, allowing different models under the same provider to use different API keys."
                 },
                 "sdkMode": {
                     "type": "string",
                     "enum": ["openai", "anthropic"],
                     "default": "openai",
-                    "description": "SDK模式选择：使用 OpenAI SDK 或 Anthropic SDK 处理请求。"
+                    "description": "SDK mode selection: use OpenAI SDK or Anthropic SDK to handle requests."
                 },
                 "baseUrl": {
                     "type": "string",
                     "format": "uri",
-                    "description": "覆盖提供商默认的可选模型特定基础 URL。"
+                    "description": "Optional model-specific base URL that overrides the provider default."
                 },
                 "model": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "当与 ID 不同时的可选请求模型名称。"
+                    "description": "Optional request model name when different from ID."
                 },
                 "outputThinking": {
                     "type": "boolean",
-                    "description": "是否启用输出思考过程（如有支持）",
+                    "description": "Whether to enable outputting the thinking process (if supported).",
                     "default": true
                 },
                 "includeThinking": {
                     "type": "boolean",
-                    "description": "多轮对话消息是否必须包含思考内容（可选）",
+                    "description": "Whether multi-turn conversation messages must include thinking content (optional).",
                     "default": false
                 },
                 "customHeader": {
                     "type": "object",
-                    "description": "可选的自定义HTTP头部，将在API请求中附加。",
+                    "description": "Optional custom HTTP headers to be attached to API requests.",
                     "additionalProperties": {
                         "type": "string",
-                        "description": "HTTP头部值",
+                        "description": "HTTP header value",
                         "minLength": 1
                     }
                 },
                 "extraBody": {
                     "type": "object",
-                    "description": "额外的请求体参数，将在API请求中合并到请求体中",
+                    "description": "Extra request body parameters to be merged into the request body in API requests.",
                     "additionalProperties": {
-                        "description": "额外的请求体参数值"
+                        "description": "Extra request body parameter values"
                     }
                 }
             }

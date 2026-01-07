@@ -10,6 +10,8 @@ import { KimiStatusBar } from './kimiStatusBar';
 import { DeepSeekStatusBar } from './deepseekStatusBar';
 import { MoonshotStatusBar } from './moonshotStatusBar';
 import { ZhipuStatusBar } from './zhipuStatusBar';
+import { ChutesStatusBar } from './chutesStatusBar';
+import { OpenCodeStatusBar } from './opencodeStatusBar';
 import { CompatibleStatusBar } from './compatibleStatusBar';
 import { TokenUsageStatusBar } from './tokenUsageStatusBar';
 import { AntigravityStatusBar } from './antigravityStatusBar';
@@ -46,6 +48,10 @@ export class StatusBarManager {
     static moonshot: IStatusBar | undefined;
     /** Zhipu AI Usage Status Bar */
     static zhipu: IStatusBar | undefined;
+    /** Chutes Status Bar */
+    static chutes: IStatusBar | undefined;
+    /** OpenCode Status Bar */
+    static opencode: IStatusBar | undefined;
     /** Compatible Provider Status Bar */
     static compatible: ICompatibleStatusBar | undefined;
     /** Model context window usage status bar */
@@ -69,6 +75,14 @@ export class StatusBarManager {
         // Create and register Zhipu status bar
         const zhipuStatusBar = new ZhipuStatusBar();
         this.registerStatusBar('zhipu', zhipuStatusBar);
+
+        // Create and register Chutes status bar
+        const chutesStatusBar = new ChutesStatusBar();
+        this.registerStatusBar('chutes', chutesStatusBar);
+
+        // Create and register OpenCode status bar
+        const opencodeStatusBar = new OpenCodeStatusBar();
+        this.registerStatusBar('opencode', opencodeStatusBar);
 
         // Create and register Kimi status bar
         const kimiStatusBar = new KimiStatusBar();
@@ -114,6 +128,12 @@ export class StatusBarManager {
                 break;
             case 'zhipu':
                 this.zhipu = statusBar;
+                break;
+            case 'chutes':
+                this.chutes = statusBar;
+                break;
+            case 'opencode':
+                this.opencode = statusBar;
                 break;
             case 'kimi':
                 this.kimi = statusBar;
@@ -232,6 +252,8 @@ export class StatusBarManager {
         // Clear public instance references
         this.minimax = undefined;
         this.zhipu = undefined;
+        this.chutes = undefined;
+        this.opencode = undefined;
         this.kimi = undefined;
         this.deepseek = undefined;
         this.moonshot = undefined;

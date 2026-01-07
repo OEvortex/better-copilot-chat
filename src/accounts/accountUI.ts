@@ -630,7 +630,7 @@ export class AccountUI {
         } as AccountQuickPickItem & { provider?: string; alwaysShow?: boolean });
         items.push({
             label: '$(gear) Open Settings',
-            description: 'Configure Copilot Helper Pro extension settings',
+            description: 'Configure Copilot ++ extension settings',
             account: null as unknown as Account,
             alwaysShow: true
         } as AccountQuickPickItem & { provider?: string; alwaysShow?: boolean });

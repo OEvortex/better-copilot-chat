@@ -1,9 +1,9 @@
 {
     "name": "copilot-helper-pro",
     "publisher": "vicanent",
-    "displayName": "Copilot Helper Pro",
+    "displayName": "Copilot ++",
     "description": "An extension that provides model support for GitHub Copilot Chat, including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Alibaba Cloud Bailian, and custom OpenAI/Anthropic compatible models.",
-    "version": "0.15.26",
+    "version": "0.1.0",
     "license": "MIT",
     "keywords": [
         "ai",
@@ -26,7 +26,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/nhatbien/copilot-helper"
+        "url": "https://github.com/OEvortex/better-copilot-chat"
     },
     "engines": {
         "vscode": ">=1.104.0",
@@ -51,6 +51,8 @@
         "onLanguageModelProvider:chp.minimax",
         "onLanguageModelProvider:chp.moonshot",
         "onLanguageModelProvider:chp.deepseek",
+        "onLanguageModelProvider:chp.chutes",
+        "onLanguageModelProvider:chp.opencode",
         "onLanguageModelProvider:chp.codex",
         "onLanguageModelProvider:chp.compatible",
         "onLanguageModelTool:chp_zhipuWebSearch",
@@ -136,160 +138,170 @@
             {
                 "command": "chp.zhipu.setApiKey",
                 "title": "Set ZhipuAI API Key",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.zhipu.configWizard",
                 "title": "ZhipuAI Configuration Wizard (API Key & Search MCP Mode)",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.minimax.setApiKey",
                 "title": "Set MiniMax API Key",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.minimax.setCodingPlanApiKey",
                 "title": "Set MiniMax Coding Plan Dedicated Key",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.minimax.setCodingPlanEndpoint",
                 "title": "Set MiniMax Coding Plan Endpoint (Domestic/International)",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.minimax.configWizard",
                 "title": "Start MiniMax Configuration Wizard",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.kimi.setApiKey",
                 "title": "Set Kimi API Key",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.moonshot.setApiKey",
                 "title": "Set MoonshotAI API Key",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.moonshot.configWizard",
                 "title": "Start MoonshotAI Configuration Wizard",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.deepseek.setApiKey",
                 "title": "Set DeepSeek API Key",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.chutes.setApiKey",
+                "title": "Set Chutes API Key",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.opencode.setApiKey",
+                "title": "Set OpenCode API Key",
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.compatible.manageModels",
                 "title": "Compatible Provider Settings",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.antigravity.login",
                 "title": "Antigravity Login (Google Cloud Code)",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.antigravity.logout",
                 "title": "Antigravity Logout",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.showAntigravityQuota",
                 "title": "Show Antigravity Quota & Models",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.codex.login",
                 "title": "Codex Login (OpenAI OAuth)",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.codex.logout",
                 "title": "Codex Logout",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.codex.selectWorkspace",
                 "title": "Codex - Select Workspace (Business/Personal)",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.nesCompletion.toggleManual",
                 "title": "Toggle NES Manual Trigger Mode",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.copilot.attachSelection",
                 "title": "Attach Selection to Copilot Chat",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.copilot.insertHandle",
                 "title": "Insert Handle Reference (#handle:filename:L1-L100)",
-                "category": "Copilot Helper Pro",
+                "category": "Copilot ++",
                 "icon": "$(symbol-reference)"
             },
             {
                 "command": "chp.copilot.insertHandleFullPath",
                 "title": "Insert Handle Reference with Full Path",
-                "category": "Copilot Helper Pro",
+                "category": "Copilot ++",
                 "icon": "$(file-symlink-file)"
             },
             {
                 "command": "chp.accounts.manage",
                 "title": "Manage Accounts",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.accounts.openManager",
                 "title": "Open Account Manager",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.accounts.add",
                 "title": "Add Account",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.accounts.switch",
                 "title": "Switch Account",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.accounts.remove",
                 "title": "Remove Account",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.accounts.list",
                 "title": "View All Accounts",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.accounts.quickSwitch",
                 "title": "Quick Switch Account",
-                "category": "Copilot Helper Pro",
+                "category": "Copilot ++",
                 "icon": "$(arrow-swap)"
             },
             {
                 "command": "chp.accounts.quickSwitchProvider",
                 "title": "Quick Switch Account for Provider",
-                "category": "Copilot Helper Pro"
+                "category": "Copilot ++"
             },
             {
                 "command": "chp.openSettings",
-                "title": "Open Copilot Helper Pro Settings",
-                "category": "Copilot Helper Pro",
+                "title": "Open Copilot ++ Settings",
+                "category": "Copilot ++",
                 "icon": "$(settings-gear)"
             }
         ],
         "configuration": {
-            "title": "Copilot Helper Pro - AI Chat Models",
+            "title": "Copilot ++ - AI Chat Models",
             "properties": {
                 "chp.temperature": {
                     "type": "number",
@@ -541,6 +553,16 @@
                 "vendor": "chp.deepseek",
                 "displayName": "⦿ DeepSeek",
                 "managementCommand": "chp.deepseek.setApiKey"
+            },
+            {
+                "vendor": "chp.chutes",
+                "displayName": "⦿ Chutes",
+                "managementCommand": "chp.chutes.setApiKey"
+            },
+            {
+                "vendor": "chp.opencode",
+                "displayName": "⦿ OpenCode",
+                "managementCommand": "chp.opencode.setApiKey"
             },
             {
                 "vendor": "chp.compatible",
@@ -819,7 +841,7 @@
         "submenus": [
             {
                 "id": "chp.copilot.submenu",
-                "label": "Copilot Helper Pro",
+                "label": "Copilot ++",
                 "icon": "$(copilot)"
             }
         ]

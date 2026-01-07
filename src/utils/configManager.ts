@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
  *  Configuration Manager
- *  Used to manage global configuration settings and provider configurations for the Copilot Helper Pro extension
+ *  Used to manage global configuration settings and provider configurations for the Copilot ++ extension
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -53,7 +53,7 @@ export interface NESCompletionConfig {
 export type FIMCompletionConfig = Omit<NESCompletionConfig, 'manualOnly'>;
 
 /**
- * Copilot Helper Pro Configuration Interface
+ * Copilot ++ Configuration Interface
  */
 export interface CHPConfig {
     /** Temperature parameter, controls output randomness (0.0-2.0) */
@@ -78,7 +78,7 @@ export interface CHPConfig {
 
 /**
  * Configuration Manager Class
- * Responsible for reading and managing Copilot Helper Pro configuration in VS Code settings and provider configuration in package.json
+ * Responsible for reading and managing Copilot ++ in VS Code settings and provider configuration in package.json
  */
 export class ConfigManager {
     private static readonly CONFIG_SECTION = 'chp';
@@ -99,7 +99,7 @@ export class ConfigManager {
         this.configListener = vscode.workspace.onDidChangeConfiguration(event => {
             if (event.affectsConfiguration(this.CONFIG_SECTION)) {
                 this.cache = null; // Clear cache, force re-read
-                Logger.info('Copilot Helper Pro configuration updated, cache cleared');
+                Logger.info('Copilot ++ updated, cache cleared');
             }
         });
 

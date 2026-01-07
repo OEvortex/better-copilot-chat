@@ -9,7 +9,7 @@
             "sdkMode": "anthropic",
             "baseUrl": "https://api.kimi.com/coding",
             "provider": "kimi",
-            "tooltip": "Kimi For Coding - 月之暗面推出的专业编程模型，提供强大的代码生成和理解能力",
+            "tooltip": "Kimi For Coding - Professional programming model by Moonshot AI, providing strong code generation and understanding capabilities",
             "maxInputTokens": 256000,
             "maxOutputTokens": 32000,
             "capabilities": {
@@ -25,7 +25,7 @@
         {
             "id": "kimi-k2-thinking",
             "name": "Kimi-K2-Thinking",
-            "tooltip": "月之暗面 Kimi-K2-Thinking - 模型上下文长度 256k，是具有通用 Agentic 能力和推理能力的思考模型，它擅长深度推理",
+            "tooltip": "Moonshot AI Kimi-K2-Thinking - Model context length 256k, a thinking model with general Agentic and reasoning capabilities, excels at deep reasoning",
             "maxInputTokens": 256000,
             "maxOutputTokens": 16000,
             "includeThinking": true,
@@ -41,7 +41,7 @@
         {
             "id": "kimi-k2-thinking-turbo",
             "name": "Kimi-K2-Thinking-Turbo",
-            "tooltip": "月之暗面 Kimi-K2-Thinking-Turbo - 模型上下文长度 256k，是 kimi-k2-thinking 模型的高速版，适用于需要深度推理和追求极致高速的场景",
+            "tooltip": "Moonshot AI Kimi-K2-Thinking-Turbo - Model context length 256k, high-speed version of kimi-k2-thinking, suitable for scenarios requiring deep reasoning and extreme speed",
             "maxInputTokens": 256000,
             "maxOutputTokens": 16000,
             "includeThinking": true,
@@ -59,7 +59,7 @@
             "name": "Kimi-K2-0905-Preview",
             "sdkMode": "anthropic",
             "baseUrl": "https://api.moonshot.cn/anthropic",
-            "tooltip": "月之暗面 Kimi-K2-0905-Preview - 更强的Agentic Coding能力，更突出的前端代码美观度和实用性，256K上下文",
+            "tooltip": "Moonshot AI Kimi-K2-0905-Preview - Stronger Agentic Coding capabilities, more prominent frontend code aesthetics and practicality, 256K context",
             "maxInputTokens": 256000,
             "maxOutputTokens": 8192,
             "capabilities": {
@@ -72,7 +72,7 @@
             "name": "Kimi-K2-Turbo-Preview",
             "sdkMode": "anthropic",
             "baseUrl": "https://api.moonshot.cn/anthropic",
-            "tooltip": "月之暗面 Kimi-K2-Turbo-Preview - 高速版本模型，输出速度60-100 tokens/秒，256K上下文",
+            "tooltip": "Moonshot AI Kimi-K2-Turbo-Preview - High-speed version model, output speed 60-100 tokens/sec, 256K context",
             "maxInputTokens": 256000,
             "maxOutputTokens": 8192,
             "capabilities": {
@@ -85,7 +85,7 @@
             "name": "Kimi-K2-0711-Preview",
             "sdkMode": "anthropic",
             "baseUrl": "https://api.moonshot.cn/anthropic",
-            "tooltip": "月之暗面 Kimi-K2-0711-Preview - K2系列基础版本，128K上下文",
+            "tooltip": "Moonshot AI Kimi-K2-0711-Preview - K2 series base version, 128K context",
             "maxInputTokens": 128000,
             "maxOutputTokens": 8192,
             "version": "kimi-k2-0711-previw",
@@ -97,7 +97,7 @@
         {
             "id": "kimi-latest",
             "name": "Kimi-Latest",
-            "tooltip": "月之暗面 Kimi-Latest - 最新一代视觉模型，128K上下文，支持图片理解，自动上下文缓存，智能选择8K/32K/128K计费模型",
+            "tooltip": "Moonshot AI Kimi-Latest - Latest generation visual model, 128K context, supports image understanding, automatic context caching, intelligent selection of 8K/32K/128K billing models",
             "maxInputTokens": 128000,
             "maxOutputTokens": 8192,
             "capabilities": {

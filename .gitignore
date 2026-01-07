@@ -6,3 +6,5 @@ node_modules
 *.vsix
 extension.js*
 /.claude
+.zenflow
+.zencoder

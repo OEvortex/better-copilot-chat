@@ -1,6 +1,6 @@
 /**
- * Copilot Helper Pro Settings Page
- * Trang cài đặt riêng cho Copilot Helper Pro với giao diện hiện đại
+ * Copilot ++ Settings Page
+ * Trang cài đặt riêng cho Copilot ++ với giao diện hiện đại
  */
 
 import * as vscode from 'vscode';
@@ -25,7 +25,7 @@ type LoadBalanceStrategy = 'round-robin' | 'quota-aware' | 'failover';
 
 /**
  * Settings Page class
- * Quản lý trang cài đặt Copilot Helper Pro với webview
+ * Quản lý trang cài đặt Copilot ++ với webview
  */
 export class SettingsPage {
     private static currentPanel: vscode.WebviewPanel | undefined;
@@ -58,7 +58,7 @@ export class SettingsPage {
         // Tạo webview panel mới
         const panel = vscode.window.createWebviewPanel(
             'chpSettings',
-            'Copilot Helper Pro Settings',
+            'Copilot ++ Settings',
             vscode.ViewColumn.One,
             {
                 enableScripts: true,
@@ -121,7 +121,7 @@ export class SettingsPage {
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Copilot Helper Pro Settings</title>
+        <title>Copilot ++ Settings</title>
         <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' ${cspSource}; script-src 'unsafe-inline' ${cspSource};" />
         <style>
             ${settingsPageCss}
@@ -133,7 +133,7 @@ export class SettingsPage {
                 <div class="settings-header">
                     <h1>
                         <span class="icon">⚙️</span>
-                        Copilot Helper Pro Settings
+                        Copilot ++ Settings
                     </h1>
                     <p>Loading settings...</p>
                 </div>

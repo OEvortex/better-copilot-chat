@@ -1,6 +1,6 @@
 ﻿/*---------------------------------------------------------------------------------------------
- *  通用Provider类
- *  基于配置文件动态创建提供商实现
+ *  Generic Provider Class
+ *  Dynamically create provider implementation based on configuration file
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -25,107 +25,109 @@ import {
 import { TokenUsageStatusBar } from '../../status/tokenUsageStatusBar';
 
 /**
- * 通用模型提供商类
- * 基于配置文件动态创建提供商实现
+ * Generic Model Provider Class
+ * Dynamically create provider implementation based on configuration file
  */
 export class GenericModelProvider implements LanguageModelChatProvider {
     protected readonly openaiHandler: OpenAIHandler;
     protected readonly anthropicHandler: AnthropicHandler;
     protected readonly providerKey: string;
-    protected baseProviderConfig: ProviderConfig; // protected 以支持子类访问
-    protected cachedProviderConfig: ProviderConfig; // 缓存的配置
-    protected configListener?: vscode.Disposable; // 配置监听器
-    protected modelInfoCache?: ModelInfoCache; // 模型信息缓存
+    protected readonly context: vscode.ExtensionContext;
+    protected baseProviderConfig: ProviderConfig; // protected to support subclass access
+    protected cachedProviderConfig: ProviderConfig; // Cached configuration
+    protected configListener?: vscode.Disposable; // Configuration listener
+    protected modelInfoCache?: ModelInfoCache; // Model information cache
 
-    // 模型信息变更事件
+    // Model information change event
     protected _onDidChangeLanguageModelChatInformation = new vscode.EventEmitter<void>();
     readonly onDidChangeLanguageModelChatInformation = this._onDidChangeLanguageModelChatInformation.event;
 
     constructor(context: vscode.ExtensionContext, providerKey: string, providerConfig: ProviderConfig) {
+        this.context = context;
         this.providerKey = providerKey;
-        // 保存原始配置（不应用覆盖）
+        // Save original configuration (overrides not applied)
         this.baseProviderConfig = providerConfig;
-        // 初始化缓存配置（应用覆盖）
+        // Initialize cached configuration (overrides applied)
         this.cachedProviderConfig = ConfigManager.applyProviderOverrides(this.providerKey, this.baseProviderConfig);
-        // 初始化模型信息缓存
+        // Initialize model information cache
         this.modelInfoCache = new ModelInfoCache(context);
 
-        // 监听配置变更
+        // Listen for configuration changes
         this.configListener = vscode.workspace.onDidChangeConfiguration(e => {
-            // 检查是否是 providerOverrides 的变更
+            // Check if it is a change in providerOverrides
             if (e.affectsConfiguration('chp.providerOverrides') && providerKey !== 'compatible') {
-                // 重新计算配置
+                // Recalculate configuration
                 this.cachedProviderConfig = ConfigManager.applyProviderOverrides(
                     this.providerKey,
                     this.baseProviderConfig
                 );
-                // 清除缓存
+                // Clear cache
                 this.modelInfoCache
                     ?.invalidateCache(this.providerKey)
-                    .catch(err => Logger.warn(`[${this.providerKey}] 清除缓存失败:`, err));
-                Logger.trace(`${this.providerKey} 配置已更新`);
+                    .catch(err => Logger.warn(`[${this.providerKey}] Failed to clear cache:`, err));
+                Logger.trace(`${this.providerKey} configuration updated`);
                 this._onDidChangeLanguageModelChatInformation.fire();
             }
             if (e.affectsConfiguration('chp.editToolMode')) {
-                Logger.trace(`${this.providerKey} 检测到 editToolMode 变更`);
-                // 清除缓存
+                Logger.trace(`${this.providerKey} detected editToolMode change`);
+                // Clear cache
                 this.modelInfoCache
                     ?.invalidateCache(this.providerKey)
-                    .catch(err => Logger.warn(`[${this.providerKey}] 清除缓存失败:`, err));
+                    .catch(err => Logger.warn(`[${this.providerKey}] Failed to clear cache:`, err));
                 this._onDidChangeLanguageModelChatInformation.fire();
             }
         });
 
-        // 创建 OpenAI SDK 处理器
+        // Create OpenAI SDK handler
         this.openaiHandler = new OpenAIHandler(providerKey, providerConfig.displayName, providerConfig.baseUrl);
-        // 创建 Anthropic SDK 处理器
+        // Create Anthropic SDK handler
         this.anthropicHandler = new AnthropicHandler(providerKey, providerConfig.displayName, providerConfig.baseUrl);
     }
 
     /**
-     * 释放资源
+     * Release resources
      */
     dispose(): void {
-        // 释放配置监听器
+        // Release configuration listener
         this.configListener?.dispose();
-        // 释放事件发射器
+        // Release event emitter
         this._onDidChangeLanguageModelChatInformation.dispose();
-        // 释放 handler resources
+        // Release handler resources
         // this.anthropicHandler?.dispose();
         this.openaiHandler?.dispose();
-        Logger.info(`🧹 ${this.providerConfig.displayName}: 扩展销毁`);
+        Logger.info(`🧹 ${this.providerConfig.displayName}: Extension destroyed`);
     }
 
     /**
-     * 获取当前有效的 provider 配置
+     * Get current effective provider configuration
      */
     get providerConfig(): ProviderConfig {
         return this.cachedProviderConfig;
     }
 
     /**
-     * 静态工厂方法 - 根据配置创建并激活提供商
+     * Static factory method - Create and activate provider based on configuration
      */
     static createAndActivate(
         context: vscode.ExtensionContext,
         providerKey: string,
         providerConfig: ProviderConfig
     ): { provider: GenericModelProvider; disposables: vscode.Disposable[] } {
-        Logger.trace(`${providerConfig.displayName} 模型扩展已激活!`);
-        // 创建提供商实例
+        Logger.trace(`${providerConfig.displayName} model extension activated!`);
+        // Create provider instance
         const provider = new GenericModelProvider(context, providerKey, providerConfig);
-        // 注册语言模型聊天提供商
+        // Register language model chat provider
         const providerDisposable = vscode.lm.registerLanguageModelChatProvider(`chp.${providerKey}`, provider);
-        // 注册设置API密钥命令
+        // Register command to set API key
         const setApiKeyCommand = vscode.commands.registerCommand(`chp.${providerKey}.setApiKey`, async () => {
             await ApiKeyManager.promptAndSetApiKey(
                 providerKey,
                 providerConfig.displayName,
                 providerConfig.apiKeyTemplate
             );
-            // API 密钥变更后清除缓存
+            // Clear cache after API key change
             await provider.modelInfoCache?.invalidateCache(providerKey);
-            // 触发模型信息变更事件
+            // Trigger model information change event
             provider._onDidChangeLanguageModelChatInformation.fire();
         });
         const disposables = [providerDisposable, setApiKeyCommand];
@@ -134,10 +136,10 @@ export class GenericModelProvider implements LanguageModelChatProvider {
     }
 
     /**
-     * 将ModelConfig转换为LanguageModelChatInformation
+     * Convert ModelConfig to LanguageModelChatInformation
      */
     protected modelConfigToInfo(model: ModelConfig): LanguageModelChatInformation {
-        // 读取编辑工具模式设置
+        // Read edit tool mode setting
         const editToolMode = vscode.workspace.getConfiguration('chp').get('editToolMode', 'claude') as string;
 
         let family: string;
@@ -146,7 +148,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
         } else if (editToolMode === 'none') {
             family = model.id;
         } else {
-            family = model.id; // 回退到使用模型ID
+            family = model.id; // Fall back to using model ID
         }
 
         const info: LanguageModelChatInformation = {
@@ -168,15 +170,15 @@ export class GenericModelProvider implements LanguageModelChatProvider {
         options: { silent: boolean },
         _token: CancellationToken
     ): Promise<LanguageModelChatInformation[]> {
-        // 快速路径：检查缓存
+        // Fast path: check cache
         try {
             const apiKeyHash = await this.getApiKeyHash();
             let cachedModels = await this.modelInfoCache?.getCachedModels(this.providerKey, apiKeyHash);
 
             if (cachedModels) {
-                Logger.trace(`✓ [${this.providerKey}] 从缓存返回模型列表 ` + `(${cachedModels.length} 个模型)`);
+                Logger.trace(`✓ [${this.providerKey}] Return model list from cache ` + `(${cachedModels.length} models)`);
 
-                // 读取用户上次选择的模型并标记为默认（仅当启用记忆功能时）
+                // Read user's last selected model and mark as default (only if memory is enabled)
                 const rememberLastModel = ConfigManager.getRememberLastModel();
                 if (rememberLastModel) {
                     const lastSelectedId = this.modelInfoCache?.getLastSelectedModel(this.providerKey);
@@ -188,38 +190,38 @@ export class GenericModelProvider implements LanguageModelChatProvider {
                     }
                 }
 
-                // 后台异步更新缓存（不阻塞返回，不等待 await）
+                // Background asynchronous cache update (non-blocking, do not await)
                 this.updateModelCacheAsync(apiKeyHash);
 
                 return cachedModels;
             }
         } catch (err) {
             Logger.warn(
-                `[${this.providerKey}] 缓存查询失败，降级到原始逻辑:`,
+                `[${this.providerKey}] Cache query failed, falling back to original logic:`,
                 err instanceof Error ? err.message : String(err)
             );
         }
 
-        // 原始逻辑：检查 API 密钥并构建模型列表
+        // Original logic: check API key and build model list
         const hasApiKey = await ApiKeyManager.hasValidApiKey(this.providerKey);
         if (!hasApiKey) {
-            // 如果是静默模式（如扩展启动时），不触发用户交互，直接返回空列表
+            // If silent mode (e.g. extension startup), do not trigger user interaction, return empty list directly
             if (options.silent) {
                 return [];
             }
-            // 非静默模式下，直接触发API密钥设置
+            // In non-silent mode, trigger API key setup directly
             await vscode.commands.executeCommand(`chp.${this.providerKey}.setApiKey`);
-            // 重新检查API密钥
+            // Re-check API key
             const hasApiKeyAfterSet = await ApiKeyManager.hasValidApiKey(this.providerKey);
             if (!hasApiKeyAfterSet) {
-                // 如果用户取消设置或设置失败，返回空列表
+                // If user cancels setup or setup fails, return empty list
                 return [];
             }
         }
-        // 将配置中的模型转换为VS Code所需的格式
+        // Convert models in configuration to VS Code format
         let models = this.providerConfig.models.map(model => this.modelConfigToInfo(model));
 
-        // 读取用户上次选择的模型并标记为默认（仅当启用记忆功能且提供商匹配时）
+        // Read user's last selected model and mark as default (only if memory is enabled and provider matches)
         const rememberLastModel = ConfigManager.getRememberLastModel();
         if (rememberLastModel) {
             const lastSelectedId = this.modelInfoCache?.getLastSelectedModel(this.providerKey);
@@ -231,31 +233,31 @@ export class GenericModelProvider implements LanguageModelChatProvider {
             }
         }
 
-        // 异步缓存结果（不阻塞返回）
+        // Asynchronously cache results (non-blocking)
         try {
             const apiKeyHash = await this.getApiKeyHash();
             this.updateModelCacheAsync(apiKeyHash);
         } catch (err) {
-            Logger.warn(`[${this.providerKey}] 缓存保存失败:`, err);
+            Logger.warn(`[${this.providerKey}] Cache saving failed:`, err);
         }
 
         return models;
     }
 
     /**
-     * 异步更新模型缓存（不阻塞调用者）
+     * Update model cache asynchronously (non-blocking)
      */
     protected updateModelCacheAsync(apiKeyHash: string): void {
-        // 使用 Promise 在后台执行，不等待结果
+        // Use Promise to execute in background, do not wait for result
         (async () => {
             try {
                 const models = this.providerConfig.models.map(model => this.modelConfigToInfo(model));
 
                 await this.modelInfoCache?.cacheModels(this.providerKey, models, apiKeyHash);
             } catch (err) {
-                // 后台更新失败不应影响扩展运行
+                // Background update failure should not affect extension operation
                 Logger.trace(
-                    `[${this.providerKey}] 后台缓存更新失败:`,
+                    `[${this.providerKey}] Background cache update failed:`,
                     err instanceof Error ? err.message : String(err)
                 );
             }
@@ -263,7 +265,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
     }
 
     /**
-     * 计算 API 密钥的哈希值（用于缓存检查）
+     * Compute API key hash (used for cache check)
      */
     protected async getApiKeyHash(): Promise<string> {
         try {
@@ -274,7 +276,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
             return await ModelInfoCache.computeApiKeyHash(apiKey);
         } catch (err) {
             Logger.warn(
-                `[${this.providerKey}] 计算 API 密钥哈希失败:`,
+                `[${this.providerKey}] Failed to compute API key hash:`,
                 err instanceof Error ? err.message : String(err)
             );
             return 'hash-error';
@@ -288,36 +290,36 @@ export class GenericModelProvider implements LanguageModelChatProvider {
         progress: Progress<vscode.LanguageModelResponsePart>,
         token: CancellationToken
     ): Promise<void> {
-        // 保存用户选择的模型及其提供商（仅当启用记忆功能时）
+        // Save user's selected model and its provider (only if memory is enabled)
         const rememberLastModel = ConfigManager.getRememberLastModel();
         if (rememberLastModel) {
             this.modelInfoCache
                 ?.saveLastSelectedModel(this.providerKey, model.id)
-                .catch(err => Logger.warn(`[${this.providerKey}] 保存模型选择失败:`, err));
+                .catch(err => Logger.warn(`[${this.providerKey}] Failed to save model selection:`, err));
         }
 
-        // 查找对应的模型配置
+        // Find corresponding model configuration
         const modelConfig = this.providerConfig.models.find((m: ModelConfig) => m.id === model.id);
         if (!modelConfig) {
-            const errorMessage = `未找到模型: ${model.id}`;
+            const errorMessage = `Model not found: ${model.id}`;
             Logger.error(errorMessage);
             throw new Error(errorMessage);
         }
 
-        // 计算输入 token 数量并更新状态栏
+        // Calculate input token count and update status bar
         await this.updateTokenUsageStatusBar(model, messages, modelConfig, options);
 
-        // 根据模型配置中的 provider 字段确定实际使用的提供商
-        // 这样可以正确处理同一提供商下不同模型使用不同密钥的情况
+        // Determine actual provider based on provider field in model configuration
+        // This correctly handles cases where different models under the same provider use different keys
         const effectiveProviderKey = modelConfig.provider || this.providerKey;
 
-        // 确保对应提供商的 API 密钥存在
+        // Ensure API key for corresponding provider exists
         await ApiKeyManager.ensureApiKey(effectiveProviderKey, this.providerConfig.displayName);
 
-        // 根据模型的 sdkMode 选择使用的 handler
+        // Select handler based on model's sdkMode
         const sdkMode = modelConfig.sdkMode || 'openai';
         const sdkName = sdkMode === 'anthropic' ? 'Anthropic SDK' : 'OpenAI SDK';
-        Logger.info(`${this.providerConfig.displayName} Provider 开始处理请求 (${sdkName}): ${modelConfig.name}`);
+        Logger.info(`${this.providerConfig.displayName} Provider starts processing request (${sdkName}): ${modelConfig.name}`);
 
         try {
             if (sdkMode === 'anthropic') {
@@ -326,12 +328,12 @@ export class GenericModelProvider implements LanguageModelChatProvider {
                 await this.openaiHandler.handleRequest(model, modelConfig, messages, options, progress, token);
             }
         } catch (error) {
-            const errorMessage = `错误: ${error instanceof Error ? error.message : '未知错误'}`;
+            const errorMessage = `Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
             Logger.error(errorMessage);
-            // 直接抛出错误，让VS Code处理重试
+            // Throw error directly, let VS Code handle retry
             throw error;
         } finally {
-            Logger.info(`✅ ${this.providerConfig.displayName}: ${model.name} 请求已完成`);
+            Logger.info(`✅ ${this.providerConfig.displayName}: ${model.name} Request completed`);
         }
     }
 
@@ -344,7 +346,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
     }
 
     /**
-     * 计算多条消息的总 token 数
+     * Calculate total tokens for multiple messages
      */
     protected async countMessagesTokens(
         model: LanguageModelChatInformation,
@@ -356,9 +358,9 @@ export class GenericModelProvider implements LanguageModelChatProvider {
     }
 
     /**
-     * 更新 token 占用状态栏
-     * 计算输入 token 数量和占用百分比，更新状态栏显示
-     * 供子类复用
+     * Update token usage status bar
+     * Calculate input token count and usage percentage, update status bar display
+     * For subclass reuse
      */
     protected async updateTokenUsageStatusBar(
         model: LanguageModelChatInformation,
@@ -367,12 +369,12 @@ export class GenericModelProvider implements LanguageModelChatProvider {
         options?: ProvideLanguageModelChatResponseOptions
     ): Promise<void> {
         try {
-            // 计算占用百分比
+            // Calculate usage percentage
             const totalInputTokens = await this.countMessagesTokens(model, messages, modelConfig, options);
             const maxInputTokens = model.maxInputTokens || modelConfig.maxInputTokens;
             const percentage = (totalInputTokens / maxInputTokens) * 100;
 
-            // 更新 token 占用状态栏
+            // Update token usage status bar
             const tokenUsageStatusBar = TokenUsageStatusBar.getInstance();
             if (tokenUsageStatusBar) {
                 tokenUsageStatusBar.updateTokenUsage({
@@ -385,8 +387,8 @@ export class GenericModelProvider implements LanguageModelChatProvider {
                 });
             }
         } catch (error) {
-            // Token 计算失败不应阻止请求，只记录警告
-            Logger.warn(`[${this.providerKey}] Token 计算失败:`, error);
+            // Token calculation failure should not block request, only log warning
+            Logger.warn(`[${this.providerKey}] Token calculation failed:`, error);
         }
     }
 }

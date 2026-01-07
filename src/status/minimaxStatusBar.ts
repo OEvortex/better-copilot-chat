@@ -50,7 +50,7 @@ export class MiniMaxStatusBar extends ProviderStatusBarItem<MiniMaxStatusData> {
     constructor() {
         const config: StatusBarItemConfig = {
             id: 'chp.statusBar.minimax',
-            name: 'Copilot Helper Pro: MiniMax Coding Plan',
+            name: 'Copilot ++: MiniMax Coding Plan',
             alignment: vscode.StatusBarAlignment.Right,
             priority: 100,
             refreshCommand: 'chp.refreshMiniMaxUsage',

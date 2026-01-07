@@ -6,7 +6,7 @@
         {
             "id": "deepseek-chat",
             "name": "DeepSeek-V3.2",
-            "tooltip": "DeepSeek V3.2 官方模型，DeepSeek-V3.2 的目标是平衡推理能力与输出长度，适合日常使用，例如问答场景和通用 Agent 任务场景。在公开的推理类 Benchmark 测试中，DeepSeek-V3.2 达到了 GPT-5 的水平，仅略低于 Gemini-3.0-Pro；相比 Kimi-K2-Thinking，V3.2 的输出长度大幅降低，显著减少了计算开销与用户等待时间。",
+            "tooltip": "DeepSeek V3.2 official model. DeepSeek-V3.2 aims to balance reasoning capability with output length, suitable for daily use such as Q&A and general Agent tasks. In public reasoning benchmarks, DeepSeek-V3.2 reached GPT-5 levels, slightly below Gemini-3.0-Pro; compared to Kimi-K2-Thinking, V3.2's output length is significantly reduced, notably decreasing computational overhead and user wait time.",
             "sdkMode": "anthropic",
             "baseUrl": "https://api.deepseek.com/anthropic",
             "maxInputTokens": 128000,
@@ -19,7 +19,7 @@
         {
             "id": "deepseek-reasoner",
             "name": "DeepSeek-V3.2 (Reasoner)",
-            "tooltip": "DeepSeek V3.2 思考模式，DeepSeek-V3.2 的目标是平衡推理能力与输出长度，适合日常使用，例如问答场景和通用 Agent 任务场景。在公开的推理类 Benchmark 测试中，DeepSeek-V3.2 达到了 GPT-5 的水平，仅略低于 Gemini-3.0-Pro；相比 Kimi-K2-Thinking，V3.2 的输出长度大幅降低，显著减少了计算开销与用户等待时间。",
+            "tooltip": "DeepSeek V3.2 reasoning mode. DeepSeek-V3.2 aims to balance reasoning capability with output length, suitable for daily use such as Q&A and general Agent tasks. In public reasoning benchmarks, DeepSeek-V3.2 reached GPT-5 levels, slightly below Gemini-3.0-Pro; compared to Kimi-K2-Thinking, V3.2's output length is significantly reduced, notably decreasing computational overhead and user wait time.",
             "sdkMode": "anthropic",
             "baseUrl": "https://api.deepseek.com/anthropic",
             "maxInputTokens": 128000,

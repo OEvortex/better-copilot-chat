@@ -1,28 +1,28 @@
 /*---------------------------------------------------------------------------------------------
- *  高频状态日志管理器
- *  专用于 primaryInstanceManager 等
- *  高频状态刷新模块的日志输出，与主日志通道分离
+ *  High-Frequency Status Logger Manager
+ *  Dedicated to primaryInstanceManager and other high-frequency status refresh modules,
+ *  separated from the main log channel.
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
 
 /**
- * 高频状态日志管理器类
- * 用于记录主实例选举、心跳、状态同步等高频操作的日志
+ * High-Frequency Status Logger Manager class
+ * Used to record logs for high-frequency operations such as main instance election, heartbeat, and status synchronization.
  */
 export class StatusLogger {
     private static outputChannel: vscode.LogOutputChannel;
 
     /**
-     * 初始化高频状态日志管理器
+     * Initialize high-frequency status logger manager
      */
     static initialize(channelName = 'CHP-Status'): void {
-        // 使用LogOutputChannel (VS Code 1.74+)，支持原生的日志级别和格式化
+        // Use LogOutputChannel (VS Code 1.74+), supports native log levels and formatting
         this.outputChannel = vscode.window.createOutputChannel(channelName, { log: true });
     }
 
     /**
-     * Trace级别日志 (VS Code LogLevel.Trace = 1)
+     * Trace level log (VS Code LogLevel.Trace = 1)
      */
     static trace(message: string, ...args: unknown[]): void {
         if (this.outputChannel) {
@@ -31,7 +31,7 @@ export class StatusLogger {
     }
 
     /**
-     * Debug级别日志 (VS Code LogLevel.Debug = 2)
+     * Debug level log (VS Code LogLevel.Debug = 2)
      */
     static debug(message: string, ...args: unknown[]): void {
         if (this.outputChannel) {
@@ -40,7 +40,7 @@ export class StatusLogger {
     }
 
     /**
-     * Info级别日志 (VS Code LogLevel.Info = 3)
+     * Info level log (VS Code LogLevel.Info = 3)
      */
     static info(message: string, ...args: unknown[]): void {
         if (this.outputChannel) {
@@ -49,7 +49,7 @@ export class StatusLogger {
     }
 
     /**
-     * Warning级别日志 (VS Code LogLevel.Warning = 4)
+     * Warning level log (VS Code LogLevel.Warning = 4)
      */
     static warn(message: string, ...args: unknown[]): void {
         if (this.outputChannel) {
@@ -58,7 +58,7 @@ export class StatusLogger {
     }
 
     /**
-     * Error级别日志 (VS Code LogLevel.Error = 5)
+     * Error level log (VS Code LogLevel.Error = 5)
      */
     static error(message: string | Error, ...args: unknown[]): void {
         if (this.outputChannel) {
@@ -67,7 +67,7 @@ export class StatusLogger {
     }
 
     /**
-     * 销毁日志管理器
+     * Dispose logger manager
      */
     static dispose(): void {
         if (this.outputChannel) {

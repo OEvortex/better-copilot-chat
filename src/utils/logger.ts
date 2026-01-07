@@ -1,26 +1,26 @@
 /*---------------------------------------------------------------------------------------------
- *  日志管理器
- *  将日志输出到VS Code的输出窗口
+ *  Logger Manager
+ *  Outputs logs to VS Code's output window
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
 
 /**
- * 日志管理器类 - 直接使用VS Code的LogLevel和LogOutputChannel
+ * Logger Manager class - directly uses VS Code's LogLevel and LogOutputChannel
  */
 export class Logger {
     private static outputChannel: vscode.LogOutputChannel;
 
     /**
-     * 初始化日志管理器
+     * Initialize logger manager
      */
-    static initialize(channelName = 'Copilot Helper Pro'): void {
-        // 使用LogOutputChannel (VS Code 1.74+)，支持原生的日志级别和格式化
+    static initialize(channelName = 'Copilot ++'): void {
+        // Use LogOutputChannel (VS Code 1.74+), supports native log levels and formatting
         this.outputChannel = vscode.window.createOutputChannel(channelName, { log: true });
     }
 
     /**
-     * 检查和提示VS Code日志级别设置
+     * Check and prompt VS Code log level settings
      */
     static checkAndPromptLogLevel(): void {
         if (!this.outputChannel) {
@@ -30,34 +30,34 @@ export class Logger {
         const channelLevel = this.outputChannel.logLevel;
         const envLevel = vscode.env.logLevel;
 
-        Logger.info('📊 VS Code日志级别状态:');
-        Logger.info(`  - 输出通道级别: ${vscode.LogLevel[channelLevel]} (${channelLevel})`);
-        Logger.info(`  - 编辑器环境级别: ${vscode.LogLevel[envLevel]} (${envLevel})`);
+        Logger.info('📊 VS Code log level status:');
+        Logger.info(`  - Output channel level: ${vscode.LogLevel[channelLevel]} (${channelLevel})`);
+        Logger.info(`  - Editor environment level: ${vscode.LogLevel[envLevel]} (${envLevel})`);
 
-        // 如果日志级别高于Debug，提示用户
+        // If log level is higher than Debug, prompt user
         if (channelLevel > vscode.LogLevel.Debug) {
-            Logger.warn(`⚠️ 当前VS Code日志级别为 ${vscode.LogLevel[channelLevel]}，可能不会显示详细调试信息`);
-            Logger.info('💡 如需查看详细调试日志，请执行命令: "Developer: Set Log Level" → 选择 "Debug"');
+            Logger.warn(`⚠️ Current VS Code log level is ${vscode.LogLevel[channelLevel]}, detailed debug information may not be displayed`);
+            Logger.info('💡 To view detailed debug logs, please execute command: "Developer: Set Log Level" → select "Debug"');
 
-            // 显示通知
+            // Show notification
             vscode.window
                 .showInformationMessage(
-                    `Copilot Helper Pro: 当前VS Code日志级别为 ${vscode.LogLevel[channelLevel]}`,
-                    '设置日志级别',
-                    '忽略'
+                    `Copilot ++: Current VS Code log level is ${vscode.LogLevel[channelLevel]}`,
+                    'Set Log Level',
+                    'Ignore'
                 )
                 .then(selection => {
-                    if (selection === '设置日志级别') {
+                    if (selection === 'Set Log Level') {
                         vscode.commands.executeCommand('workbench.action.setLogLevel');
                     }
                 });
         } else {
-            Logger.info(`✅ VS Code日志级别已设置为 ${vscode.LogLevel[channelLevel]}，可以查看详细调试信息`);
+            Logger.info(`✅ VS Code log level is set to ${vscode.LogLevel[channelLevel]}, detailed debug information can be viewed`);
         }
     }
 
     /**
-     * Trace级别日志 (VS Code LogLevel.Trace = 1)
+     * Trace level log (VS Code LogLevel.Trace = 1)
      */
     static trace(message: string, ...args: unknown[]): void {
         if (this.outputChannel) {
@@ -66,7 +66,7 @@ export class Logger {
     }
 
     /**
-     * Debug级别日志 (VS Code LogLevel.Debug = 2)
+     * Debug level log (VS Code LogLevel.Debug = 2)
      */
     static debug(message: string, ...args: unknown[]): void {
         if (this.outputChannel) {
@@ -75,7 +75,7 @@ export class Logger {
     }
 
     /**
-     * Info级别日志 (VS Code LogLevel.Info = 3)
+     * Info level log (VS Code LogLevel.Info = 3)
      */
     static info(message: string, ...args: unknown[]): void {
         if (this.outputChannel) {
@@ -84,7 +84,7 @@ export class Logger {
     }
 
     /**
-     * Warning级别日志 (VS Code LogLevel.Warning = 4)
+     * Warning level log (VS Code LogLevel.Warning = 4)
      */
     static warn(message: string, ...args: unknown[]): void {
         if (this.outputChannel) {
@@ -93,7 +93,7 @@ export class Logger {
     }
 
     /**
-     * Error级别日志 (VS Code LogLevel.Error = 5)
+     * Error level log (VS Code LogLevel.Error = 5)
      */
     static error(message: string | Error, ...args: unknown[]): void {
         if (this.outputChannel) {
@@ -102,7 +102,7 @@ export class Logger {
     }
 
     /**
-     * 销毁日志管理器
+     * Dispose logger manager
      */
     static dispose(): void {
         if (this.outputChannel) {
