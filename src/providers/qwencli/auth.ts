@@ -20,14 +20,35 @@ export class QwenOAuthManager {
     private static instance: QwenOAuthManager;
     private credentials: QwenOAuthCredentials | null = null;
     private refreshPromise: Promise<QwenOAuthCredentials> | null = null;
+    private refreshTimer: NodeJS.Timeout | null = null;
 
-    private constructor() {}
+    private constructor() {
+        // Start proactive refresh timer (every 30 seconds)
+        this.startProactiveRefresh();
+    }
 
     static getInstance(): QwenOAuthManager {
         if (!QwenOAuthManager.instance) {
             QwenOAuthManager.instance = new QwenOAuthManager();
         }
         return QwenOAuthManager.instance;
+    }
+
+    private startProactiveRefresh(): void {
+        if (this.refreshTimer) {
+            clearInterval(this.refreshTimer);
+        }
+        this.refreshTimer = setInterval(async () => {
+            try {
+                // Only refresh if we have credentials and they are close to expiring
+                if (this.credentials && !this.isTokenValid(this.credentials)) {
+                    Logger.debug('Qwen CLI: Proactive token refresh triggered');
+                    await this.refreshAccessToken(this.credentials);
+                }
+            } catch (error) {
+                Logger.trace(`Qwen CLI: Proactive refresh failed: ${error}`);
+            }
+        }, 30000); // Check every 30 seconds
     }
 
     private getCredentialPath(): string {
@@ -133,8 +154,25 @@ export class QwenOAuthManager {
     }
 
     async ensureAuthenticated(forceRefresh = false): Promise<{ accessToken: string; baseURL: string }> {
-        this.credentials = this.loadCachedCredentials();
+        // If we already have valid credentials in memory and not forcing refresh, return them
+        if (this.credentials && !forceRefresh && this.isTokenValid(this.credentials)) {
+            return {
+                accessToken: this.credentials.access_token,
+                baseURL: this.getBaseURL(this.credentials)
+            };
+        }
 
+        // Try to load from file if not in memory
+        if (!this.credentials) {
+            try {
+                this.credentials = this.loadCachedCredentials();
+            } catch (error) {
+                // If file doesn't exist or is invalid, re-throw
+                throw error;
+            }
+        }
+
+        // Check validity and refresh if needed
         if (forceRefresh || !this.isTokenValid(this.credentials)) {
             this.credentials = await this.refreshAccessToken(this.credentials);
         }

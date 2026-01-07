@@ -35,6 +35,12 @@ export interface ModelConfig {
      */
     model?: string;
     /**
+     * Model-specific API key (optional)
+     * If provided, will be used instead of looking up from ApiKeyManager
+     * Useful for providers that handle their own authentication (e.g. OAuth)
+     */
+    apiKey?: string;
+    /**
      * Model-specific custom HTTP headers (optional)
      * If provided, will append these custom headers in API requests
      */

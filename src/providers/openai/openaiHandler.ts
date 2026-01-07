@@ -65,10 +65,17 @@ export class OpenAIHandler {
     private async createOpenAIClient(modelConfig?: ModelConfig): Promise<OpenAI> {
         // Priority: model.provider -> this.provider
         const providerKey = modelConfig?.provider || this.provider;
-        const currentApiKey = await ApiKeyManager.getApiKey(providerKey);
+        
+        // Check if API key is provided in modelConfig (e.g. for OAuth providers)
+        let currentApiKey = modelConfig?.apiKey;
+        
         if (!currentApiKey) {
-            throw new Error(`Missing ${this.displayName} API key`);
+            currentApiKey = await ApiKeyManager.getApiKey(providerKey);
+            if (!currentApiKey) {
+                throw new Error(`Missing ${this.displayName} API key`);
+            }
         }
+        
         // Use model-specific baseURL first, if none use provider-level baseURL
         let baseURL = modelConfig?.baseUrl || this.baseURL;
 

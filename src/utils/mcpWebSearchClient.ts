@@ -271,9 +271,7 @@ export class MCPWebSearchClient {
                     version: VersionManager.getVersion()
                 },
                 {
-                    capabilities: {
-                        tools: {}
-                    }
+                    capabilities: {}
                 }
             );
 

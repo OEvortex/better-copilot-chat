@@ -24,6 +24,7 @@ interface SerializedAccountRateLimitData {
             resetsAt?: number;
         };
         credits?: {
+            hasCredits?: boolean;
             unlimited?: boolean;
             balance?: string;
         };
@@ -169,7 +170,11 @@ export class CodexRateLimitStatusBar {
                     windowMinutes: snapshot.secondary.windowMinutes,
                     resetsAt: snapshot.secondary.resetsAt
                 } : undefined,
-                credits: snapshot.credits,
+                credits: snapshot.credits ? {
+                    hasCredits: snapshot.credits.hasCredits,
+                    unlimited: snapshot.credits.unlimited,
+                    balance: snapshot.credits.balance
+                } : undefined,
                 capturedAt: snapshot.capturedAt.getTime()
             }
         };
@@ -181,7 +186,11 @@ export class CodexRateLimitStatusBar {
             const snapshot: RateLimitSnapshot = {
                 primary: serialized.snapshot.primary as RateLimitWindow | undefined,
                 secondary: serialized.snapshot.secondary as RateLimitWindow | undefined,
-                credits: serialized.snapshot.credits,
+                credits: serialized.snapshot.credits ? {
+                    hasCredits: serialized.snapshot.credits.hasCredits ?? (serialized.snapshot.credits.unlimited || !!serialized.snapshot.credits.balance),
+                    unlimited: serialized.snapshot.credits.unlimited ?? false,
+                    balance: serialized.snapshot.credits.balance
+                } : undefined,
                 capturedAt: new Date(serialized.snapshot.capturedAt)
             };
 

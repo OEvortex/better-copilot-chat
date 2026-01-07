@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2026-01-07
+
+### Fixed
+- Fixed Qwen Code CLI authentication issue by correctly passing OAuth token as API key to OpenAI handler.
+- Fixed Qwen3 Coder Flash model name in configuration (changed from `qwen3-coder-flash` to `qwen2.5-coder-32b-instruct`).
+
 ## [0.1.0] - 2026-01-07
 
 ### Added

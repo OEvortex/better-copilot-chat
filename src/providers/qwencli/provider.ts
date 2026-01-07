@@ -16,6 +16,44 @@ import { ProviderConfig, ModelConfig } from '../../types/sharedTypes';
 import { Logger } from '../../utils/logger';
 import { QwenOAuthManager } from './auth';
 
+class ThinkingBlockParser {
+    private inThinkingBlock = false;
+    private buffer = '';
+
+    parse(text: string): { regular: string; thinking: string } {
+        let regular = '';
+        let thinking = '';
+        this.buffer += text;
+
+        while (true) {
+            if (this.inThinkingBlock) {
+                const endIdx = this.buffer.indexOf('</think>');
+                if (endIdx !== -1) {
+                    thinking += this.buffer.substring(0, endIdx);
+                    this.buffer = this.buffer.substring(endIdx + 8);
+                    this.inThinkingBlock = false;
+                } else {
+                    thinking += this.buffer;
+                    this.buffer = '';
+                    break;
+                }
+            } else {
+                const startIdx = this.buffer.indexOf('<think>');
+                if (startIdx !== -1) {
+                    regular += this.buffer.substring(0, startIdx);
+                    this.buffer = this.buffer.substring(startIdx + 7);
+                    this.inThinkingBlock = true;
+                } else {
+                    regular += this.buffer;
+                    this.buffer = '';
+                    break;
+                }
+            }
+        }
+        return { regular, thinking };
+    }
+}
+
 export class QwenCliProvider extends GenericModelProvider implements LanguageModelChatProvider {
     constructor(context: vscode.ExtensionContext, providerKey: string, providerConfig: ProviderConfig) {
         super(context, providerKey, providerConfig);
@@ -50,30 +88,17 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
         options: { silent: boolean },
         _token: CancellationToken
     ): Promise<LanguageModelChatInformation[]> {
-        try {
-            await QwenOAuthManager.getInstance().ensureAuthenticated();
-        } catch (error) {
-            if (!options.silent) {
-                const action = await vscode.window.showErrorMessage(
-                    `${this.providerConfig.displayName} requires login via CLI.`,
-                    'Login',
-                    'Cancel'
-                );
-                if (action === 'Login') {
-                    await vscode.commands.executeCommand(`chp.${this.providerKey}.login`);
-                }
-            }
-            return [];
-        }
-
-        return super.provideLanguageModelChatInformation(options, _token);
+        // Always return models immediately without any async checks
+        // This prevents the UI from refreshing/flickering when trying to add models
+        // Authentication check will happen when user tries to use the model
+        return this.providerConfig.models.map(model => this.modelConfigToInfo(model));
     }
 
     override async provideLanguageModelChatResponse(
         model: LanguageModelChatInformation,
         messages: Array<LanguageModelChatMessage>,
         options: ProvideLanguageModelChatResponseOptions,
-        progress: Progress<vscode.LanguageModelResponsePart>,
+        progress: Progress<vscode.LanguageModelResponsePart2>,
         token: CancellationToken
     ): Promise<void> {
         const modelConfig = this.providerConfig.models.find((m: ModelConfig) => m.id === model.id);
@@ -85,16 +110,44 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
             const { accessToken, baseURL } = await QwenOAuthManager.getInstance().ensureAuthenticated();
             
             // Update handler with latest credentials
+            // Pass accessToken as apiKey so OpenAIHandler uses it for Authorization header
             const configWithAuth: ModelConfig = {
                 ...modelConfig,
                 baseUrl: baseURL,
-                customHeader: {
-                    ...modelConfig.customHeader,
-                    'Authorization': `Bearer ${accessToken}`
+                apiKey: accessToken,
+                customHeader: modelConfig.customHeader
+            };
+
+            const thinkingParser = new ThinkingBlockParser();
+            let currentThinkingId: string | null = null;
+
+            const wrappedProgress: Progress<vscode.LanguageModelResponsePart2> = {
+                report: (part) => {
+                    if (part instanceof vscode.LanguageModelTextPart) {
+                        const { regular, thinking } = thinkingParser.parse(part.value);
+                        
+                        if (thinking) {
+                            if (!currentThinkingId) {
+                                currentThinkingId = `qwen_thinking_${Date.now()}`;
+                            }
+                            progress.report(new vscode.LanguageModelThinkingPart(thinking, currentThinkingId));
+                        }
+
+                        if (regular) {
+                            if (currentThinkingId) {
+                                // End thinking block before sending regular text
+                                progress.report(new vscode.LanguageModelThinkingPart('', currentThinkingId));
+                                currentThinkingId = null;
+                            }
+                            progress.report(new vscode.LanguageModelTextPart(regular));
+                        }
+                    } else {
+                        progress.report(part);
+                    }
                 }
             };
 
-            await this.openaiHandler.handleRequest(model, configWithAuth, messages, options, progress, token);
+            await this.openaiHandler.handleRequest(model, configWithAuth, messages, options, wrappedProgress, token);
         } catch (error) {
             if (error instanceof Error && error.message.includes('401')) {
                 // Try refreshing once on 401

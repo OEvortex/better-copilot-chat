@@ -3,7 +3,6 @@ import { GenericModelProvider } from './providers/common/genericModelProvider';
 import { ZhipuProvider } from './providers/zhipu/zhipuProvider';
 import { ChutesProvider } from './providers/chutes/chutesProvider';
 import { QwenCliProvider } from './providers/qwencli/provider';
-
 import { MiniMaxProvider } from './providers/minimax/minimaxProvider';
 import { CompatibleProvider } from './providers/compatible/compatibleProvider';
 import { ProviderKey } from './types/providerKeys';
