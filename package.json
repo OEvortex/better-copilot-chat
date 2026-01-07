@@ -54,6 +54,7 @@
         "onLanguageModelProvider:chp.chutes",
         "onLanguageModelProvider:chp.opencode",
         "onLanguageModelProvider:chp.qwencli",
+        "onLanguageModelProvider:chp.geminicli",
         "onLanguageModelProvider:chp.codex",
         "onLanguageModelProvider:chp.compatible",
         "onLanguageModelTool:chp_zhipuWebSearch",
@@ -199,6 +200,11 @@
             {
                 "command": "chp.qwencli.login",
                 "title": "Qwen CLI Login (OAuth)",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.geminicli.login",
+                "title": "Gemini CLI Login (OAuth)",
                 "category": "Copilot ++"
             },
             {
@@ -574,6 +580,11 @@
                 "vendor": "chp.qwencli",
                 "displayName": "⦿ Qwen Code CLI",
                 "managementCommand": "chp.qwencli.login"
+            },
+            {
+                "vendor": "chp.geminicli",
+                "displayName": "⦿ Gemini CLI",
+                "managementCommand": "chp.geminicli.login"
             },
             {
                 "vendor": "chp.compatible",

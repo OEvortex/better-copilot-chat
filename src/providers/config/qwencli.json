@@ -16,15 +16,15 @@
             }
         },
         {
-            "id": "qwen-coder-flash",
-            "name": "Qwen3 Coder Flash (Free)",
-            "tooltip": "Qwen3 Coder Flash via CLI",
-            "maxInputTokens": 1000000,
+            "id": "qwen3-vl-plus",
+            "name": "Qwen3 VL Plus (Free)",
+            "tooltip": "Qwen3 vl plus via CLI",
+            "maxInputTokens": 256000,
             "maxOutputTokens": 65536,
-            "model": "qwen3-coder-flash",
+            "model": "qwen3-vl-plus",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         }
     ]

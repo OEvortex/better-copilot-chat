@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - Import issue in `TokenCounter.ts` that caused build failures.
 - Refactored `GenericModelProvider` to expose `ExtensionContext` for subclasses.
 - Fixed Qwen Code CLI authentication issue ("Missing API key") by properly passing OAuth tokens to the OpenAI handler.
+- Fixed Gemini CLI provider: align request payload with Google Code Assist API (use model/project/user_prompt_id/request schema), call loadCodeAssist to detect project/tier before streaming, and avoid sending unsupported fields (userAgent/requestId/sessionId) which could return HTTP 500 INTERNAL errors. (PR: geminicli provider initial implementation and bugfix)
 
 ## [0.15.26] - Previous Version
 - Initial release with ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Antigravity, and Codex support.
