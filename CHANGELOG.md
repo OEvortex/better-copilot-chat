@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - New provider: **Chutes** (`https://llm.chutes.ai/v1`) with 14 models including Qwen3, GLM-4.7, DeepSeek-R1, and more.
 - New provider: **OpenCode** (`https://opencode.ai/zen/v1`) with 26 models including Claude 4.5, Gemini 3, GPT-5, and more.
-- New provider: **Qwen Code CLI** (OAuth via CLI) with models like Qwen 2.5 Coder 32B, Qwen Plus, Qwen Max, and Qwen3 Coder Plus/Flash.
+- New provider: **Qwen Code CLI** (OAuth via CLI) with models like Qwen3 Coder Plus/Flash.
 - Added "(Free)" suffix to OpenCode models with zero pricing (MiniMax M2.1, GLM-4.7, Grok Code, Big Pickle).
 - Global request limit tracking for Chutes provider (5,000 requests/day).
 - Status bar items for Chutes and OpenCode providers.

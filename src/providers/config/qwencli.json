@@ -4,39 +4,6 @@
     "apiKeyTemplate": "OAuth via CLI",
     "models": [
         {
-            "id": "qwen-2.5-coder-32b-instruct",
-            "name": "Qwen 2.5 Coder 32B Instruct",
-            "tooltip": "Qwen 2.5 Coder 32B Instruct via CLI",
-            "maxInputTokens": 131072,
-            "maxOutputTokens": 8192,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "qwen-plus",
-            "name": "Qwen Plus",
-            "tooltip": "Qwen Plus via CLI",
-            "maxInputTokens": 131072,
-            "maxOutputTokens": 8192,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "qwen-max",
-            "name": "Qwen Max",
-            "tooltip": "Qwen Max via CLI",
-            "maxInputTokens": 131072,
-            "maxOutputTokens": 8192,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "qwen-coder-plus",
             "name": "Qwen3 Coder Plus (Free)",
             "tooltip": "Qwen3 Coder Plus via CLI",
