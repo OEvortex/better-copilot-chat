@@ -17,6 +17,16 @@ All notable changes to this project will be documented in this file.
 - Refactored `GenericModelProvider` to expose `ExtensionContext` for subclasses.
 - Fixed Qwen Code CLI authentication issue ("Missing API key") by properly passing OAuth tokens to the OpenAI handler.
 - Fixed Gemini CLI provider: align request payload with Google Code Assist API (use model/project/user_prompt_id/request schema), call loadCodeAssist to detect project/tier before streaming, and avoid sending unsupported fields (userAgent/requestId/sessionId) which could return HTTP 500 INTERNAL errors. (PR: geminicli provider initial implementation and bugfix)
+- **Updated Gemini CLI OAuth authentication** to match reference implementation:
+  - Replaced environment variable OAuth credentials with official Google OAuth client credentials
+  - Improved token refresh logic with proper concurrency control using refresh locks
+  - Enhanced error handling with proper HTTP status code responses
+  - Added `invalidateCredentials()` method for handling 401 authentication errors
+  - Added `forceRefresh()` method for manual token refresh
+  - Updated `ensureAuthenticated()` to always reload credentials from file for external updates
+  - Fixed path construction issue with Windows path separators
+  - Added debug logging for credential path resolution
+- **Fixed configuration error**: Added missing `antigravityQuotaWatcher.apiKey` configuration to prevent runtime errors.
 
-## [0.15.26] - Previous Version
+## [0.0.0] - Previous Version
 - Initial release with ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Antigravity, and Codex support.

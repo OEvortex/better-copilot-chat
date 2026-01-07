@@ -536,6 +536,12 @@
                     "default": [],
                     "description": "Custom model configuration for Compatible Provider. Completely user-configured OpenAI/Anthropic compatible model list.",
                     "scope": "application"
+                },
+                "antigravityQuotaWatcher.apiKey": {
+                    "type": "string",
+                    "default": "",
+                    "description": "API key for Antigravity quota watcher.",
+                    "scope": "application"
                 }
             }
         },

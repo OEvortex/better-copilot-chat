@@ -235,9 +235,10 @@ export interface GeminiTokenResponse {
     error_description?: string;
 }
 
-// Read OAuth client ID/secret from environment variables to avoid committing secrets
-export const GEMINI_OAUTH_CLIENT_ID = process.env.GEMINI_OAUTH_CLIENT_ID || '';
-export const GEMINI_OAUTH_CLIENT_SECRET = process.env.GEMINI_OAUTH_CLIENT_SECRET || '';
+// Official Google OAuth client credentials for Gemini CLI
+// See: https://github.com/google-gemini/gemini-cli/blob/main/packages/core/src/code_assist/oauth2.ts
+export const GEMINI_OAUTH_CLIENT_ID = '681255809395-oo8ft2oprdrnp9e3aqf6av3hmdib135j.apps.googleusercontent.com';
+export const GEMINI_OAUTH_CLIENT_SECRET = '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';
 export const GEMINI_OAUTH_TOKEN_ENDPOINT = 'https://accounts.google.com/o/oauth2/token';
 export const GEMINI_DEFAULT_BASE_URL = 'https://cloudcode-pa.googleapis.com/v1internal';
 export const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000; // 5 minutes
