@@ -225,7 +225,7 @@
         },
         {
             "id": "minimax-m2.1-free",
-            "name": "MiniMax M2.1 Free",
+            "name": "MiniMax M2.1 (Free)",
             "tooltip": "MiniMax M2.1 Free by OpenCode",
             "maxInputTokens": 197000,
             "maxOutputTokens": 8192,
@@ -236,7 +236,7 @@
         },
         {
             "id": "glm-4.7-free",
-            "name": "GLM-4.7 Free",
+            "name": "GLM-4.7 (Free)",
             "tooltip": "GLM-4.7 Free by OpenCode",
             "maxInputTokens": 128000,
             "maxOutputTokens": 8192,
@@ -247,7 +247,7 @@
         },
         {
             "id": "grok-code",
-            "name": "Grok Code",
+            "name": "Grok Code (Free)",
             "tooltip": "Grok Code by OpenCode",
             "maxInputTokens": 200000,
             "maxOutputTokens": 8192,
@@ -280,7 +280,7 @@
         },
         {
             "id": "big-pickle",
-            "name": "Big Pickle",
+            "name": "Big Pickle (Free)",
             "tooltip": "Big Pickle by OpenCode",
             "maxInputTokens": 128000,
             "maxOutputTokens": 8192,
