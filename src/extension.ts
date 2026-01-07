@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { GenericModelProvider } from './providers/common/genericModelProvider';
 import { ZhipuProvider } from './providers/zhipu/zhipuProvider';
 import { ChutesProvider } from './providers/chutes/chutesProvider';
+import { OpenCodeProvider } from './providers/opencode/opencodeProvider';
 import { QwenCliProvider } from './providers/qwencli/provider';
 import { GeminiCliProvider } from './providers/geminicli/provider';
 import { MiniMaxProvider } from './providers/minimax/minimaxProvider';
@@ -37,7 +38,7 @@ import { CodexRateLimitStatusBar } from './status/codexRateLimitStatusBar';
  */
 const registeredProviders: Record<
     string,
-    GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider | QwenCliProvider | GeminiCliProvider | CompatibleProvider | AntigravityProvider | CodexProvider
+    GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider | OpenCodeProvider | QwenCliProvider | GeminiCliProvider | CompatibleProvider | AntigravityProvider | CodexProvider
 > = {};
 const registeredDisposables: vscode.Disposable[] = [];
 
@@ -70,7 +71,7 @@ async function activateProviders(context: vscode.ExtensionContext): Promise<void
             Logger.trace(`Registering provider: ${providerConfig.displayName} (${providerKey})`);
             const providerStartTime = Date.now();
 
-            let provider: GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider;
+            let provider: GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider | OpenCodeProvider;
             let disposables: vscode.Disposable[];
 
             if (providerKey === 'zhipu') {
@@ -86,6 +87,11 @@ async function activateProviders(context: vscode.ExtensionContext): Promise<void
             } else if (providerKey === 'chutes') {
                 // Use specialized provider for chutes (global request limit tracking)
                 const result = ChutesProvider.createAndActivate(context, providerKey, providerConfig);
+                provider = result.provider;
+                disposables = result.disposables;
+            } else if (providerKey === 'opencode') {
+                // Use specialized provider for opencode (dedicated error handling and status)
+                const result = OpenCodeProvider.createAndActivate(context, providerKey, providerConfig);
                 provider = result.provider;
                 disposables = result.disposables;
             } else if (providerKey === 'qwencli') {

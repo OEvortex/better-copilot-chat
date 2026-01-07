@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Chutes Dedicated Provider
- *  Handles global request limit tracking for Chutes provider
+ *  OpenCode Dedicated Provider
+ *  Handles OpenCode specific logic and optimizations
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -17,31 +17,25 @@ import { ProviderConfig } from '../../types/sharedTypes';
 import { Logger, ApiKeyManager } from '../../utils';
 import { StatusBarManager } from '../../status';
 
-// Constants for storage keys
-const KEYS = {
-    REQUEST_COUNT: 'chutes.requestCount',
-    LAST_RESET_DATE: 'chutes.lastResetDate'
-};
-
 /**
- * Chutes dedicated model provider class
+ * OpenCode dedicated model provider class
  */
-export class ChutesProvider extends GenericModelProvider implements LanguageModelChatProvider {
+export class OpenCodeProvider extends GenericModelProvider implements LanguageModelChatProvider {
     constructor(context: vscode.ExtensionContext, providerKey: string, providerConfig: ProviderConfig) {
         super(context, providerKey, providerConfig);
     }
 
     /**
-     * Static factory method - Create and activate Chutes provider
+     * Static factory method - Create and activate OpenCode provider
      */
     static override createAndActivate(
         context: vscode.ExtensionContext,
         providerKey: string,
         providerConfig: ProviderConfig
-    ): { provider: ChutesProvider; disposables: vscode.Disposable[] } {
+    ): { provider: OpenCodeProvider; disposables: vscode.Disposable[] } {
         Logger.trace(`${providerConfig.displayName} dedicated model extension activated!`);
         // Create provider instance
-        const provider = new ChutesProvider(context, providerKey, providerConfig);
+        const provider = new OpenCodeProvider(context, providerKey, providerConfig);
         // Register language model chat provider
         const providerDisposable = vscode.lm.registerLanguageModelChatProvider(`chp.${providerKey}`, provider);
 
@@ -64,7 +58,7 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
     }
 
     /**
-     * Override: Provide language model chat response - track global request count
+     * Override: Provide language model chat response
      */
     override async provideLanguageModelChatResponse(
         model: LanguageModelChatInformation,
@@ -73,38 +67,15 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
         progress: Progress<vscode.LanguageModelResponsePart>,
         token: CancellationToken
     ): Promise<void> {
-        Logger.info(`[Chutes] Starting request for model: ${model.name}`);
         try {
+            Logger.info(`[OpenCode] Starting request for model: ${model.name}`);
             await super.provideLanguageModelChatResponse(model, messages, options, progress, token);
         } catch (error) {
-            Logger.error(`[Chutes] Request failed: ${error instanceof Error ? error.message : String(error)}`);
+            Logger.error(`[OpenCode] Request failed: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         } finally {
-            // After request completes (success or failure), update global request count
-            this.incrementRequestCount();
+            // Trigger status bar update if needed
+            StatusBarManager.delayedUpdate('opencode', 100);
         }
-    }
-
-    /**
-     * Increment global request count and update status bar
-     */
-    private incrementRequestCount(): void {
-        const today = new Date().toDateString();
-
-        let count = this.context?.globalState.get<number>(KEYS.REQUEST_COUNT) || 0;
-        const lastReset = this.context?.globalState.get<string>(KEYS.LAST_RESET_DATE);
-
-        if (lastReset !== today) {
-            count = 1;
-            this.context?.globalState.update(KEYS.LAST_RESET_DATE, today);
-        } else {
-            count++;
-        }
-
-        this.context?.globalState.update(KEYS.REQUEST_COUNT, count);
-        Logger.debug(`[Chutes] Global request count: ${count}/5000`);
-
-        // Trigger status bar update
-        StatusBarManager.delayedUpdate('chutes', 100);
     }
 }
