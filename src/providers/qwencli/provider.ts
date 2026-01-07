@@ -121,11 +121,13 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
             const thinkingParser = new ThinkingBlockParser();
             let currentThinkingId: string | null = null;
 
+            let functionCallsBuffer = '';
             const wrappedProgress: Progress<vscode.LanguageModelResponsePart2> = {
                 report: (part) => {
                     if (part instanceof vscode.LanguageModelTextPart) {
+                        // First, parse thinking blocks
                         const { regular, thinking } = thinkingParser.parse(part.value);
-                        
+
                         if (thinking) {
                             if (!currentThinkingId) {
                                 currentThinkingId = `qwen_thinking_${Date.now()}`;
@@ -133,15 +135,75 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
                             progress.report(new vscode.LanguageModelThinkingPart(thinking, currentThinkingId));
                         }
 
-                        if (regular) {
-                            if (currentThinkingId) {
-                                // End thinking block before sending regular text
-                                progress.report(new vscode.LanguageModelThinkingPart('', currentThinkingId));
-                                currentThinkingId = null;
+                        // Next, handle function_calls XML embedded in regular text
+                        let textToHandle = functionCallsBuffer + (regular || '');
+                        // Extract complete <function_calls>...</function_calls> blocks
+                        const funcCallsRegex = /<function_calls>[\s\S]*?<\/function_calls>/g;
+                        let lastIdx = 0;
+                        let fm: RegExpExecArray | null;
+                        while ((fm = funcCallsRegex.exec(textToHandle)) !== null) {
+                            const before = textToHandle.slice(lastIdx, fm.index);
+                            if (before && before.length > 0) {
+                                // End thinking if needed before reporting text
+                                if (currentThinkingId) {
+                                    progress.report(new vscode.LanguageModelThinkingPart('', currentThinkingId));
+                                    currentThinkingId = null;
+                                }
+                                progress.report(new vscode.LanguageModelTextPart(before));
                             }
-                            progress.report(new vscode.LanguageModelTextPart(regular));
+
+                            // Parse tool calls inside block
+                            const block = fm[0];
+                            const toolCallRegex = /<tool_call\s+name="([^"]+)"\s+arguments='([^']*)'\s*\/>/g;
+                            let tm: RegExpExecArray | null;
+                            while ((tm = toolCallRegex.exec(block)) !== null) {
+                                const name = tm[1];
+                                let argsString = tm[2] || '';
+                                let argsObj: Record<string, unknown> = {};
+                                try {
+                                    argsObj = JSON.parse(argsString);
+                                } catch {
+                                    argsObj = { value: argsString };
+                                }
+                                const callId = `qwen_call_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+                                // Make sure thinking is ended before tool call
+                                if (currentThinkingId) {
+                                    progress.report(new vscode.LanguageModelThinkingPart('', currentThinkingId));
+                                    currentThinkingId = null;
+                                }
+                                progress.report(new vscode.LanguageModelToolCallPart(callId, name, argsObj));
+                            }
+
+                            lastIdx = funcCallsRegex.lastIndex;
+                        }
+
+                        const trailing = textToHandle.slice(lastIdx);
+                        // If trailing contains start of a <function_calls> but no close, keep it buffered
+                        const openStart = trailing.indexOf('<function_calls>');
+                        const closeEnd = trailing.indexOf('</function_calls>');
+                        if (openStart !== -1 && closeEnd === -1) {
+                            // Emit text before openStart
+                            const beforeOpen = trailing.slice(0, openStart);
+                            if (beforeOpen && beforeOpen.length > 0) {
+                                if (currentThinkingId) {
+                                    progress.report(new vscode.LanguageModelThinkingPart('', currentThinkingId));
+                                    currentThinkingId = null;
+                                }
+                                progress.report(new vscode.LanguageModelTextPart(beforeOpen));
+                            }
+                            functionCallsBuffer = trailing.slice(openStart);
+                        } else {
+                            functionCallsBuffer = '';
+                            if (trailing && trailing.length > 0) {
+                                if (currentThinkingId) {
+                                    progress.report(new vscode.LanguageModelThinkingPart('', currentThinkingId));
+                                    currentThinkingId = null;
+                                }
+                                progress.report(new vscode.LanguageModelTextPart(trailing));
+                            }
                         }
                     } else {
+                        // Forward other parts unchanged
                         progress.report(part);
                     }
                 }

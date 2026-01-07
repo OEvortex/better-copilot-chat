@@ -6,15 +6,13 @@
 
 ### **Supercharge your GitHub Copilot with multiple AI providers**
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/vicanent.copilot-helper-pro?style=for-the-badge&logo=visual-studio-code&logoColor=white&label=Version&color=007ACC)](https://marketplace.visualstudio.com/items?itemName=vicanent.copilot-helper-pro)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/vicanent.copilot-helper-pro?style=for-the-badge&logo=visual-studio-code&logoColor=white&label=Downloads&color=28A745)](https://marketplace.visualstudio.com/items?itemName=vicanent.copilot-helper-pro)
-[![Rating](https://img.shields.io/visual-studio-marketplace/r/vicanent.copilot-helper-pro?style=for-the-badge&logo=visual-studio-code&logoColor=white&label=Rating&color=FFC107)](https://marketplace.visualstudio.com/items?itemName=vicanent.copilot-helper-pro)
+[![Version](https://img.shields.io/visual-studio-marketplace/v/OEvortex.better-copilot-chat?style=for-the-badge&logo=visual-studio-code&logoColor=white&label=Version&color=007ACC)](https://marketplace.visualstudio.com/items?itemName=OEvortex.better-copilot-chat)
+[![Downloads](https://img.shields.io/visual-studio-marketplace/d/OEvortex.better-copilot-chat?style=for-the-badge&logo=visual-studio-code&logoColor=white&label=Downloads&color=28A745)](https://marketplace.visualstudio.com/items?itemName=OEvortex.better-copilot-chat)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/OEvortex.better-copilot-chat?style=for-the-badge&logo=visual-studio-code&logoColor=white&label=Rating&color=FFC107)](https://marketplace.visualstudio.com/items?itemName=OEvortex.better-copilot-chat)
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.104.0+-007ACC.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white)](https://code.visualstudio.com/)
-[![Node.js](https://img.shields.io/badge/Node.js-20.0+-339933.svg?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
-
-[![Follow on X](https://img.shields.io/badge/Follow-@bien__nh90206-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/bien_nh90206)
+[![Node.js](https://img.shields.io/badge/Node.js-20.0+-339933.svg?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/) 
 
 <br/>
 
@@ -118,6 +116,8 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 2. Go to Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`)
 3. Search for **"Copilot ++"**
 4. Click **Install**
+
+Or visit the Marketplace page directly: [Copilot ++ on Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=OEvortex.better-copilot-chat)
 
 </details>
 

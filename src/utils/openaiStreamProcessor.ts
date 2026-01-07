@@ -98,6 +98,10 @@ export class OpenAIStreamProcessor {
     private isInsideThinkingTag = false;
     private thinkingTagBuffer = '';
 
+    // GCLI <think></think> tag detection state (some models use <think>..</think> wrapper)
+    private isInsideGcliThinkTag = false;
+    private gcliThinkBuffer = '';
+
     // Buffer batching thresholds for chunked rendering
     private static readonly TEXT_BUFFER_WORD_THRESHOLD = 20;
     private static readonly TEXT_BUFFER_CHAR_THRESHOLD = 160;
@@ -431,26 +435,77 @@ export class OpenAIStreamProcessor {
         modelConfig: ModelConfig,
         progress: vscode.Progress<vscode.LanguageModelResponsePart2>
     ): void {
-        // Check for <think>...</think> wrapper (gcli2api format)
-        const thinkMatch = content.match(/^<think>\n?([\s\S]*?)\n?<\/think>\n?/);
-        if (thinkMatch) {
-            // Extract thinking content
-            const thinkingContent = thinkMatch[1];
-            if (thinkingContent && modelConfig.outputThinking !== false) {
-                if (!this.currentThinkingId) {
-                    this.currentThinkingId = this.generateThinkingId();
+        // Incremental handling for <think>...</think> wrapper (gcli2api format)
+        // This supports cases where the opening and closing tags are split across chunks.
+        let offset = 0;
+        while (offset < content.length) {
+            if (this.isInsideGcliThinkTag) {
+                const endIdx = content.indexOf('</think>', offset);
+                if (endIdx !== -1) {
+                    // found closing tag in this chunk
+                    const thinkingChunk = content.slice(offset, endIdx);
+                    if (thinkingChunk && modelConfig.outputThinking !== false) {
+                        if (!this.currentThinkingId) {
+                            this.currentThinkingId = this.generateThinkingId();
+                        }
+                        this.thinkingBuffer += thinkingChunk;
+                        this.flushThinkingBuffer(progress);
+                    }
+                    this.isInsideGcliThinkTag = false;
+                    offset = endIdx + '</think>'.length;
+                    // continue to process remaining content after closing tag
+                    continue;
+                } else {
+                    // no closing tag yet, consume whole chunk as part of thinking
+                    const thinkingChunk = content.slice(offset);
+                    if (thinkingChunk && modelConfig.outputThinking !== false) {
+                        if (!this.currentThinkingId) {
+                            this.currentThinkingId = this.generateThinkingId();
+                        }
+                        this.thinkingBuffer += thinkingChunk;
+                        this.flushThinkingBuffer(progress);
+                    }
+                    return; // wait for next chunk
                 }
-                this.thinkingBuffer += thinkingContent;
-                this.flushThinkingBuffer(progress);
+            } else {
+                const startIdx = content.indexOf('<think>', offset);
+                if (startIdx === -1) {
+                    // No <think> in remaining content, process as normal text
+                    const remaining = content.slice(offset);
+                    if (remaining) {
+                        this.processTextWithThinkingTags(remaining, modelConfig, progress);
+                        this.flushTextBuffer(progress);
+                    }
+                    return;
+                }
+
+                // Process text before <think>
+                if (startIdx > offset) {
+                    const beforeThink = content.slice(offset, startIdx);
+                    if (beforeThink) {
+                        this.processTextWithThinkingTags(beforeThink, modelConfig, progress);
+                        this.flushTextBuffer(progress);
+                    }
+                }
+
+                // Enter thinking mode
+                offset = startIdx + '<think>'.length;
+                // If closing tag is in same chunk, loop will handle it; otherwise mark as inside tag and continue
+                const possibleEnd = content.indexOf('</think>', offset);
+                if (possibleEnd === -1) {
+                    this.isInsideGcliThinkTag = true;
+                    const rest = content.slice(offset);
+                    if (rest && modelConfig.outputThinking !== false) {
+                        if (!this.currentThinkingId) {
+                            this.currentThinkingId = this.generateThinkingId();
+                        }
+                        this.thinkingBuffer += rest;
+                        this.flushThinkingBuffer(progress);
+                    }
+                    return; // wait for more chunks
+                }
+                // otherwise loop will pick up the closing tag in next iteration
             }
-            // Get remaining content after thinking block
-            const remainingContent = content.slice(thinkMatch[0].length);
-            if (remainingContent) {
-                this.processTextWithThinkingTags(remainingContent, modelConfig, progress);
-                // Force immediate flush
-                this.flushTextBuffer(progress);
-            }
-            return;
         }
 
         // Process text with Claude <thinking></thinking> tag detection
@@ -870,7 +925,7 @@ export class OpenAIStreamProcessor {
      * Flush any leftover thinking tag buffer at stream end
      */
     private flushPendingThinkingTagBuffer(): void {
-        if (this.thinkingTagBuffer.length === 0) {
+        if (this.thinkingTagBuffer.length === 0 && this.gcliThinkBuffer.length === 0) {
             return;
         }
 
@@ -880,12 +935,24 @@ export class OpenAIStreamProcessor {
                 this.currentThinkingId = this.generateThinkingId();
             }
             this.thinkingBuffer += this.thinkingTagBuffer;
-        } else {
+        } else if (this.thinkingTagBuffer.length > 0) {
             // Stream ended outside thinking; treat leftover as normal text
             this.textBuffer += this.thinkingTagBuffer;
         }
 
+        // Handle GCLI <think> leftovers
+        if (this.isInsideGcliThinkTag) {
+            if (!this.currentThinkingId) {
+                this.currentThinkingId = this.generateThinkingId();
+            }
+            this.thinkingBuffer += this.gcliThinkBuffer;
+        } else if (this.gcliThinkBuffer.length > 0) {
+            this.textBuffer += this.gcliThinkBuffer;
+        }
+
         this.thinkingTagBuffer = '';
+        this.gcliThinkBuffer = '';
+        this.isInsideGcliThinkTag = false;
     }
 
     /**
@@ -893,13 +960,20 @@ export class OpenAIStreamProcessor {
      * Tool calls indicate the stream is switching modes, so keep any pending text.
      */
     private flushThinkingTagBufferForToolCall(): void {
-        if (this.thinkingTagBuffer.length === 0) {
+        if (this.thinkingTagBuffer.length === 0 && this.gcliThinkBuffer.length === 0) {
             return;
         }
 
-        // Treat any pending tag buffer as text to avoid losing characters
-        this.textBuffer += this.thinkingTagBuffer;
-        this.thinkingTagBuffer = '';
-        this.isInsideThinkingTag = false;
+        // Treat any pending buffers as text to avoid losing characters when switching modes
+        if (this.thinkingTagBuffer.length > 0) {
+            this.textBuffer += this.thinkingTagBuffer;
+            this.thinkingTagBuffer = '';
+            this.isInsideThinkingTag = false;
+        }
+        if (this.gcliThinkBuffer.length > 0) {
+            this.textBuffer += this.gcliThinkBuffer;
+            this.gcliThinkBuffer = '';
+            this.isInsideGcliThinkTag = false;
+        }
     }
 }
