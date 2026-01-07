@@ -9,9 +9,7 @@ import { GeminiStreamProcessor } from './streamProcessor';
 import { ErrorCategory, RateLimitAction, QuotaState, GeminiContent, GeminiPayload, GeminiRequest } from './types';
 import { GeminiOAuthManager } from './auth';
 
-export const DEFAULT_BASE_URLS = [
-    'https://cloudcode-pa.googleapis.com'
-];
+export const DEFAULT_BASE_URLS = ['https://cloudcode-pa.googleapis.com'];
 export const DEFAULT_USER_AGENT = 'gemini-cli/1.0.0';
 const RATE_LIMIT_MAX_RETRIES = 5;
 const RATE_LIMIT_BASE_DELAY_MS = 1000;
@@ -544,19 +542,27 @@ class FromIRTranslator {
             topP: ConfigManager.getTopP()
         };
         const hasTools = options.tools && options.tools.length > 0 && model.capabilities?.toolCalling;
-        
-        if (isThinkingEnabled && !hasTools) {
+
+        if (isThinkingEnabled) {
+            console.log('GeminiCLI: Thinking enabled for model:', resolvedModel);
             if (isClaudeThinkingModel) {
                 const thinkingBudget = modelConfig.thinkingBudget || 10000;
                 if (maxOutputTokens < thinkingBudget + 1000) {
                     generationConfig.maxOutputTokens = thinkingBudget + 1000;
                 }
                 generationConfig.thinkingConfig = { includeThoughts: true, thinkingBudget };
+                console.log('GeminiCLI: Claude thinking config:', generationConfig.thinkingConfig);
             } else if (resolvedModel.includes('gemini-3')) {
                 generationConfig.thinkingConfig = { includeThoughts: true, thinkingLevel: 'HIGH' };
+                console.log('GeminiCLI: Gemini-3 thinking config:', generationConfig.thinkingConfig);
             } else if (resolvedModel.includes('gemini-2.5')) {
                 generationConfig.thinkingConfig = { includeThoughts: true, thinkingBudget: 8192 };
+                console.log('GeminiCLI: Gemini-2.5 thinking config:', generationConfig.thinkingConfig);
+            } else {
+                console.log('GeminiCLI: Model does not support thinking:', resolvedModel);
             }
+        } else {
+            console.log('GeminiCLI: Thinking disabled for model:', resolvedModel);
         }
 
         const request: GeminiRequest = {
@@ -713,12 +719,7 @@ export class GeminiHandler {
                         this.quotaNotificationManager.clearQuotaCountdown();
                         this.debouncedCacheUpdate(
                             `success-${effectiveAccountId}`,
-                            () =>
-                                this.accountQuotaCache.recordSuccess(
-                                    effectiveAccountId,
-                                    'gemini',
-                                    this.displayName
-                                ),
+                            () => this.accountQuotaCache.recordSuccess(effectiveAccountId, 'gemini', this.displayName),
                             50
                         );
                         return;
@@ -962,14 +963,10 @@ export class GeminiHandler {
     }
 
     isInCooldown(modelId: string, accountId?: string): boolean {
-        return this.quotaManager.isInCooldown(
-            `${accountId || 'default-gemini'}:${modelId}`
-        );
+        return this.quotaManager.isInCooldown(`${accountId || 'default-gemini'}:${modelId}`);
     }
     getRemainingCooldown(modelId: string, accountId?: string): number {
-        return this.quotaManager.getRemainingCooldown(
-            `${accountId || 'default-gemini'}:${modelId}`
-        );
+        return this.quotaManager.getRemainingCooldown(`${accountId || 'default-gemini'}:${modelId}`);
     }
 
     private debouncedCacheUpdate(key: string, updateFn: () => Promise<void>, delayMs: number): void {

@@ -20,23 +20,23 @@ export class GeminiStreamProcessor {
     private chunkCounter = 0;
     private lastChunkTime = 0;
     private streamVelocity = 0;
-    
-    // Activity tracking để giữ UI "sống" khi đang xử lý tool calls
+
+    // Activity tracking to keep UI "alive" when processing tool calls
     private lastActivityReportTime = 0;
     private activityReportInterval: ReturnType<typeof setInterval> | null = null;
     private isProcessingToolCall = false;
-    private pendingToolCalls: Array<{callId: string; name: string; args: Record<string, unknown>}> = [];
+    private pendingToolCalls: Array<{ callId: string; name: string; args: Record<string, unknown> }> = [];
     private toolCallFlushInterval: ReturnType<typeof setInterval> | null = null;
-    
+
     private static readonly THINKING_FLUSH_INTERVAL_MS = 80;
     private static readonly THINKING_CHARS_PER_FLUSH = 150;
-    private static readonly ACTIVITY_REPORT_INTERVAL_MS = 400; // Giảm xuống để report thường xuyên hơn
+    private static readonly ACTIVITY_REPORT_INTERVAL_MS = 400; // Decreased for more frequent reporting
     private static readonly TEXT_BUFFER_MIN_SIZE = 40;
     private static readonly TEXT_BUFFER_MAX_DELAY_MS = 25;
     private static readonly YIELD_EVERY_N_CHUNKS = 5;
     private static readonly HIGH_VELOCITY_THRESHOLD = 10;
     private static readonly ADAPTIVE_BUFFER_MULTIPLIER = 0.5;
-    private static readonly TOOL_CALL_FLUSH_DELAY_MS = 50; // Delay nhỏ trước khi flush tool call
+    private static readonly TOOL_CALL_FLUSH_DELAY_MS = 50; // Small delay before flushing tool calls
 
     async processStream(options: ProcessStreamOptions): Promise<void> {
         const { response, modelConfig, progress, token } = options;
@@ -46,10 +46,10 @@ export class GeminiStreamProcessor {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
-        
-        // Bắt đầu activity reporting để giữ UI "sống"
+
+        // Start activity reporting to keep UI "alive"
         this.startActivityReporting(progress);
-        
+
         try {
             while (true) {
                 if (token.isCancellationRequested) {
@@ -70,10 +70,10 @@ export class GeminiStreamProcessor {
                 buffer = this.processSSELines(buffer, modelConfig, progress);
                 this.flushTextBufferAdaptive(progress);
                 this.flushThinkingBufferIfNeeded(progress);
-                
-                // Flush pending tool calls với delay nhỏ để không block UI
+
+                // Flush pending tool calls with small delay to avoid blocking UI
                 this.schedulePendingToolCallsFlush(progress);
-                
+
                 this.chunkCounter++;
                 if (this.chunkCounter % GeminiStreamProcessor.YIELD_EVERY_N_CHUNKS === 0) {
                     await new Promise<void>(resolve => setTimeout(resolve, 1));
@@ -83,13 +83,13 @@ export class GeminiStreamProcessor {
             this.stopActivityReporting();
             this.processRemainingBuffer(buffer, modelConfig, progress);
             this.flushTextBuffer(progress, true);
-            this.flushPendingToolCallsImmediate(progress); // Flush tất cả tool calls còn lại
+            this.flushPendingToolCallsImmediate(progress); // Flush all remaining tool calls
             this.finalizeThinkingPart(progress);
         }
     }
-    
+
     /**
-     * Bắt đầu report activity định kỳ để giữ UI hiển thị "Working..."
+     * Start periodic activity reporting to keep UI displaying "Working..."
      */
     private startActivityReporting(progress: vscode.Progress<vscode.LanguageModelResponsePart2>): void {
         if (this.activityReportInterval) {
@@ -99,24 +99,24 @@ export class GeminiStreamProcessor {
         this.activityReportInterval = setInterval(() => {
             const now = Date.now();
             const timeSinceLastActivity = now - this.lastActivityReportTime;
-            
-            // Nếu đã lâu không có activity, report một empty text để giữ stream "sống"
+
+            // If no activity for a while, report empty text to keep stream "alive"
             if (timeSinceLastActivity >= GeminiStreamProcessor.ACTIVITY_REPORT_INTERVAL_MS) {
-                // Report empty thinking part nếu đang có thinking context
-                // hoặc flush bất kỳ buffer nào có sẵn
+                // Report empty thinking part if in thinking context
+                // or flush any available buffer
                 if (this.thinkingBuffer.length > 0) {
                     this.flushThinkingBuffer(progress);
                 } else if (this.textBuffer.length > 0) {
                     this.flushTextBuffer(progress, true);
                 }
-                // Cập nhật thời gian activity
+                // Update activity time
                 this.lastActivityReportTime = now;
             }
         }, GeminiStreamProcessor.ACTIVITY_REPORT_INTERVAL_MS / 2);
     }
-    
+
     /**
-     * Dừng activity reporting
+     * Stop activity reporting
      */
     private stopActivityReporting(): void {
         if (this.activityReportInterval) {
@@ -128,16 +128,16 @@ export class GeminiStreamProcessor {
             this.toolCallFlushInterval = null;
         }
     }
-    
+
     /**
-     * Đánh dấu có activity để reset timer
+     * Mark activity to reset timer
      */
     private markActivity(): void {
         this.lastActivityReportTime = Date.now();
     }
-    
+
     /**
-     * Schedule flush pending tool calls với delay nhỏ
+     * Schedule flush pending tool calls with small delay
      */
     private schedulePendingToolCallsFlush(progress: vscode.Progress<vscode.LanguageModelResponsePart2>): void {
         if (this.pendingToolCalls.length === 0 || this.toolCallFlushInterval) {
@@ -148,16 +148,14 @@ export class GeminiStreamProcessor {
             this.toolCallFlushInterval = null;
         }, GeminiStreamProcessor.TOOL_CALL_FLUSH_DELAY_MS) as unknown as ReturnType<typeof setInterval>;
     }
-    
+
     /**
-     * Flush tất cả pending tool calls ngay lập tức
+     * Flush all pending tool calls immediately
      */
     private flushPendingToolCallsImmediate(progress: vscode.Progress<vscode.LanguageModelResponsePart2>): void {
         while (this.pendingToolCalls.length > 0) {
             const toolCall = this.pendingToolCalls.shift()!;
-            progress.report(
-                new vscode.LanguageModelToolCallPart(toolCall.callId, toolCall.name, toolCall.args)
-            );
+            progress.report(new vscode.LanguageModelToolCallPart(toolCall.callId, toolCall.name, toolCall.args));
             this.markActivity();
         }
     }
@@ -268,11 +266,18 @@ export class GeminiStreamProcessor {
         modelConfig: ModelConfig,
         progress: vscode.Progress<vscode.LanguageModelResponsePart2>
     ): void {
+        // Debug: Log all parts to see what we're receiving
+        console.log('GeminiCLI: Received part:', JSON.stringify(part, null, 2));
+
         if (part.thought === true) {
             if (modelConfig.outputThinking !== false && typeof part.text === 'string') {
                 if (!this.currentThinkingId) {
                     this.currentThinkingId = createCallId();
                 }
+
+                // Debug: Log that we received a thought part
+                console.log('GeminiCLI: Received thought part:', part.text);
+
                 this.thinkingBuffer += part.text;
                 this.flushThinkingBufferIfNeeded(progress);
             }
@@ -292,10 +297,10 @@ export class GeminiStreamProcessor {
         }
         const functionCall = part.functionCall as { name?: string; args?: unknown; id?: string } | undefined;
         if (functionCall?.name) {
-            // Flush buffers trước khi xử lý tool call
+            // Flush buffers before processing tool call
             this.flushTextBuffer(progress, true);
             this.flushThinkingBuffer(progress);
-            
+
             const toolCallInfo = extractToolCallFromGeminiResponse(part);
             if (toolCallInfo?.callId && toolCallInfo.name) {
                 const dedupeKey = `${toolCallInfo.callId}:${toolCallInfo.name}`;
@@ -319,9 +324,9 @@ export class GeminiStreamProcessor {
                         normalizedArgs = { value: toolCallInfo.args };
                     }
                 }
-                
-                // Queue tool call thay vì report ngay lập tức
-                // Điều này cho phép UI có thời gian cập nhật "Working..."
+
+                // Queue tool call instead of reporting immediately
+                // This allows UI time to update "Working..."
                 this.pendingToolCalls.push({
                     callId: toolCallInfo.callId,
                     name: toolCallInfo.name,
@@ -393,7 +398,7 @@ export class GeminiStreamProcessor {
             progress.report(new vscode.LanguageModelTextPart(this.textBuffer));
             this.textBuffer = '';
             this.textBufferLastFlush = Date.now();
-            this.markActivity(); // Đánh dấu activity khi flush
+            this.markActivity(); // Mark activity when flush
         }
     }
 
@@ -441,7 +446,7 @@ export class GeminiStreamProcessor {
     private enqueueThinking(text: string, progress: vscode.Progress<vscode.LanguageModelResponsePart2>): void {
         this.thinkingQueue += text;
         this.thinkingProgress = progress;
-        this.markActivity(); // Đánh dấu activity khi có thinking content
+        this.markActivity(); // Mark activity when thinking content
         if (!this.thinkingFlushInterval) {
             this.thinkingFlushInterval = setInterval(
                 () => this.flushThinkingChunk(),
@@ -458,7 +463,7 @@ export class GeminiStreamProcessor {
         const chunk = this.thinkingQueue.slice(0, chunkSize);
         this.thinkingQueue = this.thinkingQueue.slice(chunkSize);
         this.thinkingProgress.report(new vscode.LanguageModelThinkingPart(chunk, this.currentThinkingId));
-        this.markActivity(); // Đánh dấu activity khi flush thinking
+        this.markActivity(); // Mark activity when flush thinking
     }
 
     private finalizeThinkingPart(progress: vscode.Progress<vscode.LanguageModelResponsePart2>): void {
@@ -472,10 +477,7 @@ export class GeminiStreamProcessor {
         }
         this.thinkingProgress = progress;
         while (this.thinkingQueue.length > 0) {
-            const chunkSize = Math.min(
-                GeminiStreamProcessor.THINKING_CHARS_PER_FLUSH * 2,
-                this.thinkingQueue.length
-            );
+            const chunkSize = Math.min(GeminiStreamProcessor.THINKING_CHARS_PER_FLUSH * 2, this.thinkingQueue.length);
             const chunk = this.thinkingQueue.slice(0, chunkSize);
             this.thinkingQueue = this.thinkingQueue.slice(chunkSize);
             if (this.currentThinkingId) {

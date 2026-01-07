@@ -66,6 +66,7 @@ export interface ContentPart {
     type: ContentType;
     text?: string;
     reasoning?: string;
+    thought?: string;
     thoughtSignature?: string;
     image?: ImagePart;
     file?: FilePart;
