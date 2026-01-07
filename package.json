@@ -1,6 +1,6 @@
 {
-    "name": "copilot-helper-pro",
-    "publisher": "vicanent",
+    "name": "better-copilot-chat",
+    "publisher": "OEvortex",
     "displayName": "Copilot ++",
     "description": "An extension that provides model support for GitHub Copilot Chat, including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Alibaba Cloud Bailian, and custom OpenAI/Anthropic compatible models.",
     "version": "0.1.0",
