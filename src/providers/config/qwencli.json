@@ -35,6 +35,30 @@
                 "toolCalling": true,
                 "imageInput": false
             }
+        },
+        {
+            "id": "qwen-coder-plus",
+            "name": "Qwen3 Coder Plus (Free)",
+            "tooltip": "Qwen3 Coder Plus via CLI",
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 65536,
+            "model": "qwen3-coder-plus",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-coder-flash",
+            "name": "Qwen3 Coder Flash (Free)",
+            "tooltip": "Qwen3 Coder Flash via CLI",
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 65536,
+            "model": "qwen3-coder-flash",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
         }
     ]
 }
