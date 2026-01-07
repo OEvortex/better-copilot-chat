@@ -83,11 +83,13 @@ export class GeminiStreamProcessor {
                 }
             }
         } finally {
+            console.log(`GeminiCLI: Stream processing complete, pending tool calls: ${this.pendingToolCalls.length}`);
             this.stopActivityReporting();
             this.processRemainingBuffer(buffer, modelConfig, progress);
             this.flushTextBuffer(progress, true);
             this.flushPendingToolCallsImmediate(progress); // Flush all remaining tool calls
             this.finalizeThinkingPart(progress);
+            console.log(`GeminiCLI: Final pending tool calls after cleanup: ${this.pendingToolCalls.length}`);
         }
     }
 
@@ -156,11 +158,14 @@ export class GeminiStreamProcessor {
      * Flush all pending tool calls immediately
      */
     private flushPendingToolCallsImmediate(progress: vscode.Progress<vscode.LanguageModelResponsePart2>): void {
+        console.log(`GeminiCLI: flushPendingToolCallsImmediate called, pending count: ${this.pendingToolCalls.length}`);
         while (this.pendingToolCalls.length > 0) {
             const toolCall = this.pendingToolCalls.shift()!;
+            console.log(`GeminiCLI: Reporting tool call: ${toolCall.callId}, name: ${toolCall.name}`);
             progress.report(new vscode.LanguageModelToolCallPart(toolCall.callId, toolCall.name, toolCall.args));
             this.markActivity();
         }
+        console.log(`GeminiCLI: All pending tool calls flushed`);
     }
 
     private processSSELines(
@@ -169,10 +174,17 @@ export class GeminiStreamProcessor {
         progress: vscode.Progress<vscode.LanguageModelResponsePart2>
     ): string {
         let lineEndIndex = buffer.indexOf('\n');
+        let linesProcessed = 0;
         while (lineEndIndex !== -1) {
             const line = buffer.slice(0, lineEndIndex).trimEnd();
             buffer = buffer.slice(lineEndIndex + 1);
+            linesProcessed++;
+
             if (line.length === 0) {
+                // Empty line marks end of SSE event
+                console.log(
+                    `GeminiCLI: Empty line, processing SSE event, sseDataParts count: ${this.sseDataParts.length}`
+                );
                 this.processSSEEvent(modelConfig, progress);
                 lineEndIndex = buffer.indexOf('\n');
                 continue;
@@ -180,15 +192,22 @@ export class GeminiStreamProcessor {
             if (line.startsWith('data:')) {
                 const dataLine = line.slice(5);
                 if (dataLine.trim() === '[DONE]') {
+                    console.log('GeminiCLI: Received [DONE] signal');
                     this.sseDataParts = [];
                     lineEndIndex = buffer.indexOf('\n');
                     continue;
                 }
                 if (dataLine.length > 0) {
                     this.sseDataParts.push(dataLine.trimStart());
+                    console.log(`GeminiCLI: Added data line, sseDataParts count: ${this.sseDataParts.length}`);
                 }
             }
             lineEndIndex = buffer.indexOf('\n');
+        }
+        if (linesProcessed > 0) {
+            console.log(
+                `GeminiCLI: Processed ${linesProcessed} SSE lines, buffer remaining: "${buffer.substring(0, 50)}..."`
+            );
         }
         return buffer;
     }
@@ -203,24 +222,31 @@ export class GeminiStreamProcessor {
         const eventData = this.sseDataParts.join('\n').trim();
         this.sseDataParts = [];
         if (!eventData || eventData === '[DONE]') {
+            console.log('GeminiCLI: SSE event is empty or [DONE]');
             return;
         }
+        console.log(`GeminiCLI: Processing SSE event, data length: ${eventData.length}`);
         const createCallId = () => `tool_call_${this.toolCallCounter++}_${Date.now()}`;
         try {
             this.handleStreamPayload(eventData, createCallId, modelConfig, progress);
             this.flushTextBufferIfNeeded(progress);
             this.flushThinkingBufferIfNeeded(progress);
         } catch (error) {
+            console.error('GeminiCLI: Error in handleStreamPayload:', error);
+            // Try to split concatenated JSON and process each part
             if (error instanceof SyntaxError && String(error.message).includes('after JSON')) {
+                console.log('GeminiCLI: Attempting to split concatenated JSON');
                 const jsonObjects = this.splitConcatenatedJSON(eventData);
+                console.log(`GeminiCLI: Found ${jsonObjects.length} JSON objects`);
                 for (const jsonStr of jsonObjects) {
                     try {
                         this.handleStreamPayload(jsonStr, createCallId, modelConfig, progress);
-                    } catch {
-                        /* Ignore JSON parse errors */
+                    } catch (innerError) {
+                        console.error('GeminiCLI: Error processing JSON object:', innerError);
                     }
                 }
             }
+            // Don't re-throw - continue processing other events
         }
     }
 
@@ -230,17 +256,20 @@ export class GeminiStreamProcessor {
         progress: vscode.Progress<vscode.LanguageModelResponsePart2>
     ): void {
         const trailing = buffer.trim();
+        console.log(`GeminiCLI: processRemainingBuffer, trailing: "${trailing.substring(0, 100)}..."`);
         if (trailing.length > 0 && trailing.startsWith('data:')) {
             this.sseDataParts.push(trailing.slice(5).trimStart());
+            console.log(`GeminiCLI: Added trailing data to sseDataParts, count: ${this.sseDataParts.length}`);
         }
         if (this.sseDataParts.length > 0) {
             const eventData = this.sseDataParts.join('\n').trim();
+            console.log(`GeminiCLI: Processing remaining SSE data, length: ${eventData.length}`);
             if (eventData && eventData !== '[DONE]') {
                 const createCallId = () => `tool_call_${this.toolCallCounter++}_${Date.now()}`;
                 try {
                     this.handleStreamPayload(eventData, createCallId, modelConfig, progress);
-                } catch {
-                    /* Ignore JSON parse errors */
+                } catch (error) {
+                    console.error('GeminiCLI: Error processing remaining buffer:', error);
                 }
             }
         }
@@ -252,12 +281,29 @@ export class GeminiStreamProcessor {
         modelConfig: ModelConfig,
         progress: vscode.Progress<vscode.LanguageModelResponsePart2>
     ): void {
-        const parsed = JSON.parse(data) as Record<string, unknown>;
+        console.log(`GeminiCLI: Parsing JSON payload, length: ${data.length}`);
+        let parsed: Record<string, unknown>;
+        try {
+            parsed = JSON.parse(data) as Record<string, unknown>;
+            console.log('GeminiCLI: JSON parsed successfully');
+        } catch (error) {
+            console.error('GeminiCLI: Failed to parse JSON:', error);
+            throw error;
+        }
+
         const payload = (parsed.response as Record<string, unknown>) || parsed;
         const candidates = (payload.candidates as Array<Record<string, unknown>>) || [];
+
+        console.log(`GeminiCLI: Found ${candidates.length} candidates`);
+
         for (const candidate of candidates) {
             const content = candidate.content as { parts?: Array<Record<string, unknown>> } | undefined;
-            for (const part of content?.parts || []) {
+            if (!content?.parts) {
+                console.log('GeminiCLI: No content or parts in candidate');
+                continue;
+            }
+            console.log(`GeminiCLI: Processing ${content.parts.length} parts`);
+            for (const part of content.parts) {
                 this.handlePart(part, createCallId, modelConfig, progress);
             }
         }
@@ -271,6 +317,12 @@ export class GeminiStreamProcessor {
     ): void {
         // Debug: Log all parts to see what we're receiving
         console.log('GeminiCLI: Received part:', JSON.stringify(part, null, 2));
+
+        // Track for debugging
+        const hasFunctionCall = !!(part as Record<string, unknown>).functionCall;
+        const hasText = typeof part.text === 'string';
+        const hasThought = part.thought === true;
+        console.log(`GeminiCLI: Part has functionCall=${hasFunctionCall}, text=${hasText}, thought=${hasThought}`);
 
         if (part.thought === true) {
             if (modelConfig.outputThinking !== false && typeof part.text === 'string') {
@@ -382,17 +434,31 @@ export class GeminiStreamProcessor {
         }
         const functionCall = part.functionCall as { name?: string; args?: unknown; id?: string } | undefined;
         if (functionCall?.name) {
+            // Log function call for debugging
+            console.log(
+                `GeminiCLI: Processing functionCall: name=${functionCall.name}, id=${functionCall.id || 'generated'}`
+            );
+
             // Flush buffers before processing tool call
             this.flushTextBuffer(progress, true);
             this.flushThinkingBuffer(progress);
 
             const toolCallInfo = extractToolCallFromGeminiResponse(part);
+            console.log(
+                `GeminiCLI: Extracted tool call info: callId=${toolCallInfo?.callId}, name=${toolCallInfo?.name}`
+            );
+
             if (toolCallInfo?.callId && toolCallInfo.name) {
                 const dedupeKey = `${toolCallInfo.callId}:${toolCallInfo.name}`;
+                console.log(`GeminiCLI: Dedupe key: ${dedupeKey}, alreadySeen=${this.seenToolCalls.has(dedupeKey)}`);
+
                 if (this.seenToolCalls.has(dedupeKey)) {
+                    console.log(`GeminiCLI: Skipping duplicate tool call: ${dedupeKey}`);
                     return;
                 }
                 this.seenToolCalls.add(dedupeKey);
+                console.log(`GeminiCLI: Added to seenToolCalls: ${dedupeKey}`);
+
                 if (toolCallInfo.thoughtSignature) {
                     storeThoughtSignature(toolCallInfo.callId, toolCallInfo.thoughtSignature);
                 }
@@ -418,6 +484,9 @@ export class GeminiStreamProcessor {
                     args: normalizedArgs
                 });
                 this.markActivity();
+                console.log(
+                    `GeminiCLI: Queued tool call: ${toolCallInfo.callId}, pending count: ${this.pendingToolCalls.length}`
+                );
             }
         }
     }

@@ -65,17 +65,17 @@ export class OpenAIHandler {
     private async createOpenAIClient(modelConfig?: ModelConfig): Promise<OpenAI> {
         // Priority: model.provider -> this.provider
         const providerKey = modelConfig?.provider || this.provider;
-        
+
         // Check if API key is provided in modelConfig (e.g. for OAuth providers)
         let currentApiKey = modelConfig?.apiKey;
-        
+
         if (!currentApiKey) {
             currentApiKey = await ApiKeyManager.getApiKey(providerKey);
             if (!currentApiKey) {
                 throw new Error(`Missing ${this.displayName} API key`);
             }
         }
-        
+
         // Use model-specific baseURL first, if none use provider-level baseURL
         let baseURL = modelConfig?.baseUrl || this.baseURL;
 
@@ -101,7 +101,7 @@ export class OpenAIHandler {
 
         // Create cache key based on config
         const cacheKey = `${providerKey}:${baseURL}:${JSON.stringify(defaultHeaders)}`;
-        
+
         // Check cache
         const cached = this.clientCache.get(cacheKey);
         if (cached) {
@@ -118,7 +118,7 @@ export class OpenAIHandler {
             maxRetries: 2, // Reduce retries to avoid lag
             timeout: 60000 // 60s timeout
         });
-        
+
         // Cache client
         this.clientCache.set(cacheKey, { client, lastUsed: Date.now() });
         Logger.debug(`${this.displayName} OpenAI SDK client created, using baseURL: ${baseURL}`);
@@ -409,8 +409,6 @@ export class OpenAIHandler {
             let currentThinkingId: string | null = null;
             // Thinking content cache, used to accumulate thinking content
             let thinkingContentBuffer: string = '';
-            // Maximum length of thinking content cache, report when reached
-            const MAX_THINKING_BUFFER_LENGTH = 10;
 
             // Activity indicator - report empty text periodically to keep UI responsive
             let lastActivityReportTime = Date.now();
@@ -425,12 +423,12 @@ export class OpenAIHandler {
                 }
                 return false;
             };
-            
+
             // Mark activity (reset timer)
             const markActivity = () => {
                 lastActivityReportTime = Date.now();
             };
-            
+
             // Interval to automatically report activity when no data
             let activityInterval: NodeJS.Timeout | null = null;
             const startActivityInterval = () => {
@@ -447,7 +445,7 @@ export class OpenAIHandler {
                     activityInterval = null;
                 }
             };
-            
+
             // Start activity interval
             startActivityInterval();
 
@@ -489,26 +487,15 @@ export class OpenAIHandler {
                                     progress.report(
                                         new vscode.LanguageModelThinkingPart(thinkingContentBuffer, currentThinkingId)
                                     );
-                                    Logger.trace(
-                                        `${model.name} report remaining thinking content before outputting content: ${thinkingContentBuffer.length} characters`
-                                    );
                                     thinkingContentBuffer = ''; // Clear cache
                                     hasThinkingContent = true; // Mark thinking content was output
                                 } catch (e) {
-                                    Logger.trace(`${model.name} failed to report remaining thinking content: ${String(e)}`);
+                                    Logger.trace(`${model.name} failed to report thinking: ${String(e)}`);
                                 }
                             }
 
                             // Then end current chain of thought
-                            try {
-                                Logger.trace(`${model.name} end current chain of thought before outputting content id=${currentThinkingId}`);
-                                progress.report(new vscode.LanguageModelThinkingPart('', currentThinkingId));
-                            } catch (e) {
-                                // Reporting failure should not interrupt main stream
-                                Logger.trace(
-                                    `${model.name} failed to send thinking done(id=${currentThinkingId}): ${String(e)}`
-                                );
-                            }
+                            progress.report(new vscode.LanguageModelThinkingPart('', currentThinkingId));
                             currentThinkingId = null;
                         }
 
@@ -521,7 +508,7 @@ export class OpenAIHandler {
                         if (token.isCancellationRequested) {
                             return;
                         }
-                        
+
                         // Mark activity
                         markActivity();
 
@@ -620,8 +607,12 @@ export class OpenAIHandler {
                                     );
                                 } catch (secondError) {
                                     // Still failed after fix, output detailed error info
-                                    Logger.error(`❌ Failed to parse tool call parameters: ${event.name} (index: ${event.index})`);
-                                    Logger.error(`Original parameter string (first 100 characters): ${event.arguments?.substring(0, 100)}`);
+                                    Logger.error(
+                                        `❌ Failed to parse tool call parameters: ${event.name} (index: ${event.index})`
+                                    );
+                                    Logger.error(
+                                        `Original parameter string (first 100 characters): ${event.arguments?.substring(0, 100)}`
+                                    );
                                     Logger.error(`First parsing error: ${firstError}`);
                                     Logger.error(`Still failed after deduplication fix: ${secondError}`);
                                     // Throw original error
@@ -632,17 +623,12 @@ export class OpenAIHandler {
 
                         // SDK automatically generates unique tool call ID, using simple index identifier here
                         const toolCallId = `tool_call_${event.index}_${Date.now()}`;
-                        Logger.debug(`✅ SDK tool call complete: ${event.name} (index: ${event.index})`);
                         progress.report(new vscode.LanguageModelToolCallPart(toolCallId, event.name, parsedArgs));
                         hasReceivedContent = true;
                     })
 
                     .on('tool_calls.function.arguments.delta', event => {
-                        // Tool call parameter incremental event (for debugging)
-                        Logger.trace(
-                            `🔧 Tool call parameter delta: ${event.name} (index: ${event.index}) - ${event.arguments_delta}`
-                        );
-                        // Mark activity and report to keep UI responsive
+                        // Tool call parameter incremental event
                         markActivity();
                         reportActivity();
                     })
@@ -653,12 +639,10 @@ export class OpenAIHandler {
                         markActivity();
                         // Process token usage statistics: only save to finalUsage, output uniformly at the end
                         if (chunk.usage) {
-                            // Directly save usage object returned by SDK (type CompletionUsage)
                             finalUsage = chunk.usage;
                         }
 
-                        // Process thinking content (reasoning_content) and compatible with old format: some models put final result in choice.message
-                        // Chain of thought is re-entrant: output when encountered; before subsequent first visible content output, need to end current chain of thought (done)
+                        // Process thinking content (reasoning/reasoning_content) and compatible with old format
                         if (chunk.choices && chunk.choices.length > 0) {
                             // Traverse all choices, handle each choice's reasoning_content and message.content
                             for (let choiceIndex = 0; choiceIndex < chunk.choices.length; choiceIndex++) {
@@ -680,9 +664,6 @@ export class OpenAIHandler {
                                                             currentThinkingId
                                                         )
                                                     );
-                                                    Logger.trace(
-                                                        `${model.name} report remaining thinking content at tool call start: ${thinkingContentBuffer.length} characters`
-                                                    );
                                                     // End current chain of thought
                                                     progress.report(
                                                         new vscode.LanguageModelThinkingPart('', currentThinkingId)
@@ -690,58 +671,36 @@ export class OpenAIHandler {
                                                     thinkingContentBuffer = ''; // Clear cache
                                                     hasThinkingContent = true; // Mark thinking content was output
                                                 } catch (e) {
-                                                    Logger.trace(`${model.name} failed to report remaining thinking content: ${String(e)}`);
+                                                    Logger.trace(`${model.name} failed to report thinking: ${String(e)}`);
                                                 }
                                             }
-                                            Logger.trace(
-                                                `🔧 Tool call start: ${toolCall.function?.name || 'unknown'} (index: ${toolCall.index})`
-                                            );
                                         }
                                     }
                                 }
 
-                                // Compatible: prioritize using reasoning_content in delta, otherwise try reading from message
-                                const reasoningContent = delta?.reasoning_content ?? message?.reasoning_content;
+                                // Compatible: prioritize reasoning/reasoning_content in delta, otherwise try reading from message
+                                // Note: Some providers (Chutes) use 'reasoning', others (OpenAI-compatible) use 'reasoning_content'
+                                const reasoningContent = delta?.reasoning ?? delta?.reasoning_content ?? message?.reasoning ?? message?.reasoning_content;
                                 if (reasoningContent) {
                                     // Check outputThinking setting in model configuration
                                     const shouldOutputThinking = modelConfig.outputThinking !== false; // default true
                                     if (shouldOutputThinking) {
                                         try {
-                                            Logger.trace(
-                                                `Received thinking content (choice ${choiceIndex}): ${reasoningContent.length} characters, content="${reasoningContent}"`
-                                            );
-
                                             // If currently no active id, generate one for this chain of thought
                                             if (!currentThinkingId) {
                                                 currentThinkingId = `thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
                                             }
 
-                                            // Add thinking content to cache
+                                            // Report thinking immediately for real-time streaming (no buffering)
                                             thinkingContentBuffer += reasoningContent;
-
-                                            // Check if report condition met
-                                            if (thinkingContentBuffer.length >= MAX_THINKING_BUFFER_LENGTH) {
-                                                // Reached maximum length, report immediately
-                                                progress.report(
-                                                    new vscode.LanguageModelThinkingPart(
-                                                        thinkingContentBuffer,
-                                                        currentThinkingId
-                                                    )
-                                                );
-                                                thinkingContentBuffer = ''; // Clear cache
-                                            }
+                                            progress.report(new vscode.LanguageModelThinkingPart(thinkingContentBuffer, currentThinkingId));
+                                            thinkingContentBuffer = ''; // Clear cache
 
                                             // Mark thinking content received
                                             hasThinkingContent = true;
                                         } catch (e) {
-                                            Logger.trace(
-                                                `${model.name} failed to report chain of thought (choice ${choiceIndex}): ${String(e)}`
-                                            );
+                                            Logger.trace(`${model.name} failed to report thinking: ${String(e)}`);
                                         }
-                                    } else {
-                                        Logger.trace(
-                                            `⏭️ Skip thinking content output (choice ${choiceIndex}): configured not to output thinking`
-                                        );
                                     }
                                 }
 
@@ -754,16 +713,9 @@ export class OpenAIHandler {
                                     // Before outputting visible content, if there is an unended chain of thought, end it first
                                     if (currentThinkingId) {
                                         try {
-                                            Logger.trace(
-                                                `${model.name} end current chain of thought before outputting message.content id=${currentThinkingId} (choice ${choiceIndex})`
-                                            );
-                                            progress.report(
-                                                new vscode.LanguageModelThinkingPart('', currentThinkingId)
-                                            );
+                                            progress.report(new vscode.LanguageModelThinkingPart('', currentThinkingId));
                                         } catch (e) {
-                                            Logger.trace(
-                                                `${model.name} failed to send thinking done(id=${currentThinkingId}) (choice ${choiceIndex}): ${String(e)}`
-                                            );
+                                            Logger.trace(`${model.name} failed to end thinking: ${String(e)}`);
                                         }
                                         currentThinkingId = null;
                                     }
@@ -795,7 +747,7 @@ export class OpenAIHandler {
                         thinkingContentBuffer = ''; // Clear cache
                         hasThinkingContent = true; // Mark thinking content was output
                     } catch (e) {
-                        Logger.trace(`Failed to report thinking content at stream end: ${String(e)}`);
+                        Logger.trace(`${model.name} failed to report thinking at end: ${String(e)}`);
                     }
                 }
 
@@ -830,7 +782,9 @@ export class OpenAIHandler {
             // Only add <think/> placeholder if thinking content was output but no content was output
             if (hasThinkingContent && !hasReceivedContent) {
                 progress.report(new vscode.LanguageModelTextPart('<think/>'));
-                Logger.warn(`${model.name} end of message stream has only thinking content and no text content, added <think/> placeholder as output`);
+                Logger.warn(
+                    `${model.name} end of message stream has only thinking content and no text content, added <think/> placeholder as output`
+                );
             }
             Logger.debug(`✅ ${model.name} ${this.displayName} request complete`);
         } catch (error) {
@@ -1021,7 +975,9 @@ export class OpenAIHandler {
         }
         if (imageParts.length > 0) {
             // Multimodal message: text + images
-            Logger.debug(`🖼️ Build multimodal message: ${textParts.length} text parts + ${imageParts.length} image parts`);
+            Logger.debug(
+                `🖼️ Build multimodal message: ${textParts.length} text parts + ${imageParts.length} image parts`
+            );
             const contentArray: OpenAI.Chat.ChatCompletionContentPart[] = [];
             if (textParts.length > 0) {
                 const textContent = textParts.map(part => part.value).join('\n');
@@ -1037,7 +993,9 @@ export class OpenAIHandler {
                     type: 'image_url',
                     image_url: { url: dataUrl }
                 });
-                Logger.trace(`📷 Add image URL: MIME=${imagePart.mimeType}, Base64 length=${dataUrl.length} characters`);
+                Logger.trace(
+                    `📷 Add image URL: MIME=${imagePart.mimeType}, Base64 length=${dataUrl.length} characters`
+                );
             }
             Logger.debug(`✅ Multimodal message construction complete: ${contentArray.length} content parts`);
             return { role: 'user', content: contentArray };
@@ -1246,7 +1204,9 @@ export class OpenAIHandler {
         const isSupported = supportedTypes.includes(normalizedMime);
         // Debug logs
         if (isImageCategory && !isSupported) {
-            Logger.warn(`🚫 Image type not in support list: ${mimeType}, supported types: ${supportedTypes.join(', ')}`);
+            Logger.warn(
+                `🚫 Image type not in support list: ${mimeType}, supported types: ${supportedTypes.join(', ')}`
+            );
         } else if (!isImageCategory && normalizedMime !== 'cache_control') {
             // For cache_control (Claude cache identifier) no debug info recorded, for other non-image types record trace level log
             Logger.trace(`📄 Non-image data type: ${mimeType}`);

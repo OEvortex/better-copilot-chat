@@ -469,7 +469,14 @@ class MessageConverter {
                 let parts: Array<Record<string, unknown>> = [];
                 const includeThinking =
                     !isClaudeModel && (modelConfig.includeThinking === true || modelConfig.outputThinking !== false);
-                if (includeThinking) {
+                const toolCalls = message.content.filter(
+                    p => p instanceof vscode.LanguageModelToolCallPart
+                ) as vscode.LanguageModelToolCallPart[];
+
+                // IMPORTANT: When there are tool calls, DON'T add separate thought parts
+                // The functionCall parts will include thoughtSignatures from the stored signatures
+                // Adding separate thought parts would create a mismatch between functionCall and functionResponse counts
+                if (includeThinking && toolCalls.length === 0) {
                     for (const part of message.content) {
                         if (part instanceof vscode.LanguageModelThinkingPart) {
                             const value = Array.isArray(part.value) ? part.value.join('') : part.value;
@@ -487,9 +494,6 @@ class MessageConverter {
                 if (text) {
                     parts.push({ text });
                 }
-                const toolCalls = message.content.filter(
-                    p => p instanceof vscode.LanguageModelToolCallPart
-                ) as vscode.LanguageModelToolCallPart[];
                 if (toolCalls.length > 0) {
                     parts.push(...convertToolCallsToGeminiParts(toolCalls));
                 }
@@ -498,7 +502,8 @@ class MessageConverter {
                 }
                 if (
                     !isClaudeModel &&
-                    isThinkingEnabled &&
+                    toolCalls.length === 0 &&
+                    includeThinking &&
                     currentMsgIndex === msgCount &&
                     !parts.some(p => p.thought === true)
                 ) {
@@ -603,7 +608,53 @@ class FromIRTranslator {
         if (projectId) {
             payload.project = projectId;
         }
+
+        // DEBUG: Validate parts count to prevent "function response parts mismatch" error
+        this.validatePartsBalance(request.contents, resolvedModel);
+
         return payload;
+    }
+
+    /**
+     * Validate that functionCall and functionResponse parts are balanced
+     * This prevents the "Please ensure that the number of function response parts is equal to
+     * the number of function call parts of the function call turn" error
+     */
+    private validatePartsBalance(contents: GeminiContent[], modelName: string): void {
+        let totalFunctionCalls = 0;
+        let totalFunctionResponses = 0;
+        let totalThoughtSignatureParts = 0;
+
+        for (const content of contents) {
+            for (const part of content.parts) {
+                if (part.functionCall) {
+                    totalFunctionCalls++;
+                }
+                if (part.functionResponse) {
+                    totalFunctionResponses++;
+                }
+                // Count thoughtSignature as a separate part issue
+                if (part.thoughtSignature && !part.functionCall) {
+                    totalThoughtSignatureParts++;
+                }
+            }
+        }
+
+        console.log(
+            `GeminiCLI: Parts validation - functionCalls=${totalFunctionCalls}, functionResponses=${totalFunctionResponses}, orphanThoughtSignatures=${totalThoughtSignatureParts}`
+        );
+
+        if (totalFunctionCalls !== totalFunctionResponses) {
+            console.warn(
+                `GeminiCLI: WARNING - Function call/response mismatch! calls=${totalFunctionCalls}, responses=${totalFunctionResponses}. This will likely cause a 400 error.`
+            );
+        }
+
+        if (totalThoughtSignatureParts > 0) {
+            console.warn(
+                `GeminiCLI: WARNING - Found ${totalThoughtSignatureParts} thoughtSignature parts without functionCall. These should be attached to functionCall parts.`
+            );
+        }
     }
 }
 

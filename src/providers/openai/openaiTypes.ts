@@ -76,9 +76,11 @@ export interface GeminiResponse {
 }
 
 /**
- * Extend Delta type to support reasoning_content field
+ * Extend Delta type to support reasoning and reasoning_content fields
+ * Note: Some providers (like Chutes) use 'reasoning', others use 'reasoning_content'
  */
 export interface ExtendedDelta extends OpenAI.Chat.ChatCompletionChunk.Choice.Delta {
+    reasoning?: string;
     reasoning_content?: string;
 }
 
@@ -88,6 +90,7 @@ export interface ExtendedDelta extends OpenAI.Chat.ChatCompletionChunk.Choice.De
 export interface ExtendedChoice extends OpenAI.Chat.Completions.ChatCompletionChunk.Choice {
     message?: {
         content?: string;
+        reasoning?: string;
         reasoning_content?: string;
     };
 }
