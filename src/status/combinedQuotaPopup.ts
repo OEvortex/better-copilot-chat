@@ -1,11 +1,10 @@
 /*---------------------------------------------------------------------------------------------
- *  Combined Quota Popup
- *  Shows both Antigravity and Codex quota information in a single popup
+ *  Antigravity Quota Popup
+ *  Shows Antigravity quota information in a popup
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
 import { AntigravityStatusBar, AntigravityQuotaData } from './antigravityStatusBar';
-import { CodexRateLimitStatusBar, AccountRateLimitData } from './codexRateLimitStatusBar';
 import { AntigravityAuth } from '../providers/antigravity/auth';
 import { Logger } from '../utils/logger';
 import { StatusBarManager } from './statusBarManager';
@@ -24,11 +23,11 @@ export function registerCombinedQuotaCommand(context: vscode.ExtensionContext): 
 }
 
 /**
- * Show combined quota popup with both Antigravity and Codex information
+ * Show combined quota popup with Antigravity information
  */
 async function showCombinedQuotaPopup(): Promise<void> {
     const quickPick = vscode.window.createQuickPick();
-    quickPick.title = 'Quota Details';
+    quickPick.title = 'Antigravity Quota Details';
     quickPick.placeholder = 'Loading quota information...';
     quickPick.busy = true;
     quickPick.show();
@@ -63,8 +62,8 @@ async function showCombinedQuotaPopup(): Promise<void> {
                         antigravityData.geminiQuota > 50
                             ? '$(check)'
                             : antigravityData.geminiQuota > 20
-                                ? '$(warning)'
-                                : '$(error)';
+                              ? '$(warning)'
+                              : '$(error)';
                     items.push({
                         label: `${icon} Gemini`,
                         description: `${antigravityData.geminiQuota}% remaining`
@@ -77,8 +76,8 @@ async function showCombinedQuotaPopup(): Promise<void> {
                         antigravityData.claudeQuota > 50
                             ? '$(check)'
                             : antigravityData.claudeQuota > 20
-                                ? '$(warning)'
-                                : '$(error)';
+                              ? '$(warning)'
+                              : '$(error)';
                     items.push({
                         label: `${icon} Claude`,
                         description: `${antigravityData.claudeQuota}% remaining`
@@ -112,72 +111,6 @@ async function showCombinedQuotaPopup(): Promise<void> {
                     label: '$(info) No quota data available',
                     description: 'Click Refresh to update'
                 });
-            }
-        }
-
-        // ==================== CODEX SECTION ====================
-        const codexStatusBar = CodexRateLimitStatusBar.getInstance();
-        const codexSnapshots = codexStatusBar.getAllAccountSnapshots();
-
-        if (codexSnapshots.length > 0) {
-            items.push({
-                label: '$(pulse) Codex (OpenAI)',
-                kind: vscode.QuickPickItemKind.Separator
-            });
-
-            for (const accountData of codexSnapshots) {
-                const accountLabel = accountData.accountName || accountData.accountId;
-                const snapshot = accountData.snapshot;
-
-                // Primary window
-                if (snapshot.primary) {
-                    const remaining = 100 - snapshot.primary.usedPercent;
-                    const label = formatWindowLabel(snapshot.primary.windowMinutes);
-                    const icon = remaining < 30 ? '$(warning)' : '$(check)';
-                    let detail = '';
-                    if (snapshot.primary.resetsAt) {
-                        detail = `Resets: ${formatResetTime(snapshot.primary.resetsAt)}`;
-                    }
-                    items.push({
-                        label: `${icon} ${label}`,
-                        description: `${remaining.toFixed(0)}% remaining`,
-                        detail: detail || `Account: ${accountLabel}`
-                    });
-                }
-
-                // Secondary window
-                if (snapshot.secondary) {
-                    const remaining = 100 - snapshot.secondary.usedPercent;
-                    const label = formatWindowLabel(snapshot.secondary.windowMinutes);
-                    const icon = remaining < 30 ? '$(warning)' : '$(check)';
-                    let detail = '';
-                    if (snapshot.secondary.resetsAt) {
-                        detail = `Resets: ${formatResetTime(snapshot.secondary.resetsAt)}`;
-                    }
-                    items.push({
-                        label: `${icon} ${label}`,
-                        description: `${remaining.toFixed(0)}% remaining`,
-                        detail: detail || `Account: ${accountLabel}`
-                    });
-                }
-
-                // Credits info
-                if (snapshot.credits) {
-                    if (snapshot.credits.unlimited) {
-                        items.push({
-                            label: '$(star-full) Credits',
-                            description: 'Unlimited'
-                        });
-                    } else if (snapshot.credits.balance) {
-                        const balance = formatCreditBalance(snapshot.credits.balance);
-                        if (balance) {
-                            items.push({
-                                label: '$(credit-card) Credits',
-                                description: balance
-                            });
-                        }
-                    }
-                }
             }
         }
 
@@ -222,7 +155,9 @@ async function showCombinedQuotaPopup(): Promise<void> {
             const selected = quickPick.selectedItems[0];
             quickPick.hide();
 
-            if (!selected) {return;}
+            if (!selected) {
+                return;
+            }
 
             const label = selected.label;
 
@@ -251,63 +186,4 @@ async function showCombinedQuotaPopup(): Promise<void> {
         Logger.error('[CombinedQuotaPopup] Failed to show quota popup:', error);
         vscode.window.showErrorMessage(`Failed to load quota data: ${error}`);
     }
-}
-
-function formatWindowLabel(minutes?: number): string {
-    if (!minutes) {
-        return '5h';
-    }
-    if (minutes < 60) {
-        return `${minutes}m`;
-    }
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) {
-        return `${hours}h`;
-    }
-    const days = Math.floor(hours / 24);
-    if (days === 7) {
-        return 'Weekly';
-    }
-    return `${days}d`;
-}
-
-function formatResetTime(timestampSeconds: number): string {
-    const resetDate = new Date(timestampSeconds * 1000);
-    const now = new Date();
-    const diffMs = resetDate.getTime() - now.getTime();
-
-    if (diffMs <= 0) {
-        return 'now';
-    }
-
-    const diffMinutes = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMinutes / 60);
-
-    if (diffMinutes < 60) {
-        return `in ${diffMinutes}m`;
-    }
-
-    if (diffHours < 24) {
-        const mins = diffMinutes % 60;
-        if (mins > 0) {
-            return `in ${diffHours}h ${mins}m`;
-        }
-        return `in ${diffHours}h`;
-    }
-
-    return resetDate.toLocaleString();
-}
-
-function formatCreditBalance(raw: string): string | null {
-    const trimmed = raw.trim();
-    if (!trimmed) {
-        return null;
-    }
-
-    const floatValue = parseFloat(trimmed);
-    if (!isNaN(floatValue) && floatValue > 0) {
-        return Math.round(floatValue).toLocaleString();
-    }
-
-    return null;
 }

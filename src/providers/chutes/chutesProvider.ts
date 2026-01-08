@@ -1,88 +1,666 @@
 /*---------------------------------------------------------------------------------------------
- *  Chutes Dedicated Provider
- *  Handles global request limit tracking for Chutes provider
+ *  Chutes Provider
+ *  Dynamically fetches models from Chutes API and auto-updates config
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
+import OpenAI from 'openai';
 import {
     CancellationToken,
     LanguageModelChatInformation,
     LanguageModelChatMessage,
     LanguageModelChatProvider,
+    LanguageModelResponsePart,
     Progress,
     ProvideLanguageModelChatResponseOptions
 } from 'vscode';
+import type { ChutesModelItem, ChutesModelsResponse } from './types';
+import { convertTools, convertMessages, validateRequest } from './utils';
 import { GenericModelProvider } from '../common/genericModelProvider';
-import { ProviderConfig } from '../../types/sharedTypes';
-import { Logger, ApiKeyManager } from '../../utils';
+import { Logger } from '../../utils/logger';
+import { ApiKeyManager } from '../../utils/apiKeyManager';
+import { ProviderConfig, ModelConfig } from '../../types/sharedTypes';
 import { StatusBarManager } from '../../status';
+import { ConfigManager } from '../../utils/configManager';
 
-// Constants for storage keys
-const KEYS = {
-    REQUEST_COUNT: 'chutes.requestCount',
-    LAST_RESET_DATE: 'chutes.lastResetDate'
-};
+const BASE_URL = 'https://llm.chutes.ai/v1';
+const DEFAULT_MAX_OUTPUT_TOKENS = 65536;
+const DEFAULT_CONTEXT_LENGTH = 131072;
 
 /**
  * Chutes dedicated model provider class
+ * Dynamically fetches models from API and auto-updates config file
  */
 export class ChutesProvider extends GenericModelProvider implements LanguageModelChatProvider {
-    constructor(context: vscode.ExtensionContext, providerKey: string, providerConfig: ProviderConfig) {
-        super(context, providerKey, providerConfig);
-    }
+    private _chatEndpoints: { model: string; modelMaxPromptTokens: number }[] = [];
+    private readonly userAgent: string;
+    private readonly extensionPath: string;
+    private readonly configFilePath: string;
+    private clientCache = new Map<string, { client: OpenAI; lastUsed: number }>();
+    private readonly CLIENT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-    /**
-     * Static factory method - Create and activate Chutes provider
-     */
-    static override createAndActivate(
+    constructor(
         context: vscode.ExtensionContext,
         providerKey: string,
-        providerConfig: ProviderConfig
-    ): { provider: ChutesProvider; disposables: vscode.Disposable[] } {
-        Logger.trace(`${providerConfig.displayName} dedicated model extension activated!`);
-        // Create provider instance
-        const provider = new ChutesProvider(context, providerKey, providerConfig);
-        // Register language model chat provider
-        const providerDisposable = vscode.lm.registerLanguageModelChatProvider(`chp.${providerKey}`, provider);
+        providerConfig: ProviderConfig,
+        userAgent: string,
+        extensionPath: string
+    ) {
+        super(context, providerKey, providerConfig);
+        this.userAgent = userAgent;
+        this.extensionPath = extensionPath;
+        // Path to chutes.json config file
+        this.configFilePath = path.join(this.extensionPath, 'src', 'providers', 'config', 'chutes.json');
+    }
 
-        // Register command to set API key
-        const setApiKeyCommand = vscode.commands.registerCommand(`chp.${providerKey}.setApiKey`, async () => {
-            await ApiKeyManager.promptAndSetApiKey(
-                providerKey,
-                providerConfig.displayName,
-                providerConfig.apiKeyTemplate
-            );
-            // Clear cache after API key change
-            await provider.modelInfoCache?.invalidateCache(providerKey);
-            // Trigger model information change event
-            provider._onDidChangeLanguageModelChatInformation.fire();
+    private estimateMessagesTokens(msgs: readonly vscode.LanguageModelChatMessage[]): number {
+        let total = 0;
+        for (const m of msgs) {
+            for (const part of m.content) {
+                if (part instanceof vscode.LanguageModelTextPart) {
+                    total += Math.ceil(part.value.length / 4);
+                }
+            }
+        }
+        return total;
+    }
+
+    private estimateToolTokens(
+        tools: { type: string; function: { name: string; description?: string; parameters?: object } }[] | undefined
+    ): number {
+        if (!tools || tools.length === 0) {
+            return 0;
+        }
+        try {
+            const json = JSON.stringify(tools);
+            return Math.ceil(json.length / 4);
+        } catch {
+            return 0;
+        }
+    }
+
+    async prepareLanguageModelChatInformation(
+        options: { silent: boolean },
+        _token: CancellationToken
+    ): Promise<LanguageModelChatInformation[]> {
+        const apiKey = await this.ensureApiKey(options.silent ?? true);
+        if (!apiKey) {
+            return [];
+        }
+
+        const { models } = await this.fetchModels(apiKey);
+
+        // Auto-update config file in background (non-blocking)
+        this.updateConfigFileAsync(models);
+
+        const infos: LanguageModelChatInformation[] = models.map(m => {
+            const modalities = m.input_modalities ?? [];
+            const vision = Array.isArray(modalities) && modalities.includes('image');
+            const supportsTools = m.supported_features?.includes('tools') ?? false;
+
+            const contextLen = m.context_length ?? m.max_model_len ?? DEFAULT_CONTEXT_LENGTH;
+            const maxOutput = m.max_output_length ?? DEFAULT_MAX_OUTPUT_TOKENS;
+            const maxInput = Math.max(1, contextLen - maxOutput);
+
+            return {
+                id: m.id,
+                name: m.id,
+                tooltip: `${m.id} by Chutes`,
+                family: 'chutes',
+                version: '1.0.0',
+                maxInputTokens: maxInput,
+                maxOutputTokens: maxOutput,
+                capabilities: {
+                    toolCalling: supportsTools,
+                    imageInput: vision
+                }
+            } as LanguageModelChatInformation;
         });
 
-        const disposables = [providerDisposable, setApiKeyCommand];
-        disposables.forEach(disposable => context.subscriptions.push(disposable));
-        return { provider, disposables };
+        this._chatEndpoints = infos.map(info => ({
+            model: info.id,
+            modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens
+        }));
+
+        return infos;
+    }
+
+    async provideLanguageModelChatInformation(
+        options: { silent: boolean },
+        _token: CancellationToken
+    ): Promise<LanguageModelChatInformation[]> {
+        return this.prepareLanguageModelChatInformation({ silent: options.silent ?? false }, _token);
+    }
+
+    private async fetchModels(apiKey: string): Promise<{ models: ChutesModelItem[] }> {
+        const modelsList = (async () => {
+            const resp = await fetch(`${BASE_URL}/models`, {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${apiKey}`, 'User-Agent': this.userAgent }
+            });
+            if (!resp.ok) {
+                let text = '';
+                try {
+                    text = await resp.text();
+                } catch (error) {
+                    Logger.error('[Chutes Model Provider] Failed to read response text', error);
+                }
+                const err = new Error(
+                    `Failed to fetch Chutes models: ${resp.status} ${resp.statusText}${text ? `\n${text}` : ''}`
+                );
+                Logger.error('[Chutes Model Provider] Failed to fetch Chutes models', err);
+                throw err;
+            }
+            const parsed = (await resp.json()) as ChutesModelsResponse;
+            return parsed.data ?? [];
+        })();
+
+        try {
+            const models = await modelsList;
+            return { models };
+        } catch (err) {
+            Logger.error('[Chutes Model Provider] Failed to fetch Chutes models', err);
+            throw err;
+        }
     }
 
     /**
-     * Override: Provide language model chat response - track global request count
+     * Update config file asynchronously in background
      */
+    private updateConfigFileAsync(models: ChutesModelItem[]): void {
+        // Execute in background, do not wait for result
+        (async () => {
+            try {
+                // Check if config file exists (might not exist in packaged extension)
+                if (!fs.existsSync(this.configFilePath)) {
+                    Logger.debug(`[Chutes] Config file not found at ${this.configFilePath}, skipping auto-update`);
+                    return;
+                }
+
+                const modelConfigs: ModelConfig[] = models.map(m => {
+                    const modalities = m.input_modalities ?? [];
+                    const vision = Array.isArray(modalities) && modalities.includes('image');
+                    const supportsTools = m.supported_features?.includes('tools') ?? false;
+
+                    const contextLen = m.context_length ?? m.max_model_len ?? DEFAULT_CONTEXT_LENGTH;
+                    const maxOutput = m.max_output_length ?? DEFAULT_MAX_OUTPUT_TOKENS;
+                    const maxInput = Math.max(1, contextLen - maxOutput);
+
+                    // Generate a clean ID from model ID (remove special characters, keep slashes as hyphens)
+                    const cleanId = m.id
+                        .replace(/[\/]/g, '-')
+                        .replace(/[^a-zA-Z0-9-]/g, '-')
+                        .toLowerCase();
+
+                    return {
+                        id: cleanId,
+                        name: m.id,
+                        tooltip: `${m.id} by Chutes`,
+                        maxInputTokens: maxInput,
+                        maxOutputTokens: maxOutput,
+                        model: m.id,
+                        capabilities: {
+                            toolCalling: supportsTools,
+                            imageInput: vision
+                        }
+                    } as ModelConfig;
+                });
+
+                // Read existing config to preserve baseUrl and apiKeyTemplate
+                let existingConfig: ProviderConfig;
+                try {
+                    const configContent = fs.readFileSync(this.configFilePath, 'utf8');
+                    existingConfig = JSON.parse(configContent);
+                } catch (err) {
+                    Logger.warn(
+                        `[Chutes] Failed to read existing config, using defaults:`,
+                        err instanceof Error ? err.message : String(err)
+                    );
+                    // If file doesn't exist or is invalid, use defaults
+                    existingConfig = {
+                        displayName: 'Chutes',
+                        baseUrl: BASE_URL,
+                        apiKeyTemplate: 'cpk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                        models: []
+                    };
+                }
+
+                // Update config with new models
+                const updatedConfig: ProviderConfig = {
+                    displayName: existingConfig.displayName || 'Chutes',
+                    baseUrl: existingConfig.baseUrl || BASE_URL,
+                    apiKeyTemplate:
+                        existingConfig.apiKeyTemplate || 'cpk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                    models: modelConfigs
+                };
+
+                // Write updated config to file
+                fs.writeFileSync(this.configFilePath, JSON.stringify(updatedConfig, null, 4), 'utf8');
+                Logger.info(`[Chutes] Auto-updated config file with ${modelConfigs.length} models`);
+            } catch (err) {
+                // Background update failure should not affect extension operation
+                Logger.warn(
+                    `[Chutes] Background config update failed:`,
+                    err instanceof Error ? err.message : String(err)
+                );
+            }
+        })();
+    }
+
     override async provideLanguageModelChatResponse(
         model: LanguageModelChatInformation,
-        messages: Array<LanguageModelChatMessage>,
+        messages: readonly LanguageModelChatMessage[],
         options: ProvideLanguageModelChatResponseOptions,
-        progress: Progress<vscode.LanguageModelResponsePart>,
+        progress: Progress<LanguageModelResponsePart>,
         token: CancellationToken
     ): Promise<void> {
-        Logger.info(`[Chutes] Starting request for model: ${model.name}`);
         try {
-            await super.provideLanguageModelChatResponse(model, messages, options, progress, token);
-        } catch (error) {
-            Logger.error(`[Chutes] Request failed: ${error instanceof Error ? error.message : String(error)}`);
-            throw error;
+            const apiKey = await this.ensureApiKey(true);
+            if (!apiKey) {
+                throw new Error('Chutes API key not found');
+            }
+
+            validateRequest(messages as readonly vscode.LanguageModelChatRequestMessage[]);
+
+            const toolConfig = convertTools(options);
+
+            if (options.tools && options.tools.length > 128) {
+                throw new Error('Cannot have more than 128 tools per request.');
+            }
+
+            const inputTokenCount = this.estimateMessagesTokens(messages as readonly vscode.LanguageModelChatMessage[]);
+            const toolTokenCount = this.estimateToolTokens(
+                toolConfig.tools as
+                    | { type: string; function: { name: string; description?: string; parameters?: object } }[]
+                    | undefined
+            );
+            const tokenLimit = Math.max(1, model.maxInputTokens);
+            if (inputTokenCount + toolTokenCount > tokenLimit) {
+                Logger.error('[Chutes Model Provider] Message exceeds token limit', {
+                    total: inputTokenCount + toolTokenCount,
+                    tokenLimit
+                });
+                throw new Error('Message exceeds token limit.');
+            }
+
+            // Create OpenAI client
+            const client = await this.createOpenAIClient(apiKey);
+
+            // Convert messages
+            const openaiMessages = convertMessages(messages as readonly vscode.LanguageModelChatRequestMessage[]);
+
+            // Create stream parameters
+            const createParams: OpenAI.Chat.ChatCompletionCreateParamsStreaming = {
+                model: model.id,
+                messages: openaiMessages,
+                stream: true,
+                stream_options: { include_usage: true },
+                max_tokens: Math.min(options.modelOptions?.max_tokens || 4096, model.maxOutputTokens),
+                temperature: options.modelOptions?.temperature ?? ConfigManager.getTemperature(),
+                top_p: ConfigManager.getTopP()
+            };
+
+            // Add model options
+            if (options.modelOptions) {
+                const mo = options.modelOptions as Record<string, unknown>;
+                if (typeof mo.stop === 'string' || Array.isArray(mo.stop)) {
+                    createParams.stop = mo.stop;
+                }
+                if (typeof mo.frequency_penalty === 'number') {
+                    createParams.frequency_penalty = mo.frequency_penalty;
+                }
+                if (typeof mo.presence_penalty === 'number') {
+                    createParams.presence_penalty = mo.presence_penalty;
+                }
+            }
+
+            // Add tools
+            if (toolConfig.tools) {
+                createParams.tools = toolConfig.tools;
+                createParams.tool_choice = toolConfig.tool_choice || 'auto';
+            }
+
+            // Use OpenAI SDK streaming
+            const abortController = new AbortController();
+            token.onCancellationRequested(() => abortController.abort());
+
+            const stream = client.chat.completions.stream(createParams, { signal: abortController.signal });
+
+            let currentThinkingId: string | null = null;
+            let thinkingContentBuffer = '';
+            let hasReceivedContent = false;
+
+            // Handle content stream
+            stream.on('content', (delta: string) => {
+                if (token.isCancellationRequested) {
+                    return;
+                }
+
+                // Handle reasoning/reasoning_content from snapshot if available
+                const snapshot = (stream as unknown as { _snapshot?: { reasoning?: string; reasoning_content?: string } })
+                    ._snapshot;
+                const reasoningContent =
+                    snapshot?.reasoning ?? snapshot?.reasoning_content ?? (delta as unknown as { reasoning?: string })?.reasoning;
+
+                if (reasoningContent && typeof reasoningContent === 'string') {
+                    if (!currentThinkingId) {
+                        currentThinkingId = `chutes_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+                    }
+                    thinkingContentBuffer += reasoningContent;
+                    try {
+                        progress.report(
+                            new vscode.LanguageModelThinkingPart(thinkingContentBuffer, currentThinkingId) as unknown as LanguageModelResponsePart
+                        );
+                        thinkingContentBuffer = '';
+                    } catch (e) {
+                        Logger.warn('[Chutes] Failed to report thinking', e instanceof Error ? e.message : String(e));
+                    }
+                }
+
+                // Handle regular content
+                if (delta && typeof delta === 'string' && delta.trim().length > 0) {
+                    // End thinking if we're starting to output regular content
+                    if (currentThinkingId) {
+                        try {
+                            progress.report(
+                                new vscode.LanguageModelThinkingPart('', currentThinkingId) as unknown as LanguageModelResponsePart
+                            );
+                        } catch {
+                            // ignore
+                        }
+                        currentThinkingId = null;
+                    }
+
+                    try {
+                        progress.report(new vscode.LanguageModelTextPart(delta));
+                        hasReceivedContent = true;
+                    } catch (e) {
+                        Logger.warn('[Chutes] Failed to report content', e instanceof Error ? e.message : String(e));
+                    }
+                }
+            });
+
+            // Handle tool calls
+            stream.on('tool_calls.function.arguments.done', () => {
+                if (token.isCancellationRequested) {
+                    return;
+                }
+                // Finalize thinking before tool calls
+                if (currentThinkingId) {
+                    try {
+                        progress.report(
+                            new vscode.LanguageModelThinkingPart('', currentThinkingId) as unknown as LanguageModelResponsePart
+                        );
+                    } catch {
+                        // ignore
+                    }
+                    currentThinkingId = null;
+                }
+            });
+
+            // Wait for stream to complete
+            await stream.finalChatCompletion();
+
+            // Finalize thinking if still active
+            if (currentThinkingId) {
+                try {
+                    progress.report(
+                        new vscode.LanguageModelThinkingPart('', currentThinkingId) as unknown as LanguageModelResponsePart
+                    );
+                } catch {
+                    // ignore
+                }
+            }
+        } catch (err) {
+            Logger.error('[Chutes Model Provider] Chat request failed', {
+                modelId: model.id,
+                messageCount: messages.length,
+                error: err instanceof Error ? { name: err.name, message: err.message } : String(err)
+            });
+            throw err;
         } finally {
-            // After request completes (success or failure), update global request count
+            // Track global request count
             this.incrementRequestCount();
         }
+    }
+
+    /**
+     * Create OpenAI client for Chutes API
+     */
+    private async createOpenAIClient(apiKey: string): Promise<OpenAI> {
+        const cacheKey = `chutes:${BASE_URL}`;
+        const cached = this.clientCache.get(cacheKey);
+        if (cached) {
+            cached.lastUsed = Date.now();
+            return cached.client;
+        }
+
+        const client = new OpenAI({
+            apiKey: apiKey,
+            baseURL: BASE_URL,
+            defaultHeaders: {
+                'User-Agent': this.userAgent
+            },
+            maxRetries: 2,
+            timeout: 60000
+        });
+
+        this.clientCache.set(cacheKey, { client, lastUsed: Date.now() });
+        return client;
+    }
+
+    async provideTokenCount(
+        model: LanguageModelChatInformation,
+        text: string | LanguageModelChatMessage,
+        _token: CancellationToken
+    ): Promise<number> {
+        if (typeof text === 'string') {
+            return Math.ceil(text.length / 4);
+        } else {
+            let totalTokens = 0;
+            for (const part of text.content) {
+                if (part instanceof vscode.LanguageModelTextPart) {
+                    totalTokens += Math.ceil(part.value.length / 4);
+                }
+            }
+            return totalTokens;
+        }
+    }
+
+    private async ensureApiKey(silent: boolean): Promise<string | undefined> {
+        let apiKey = await ApiKeyManager.getApiKey('chutes');
+        if (!apiKey && !silent) {
+            await ApiKeyManager.promptAndSetApiKey(
+                'chutes',
+                'Chutes',
+                'cpk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+            );
+            apiKey = await ApiKeyManager.getApiKey('chutes');
+        }
+        return apiKey;
+    }
+
+    private async processStreamingResponse(
+        responseBody: ReadableStream<Uint8Array>,
+        progress: vscode.Progress<vscode.LanguageModelResponsePart>,
+        token: vscode.CancellationToken
+    ): Promise<void> {
+        const reader = responseBody.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let currentThinkingId: string | null = null;
+
+        try {
+            while (!token.isCancellationRequested) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    // Process any remaining buffer before breaking
+                    if (buffer.trim()) {
+                        const lines = buffer.split('\n');
+                        for (const line of lines) {
+                            if (line.trim() && line.startsWith('data: ')) {
+                                const data = line.slice(6).trim();
+                                if (data && data !== '[DONE]') {
+                                    try {
+                                        const parsed = JSON.parse(data);
+                                        const newThinkingId = await this.processDelta(
+                                            parsed,
+                                            progress,
+                                            currentThinkingId
+                                        );
+                                        if (newThinkingId !== currentThinkingId) {
+                                            currentThinkingId = newThinkingId;
+                                        }
+                                    } catch {
+                                        // ignore malformed chunks
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+
+                buffer += decoder.decode(value, { stream: true });
+                buffer = buffer.replace(/\r\n/g, '\n');
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    // Skip empty lines
+                    if (!line.trim()) {
+                        continue;
+                    }
+
+                    // Process SSE data lines
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6).trim();
+
+                        // Skip [DONE] marker but continue processing
+                        if (data === '[DONE]') {
+                            continue;
+                        }
+
+                        // Skip empty data
+                        if (!data) {
+                            continue;
+                        }
+
+                        try {
+                            const parsed = JSON.parse(data);
+                            const newThinkingId = await this.processDelta(parsed, progress, currentThinkingId);
+                            if (newThinkingId !== currentThinkingId) {
+                                currentThinkingId = newThinkingId;
+                            }
+                        } catch {
+                            // ignore malformed chunks
+                        }
+                    }
+                }
+            }
+        } finally {
+            // Finalize thinking if still active
+            if (currentThinkingId) {
+                try {
+                    progress.report(
+                        new vscode.LanguageModelThinkingPart(
+                            '',
+                            currentThinkingId
+                        ) as unknown as LanguageModelResponsePart
+                    );
+                } catch {
+                    // ignore
+                }
+            }
+            reader.releaseLock();
+        }
+    }
+
+    private async processDelta(
+        delta: Record<string, unknown>,
+        progress: vscode.Progress<vscode.LanguageModelResponsePart>,
+        currentThinkingId: string | null
+    ): Promise<string | null> {
+        const choice = (delta.choices as Record<string, unknown>[] | undefined)?.[0];
+        if (!choice) {
+            return currentThinkingId;
+        }
+
+        const deltaObj = choice.delta as Record<string, unknown> | undefined;
+        const message = choice.message as Record<string, unknown> | undefined;
+        if (!deltaObj) {
+            return currentThinkingId;
+        }
+
+        // Handle reasoning/reasoning_content (thinking content)
+        // Note: Some providers use 'reasoning', others use 'reasoning_content'
+        const reasoningContent =
+            deltaObj.reasoning ?? deltaObj.reasoning_content ?? message?.reasoning ?? message?.reasoning_content;
+        if (reasoningContent && typeof reasoningContent === 'string') {
+            try {
+                // If currently no active id, generate one for this chain of thought
+                let thinkingId = currentThinkingId;
+                if (!thinkingId) {
+                    thinkingId = `chutes_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+                }
+
+                // Report thinking immediately for real-time streaming
+                progress.report(
+                    new vscode.LanguageModelThinkingPart(
+                        reasoningContent,
+                        thinkingId
+                    ) as unknown as LanguageModelResponsePart
+                );
+                return thinkingId;
+            } catch (e) {
+                Logger.warn(
+                    '[Chutes Model Provider] Failed to report thinking',
+                    e instanceof Error ? e.message : String(e)
+                );
+            }
+        }
+
+        // Handle regular text content
+        const content = deltaObj.content ?? deltaObj; // sometimes content nested
+        if (typeof content === 'string') {
+            // End thinking if we're starting to output regular content
+            if (currentThinkingId && content.trim().length > 0) {
+                try {
+                    progress.report(
+                        new vscode.LanguageModelThinkingPart(
+                            '',
+                            currentThinkingId
+                        ) as unknown as LanguageModelResponsePart
+                    );
+                } catch {
+                    // ignore
+                }
+                currentThinkingId = null;
+            }
+
+            const TextCtor = (vscode as unknown as Record<string, unknown>)['LanguageModelTextPart'] as unknown as
+                | (new (val: string) => unknown)
+                | undefined;
+            if (TextCtor) {
+                try {
+                    const textPartInstance = new (TextCtor as new (val: string) => unknown)(content);
+                    progress.report(textPartInstance as unknown as LanguageModelResponsePart);
+                    return currentThinkingId;
+                } catch (e) {
+                    Logger.warn(
+                        '[Chutes Model Provider] Failed to construct LanguageModelTextPart',
+                        e instanceof Error ? e.message : String(e)
+                    );
+                }
+            }
+            // fallback to reporting as plain text part
+            progress.report({ type: 'message', text: content } as unknown as LanguageModelResponsePart);
+            return currentThinkingId;
+        }
+
+        return currentThinkingId;
     }
 
     /**
@@ -91,20 +669,51 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
     private incrementRequestCount(): void {
         const today = new Date().toDateString();
 
-        let count = this.context?.globalState.get<number>(KEYS.REQUEST_COUNT) || 0;
-        const lastReset = this.context?.globalState.get<string>(KEYS.LAST_RESET_DATE);
+        let count = this.context?.globalState.get<number>('chutes.requestCount') || 0;
+        const lastReset = this.context?.globalState.get<string>('chutes.lastResetDate');
 
         if (lastReset !== today) {
             count = 1;
-            this.context?.globalState.update(KEYS.LAST_RESET_DATE, today);
+            this.context?.globalState.update('chutes.lastResetDate', today);
         } else {
             count++;
         }
 
-        this.context?.globalState.update(KEYS.REQUEST_COUNT, count);
+        this.context?.globalState.update('chutes.requestCount', count);
         Logger.debug(`[Chutes] Global request count: ${count}/5000`);
 
         // Trigger status bar update
         StatusBarManager.delayedUpdate('chutes', 100);
+    }
+
+    static createAndActivate(
+        context: vscode.ExtensionContext,
+        providerKey: string,
+        providerConfig: ProviderConfig
+    ): { provider: ChutesProvider; disposables: vscode.Disposable[] } {
+        Logger.trace(`${providerConfig.displayName} provider activated!`);
+        const ext = vscode.extensions.getExtension('OEvortex.better-copilot-chat');
+        const extVersion = ext?.packageJSON?.version ?? 'unknown';
+        const vscodeVersion = vscode.version;
+        const ua = `better-copilot-chat/${extVersion} VSCode/${vscodeVersion}`;
+
+        const extensionPath = context.extensionPath;
+        const provider = new ChutesProvider(context, providerKey, providerConfig, ua, extensionPath);
+        const providerDisposable = vscode.lm.registerLanguageModelChatProvider(`chp.${providerKey}`, provider);
+
+        const setApiKeyCommand = vscode.commands.registerCommand(`chp.${providerKey}.setApiKey`, async () => {
+            await ApiKeyManager.promptAndSetApiKey(
+                providerKey,
+                providerConfig.displayName,
+                providerConfig.apiKeyTemplate
+            );
+            // Clear cached models and notify VS Code the available models may have changed
+            await provider.modelInfoCache?.invalidateCache(providerKey);
+            provider._onDidChangeLanguageModelChatInformation.fire(undefined);
+        });
+
+        const disposables = [providerDisposable, setApiKeyCommand];
+        disposables.forEach(d => context.subscriptions.push(d));
+        return { provider, disposables };
     }
 }

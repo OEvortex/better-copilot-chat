@@ -166,8 +166,17 @@ function parseDurationFormat(duration: string): number | null {
 export function parseQuotaRetryDelay(errorBody: string): number | null {
     try {
         const parsed = JSON.parse(errorBody);
-        const details = parsed?.error?.details || (Array.isArray(parsed) ? parsed[0]?.error?.details : null);
+        // Handle nested error structure: { "error": { "code": 429, ... } }
+        const errorObj = parsed?.error || parsed;
+        const details = errorObj?.details || (Array.isArray(parsed) ? parsed[0]?.error?.details : null);
         if (!details) {
+            // Try to extract retry delay from error message or metadata
+            if (errorObj?.metadata?.quotaResetDelay) {
+                const d = parseDurationFormat(errorObj.metadata.quotaResetDelay);
+                if (d !== null && d > 0) {
+                    return d;
+                }
+            }
             return null;
         }
         for (const detail of details) {

@@ -100,7 +100,9 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
                 // Register CLI-managed account in AccountManager if not present
                 try {
                     const accountManager = AccountManager.getInstance();
-                    const existing = accountManager.getAccountsByProvider('qwencli').find(a => a.metadata?.source === 'cli');
+                    const existing = accountManager
+                        .getAccountsByProvider('qwencli')
+                        .find(a => a.metadata?.source === 'cli');
                     if (!existing) {
                         await accountManager.addOAuthAccount(
                             'qwencli',
@@ -116,7 +118,9 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
                 await provider.modelInfoCache?.invalidateCache(providerKey);
                 provider._onDidChangeLanguageModelChatInformation.fire();
             } catch (error) {
-                vscode.window.showErrorMessage(`${providerConfig.displayName} login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                vscode.window.showErrorMessage(
+                    `${providerConfig.displayName} login failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+                );
             }
         });
 
@@ -250,7 +254,7 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
 
             // Fallback: Ensure we read latest token (in case CLI updated credentials externally)
             const { accessToken, baseURL } = await QwenOAuthManager.getInstance().ensureAuthenticated();
-            
+
             // Update handler with latest credentials (CLI)
             // Pass accessToken as apiKey so OpenAIHandler uses it for Authorization header
             const configWithAuth: ModelConfig = {
@@ -265,7 +269,7 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
 
             let functionCallsBuffer = '';
             const wrappedProgress: Progress<vscode.LanguageModelResponsePart2> = {
-                report: (part) => {
+                report: part => {
                     if (part instanceof vscode.LanguageModelTextPart) {
                         // First, parse thinking blocks
                         const { regular, thinking } = thinkingParser.parse(part.value);
@@ -362,7 +366,7 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
                     baseUrl: baseURL,
                     customHeader: {
                         ...modelConfig.customHeader,
-                        'Authorization': `Bearer ${accessToken}`
+                        Authorization: `Bearer ${accessToken}`
                     }
                 };
                 await this.openaiHandler.handleRequest(model, configWithAuth, messages, options, progress, token);

@@ -4,45 +4,45 @@
  *--------------------------------------------------------------------------------------------*/
 
 /**
- * Trạng thái của tài khoản
+ * Account status
  */
 export type AccountStatus = 'active' | 'inactive' | 'expired' | 'error';
 
 /**
- * Loại xác thực
+ * Authentication type
  */
 export type AuthType = 'apiKey' | 'oauth' | 'token';
 
 /**
- * Thông tin tài khoản cơ bản
+ * Basic account information
  */
 export interface Account {
-    /** ID duy nhất của tài khoản */
+    /** Unique account ID */
     id: string;
-    /** Tên hiển thị của tài khoản */
+    /** Account display name */
     displayName: string;
-    /** Provider liên kết (zhipu, moonshot, minimax, compatible, antigravity, codex, etc.) */
+    /** Linked provider (zhipu, moonshot, minimax, compatible, antigravity, codex, etc.) */
     provider: string;
-    /** Loại xác thực */
+    /** Authentication type */
     authType: AuthType;
-    /** Email (nếu có, cho OAuth) */
+    /** Email (if present, for OAuth) */
     email?: string;
-    /** Trạng thái tài khoản */
+    /** Account status */
     status: AccountStatus;
-    /** Thời gian tạo */
+    /** Creation timestamp */
     createdAt: string;
-    /** Thời gian cập nhật cuối */
+    /** Last updated timestamp */
     updatedAt: string;
-    /** Thời gian hết hạn (cho OAuth token) */
+    /** Expiration timestamp (for OAuth tokens) */
     expiresAt?: string;
-    /** Metadata bổ sung */
+    /** Additional metadata */
     metadata?: Record<string, unknown>;
-    /** Đánh dấu là tài khoản mặc định cho provider */
+    /** Mark as default account for the provider */
     isDefault?: boolean;
 }
 
 /**
- * Thông tin xác thực OAuth
+ * OAuth credentials information
  */
 export interface OAuthCredentials {
     accessToken: string;
@@ -53,13 +53,13 @@ export interface OAuthCredentials {
 }
 
 /**
- * Thông tin xác thực API Key
+ * API Key credentials information
  */
 export interface ApiKeyCredentials {
     apiKey: string;
-    /** Endpoint tùy chỉnh (nếu có) */
+    /** Custom endpoint (if any) */
     endpoint?: string;
-    /** Headers tùy chỉnh */
+    /** Custom headers */
     customHeaders?: Record<string, string>;
 }
 
@@ -69,14 +69,14 @@ export interface ApiKeyCredentials {
 export type AccountCredentials = OAuthCredentials | ApiKeyCredentials;
 
 /**
- * Tài khoản đầy đủ với credentials
+ * Full account with credentials
  */
 export interface AccountWithCredentials extends Account {
     credentials: AccountCredentials;
 }
 
 /**
- * Kết quả đăng nhập
+ * Login result
  */
 export interface LoginResult {
     success: boolean;
@@ -85,7 +85,7 @@ export interface LoginResult {
 }
 
 /**
- * Sự kiện thay đổi tài khoản
+ * Account change event
  */
 export interface AccountChangeEvent {
     type: 'added' | 'removed' | 'updated' | 'switched';
@@ -94,46 +94,46 @@ export interface AccountChangeEvent {
 }
 
 /**
- * Cấu hình provider cho multi-account
+ * Provider configuration for multi-account support
  */
 export interface ProviderAccountConfig {
-    /** Provider có hỗ trợ multi-account không */
+    /** Whether provider supports multi-account */
     supportsMultiAccount: boolean;
-    /** Provider có hỗ trợ OAuth không */
+    /** Whether provider supports OAuth */
     supportsOAuth: boolean;
-    /** Provider có hỗ trợ API Key không */
+    /** Whether provider supports API Key */
     supportsApiKey: boolean;
-    /** Số lượng tài khoản tối đa */
+    /** Maximum number of accounts */
     maxAccounts?: number;
 }
 
 /**
- * Cấu hình định tuyến tài khoản theo model cho provider
+ * Provider routing configuration for assigning accounts to models
  */
 export interface ProviderRoutingConfig {
     /** Mapping modelId -> accountId */
     modelAssignments: Record<string, string>;
-    /** Bật/tắt load balance cho provider */
+    /** Enable/disable load balancing for provider */
     loadBalanceEnabled?: boolean;
 }
 
 /**
- * Cấu hình định tuyến theo provider
+ * Account routing configuration by provider
  */
 export type AccountRoutingConfig = Record<string, ProviderRoutingConfig>;
 
 /**
- * Danh sách tài khoản theo provider
+ * Accounts grouped by provider
  */
 export type AccountsByProvider = Record<string, Account[]>;
 
 /**
- * Tài khoản đang active theo provider
+ * Active accounts by provider
  */
 export type ActiveAccounts = Record<string, string>;
 
 /**
- * Storage schema cho accounts
+ * Storage schema for accounts
  */
 export interface AccountStorageData {
     version: number;
@@ -143,7 +143,7 @@ export interface AccountStorageData {
 }
 
 /**
- * Quick pick item cho account
+ * Quick pick item for accounts
  */
 export interface AccountQuickPickItem {
     label: string;

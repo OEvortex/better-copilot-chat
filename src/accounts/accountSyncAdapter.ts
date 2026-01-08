@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
  *  Account Sync Adapter
- *  Đồng bộ giữa AccountManager và các hệ thống auth hiện có
+ *  Sync between AccountManager and existing auth systems
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -11,7 +11,7 @@ import { ApiKeyManager } from '../utils/apiKeyManager';
 import { ProviderKey } from '../types/providerKeys';
 
 /**
- * Adapter để đồng bộ accounts từ các nguồn khác nhau
+ * Adapter to sync accounts from various sources
  */
 export class AccountSyncAdapter {
     private static instance: AccountSyncAdapter;
@@ -36,7 +36,7 @@ export class AccountSyncAdapter {
     }
 
     /**
-     * Khởi tạo adapter
+     * Initialize adapter
      */
     static initialize(): AccountSyncAdapter {
         if (!AccountSyncAdapter.instance) {
@@ -46,7 +46,7 @@ export class AccountSyncAdapter {
     }
 
     /**
-     * Lấy instance
+     * Get instance
      */
     static getInstance(): AccountSyncAdapter {
         if (!AccountSyncAdapter.instance) {
@@ -56,7 +56,7 @@ export class AccountSyncAdapter {
     }
 
     /**
-     * Đồng bộ Antigravity account từ ApiKeyManager
+     * Sync Antigravity account from ApiKeyManager
      */
     async syncAntigravityAccount(): Promise<void> {
         try {
@@ -73,12 +73,12 @@ export class AccountSyncAdapter {
                 expires_at: string;
             };
 
-            // Kiểm tra xem đã có account này chưa
+            // Check whether this account already exists
             const existingAccounts = this.accountManager.getAccountsByProvider(ProviderKey.Antigravity);
             const existingByEmail = existingAccounts.find(acc => acc.email === authData.email);
 
             if (existingByEmail) {
-                // Cập nhật credentials
+                // Update credentials
                 const credentials: OAuthCredentials = {
                     accessToken: authData.access_token,
                     refreshToken: authData.refresh_token,
@@ -87,7 +87,7 @@ export class AccountSyncAdapter {
                 await this.accountManager.updateCredentials(existingByEmail.id, credentials);
                 Logger.debug(`Updated Antigravity account: ${authData.email}`);
             } else {
-                // Thêm account mới
+                // Add a new account
                 const displayName = authData.email || 'Antigravity Account';
                 const credentials: OAuthCredentials = {
                     accessToken: authData.access_token,
@@ -110,7 +110,7 @@ export class AccountSyncAdapter {
     }
 
     /**
-     * Đồng bộ Codex account từ ApiKeyManager
+     * Sync Codex account from ApiKeyManager
      */
     async syncCodexAccount(): Promise<void> {
         try {
@@ -126,12 +126,12 @@ export class AccountSyncAdapter {
                 expires_at: string;
             };
 
-            // Kiểm tra xem đã có account này chưa
+            // Check whether this account already exists
             const existingAccounts = this.accountManager.getAccountsByProvider('codex');
             const existingByEmail = existingAccounts.find(acc => acc.email === authData.email);
 
             if (existingByEmail) {
-                // Cập nhật credentials
+                // Update credentials
                 const credentials: OAuthCredentials = {
                     accessToken: authData.access_token,
                     refreshToken: authData.refresh_token,
@@ -140,7 +140,7 @@ export class AccountSyncAdapter {
                 await this.accountManager.updateCredentials(existingByEmail.id, credentials);
                 Logger.debug(`Updated Codex account: ${authData.email}`);
             } else {
-                // Thêm account mới
+                // Add a new account
                 const displayName = authData.email || 'Codex Account';
                 const credentials: OAuthCredentials = {
                     accessToken: authData.access_token,
@@ -162,7 +162,7 @@ export class AccountSyncAdapter {
     }
 
     /**
-     * Đồng bộ API Key account từ ApiKeyManager
+     * Sync API Key account from ApiKeyManager
      */
     async syncApiKeyAccount(provider: string, displayName?: string): Promise<void> {
         try {
@@ -171,11 +171,11 @@ export class AccountSyncAdapter {
                 return;
             }
 
-            // Kiểm tra xem đã có account này chưa
+            // Check whether this account already exists
             const existingAccounts = this.accountManager.getAccountsByProvider(provider);
             
             if (existingAccounts.length === 0) {
-                // Thêm account mới
+                // Add a new account
                 const name = displayName || `${provider} Account`;
                 await this.accountManager.addApiKeyAccount(provider, name, apiKey);
                 Logger.info(`Synced ${provider} account from ApiKeyManager`);
@@ -186,7 +186,7 @@ export class AccountSyncAdapter {
     }
 
     /**
-     * Đồng bộ tất cả accounts từ ApiKeyManager
+     * Sync all accounts from ApiKeyManager
      */
     async syncAllAccounts(): Promise<void> {
         const providers = ['zhipu', 'moonshot', 'minimax', 'deepseek'];
@@ -210,8 +210,8 @@ export class AccountSyncAdapter {
     }
 
     /**
-     * Khi có account mới được thêm qua AccountManager, 
-     * cập nhật ApiKeyManager để tương thích ngược
+     * When a new account is added via AccountManager,
+     * update ApiKeyManager for backward compatibility
      */
     async syncToApiKeyManager(provider: string): Promise<void> {
         const activeCredentials = await this.accountManager.getActiveCredentials(provider);
@@ -222,7 +222,7 @@ export class AccountSyncAdapter {
         if ('apiKey' in activeCredentials) {
             await ApiKeyManager.setApiKey(provider, activeCredentials.apiKey);
         } else if ('accessToken' in activeCredentials && provider === ProviderKey.Antigravity) {
-            // Antigravity cần format đặc biệt
+            // Antigravity requires special format
             const account = this.accountManager.getActiveAccount(provider);
             const authData = {
                 type: ProviderKey.Antigravity,
@@ -235,7 +235,7 @@ export class AccountSyncAdapter {
             };
             await ApiKeyManager.setApiKey(ProviderKey.Antigravity, JSON.stringify(authData));
         } else if ('accessToken' in activeCredentials && provider === ProviderKey.Codex) {
-            // Codex cần format đặc biệt
+            // Codex requires special format
             const account = this.accountManager.getActiveAccount(provider);
             
             // Get existing data to preserve account_id, organization_id, etc.
@@ -268,7 +268,7 @@ export class AccountSyncAdapter {
     }
 
     /**
-     * Khi account bị xóa, cập nhật hoặc xóa ApiKeyManager để tránh sync ngược
+     * When an account is removed, update or delete ApiKeyManager to avoid reverse sync
      */
     private async handleAccountRemoval(provider: string): Promise<void> {
         const remainingAccounts = this.accountManager.getAccountsByProvider(provider);
@@ -277,7 +277,7 @@ export class AccountSyncAdapter {
             return;
         }
 
-        // Còn account khác -> sync lại active account để tương thích ngược
+        // Other accounts exist -> re-sync active account for backward compatibility
         await this.syncToApiKeyManager(provider);
     }
 

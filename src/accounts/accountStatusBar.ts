@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------
  *  Account Status Bar
- *  Hiển thị tài khoản đang active trên status bar với Quick Switch
- *  Khi đang dùng model nào thì hiển thị account tương ứng
+ *  Show the active account in the status bar with Quick Switch
+ *  Display the account corresponding to the model currently in use
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -11,8 +11,8 @@ import { CodexRateLimitStatusBar } from '../status/codexRateLimitStatusBar';
 import { TokenUsageStatusBar, TokenUsageData } from '../status/tokenUsageStatusBar';
 
 /**
- * Account Status Bar Item - Cải tiến UX với Quick Switch
- * Hiển thị account tương ứng với model đang được sử dụng
+ * Account Status Bar Item - Improve UX with Quick Switch
+ * Display the account corresponding to the model currently in use
  */
 export class AccountStatusBar {
     private static instance: AccountStatusBar;
@@ -24,22 +24,22 @@ export class AccountStatusBar {
     private constructor() {
         this.accountManager = AccountManager.getInstance();
         
-        // Tạo status bar item - sử dụng command mở Account Manager
+        // Create status bar item - uses command to open Account Manager
         this.statusBarItem = vscode.window.createStatusBarItem(
             vscode.StatusBarAlignment.Right,
             99 // Priority
         );
-        // Click vào sẽ mở Account Manager
+        // Clicking will open Account Manager
         this.statusBarItem.command = 'chp.accounts.openManager';
         
-        // Lắng nghe thay đổi tài khoản
+        // Listen to account changes
         this.disposables.push(
             this.accountManager.onAccountChange(() => {
                 this.updateStatusBar();
             })
         );
 
-        // Lắng nghe thay đổi model đang sử dụng
+        // Listen to changes of the active model
         this.disposables.push(
             TokenUsageStatusBar.onDidChangeActiveModel((data: TokenUsageData) => {
                 this.onActiveModelChanged(data);
@@ -50,7 +50,7 @@ export class AccountStatusBar {
     }
 
     /**
-     * Khởi tạo
+     * Initialize
      */
     static initialize(): AccountStatusBar {
         if (!AccountStatusBar.instance) {
@@ -60,14 +60,14 @@ export class AccountStatusBar {
     }
 
     /**
-     * Lấy instance
+     * Get instance
      */
     static getInstance(): AccountStatusBar | undefined {
         return AccountStatusBar.instance;
     }
 
     /**
-     * Xử lý khi model đang sử dụng thay đổi
+     * Handle when the active model changes
      */
     private onActiveModelChanged(data: TokenUsageData): void {
         this.currentProviderKey = data.providerKey;
@@ -75,8 +75,8 @@ export class AccountStatusBar {
     }
 
     /**
-     * Cập nhật status bar với thông tin chi tiết hơn
-     * Ưu tiên hiển thị account của provider đang được sử dụng
+     * Update status bar with more detailed information
+     * Prefer displaying the account of the provider in use
      */
     private updateStatusBar(): void {
         const accounts = this.accountManager.getAllAccounts();
@@ -86,7 +86,7 @@ export class AccountStatusBar {
             this.statusBarItem.tooltip = 'Click to add your first account';
             this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
         } else {
-            // Nếu có provider đang được sử dụng, ưu tiên hiển thị account của provider đó
+            // If a provider is currently in use, prefer displaying its account
             if (this.currentProviderKey) {
                 const providerAccount = this.getActiveAccountForProvider(this.currentProviderKey);
                 if (providerAccount) {
@@ -99,7 +99,7 @@ export class AccountStatusBar {
                 }
             }
 
-            // Fallback: Lấy các tài khoản active
+            // Fallback: get active accounts
             const activeAccounts = accounts.filter(acc => acc.isDefault);
             
             if (activeAccounts.length === 0) {
@@ -107,14 +107,14 @@ export class AccountStatusBar {
                 this.statusBarItem.tooltip = this.buildTooltip(accounts, []);
                 this.statusBarItem.backgroundColor = undefined;
             } else if (activeAccounts.length === 1) {
-                // Hiển thị tên tài khoản active
+                // Show active account name
                 const active = activeAccounts[0];
                 const providerName = this.getProviderDisplayName(active.provider);
                 this.statusBarItem.text = `$(account) ${this.truncateName(active.displayName)} · ${providerName}`;
                 this.statusBarItem.tooltip = this.buildTooltip(accounts, activeAccounts);
                 this.statusBarItem.backgroundColor = this.getProviderStatusBarColor(active.provider);
             } else {
-                // Nhiều tài khoản active (nhiều provider)
+                // Multiple active accounts (multiple providers)
                 this.statusBarItem.text = `$(account) ${activeAccounts.length} Active`;
                 this.statusBarItem.tooltip = this.buildTooltip(accounts, activeAccounts);
                 this.statusBarItem.backgroundColor = undefined;
@@ -125,7 +125,7 @@ export class AccountStatusBar {
     }
 
     /**
-     * Rút gọn tên nếu quá dài
+     * Truncate name if too long
      */
     private truncateName(name: string, maxLength: number = 15): string {
         if (name.length <= maxLength) {return name;}
@@ -133,7 +133,7 @@ export class AccountStatusBar {
     }
 
     /**
-     * Tạo tooltip chi tiết
+     * Build detailed tooltip
      */
     private buildTooltip(allAccounts: Account[], activeAccounts: Account[]): vscode.MarkdownString {
         const md = new vscode.MarkdownString();
@@ -186,22 +186,22 @@ export class AccountStatusBar {
     }
 
     /**
-     * Lấy account active cho provider cụ thể
+     * Get active account for a specific provider
      */
     private getActiveAccountForProvider(providerKey: string): Account | undefined {
-        // Thử lấy account active cho provider
+        // Try to get the active account for the provider
         const activeAccount = this.accountManager.getActiveAccount(providerKey);
         if (activeAccount) {
             return activeAccount;
         }
 
-        // Fallback: lấy account đầu tiên của provider
+        // Fallback: take the first account of the provider
         const accounts = this.accountManager.getAllAccounts();
         return accounts.find(acc => acc.provider === providerKey);
     }
 
     /**
-     * Tạo tooltip với thông tin model đang sử dụng
+     * Build tooltip with current model information
      */
     private buildTooltipWithCurrentModel(
         allAccounts: Account[], 
@@ -216,7 +216,7 @@ export class AccountStatusBar {
         md.appendMarkdown(`### Currently Using: ${providerName}\n\n`);
         md.appendMarkdown(`**Account:** $(check) **${currentAccount.displayName}**\n\n`);
 
-        // Hiển thị các account khác của cùng provider
+        // Show other accounts for the same provider
         const sameProviderAccounts = allAccounts.filter(
             acc => acc.provider === providerKey && acc.id !== currentAccount.id
         );
@@ -228,10 +228,10 @@ export class AccountStatusBar {
             md.appendMarkdown('\n');
         }
 
-        // Hiển thị tổng số account
+        // Show total number of accounts
         md.appendMarkdown(`Total: ${allAccounts.length} account(s)\n\n`);
 
-        // Hiển thị rate limits nếu là Codex
+        // Show rate limits if provider is Codex
         if (providerKey === 'codex') {
             const codexAccounts = allAccounts.filter(acc => acc.provider === 'codex');
             const rateLimits = CodexRateLimitStatusBar.getInstance().getAllAccountSnapshots();
@@ -267,7 +267,7 @@ export class AccountStatusBar {
     }
 
     /**
-     * Lấy tên hiển thị của provider
+     * Get provider display name
      */
     private getProviderDisplayName(provider: string): string {
         const names: Record<string, string> = {
@@ -284,7 +284,7 @@ export class AccountStatusBar {
     }
 
     /**
-     * Lấy màu status bar theo provider
+     * Get status bar color for the provider
      */
     private getProviderStatusBarColor(provider: string): vscode.ThemeColor | undefined {
         const colorIds: Record<string, string> = {
@@ -302,14 +302,14 @@ export class AccountStatusBar {
     }
 
     /**
-     * Hiển thị status bar
+     * Show status bar
      */
     show(): void {
         this.statusBarItem.show();
     }
 
     /**
-     * Ẩn status bar
+     * Hide status bar
      */
     hide(): void {
         this.statusBarItem.hide();

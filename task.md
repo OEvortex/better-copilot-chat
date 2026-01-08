@@ -1,1 +1,0 @@
-remove all unwanted #file:status keep only status of antigravity things and not any other thing

@@ -1,5 +1,13 @@
 import * as vscode from 'vscode';
-import { CancellationToken, LanguageModelChatInformation, LanguageModelChatMessage, LanguageModelChatProvider, LanguageModelResponsePart, Progress, ProvideLanguageModelChatResponseOptions } from 'vscode';
+import {
+    CancellationToken,
+    LanguageModelChatInformation,
+    LanguageModelChatMessage,
+    LanguageModelChatProvider,
+    LanguageModelResponsePart,
+    Progress,
+    ProvideLanguageModelChatResponseOptions
+} from 'vscode';
 import type { HFModelItem, HFModelsResponse } from './types';
 import { convertTools, convertMessages, validateRequest } from './utils';
 import { GenericModelProvider } from '../common/genericModelProvider';
@@ -15,7 +23,12 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
     private _chatEndpoints: { model: string; modelMaxPromptTokens: number }[] = [];
     private readonly userAgent: string;
 
-    constructor(context: vscode.ExtensionContext, providerKey: string, providerConfig: ProviderConfig, userAgent: string) {
+    constructor(
+        context: vscode.ExtensionContext,
+        providerKey: string,
+        providerConfig: ProviderConfig,
+        userAgent: string
+    ) {
         super(context, providerKey, providerConfig);
         this.userAgent = userAgent;
     }
@@ -32,8 +45,12 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
         return total;
     }
 
-    private estimateToolTokens(tools: { type: string; function: { name: string; description?: string; parameters?: object } }[] | undefined): number {
-        if (!tools || tools.length === 0) { return 0; }
+    private estimateToolTokens(
+        tools: { type: string; function: { name: string; description?: string; parameters?: object } }[] | undefined
+    ): number {
+        if (!tools || tools.length === 0) {
+            return 0;
+        }
         try {
             const json = JSON.stringify(tools);
             return Math.ceil(json.length / 4);
@@ -42,7 +59,10 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
         }
     }
 
-    async prepareLanguageModelChatInformation(options: { silent: boolean }, _token: CancellationToken): Promise<LanguageModelChatInformation[]> {
+    async prepareLanguageModelChatInformation(
+        options: { silent: boolean },
+        _token: CancellationToken
+    ): Promise<LanguageModelChatInformation[]> {
         const apiKey = await this.ensureApiKey(options.silent ?? true);
         if (!apiKey) {
             return [];
@@ -50,19 +70,22 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
 
         const { models } = await this.fetchModels(apiKey);
 
-        const infos: LanguageModelChatInformation[] = models.flatMap((m) => {
+        const infos: LanguageModelChatInformation[] = models.flatMap(m => {
             const providers = m?.providers ?? [];
             const modalities = m.architecture?.input_modalities ?? [];
             const vision = Array.isArray(modalities) && modalities.includes('image');
 
-            const toolProviders = providers.filter((p) => p.supports_tools === true);
+            const toolProviders = providers.filter(p => p.supports_tools === true);
             const entries: LanguageModelChatInformation[] = [];
 
             if (toolProviders.length > 0) {
                 const contextLengths = toolProviders
-                    .map((p) => (typeof p?.context_length === 'number' && p.context_length > 0 ? p.context_length : undefined))
+                    .map(p =>
+                        typeof p?.context_length === 'number' && p.context_length > 0 ? p.context_length : undefined
+                    )
                     .filter((len): len is number => typeof len === 'number');
-                const aggregateContextLen = contextLengths.length > 0 ? Math.min(...contextLengths) : DEFAULT_CONTEXT_LENGTH;
+                const aggregateContextLen =
+                    contextLengths.length > 0 ? Math.min(...contextLengths) : DEFAULT_CONTEXT_LENGTH;
                 const maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
                 const maxInput = Math.max(1, aggregateContextLen - maxOutput);
                 const aggregateCapabilities = {
@@ -133,12 +156,18 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
             return entries;
         });
 
-        this._chatEndpoints = infos.map((info) => ({ model: info.id, modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens }));
+        this._chatEndpoints = infos.map(info => ({
+            model: info.id,
+            modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens
+        }));
 
         return infos;
     }
 
-    async provideLanguageModelChatInformation(options: { silent: boolean }, _token: CancellationToken): Promise<LanguageModelChatInformation[]> {
+    async provideLanguageModelChatInformation(
+        options: { silent: boolean },
+        _token: CancellationToken
+    ): Promise<LanguageModelChatInformation[]> {
         return this.prepareLanguageModelChatInformation({ silent: options.silent ?? false }, _token);
     }
 
@@ -155,7 +184,9 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
                 } catch (error) {
                     Logger.error('[Hugging Face Model Provider] Failed to read response text', error);
                 }
-                const err = new Error(`Failed to fetch Hugging Face models: ${resp.status} ${resp.statusText}${text ? `\n${text}` : ''}`);
+                const err = new Error(
+                    `Failed to fetch Hugging Face models: ${resp.status} ${resp.statusText}${text ? `\n${text}` : ''}`
+                );
                 Logger.error('[Hugging Face Model Provider] Failed to fetch Hugging Face models', err);
                 throw err;
             }
@@ -180,7 +211,18 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
         token: CancellationToken
     ): Promise<void> {
         let requestBody: Record<string, unknown> | undefined;
-        const trackingProgress: Progress<LanguageModelResponsePart> = { report: (part: LanguageModelResponsePart) => { try { progress.report(part); } catch (e) { Logger.error('[Hugging Face Model Provider] Progress.report failed', { modelId: model.id, error: e instanceof Error ? { name: e.name, message: e.message } : String(e) }); } } };
+        const trackingProgress: Progress<LanguageModelResponsePart> = {
+            report: (part: LanguageModelResponsePart) => {
+                try {
+                    progress.report(part);
+                } catch (e) {
+                    Logger.error('[Hugging Face Model Provider] Progress.report failed', {
+                        modelId: model.id,
+                        error: e instanceof Error ? { name: e.name, message: e.message } : String(e)
+                    });
+                }
+            }
+        };
         try {
             const apiKey = await this.ensureApiKey(true);
             if (!apiKey) {
@@ -198,10 +240,17 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
             }
 
             const inputTokenCount = this.estimateMessagesTokens(messages as readonly vscode.LanguageModelChatMessage[]);
-            const toolTokenCount = this.estimateToolTokens(toolConfig.tools as { type: string; function: { name: string; description?: string; parameters?: object } }[] | undefined);
+            const toolTokenCount = this.estimateToolTokens(
+                toolConfig.tools as
+                    | { type: string; function: { name: string; description?: string; parameters?: object } }[]
+                    | undefined
+            );
             const tokenLimit = Math.max(1, model.maxInputTokens);
             if (inputTokenCount + toolTokenCount > tokenLimit) {
-                Logger.error('[Hugging Face Model Provider] Message exceeds token limit', { total: inputTokenCount + toolTokenCount, tokenLimit });
+                Logger.error('[Hugging Face Model Provider] Message exceeds token limit', {
+                    total: inputTokenCount + toolTokenCount,
+                    tokenLimit
+                });
                 throw new Error('Message exceeds token limit.');
             }
 
@@ -245,7 +294,9 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
             if (!response.ok) {
                 const errorText = await response.text();
                 Logger.error('[Hugging Face Model Provider] HF API error response', errorText);
-                throw new Error(`Hugging Face API error: ${response.status} ${response.statusText}${errorText ? `\n${errorText}` : ''}`);
+                throw new Error(
+                    `Hugging Face API error: ${response.status} ${response.statusText}${errorText ? `\n${errorText}` : ''}`
+                );
             }
 
             if (!response.body) {
@@ -255,12 +306,20 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
             // stream processing - reuse a small parser similar to upstream implementation
             await this.processStreamingResponse(response.body, trackingProgress, token);
         } catch (err) {
-            Logger.error('[Hugging Face Model Provider] Chat request failed', { modelId: model.id, messageCount: messages.length, error: err instanceof Error ? { name: err.name, message: err.message } : String(err) });
+            Logger.error('[Hugging Face Model Provider] Chat request failed', {
+                modelId: model.id,
+                messageCount: messages.length,
+                error: err instanceof Error ? { name: err.name, message: err.message } : String(err)
+            });
             throw err;
         }
     }
 
-    async provideTokenCount(model: LanguageModelChatInformation, text: string | LanguageModelChatMessage, _token: CancellationToken): Promise<number> {
+    async provideTokenCount(
+        model: LanguageModelChatInformation,
+        text: string | LanguageModelChatMessage,
+        _token: CancellationToken
+    ): Promise<number> {
         if (typeof text === 'string') {
             return Math.ceil(text.length / 4);
         } else {
@@ -277,21 +336,45 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
     private async ensureApiKey(silent: boolean): Promise<string | undefined> {
         let apiKey = await ApiKeyManager.getApiKey('huggingface');
         if (!apiKey && !silent) {
-            await ApiKeyManager.promptAndSetApiKey('huggingface', 'Hugging Face', 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+            await ApiKeyManager.promptAndSetApiKey(
+                'huggingface',
+                'Hugging Face',
+                'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+            );
             apiKey = await ApiKeyManager.getApiKey('huggingface');
         }
         return apiKey;
     }
 
-    private async processStreamingResponse(responseBody: ReadableStream<Uint8Array>, progress: vscode.Progress<vscode.LanguageModelResponsePart>, token: vscode.CancellationToken): Promise<void> {
+    private async processStreamingResponse(
+        responseBody: ReadableStream<Uint8Array>,
+        progress: vscode.Progress<vscode.LanguageModelResponsePart>,
+        token: vscode.CancellationToken
+    ): Promise<void> {
         const reader = responseBody.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
+        let currentThinkingId: string | null = null;
 
         try {
             while (!token.isCancellationRequested) {
                 const { done, value } = await reader.read();
-                if (done) { break; }
+                if (done) {
+                    // Finalize thinking if still active
+                    if (currentThinkingId) {
+                        try {
+                            progress.report(
+                                new vscode.LanguageModelThinkingPart(
+                                    '',
+                                    currentThinkingId
+                                ) as unknown as LanguageModelResponsePart
+                            );
+                        } catch {
+                            // ignore
+                        }
+                    }
+                    break;
+                }
 
                 buffer += decoder.decode(value, { stream: true });
                 const lines = buffer.split('\n');
@@ -303,11 +386,28 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
                     }
                     const data = line.slice(6);
                     if (data === '[DONE]') {
+                        // Finalize thinking if still active
+                        if (currentThinkingId) {
+                            try {
+                                progress.report(
+                                    new vscode.LanguageModelThinkingPart(
+                                        '',
+                                        currentThinkingId
+                                    ) as unknown as LanguageModelResponsePart
+                                );
+                            } catch {
+                                // ignore
+                            }
+                            currentThinkingId = null;
+                        }
                         continue;
                     }
                     try {
                         const parsed = JSON.parse(data);
-                        await this.processDelta(parsed, progress);
+                        const newThinkingId = await this.processDelta(parsed, progress, currentThinkingId);
+                        if (newThinkingId !== currentThinkingId) {
+                            currentThinkingId = newThinkingId;
+                        }
                     } catch {
                         // ignore malformed chunks
                     }
@@ -318,34 +418,96 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
         }
     }
 
-    private async processDelta(delta: Record<string, unknown>, progress: vscode.Progress<vscode.LanguageModelResponsePart>): Promise<boolean> {
+    private async processDelta(
+        delta: Record<string, unknown>,
+        progress: vscode.Progress<vscode.LanguageModelResponsePart>,
+        currentThinkingId: string | null
+    ): Promise<string | null> {
         const choice = (delta.choices as Record<string, unknown>[] | undefined)?.[0];
-        if (!choice) { return false; }
+        if (!choice) {
+            return currentThinkingId;
+        }
 
         const deltaObj = choice.delta as Record<string, unknown> | undefined;
-        if (!deltaObj) { return false; }
+        const message = choice.message as Record<string, unknown> | undefined;
+        if (!deltaObj) {
+            return currentThinkingId;
+        }
 
+        // Handle reasoning/reasoning_content (thinking content)
+        // Note: Some providers use 'reasoning', others use 'reasoning_content'
+        const reasoningContent =
+            deltaObj.reasoning ?? deltaObj.reasoning_content ?? message?.reasoning ?? message?.reasoning_content;
+        if (reasoningContent && typeof reasoningContent === 'string') {
+            try {
+                // If currently no active id, generate one for this chain of thought
+                let thinkingId = currentThinkingId;
+                if (!thinkingId) {
+                    thinkingId = `hf_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+                }
+
+                // Report thinking immediately for real-time streaming
+                progress.report(
+                    new vscode.LanguageModelThinkingPart(
+                        reasoningContent,
+                        thinkingId
+                    ) as unknown as LanguageModelResponsePart
+                );
+                return thinkingId;
+            } catch (e) {
+                Logger.warn(
+                    '[Hugging Face Model Provider] Failed to report thinking',
+                    e instanceof Error ? e.message : String(e)
+                );
+            }
+        }
+
+        // Handle regular text content
         const content = deltaObj.content ?? deltaObj; // sometimes content nested
         if (typeof content === 'string') {
-            const TextCtor = (vscode as unknown as Record<string, unknown>)['LanguageModelTextPart'] as unknown as (new (val: string) => unknown) | undefined;
+            // End thinking if we're starting to output regular content
+            if (currentThinkingId && content.trim().length > 0) {
+                try {
+                    progress.report(
+                        new vscode.LanguageModelThinkingPart(
+                            '',
+                            currentThinkingId
+                        ) as unknown as LanguageModelResponsePart
+                    );
+                } catch {
+                    // ignore
+                }
+                currentThinkingId = null;
+            }
+
+            const TextCtor = (vscode as unknown as Record<string, unknown>)['LanguageModelTextPart'] as unknown as
+                | (new (val: string) => unknown)
+                | undefined;
             if (TextCtor) {
                 try {
                     const textPartInstance = new (TextCtor as new (val: string) => unknown)(content);
                     progress.report(textPartInstance as unknown as LanguageModelResponsePart);
-                    return true;
+                    return currentThinkingId;
                 } catch (e) {
-                    Logger.warn('[Hugging Face Model Provider] Failed to construct LanguageModelTextPart', e instanceof Error ? e.message : String(e));
+                    Logger.warn(
+                        '[Hugging Face Model Provider] Failed to construct LanguageModelTextPart',
+                        e instanceof Error ? e.message : String(e)
+                    );
                 }
             }
             // fallback to reporting as plain text part
             progress.report({ type: 'message', text: content } as unknown as LanguageModelResponsePart);
-            return true;
+            return currentThinkingId;
         }
 
-        return false;
+        return currentThinkingId;
     }
 
-    static createAndActivate(context: vscode.ExtensionContext, providerKey: string, providerConfig: ProviderConfig): { provider: HuggingfaceProvider; disposables: vscode.Disposable[] } {
+    static createAndActivate(
+        context: vscode.ExtensionContext,
+        providerKey: string,
+        providerConfig: ProviderConfig
+    ): { provider: HuggingfaceProvider; disposables: vscode.Disposable[] } {
         Logger.trace(`${providerConfig.displayName} provider activated!`);
         const ext = vscode.extensions.getExtension('OEvortex.better-copilot-chat');
         const extVersion = ext?.packageJSON?.version ?? 'unknown';
@@ -356,7 +518,11 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
         const providerDisposable = vscode.lm.registerLanguageModelChatProvider(`chp.${providerKey}`, provider);
 
         const setApiKeyCommand = vscode.commands.registerCommand(`chp.${providerKey}.setApiKey`, async () => {
-            await ApiKeyManager.promptAndSetApiKey(providerKey, providerConfig.displayName, providerConfig.apiKeyTemplate);
+            await ApiKeyManager.promptAndSetApiKey(
+                providerKey,
+                providerConfig.displayName,
+                providerConfig.apiKeyTemplate
+            );
             // Clear cached models and notify VS Code the available models may have changed
             await provider.modelInfoCache?.invalidateCache(providerKey);
             provider._onDidChangeLanguageModelChatInformation.fire(undefined);

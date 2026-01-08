@@ -37,7 +37,7 @@ export class AccountManager {
     private activeAccounts: ActiveAccounts = {};
     private routingConfig: AccountRoutingConfig = {};
     private _onAccountChange = new vscode.EventEmitter<AccountChangeEvent>();
-    
+
     /** Event fired when accounts change */
     public readonly onAccountChange = this._onAccountChange.event;
 
@@ -82,7 +82,7 @@ export class AccountManager {
     }
 
     /**
-     * Generate unique ID for account
+     * Generate unique account ID
      */
     private generateAccountId(): string {
         const timestamp = Date.now().toString(36);
@@ -103,10 +103,10 @@ export class AccountManager {
                 }
                 this.activeAccounts = data.activeAccounts || {};
                 this.routingConfig = data.routingConfig || {};
-                
-                // Sync isDefault với activeAccounts để đảm bảo consistency
+
+                // Sync isDefault with activeAccounts to ensure consistency
                 this.syncIsDefaultWithActiveAccounts();
-                
+
                 Logger.debug(`Loaded ${this.accounts.size} accounts from storage`);
             }
         } catch (error) {
@@ -115,16 +115,16 @@ export class AccountManager {
     }
 
     /**
-     * Sync isDefault flag với activeAccounts để đảm bảo consistency
-     * Fix bug: khi switch model, có thể gọi account đầu tiên thay vì default account
+     * Sync isDefault flag with activeAccounts to ensure consistency
+     * Fix: switching model could pick the first account instead of the default account
      */
     private syncIsDefaultWithActiveAccounts(): void {
-        // Reset tất cả isDefault về false trước
+        // Reset all isDefault flags to false first
         for (const account of this.accounts.values()) {
             account.isDefault = false;
         }
-        
-        // Set isDefault = true cho các account trong activeAccounts
+
+        // Set isDefault = true for accounts in activeAccounts
         for (const [provider, accountId] of Object.entries(this.activeAccounts)) {
             const account = this.accounts.get(accountId);
             if (account && account.provider === provider) {
@@ -134,7 +134,7 @@ export class AccountManager {
     }
 
     /**
-     * Lưu dữ liệu vào storage
+     * Save data to storage
      */
     private async saveToStorage(): Promise<void> {
         try {
@@ -152,7 +152,7 @@ export class AccountManager {
     }
 
     /**
-     * Lưu credentials vào SecretStorage
+     * Save credentials to SecretStorage
      */
     private async saveCredentials(accountId: string, credentials: AccountCredentials): Promise<void> {
         const key = `chp.account.${accountId}.credentials`;
@@ -160,7 +160,7 @@ export class AccountManager {
     }
 
     /**
-     * Lấy credentials từ SecretStorage
+     * Get credentials from SecretStorage
      */
     async getCredentials(accountId: string): Promise<AccountCredentials | undefined> {
         const key = `chp.account.${accountId}.credentials`;
@@ -176,7 +176,7 @@ export class AccountManager {
     }
 
     /**
-     * Xóa credentials từ SecretStorage
+     * Delete credentials from SecretStorage
      */
     private async deleteCredentials(accountId: string): Promise<void> {
         const key = `chp.account.${accountId}.credentials`;
@@ -184,7 +184,7 @@ export class AccountManager {
     }
 
     /**
-     * Thêm tài khoản mới với API Key
+     * Add new account with API Key
      */
     async addApiKeyAccount(
         provider: string,
@@ -218,12 +218,12 @@ export class AccountManager {
                 customHeaders: options?.customHeaders
             };
 
-            // Lưu account và credentials
+            // Save account and credentials
             this.accounts.set(accountId, account);
             await this.saveCredentials(accountId, credentials);
             await this.saveToStorage();
 
-            // Nếu là tài khoản đầu tiên, set làm active
+            // If first account, set as active
             if (account.isDefault) {
                 this.activeAccounts[provider] = accountId;
             }
@@ -240,7 +240,7 @@ export class AccountManager {
     }
 
     /**
-     * Thêm tài khoản OAuth
+     * Add OAuth account
      */
     async addOAuthAccount(
         provider: string,
@@ -267,12 +267,12 @@ export class AccountManager {
                 isDefault: this.getAccountsByProvider(provider).length === 0
             };
 
-            // Lưu account và credentials
+            // Save account and credentials
             this.accounts.set(accountId, account);
             await this.saveCredentials(accountId, oauthCredentials);
             await this.saveToStorage();
 
-            // Nếu là tài khoản đầu tiên, set làm active
+            // If first account, set as active
             if (account.isDefault) {
                 this.activeAccounts[provider] = accountId;
             }
@@ -289,7 +289,7 @@ export class AccountManager {
     }
 
     /**
-     * Xóa tài khoản
+     * Delete account
      */
     async removeAccount(accountId: string): Promise<boolean> {
         const account = this.accounts.get(accountId);
@@ -299,13 +299,13 @@ export class AccountManager {
         }
 
         try {
-            // Xóa credentials
+            // Delete credentials
             await this.deleteCredentials(accountId);
 
-            // Xóa account
+            // Delete account
             this.accounts.delete(accountId);
 
-            // Nếu là active account, chuyển sang account khác
+            // If active account, switch to another account
             if (this.activeAccounts[account.provider] === accountId) {
                 const remainingAccounts = this.getAccountsByProvider(account.provider);
                 if (remainingAccounts.length > 0) {
@@ -315,7 +315,7 @@ export class AccountManager {
                 }
             }
 
-            // Xóa mapping model -> account nếu account bị xóa
+            // Remove model->account mapping if account is deleted
             const routing = this.routingConfig[account.provider];
             if (routing?.modelAssignments) {
                 for (const [modelId, mappedAccountId] of Object.entries(routing.modelAssignments)) {
@@ -325,7 +325,7 @@ export class AccountManager {
                 }
             }
 
-            // Xóa quota cache của account
+            // Remove account quota cache
             try {
                 const quotaCache = AccountQuotaCache.getInstance();
                 await quotaCache.removeAccount(accountId);
@@ -345,7 +345,7 @@ export class AccountManager {
     }
 
     /**
-     * Chuyển đổi tài khoản active
+     * Switch active account
      */
     async switchAccount(provider: string, accountId: string): Promise<boolean> {
         const account = this.accounts.get(accountId);
@@ -355,7 +355,7 @@ export class AccountManager {
         }
 
         try {
-            // Bỏ default của account cũ
+            // Remove default from old active account
             const oldActiveId = this.activeAccounts[provider];
             if (oldActiveId) {
                 const oldAccount = this.accounts.get(oldActiveId);
@@ -364,7 +364,7 @@ export class AccountManager {
                 }
             }
 
-            // Set account mới làm active
+            // Set new account as active
             this.activeAccounts[provider] = accountId;
             account.isDefault = true;
             account.updatedAt = new Date().toISOString();
@@ -381,7 +381,7 @@ export class AccountManager {
     }
 
     /**
-     * Lấy tài khoản active của provider
+     * Get the active account for a provider
      */
     getActiveAccount(provider: string): Account | undefined {
         const accountId = this.activeAccounts[provider];
@@ -392,7 +392,7 @@ export class AccountManager {
     }
 
     /**
-     * Lấy credentials của tài khoản active
+     * Get credentials of the active account
      */
     async getActiveCredentials(provider: string): Promise<AccountCredentials | undefined> {
         const account = this.getActiveAccount(provider);
@@ -403,7 +403,7 @@ export class AccountManager {
     }
 
     /**
-     * Lấy API Key của tài khoản active (tiện ích)
+     * Get API Key of the active account (utility)
      */
     async getActiveApiKey(provider: string): Promise<string | undefined> {
         const credentials = await this.getActiveCredentials(provider);
@@ -414,7 +414,7 @@ export class AccountManager {
     }
 
     /**
-     * Lấy OAuth token của tài khoản active (tiện ích)
+     * Get OAuth token of the active account (utility)
      */
     async getActiveOAuthToken(provider: string): Promise<string | undefined> {
         const credentials = await this.getActiveCredentials(provider);
@@ -425,28 +425,28 @@ export class AccountManager {
     }
 
     /**
-     * Lấy tất cả tài khoản của một provider
+     * Get all accounts for a provider
      */
     getAccountsByProvider(provider: string): Account[] {
         return Array.from(this.accounts.values()).filter(acc => acc.provider === provider);
     }
 
     /**
-     * Lấy tất cả tài khoản
+     * Get all accounts
      */
     getAllAccounts(): Account[] {
         return Array.from(this.accounts.values());
     }
 
     /**
-     * Lấy tài khoản theo ID
+     * Get account by ID
      */
     getAccount(accountId: string): Account | undefined {
         return this.accounts.get(accountId);
     }
 
     /**
-     * Cập nhật thông tin tài khoản
+     * Update account information
      */
     async updateAccount(accountId: string, updates: Partial<Account>): Promise<boolean> {
         const account = this.accounts.get(accountId);
@@ -466,7 +466,7 @@ export class AccountManager {
     }
 
     /**
-     * Cập nhật credentials của tài khoản
+     * Update credentials of account
      */
     async updateCredentials(accountId: string, credentials: AccountCredentials): Promise<boolean> {
         const account = this.accounts.get(accountId);
@@ -477,12 +477,12 @@ export class AccountManager {
         try {
             await this.saveCredentials(accountId, credentials);
             account.updatedAt = new Date().toISOString();
-            
-            // Cập nhật expiresAt nếu là OAuth
+
+            // Update expiresAt if OAuth
             if ('expiresAt' in credentials) {
                 account.expiresAt = credentials.expiresAt;
             }
-            
+
             await this.saveToStorage();
             return true;
         } catch (error) {
@@ -492,21 +492,21 @@ export class AccountManager {
     }
 
     /**
-     * Lấy mapping model -> account cho provider
+     * Get model -> account mapping for the provider
      */
     getModelAccountAssignments(provider: string): Record<string, string> {
         return { ...(this.routingConfig[provider]?.modelAssignments || {}) };
     }
 
     /**
-     * Lấy accountId đã gán cho model
+     * Get assigned accountId for the model
      */
     getAccountIdForModel(provider: string, modelId: string): string | undefined {
         return this.routingConfig[provider]?.modelAssignments?.[modelId];
     }
 
     /**
-     * Gán model cho account (hoặc xóa gán nếu accountId không có)
+     * Assign model to account (or remove assignment if accountId not provided)
      */
     async setAccountForModel(provider: string, modelId: string, accountId?: string): Promise<void> {
         const routing = this.ensureProviderRoutingConfig(provider);
@@ -519,16 +519,16 @@ export class AccountManager {
     }
 
     /**
-     * Lấy trạng thái bật/tắt load balance theo provider
+     * Get load balance enabled state for provider
      */
     getLoadBalanceEnabled(provider: string): boolean {
         // Default to true for antigravity and codex to enable automatic account switching
-        const defaultValue = (provider === ProviderKey.Antigravity || provider === ProviderKey.Codex) ? true : false;
+        const defaultValue = provider === ProviderKey.Antigravity || provider === ProviderKey.Codex ? true : false;
         return this.routingConfig[provider]?.loadBalanceEnabled ?? defaultValue;
     }
 
     /**
-     * Cập nhật trạng thái load balance theo provider
+     * Update load balance state for provider
      */
     async setLoadBalanceEnabled(provider: string, enabled: boolean): Promise<void> {
         const routing = this.ensureProviderRoutingConfig(provider);
@@ -537,7 +537,7 @@ export class AccountManager {
     }
 
     /**
-     * Đảm bảo routing config của provider tồn tại
+     * Ensure provider routing config exists
      */
     private ensureProviderRoutingConfig(provider: string): ProviderRoutingConfig {
         if (!this.routingConfig[provider]) {
@@ -552,7 +552,7 @@ export class AccountManager {
     }
 
     /**
-     * Kiểm tra provider có hỗ trợ multi-account không
+     * Check whether provider supports multi-account
      */
     static supportsMultiAccount(provider: string): boolean {
         const config = AccountManager.providerConfigs.get(provider);
@@ -560,25 +560,27 @@ export class AccountManager {
     }
 
     /**
-     * Lấy cấu hình provider
+     * Get provider configuration
      */
     static getProviderConfig(provider: string): ProviderAccountConfig {
-        return AccountManager.providerConfigs.get(provider) ?? {
-            supportsMultiAccount: true,
-            supportsOAuth: false,
-            supportsApiKey: true
-        };
+        return (
+            AccountManager.providerConfigs.get(provider) ?? {
+                supportsMultiAccount: true,
+                supportsOAuth: false,
+                supportsApiKey: true
+            }
+        );
     }
 
     /**
-     * Đăng ký cấu hình provider mới
+     * Register new provider configuration
      */
     static registerProviderConfig(provider: string, config: ProviderAccountConfig): void {
         AccountManager.providerConfigs.set(provider, config);
     }
 
     /**
-     * Kiểm tra tài khoản có hết hạn không
+     * Check whether account is expired
      */
     isAccountExpired(accountId: string): boolean {
         const account = this.accounts.get(accountId);
@@ -589,24 +591,24 @@ export class AccountManager {
     }
 
     /**
-     * Đánh dấu tài khoản là expired
+     * Mark account as expired
      */
     async markAccountExpired(accountId: string): Promise<void> {
         await this.updateAccount(accountId, { status: 'expired' });
     }
 
     /**
-     * Đánh dấu tài khoản có lỗi
+     * Mark account as error
      */
     async markAccountError(accountId: string, error?: string): Promise<void> {
-        await this.updateAccount(accountId, { 
+        await this.updateAccount(accountId, {
             status: 'error',
             metadata: { ...this.accounts.get(accountId)?.metadata, lastError: error }
         });
     }
 
     /**
-     * Kiểm tra account có đang bị quota limit không
+     * Check if account is currently quota-limited
      */
     isAccountQuotaLimited(accountId: string): boolean {
         try {
@@ -618,7 +620,7 @@ export class AccountManager {
     }
 
     /**
-     * Lấy thời gian còn lại của quota cooldown (ms)
+     * Get remaining quota cooldown time (ms)
      */
     getAccountQuotaCooldown(accountId: string): number {
         try {
@@ -630,25 +632,23 @@ export class AccountManager {
     }
 
     /**
-     * Lấy danh sách accounts available (không bị quota limit) cho provider
+     * Get list of available accounts (not quota-limited) for provider
      */
     getAvailableAccountsForProvider(provider: string): Account[] {
         const accounts = this.getAccountsByProvider(provider);
-        return accounts.filter(acc => 
-            acc.status === 'active' && 
-            !this.isAccountExpired(acc.id) && 
-            !this.isAccountQuotaLimited(acc.id)
+        return accounts.filter(
+            acc => acc.status === 'active' && !this.isAccountExpired(acc.id) && !this.isAccountQuotaLimited(acc.id)
         );
     }
 
     /**
-     * Lấy account tiếp theo available cho provider (round-robin hoặc ưu tiên)
+     * Get next available account for provider (round-robin or priority)
      */
     getNextAvailableAccount(provider: string, currentAccountId?: string): Account | undefined {
         const availableAccounts = this.getAvailableAccountsForProvider(provider);
-        
+
         if (availableAccounts.length === 0) {
-            // Không có account available, trả về account có cooldown ngắn nhất
+            // No available accounts, return account with the shortest cooldown
             try {
                 const quotaCache = AccountQuotaCache.getInstance();
                 const shortestCooldownId = quotaCache.getAccountWithShortestCooldown(provider);
@@ -660,16 +660,30 @@ export class AccountManager {
             }
             return undefined;
         }
-        
-        // Nếu có currentAccountId, tìm account tiếp theo trong danh sách
+
+        if (availableAccounts.length === 0) {
+            // No available accounts, return account with the shortest cooldown
+            try {
+                const quotaCache = AccountQuotaCache.getInstance();
+                const shortestCooldownId = quotaCache.getAccountWithShortestCooldown(provider);
+                if (shortestCooldownId) {
+                    return this.accounts.get(shortestCooldownId);
+                }
+            } catch {
+                // Ignore
+            }
+            return undefined;
+        }
+
+        // If currentAccountId exists, find the next account in the list
         if (currentAccountId) {
             const currentIndex = availableAccounts.findIndex(acc => acc.id === currentAccountId);
             if (currentIndex >= 0 && currentIndex < availableAccounts.length - 1) {
                 return availableAccounts[currentIndex + 1];
             }
         }
-        
-        // Trả về account đầu tiên available
+
+        // Return the first available account
         return availableAccounts[0];
     }
 

@@ -5,17 +5,6 @@
 
 import * as vscode from 'vscode';
 import { StatusLogger } from '../utils/statusLogger';
-import { MiniMaxStatusBar } from './minimaxStatusBar';
-import { KimiStatusBar } from './kimiStatusBar';
-import { DeepSeekStatusBar } from './deepseekStatusBar';
-import { MoonshotStatusBar } from './moonshotStatusBar';
-import { ZhipuStatusBar } from './zhipuStatusBar';
-import { ChutesStatusBar } from './chutesStatusBar';
-import { OpenCodeStatusBar } from './opencodeStatusBar';
-import { HuggingFaceStatusBar } from './huggingfaceStatusBar';
-import { QwenCliStatusBar } from './qwencliStatusBar';
-import { CompatibleStatusBar } from './compatibleStatusBar';
-import { TokenUsageStatusBar } from './tokenUsageStatusBar';
 import { AntigravityStatusBar } from './antigravityStatusBar';
 
 /**
@@ -27,11 +16,6 @@ interface IStatusBar {
     delayedUpdate(delayMs?: number): void;
     dispose(): void;
 }
-interface ICompatibleStatusBar extends IStatusBar {
-    /** @deprecated Use delayedUpdate with providerId instead */
-    delayedUpdate(delayMs?: number): void;
-    delayedUpdate(providerId: string, delayMs?: number): void;
-}
 
 /**
  * Status Bar Manager
@@ -40,28 +24,6 @@ interface ICompatibleStatusBar extends IStatusBar {
  */
 export class StatusBarManager {
     // ==================== Public Status Bar Instances ====================
-    /** MiniMax Coding Plan Status Bar */
-    static minimax: IStatusBar | undefined;
-    /** Kimi For Coding Status Bar */
-    static kimi: IStatusBar | undefined;
-    /** DeepSeek Balance Query Status Bar */
-    static deepseek: IStatusBar | undefined;
-    /** Moonshot Balance Query Status Bar */
-    static moonshot: IStatusBar | undefined;
-    /** Zhipu AI Usage Status Bar */
-    static zhipu: IStatusBar | undefined;
-    /** Chutes Status Bar */
-    static chutes: IStatusBar | undefined;
-    /** OpenCode Status Bar */
-    static opencode: IStatusBar | undefined;
-    /** Hugging Face Status Bar */
-    static huggingface: IStatusBar | undefined;
-    /** Qwen CLI Status Bar */
-    static qwencli: IStatusBar | undefined;
-    /** Compatible Provider Status Bar */
-    static compatible: ICompatibleStatusBar | undefined;
-    /** Model context window usage status bar */
-    static tokenUsage: IStatusBar | undefined;
     /** Antigravity (Cloud Code) Quota Status Bar */
     static antigravity: IStatusBar | undefined;
 
@@ -74,50 +36,6 @@ export class StatusBarManager {
      * Automatically create and register all status bar instances during initialization
      */
     private static registerBuiltInStatusBars(): void {
-        // Create and register MiniMax status bar
-        const miniMaxStatusBar = new MiniMaxStatusBar();
-        this.registerStatusBar('minimax', miniMaxStatusBar);
-
-        // Create and register Zhipu status bar
-        const zhipuStatusBar = new ZhipuStatusBar();
-        this.registerStatusBar('zhipu', zhipuStatusBar);
-
-        // Create and register Chutes status bar
-        const chutesStatusBar = new ChutesStatusBar();
-        this.registerStatusBar('chutes', chutesStatusBar);
-
-        // Create and register OpenCode status bar
-        const opencodeStatusBar = new OpenCodeStatusBar();
-        this.registerStatusBar('opencode', opencodeStatusBar);
-
-        // Create and register Hugging Face status bar
-        const huggingfaceStatusBar = new HuggingFaceStatusBar();
-        this.registerStatusBar('huggingface', huggingfaceStatusBar);
-
-        // Create and register Qwen CLI status bar
-        const qwencliStatusBar = new QwenCliStatusBar();
-        this.registerStatusBar('qwencli', qwencliStatusBar);
-
-        // Create and register Kimi status bar
-        const kimiStatusBar = new KimiStatusBar();
-        this.registerStatusBar('kimi', kimiStatusBar);
-
-        // Create and register DeepSeek status bar
-        const deepseekStatusBar = new DeepSeekStatusBar();
-        this.registerStatusBar('deepseek', deepseekStatusBar);
-
-        // Create and register Moonshot status bar
-        const moonshotStatusBar = new MoonshotStatusBar();
-        this.registerStatusBar('moonshot', moonshotStatusBar);
-
-        // Create and register Compatible provider status bar
-        const compatibleStatusBar = new CompatibleStatusBar();
-        this.registerStatusBar('compatible', compatibleStatusBar);
-
-        // Create and register Model context window usage status bar
-        const tokenUsageStatusBar = new TokenUsageStatusBar();
-        this.registerStatusBar('tokenUsage', tokenUsageStatusBar);
-
         // Create and register Antigravity (Cloud Code) status bar
         const antigravityStatusBar = new AntigravityStatusBar();
         this.registerStatusBar('antigravity', antigravityStatusBar);
@@ -137,39 +55,6 @@ export class StatusBarManager {
 
         // Associate status bar instance with public member
         switch (key) {
-            case 'minimax':
-                this.minimax = statusBar;
-                break;
-            case 'zhipu':
-                this.zhipu = statusBar;
-                break;
-            case 'chutes':
-                this.chutes = statusBar;
-                break;
-            case 'opencode':
-                this.opencode = statusBar;
-                break;
-            case 'huggingface':
-                this.huggingface = statusBar;
-                break;
-            case 'qwencli':
-                this.qwencli = statusBar;
-                break;
-            case 'kimi':
-                this.kimi = statusBar;
-                break;
-            case 'deepseek':
-                this.deepseek = statusBar;
-                break;
-            case 'moonshot':
-                this.moonshot = statusBar;
-                break;
-            case 'compatible':
-                this.compatible = statusBar as ICompatibleStatusBar;
-                break;
-            case 'tokenUsage':
-                this.tokenUsage = statusBar;
-                break;
             case 'antigravity':
                 this.antigravity = statusBar;
                 break;
@@ -182,8 +67,6 @@ export class StatusBarManager {
      * Get specified status bar item
      * @param key Unique identifier for the status bar item
      */
-    static getStatusBar(key: 'compatible'): ICompatibleStatusBar | undefined;
-    static getStatusBar(key: string): IStatusBar | undefined;
     static getStatusBar(key: string): IStatusBar | undefined {
         return this.statusBars.get(key);
     }
@@ -195,7 +78,9 @@ export class StatusBarManager {
      */
     static async initializeAll(context: vscode.ExtensionContext): Promise<void> {
         if (this.initialized) {
-            StatusLogger.warn('[StatusBarManager] Status bar manager already initialized, skipping duplicate initialization');
+            StatusLogger.warn(
+                '[StatusBarManager] Status bar manager already initialized, skipping duplicate initialization'
+            );
             return;
         }
 
@@ -210,10 +95,15 @@ export class StatusBarManager {
             try {
                 await statusBar.initialize(context);
                 const duration = Date.now() - startTime;
-                StatusLogger.debug(`[StatusBarManager] Status bar item ${key} initialized successfully (duration: ${duration}ms)`);
+                StatusLogger.debug(
+                    `[StatusBarManager] Status bar item ${key} initialized successfully (duration: ${duration}ms)`
+                );
             } catch (error) {
                 const duration = Date.now() - startTime;
-                StatusLogger.error(`[StatusBarManager] Status bar item ${key} initialization failed (duration: ${duration}ms)`, error);
+                StatusLogger.error(
+                    `[StatusBarManager] Status bar item ${key} initialization failed (duration: ${duration}ms)`,
+                    error
+                );
             }
         });
 
@@ -270,17 +160,6 @@ export class StatusBarManager {
         this.initialized = false;
 
         // Clear public instance references
-        this.minimax = undefined;
-        this.zhipu = undefined;
-        this.chutes = undefined;
-        this.opencode = undefined;
-        this.huggingface = undefined;
-        this.qwencli = undefined;
-        this.kimi = undefined;
-        this.deepseek = undefined;
-        this.moonshot = undefined;
-        this.compatible = undefined;
-        this.tokenUsage = undefined;
         this.antigravity = undefined;
     }
 

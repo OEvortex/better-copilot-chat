@@ -43,7 +43,7 @@ export interface AccountQuotaState {
 }
 
 /**
- * Storage schema cho quota cache
+ * Storage schema for quota cache
  */
 interface QuotaCacheStorageData {
     version: number;
@@ -52,7 +52,7 @@ interface QuotaCacheStorageData {
 }
 
 /**
- * Event khi quota state thay đổi
+ * Event when quota state changes
  */
 export interface QuotaStateChangeEvent {
     accountId: string;
@@ -61,7 +61,7 @@ export interface QuotaStateChangeEvent {
 }
 
 /**
- * Account Quota Cache - Singleton để quản lý cache quota của tất cả accounts
+ * Account Quota Cache - Singleton to manage quota cache for all accounts
  */
 export class AccountQuotaCache {
     private static instance: AccountQuotaCache;
@@ -69,13 +69,13 @@ export class AccountQuotaCache {
     private cache = new Map<string, AccountQuotaState>();
     private _onQuotaStateChange = new vscode.EventEmitter<QuotaStateChangeEvent>();
     
-    /** Event khi quota state thay đổi */
+    /** Event when quota state changes */
     public readonly onQuotaStateChange = this._onQuotaStateChange.event;
 
     private constructor() {}
 
     /**
-     * Khởi tạo với extension context
+     * Initialize with extension context
      */
     static initialize(context: vscode.ExtensionContext): AccountQuotaCache {
         if (!AccountQuotaCache.instance) {
@@ -88,7 +88,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Lấy instance
+     * Get instance
      */
     static getInstance(): AccountQuotaCache {
         if (!AccountQuotaCache.instance) {
@@ -98,7 +98,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Load cache từ storage
+     * Load cache from storage
      */
     private loadFromStorage(): void {
         if (!this.context) {
@@ -110,9 +110,9 @@ export class AccountQuotaCache {
             if (data && data.version === STORAGE_VERSION) {
                 this.cache.clear();
                 for (const state of data.accounts) {
-                    // Kiểm tra xem quota đã reset chưa
+                    // Check whether quota has reset
                     if (state.quotaExceeded && state.quotaResetAt && Date.now() >= state.quotaResetAt) {
-                        // Quota đã reset, clear state
+                        // Quota has reset, clear state
                         state.quotaExceeded = false;
                         state.quotaResetAt = undefined;
                         state.backoffLevel = 0;
@@ -128,7 +128,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Lưu cache vào storage
+     * Save cache to storage
      */
     private async saveToStorage(): Promise<void> {
         if (!this.context) {
@@ -149,7 +149,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Lấy hoặc tạo state cho account
+     * Get or create state for account
      */
     private getOrCreateState(accountId: string, provider: string, accountName?: string): AccountQuotaState {
         if (!accountId) {
@@ -178,7 +178,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Đánh dấu quota exceeded cho account
+     * Mark quota exceeded for account
      */
     async markQuotaExceeded(
         accountId: string,
@@ -199,7 +199,7 @@ export class AccountQuotaCache {
         Logger.debug(`[AccountQuotaCache] markQuotaExceeded - accountId: ${accountId}, provider: ${provider}, accountName: ${options?.accountName}`);
         const state = this.getOrCreateState(accountId, provider, options?.accountName);
         
-        // Tính cooldown với exponential backoff
+        // Calculate cooldown with exponential backoff
         const { cooldown, newLevel } = this.calculateCooldown(state.backoffLevel, options?.resetDelayMs);
         
         state.quotaExceeded = true;
@@ -219,7 +219,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Clear quota exceeded state cho account
+     * Clear quota exceeded state for account
      */
     async clearQuotaExceeded(accountId: string): Promise<void> {
         const state = this.cache.get(accountId);
@@ -236,7 +236,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Ghi nhận request thành công
+     * Record a successful request
      */
     async recordSuccess(accountId: string, provider: string, accountName?: string): Promise<void> {
         if (!accountId || accountId === 'undefined') {
@@ -249,7 +249,7 @@ export class AccountQuotaCache {
         const state = this.getOrCreateState(accountId, provider, accountName);
         Logger.debug(`[AccountQuotaCache] Current state for ${accountId}: successCount=${state.successCount}, failureCount=${state.failureCount}`);
         
-        // Clear quota exceeded nếu có
+        // Clear quota exceeded if present
         if (state.quotaExceeded) {
             state.quotaExceeded = false;
             state.quotaResetAt = undefined;
@@ -267,7 +267,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Ghi nhận request thất bại (không phải quota)
+     * Record failed request (non-quota)
      */
     async recordFailure(accountId: string, provider: string, error?: string, accountName?: string): Promise<void> {
         const state = this.getOrCreateState(accountId, provider, accountName);
@@ -282,7 +282,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Kiểm tra account có đang trong cooldown không
+     * Check whether account is in cooldown
      */
     isInCooldown(accountId: string): boolean {
         const state = this.cache.get(accountId);
@@ -298,7 +298,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Lấy thời gian cooldown còn lại (ms)
+     * Get remaining cooldown time (ms)
      */
     getRemainingCooldown(accountId: string): number {
         const state = this.cache.get(accountId);
@@ -310,14 +310,14 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Lấy state của account
+     * Get state of account
      */
     getState(accountId: string): AccountQuotaState | undefined {
         return this.cache.get(accountId);
     }
 
     /**
-     * Lấy tất cả states
+     * Get all states
      */
     getAllStates(): AccountQuotaState[] {
         const states = Array.from(this.cache.values());
@@ -326,14 +326,14 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Lấy states theo provider
+     * Get states by provider
      */
     getStatesByProvider(provider: string): AccountQuotaState[] {
         return Array.from(this.cache.values()).filter(s => s.provider === provider);
     }
 
     /**
-     * Lấy accounts đang available (không trong cooldown)
+     * Get available accounts (not in cooldown)
      */
     getAvailableAccounts(provider: string): string[] {
         return Array.from(this.cache.values())
@@ -342,7 +342,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Lấy account có cooldown ngắn nhất (để ưu tiên khi tất cả đều bị limit)
+     * Get account with the shortest cooldown (to prefer when all are limited)
      */
     getAccountWithShortestCooldown(provider: string): string | undefined {
         const states = this.getStatesByProvider(provider)
@@ -353,7 +353,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Tính cooldown với exponential backoff
+     * Calculate cooldown with exponential backoff
      */
     private calculateCooldown(prevLevel: number, serverDelayMs?: number): { cooldown: number; newLevel: number } {
         const QUOTA_BACKOFF_BASE_MS = 1000; // 1s
@@ -368,7 +368,7 @@ export class AccountQuotaCache {
             cooldown = QUOTA_BACKOFF_BASE_MS;
         }
         
-        // Nếu server cung cấp delay, sử dụng giá trị lớn hơn
+        // If server provides delay, use a larger value
         if (serverDelayMs && serverDelayMs > cooldown) {
             cooldown = serverDelayMs;
         }
@@ -380,7 +380,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Xóa state của account (khi account bị xóa)
+     * Remove account state (when account is deleted)
      */
     async removeAccount(accountId: string): Promise<void> {
         if (this.cache.has(accountId)) {
@@ -390,7 +390,7 @@ export class AccountQuotaCache {
     }
 
     /**
-     * Clear tất cả cache
+     * Clear all cache
      */
     async clearAll(): Promise<void> {
         this.cache.clear();

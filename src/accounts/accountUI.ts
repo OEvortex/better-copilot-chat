@@ -11,14 +11,14 @@ import { ProviderKey } from '../types/providerKeys';
 import { AntigravityAuth } from '../providers/antigravity/auth';
 
 /**
- * Extended QuickPickItem với account data
+ * Extended QuickPickItem with account data
  */
 interface AccountQuickPickItem extends vscode.QuickPickItem {
     account: Account;
 }
 
 /**
- * Account UI - Giao diện quản lý tài khoản
+ * Account UI - Account management interface
  */
 export class AccountUI {
     private static instance: AccountUI;
@@ -29,7 +29,7 @@ export class AccountUI {
     }
 
     /**
-     * Lấy instance
+     * Get instance
      */
     static getInstance(): AccountUI {
         if (!AccountUI.instance) {
@@ -39,7 +39,7 @@ export class AccountUI {
     }
 
     /**
-     * Hiển thị menu quản lý tài khoản chính
+     * Show main account management menu
      */
     async showAccountManager(): Promise<void> {
         const items: vscode.QuickPickItem[] = [
@@ -115,10 +115,10 @@ export class AccountUI {
     }
 
     /**
-     * Flow thêm tài khoản mới
+     * Add account flow
      */
     async showAddAccountFlow(): Promise<void> {
-        // Chọn provider
+        // Choose provider
         const providers = [
             { label: 'Antigravity (Google)', value: ProviderKey.Antigravity, authType: 'oauth' as const },
             { label: 'Codex (OpenAI)', value: ProviderKey.Codex, authType: 'oauth' as const },
@@ -155,10 +155,10 @@ export class AccountUI {
     }
 
     /**
-     * Thêm tài khoản API Key
+     * Add API Key account
      */
     async addApiKeyAccount(provider: string, providerLabel: string): Promise<void> {
-        // Nhập tên hiển thị
+        // Enter display name
         const displayName = await vscode.window.showInputBox({
             title: `Add ${providerLabel} Account`,
             prompt: 'Enter a display name for this account',
@@ -175,7 +175,7 @@ export class AccountUI {
             return;
         }
 
-        // Nhập API Key
+        // Enter API Key
         const apiKey = await vscode.window.showInputBox({
             title: `Add ${providerLabel} Account`,
             prompt: `Enter your ${providerLabel} API Key`,
@@ -193,7 +193,7 @@ export class AccountUI {
             return;
         }
 
-        // Hỏi về endpoint tùy chỉnh (cho compatible provider)
+        // Ask for custom endpoint (for compatible provider)
         let endpoint: string | undefined;
         if (provider === 'compatible') {
             endpoint = await vscode.window.showInputBox({
@@ -203,7 +203,7 @@ export class AccountUI {
             });
         }
 
-        // Thêm tài khoản
+        // Add account
         const result = await this.accountManager.addApiKeyAccount(provider, displayName.trim(), apiKey.trim(), {
             endpoint
         });
@@ -216,7 +216,7 @@ export class AccountUI {
     }
 
     /**
-     * Thêm tài khoản OAuth (Antigravity)
+     * Add OAuth account (Antigravity)
      */
     async addOAuthAccount(provider: string): Promise<void> {
         if (provider === ProviderKey.Antigravity) {
@@ -241,7 +241,7 @@ export class AccountUI {
     }
 
     /**
-     * Hiển thị tất cả tài khoản
+     * Show all accounts
      */
     async showAllAccounts(): Promise<void> {
         const accounts = this.accountManager.getAllAccounts();
@@ -254,7 +254,7 @@ export class AccountUI {
             return;
         }
 
-        // Nhóm theo provider
+        // Group by provider
         const accountsByProvider = new Map<string, Account[]>();
         for (const account of accounts) {
             const list = accountsByProvider.get(account.provider) || [];
@@ -290,10 +290,10 @@ export class AccountUI {
     }
 
     /**
-     * Flow chuyển đổi tài khoản
+     * Flow to switch account
      */
     async showSwitchAccountFlow(): Promise<void> {
-        // Lấy danh sách providers có nhiều hơn 1 account
+        // Get list of providers with more than 1 account
         const accounts = this.accountManager.getAllAccounts();
         const providerCounts = new Map<string, number>();
 
@@ -310,7 +310,7 @@ export class AccountUI {
             return;
         }
 
-        // Chọn provider
+        // Choose provider
         const providerItems = providersWithMultiple.map(p => ({
             label: p.charAt(0).toUpperCase() + p.slice(1),
             description: `${providerCounts.get(p)} accounts`,
@@ -326,7 +326,7 @@ export class AccountUI {
             return;
         }
 
-        // Hiển thị danh sách tài khoản của provider
+        // Show the provider's list of accounts
         const providerAccounts = this.accountManager.getAccountsByProvider(selectedProvider.provider);
         const accountItems: AccountQuickPickItem[] = providerAccounts.map(account => ({
             label: `${account.isDefault ? '$(check) ' : ''}${account.displayName}`,
@@ -354,7 +354,7 @@ export class AccountUI {
     }
 
     /**
-     * Flow xóa tài khoản
+     * Flow to remove account
      */
     async showRemoveAccountFlow(): Promise<void> {
         const accounts = this.accountManager.getAllAccounts();
@@ -380,7 +380,7 @@ export class AccountUI {
             return;
         }
 
-        // Xác nhận
+        // Confirm
         const confirm = await vscode.window.showWarningMessage(
             `Are you sure you want to remove "${selectedAccount.account.displayName}"?`,
             { modal: true },
@@ -401,7 +401,7 @@ export class AccountUI {
     }
 
     /**
-     * Hiển thị quick pick để chọn tài khoản cho một provider
+     * Show quick pick to select an account for a provider
      */
     async showAccountPicker(provider: string): Promise<Account | undefined> {
         const accounts = this.accountManager.getAccountsByProvider(provider);
@@ -437,7 +437,7 @@ export class AccountUI {
     }
 
     /**
-     * Chọn account cho từng model Antigravity
+     * Choose account per Antigravity model
      */
     private async showAntigravityModelRouting(): Promise<void> {
         const provider = ProviderKey.Antigravity;
@@ -517,7 +517,7 @@ export class AccountUI {
     }
 
     /**
-     * Bật/tắt load balance cho Antigravity
+     * Toggle load balance for Antigravity
      */
     private async showAntigravityLoadBalanceToggle(): Promise<void> {
         const provider = ProviderKey.Antigravity;
@@ -545,8 +545,8 @@ export class AccountUI {
     }
 
     /**
-     * Quick Switch - Chuyển đổi tài khoản nhanh với 1 click
-     * Hiển thị tất cả tài khoản theo provider, cho phép chuyển đổi ngay lập tức
+     * Quick Switch - Fast account switch with one click
+     * Show all accounts by provider, allow immediate switching
      */
     async showQuickSwitch(): Promise<void> {
         const accounts = this.accountManager.getAllAccounts();
@@ -562,7 +562,7 @@ export class AccountUI {
             return;
         }
 
-        // Nhóm theo provider
+        // Group by provider
         const accountsByProvider = new Map<string, Account[]>();
         for (const account of accounts) {
             const list = accountsByProvider.get(account.provider) || [];
@@ -570,7 +570,7 @@ export class AccountUI {
             accountsByProvider.set(account.provider, list);
         }
 
-        // Tạo QuickPick với buttons
+        // Create QuickPick with buttons
         const quickPick = vscode.window.createQuickPick<AccountQuickPickItem & { provider?: string }>();
         quickPick.title = 'Quick Switch Account';
         quickPick.placeholder = 'Select an account to switch to (or type to filter)';
@@ -579,9 +579,9 @@ export class AccountUI {
 
         const items: (AccountQuickPickItem & { provider?: string })[] = [];
 
-        // Thêm các tài khoản theo provider
+        // Add accounts by provider
         for (const [provider, providerAccounts] of accountsByProvider) {
-            // Separator cho provider
+            // Separator for provider
             items.push({
                 label: `$(folder) ${this.getProviderDisplayName(provider)}`,
                 kind: vscode.QuickPickItemKind.Separator,
@@ -611,7 +611,7 @@ export class AccountUI {
             }
         }
 
-        // Thêm actions ở cuối
+        // Add actions at the end
         items.push({
             label: '',
             kind: vscode.QuickPickItemKind.Separator,
@@ -638,7 +638,7 @@ export class AccountUI {
 
         quickPick.items = items;
 
-        // Xử lý selection
+        // Handle selection
         quickPick.onDidAccept(async () => {
             const selected = quickPick.selectedItems[0];
             quickPick.hide();
@@ -667,7 +667,7 @@ export class AccountUI {
             }
         });
 
-        // Xử lý button click
+        // Handle button click
         quickPick.onDidTriggerItemButton(async e => {
             const item = e.item as AccountQuickPickItem;
             if (item.account && !item.account.isDefault) {
@@ -681,8 +681,8 @@ export class AccountUI {
     }
 
     /**
-     * Quick Switch cho một provider cụ thể
-     * Hiển thị chỉ các tài khoản của provider đó
+     * Quick Switch for a specific provider
+     * Show only accounts for that provider
      */
     async showQuickSwitchForProvider(provider: string): Promise<void> {
         const accounts = this.accountManager.getAccountsByProvider(provider);
@@ -737,17 +737,17 @@ export class AccountUI {
     }
 
     /**
-     * Chuyển đổi sang tài khoản được chọn
+     * Switch to the selected account
      */
     private async switchToAccount(account: Account): Promise<void> {
         const success = await this.accountManager.switchAccount(account.provider, account.id);
 
         if (success) {
-            // Hiển thị notification với animation
+            // Show notification with animation
             const message = `$(check) Switched to "${account.displayName}"`;
             vscode.window.setStatusBarMessage(message, 3000);
 
-            // Cũng hiển thị information message
+            // Also show information message
             vscode.window.showInformationMessage(
                 `Now using: ${account.displayName} (${this.getProviderDisplayName(account.provider)})`
             );
@@ -757,7 +757,7 @@ export class AccountUI {
     }
 
     /**
-     * Lấy tên hiển thị của provider
+     * Get provider display name
      */
     private getProviderDisplayName(provider: string): string {
         const names: Record<string, string> = {
@@ -773,7 +773,7 @@ export class AccountUI {
     }
 
     /**
-     * Lấy icon trạng thái
+     * Get status icon
      */
     private getStatusIcon(status: string): string {
         switch (status) {
@@ -792,12 +792,12 @@ export class AccountUI {
 }
 
 /**
- * Đăng ký các commands cho Account UI
+ * Register commands for Account UI
  */
 export function registerAccountCommands(context: vscode.ExtensionContext): vscode.Disposable[] {
     const disposables: vscode.Disposable[] = [];
 
-    // Command mở Account Manager
+    // Command to open Account Manager
     disposables.push(
         vscode.commands.registerCommand('chp.accounts.manage', async () => {
             const ui = AccountUI.getInstance();
@@ -805,7 +805,7 @@ export function registerAccountCommands(context: vscode.ExtensionContext): vscod
         })
     );
 
-    // Command thêm tài khoản
+    // Command to add account
     disposables.push(
         vscode.commands.registerCommand('chp.accounts.add', async () => {
             const ui = AccountUI.getInstance();
@@ -813,7 +813,7 @@ export function registerAccountCommands(context: vscode.ExtensionContext): vscod
         })
     );
 
-    // Command chuyển đổi tài khoản
+    // Command to switch account
     disposables.push(
         vscode.commands.registerCommand('chp.accounts.switch', async () => {
             const ui = AccountUI.getInstance();
@@ -821,7 +821,7 @@ export function registerAccountCommands(context: vscode.ExtensionContext): vscod
         })
     );
 
-    // Command xóa tài khoản
+    // Command to remove account
     disposables.push(
         vscode.commands.registerCommand('chp.accounts.remove', async () => {
             const ui = AccountUI.getInstance();
@@ -829,7 +829,7 @@ export function registerAccountCommands(context: vscode.ExtensionContext): vscod
         })
     );
 
-    // Command xem tất cả tài khoản
+    // Command to view all accounts
     disposables.push(
         vscode.commands.registerCommand('chp.accounts.list', async () => {
             const ui = AccountUI.getInstance();
@@ -837,7 +837,7 @@ export function registerAccountCommands(context: vscode.ExtensionContext): vscod
         })
     );
 
-    // Command mở Account Manager Page (WebView)
+    // Command to open Account Manager Page (WebView)
     disposables.push(
         vscode.commands.registerCommand('chp.accounts.openManager', async () => {
             const { AccountManagerPage } = await import('./accountManagerPage.js');
@@ -846,7 +846,7 @@ export function registerAccountCommands(context: vscode.ExtensionContext): vscod
         })
     );
 
-    // Command Quick Switch - Chuyển đổi nhanh với 1 click
+    // Command Quick Switch - Fast switch with one click
     disposables.push(
         vscode.commands.registerCommand('chp.accounts.quickSwitch', async () => {
             const ui = AccountUI.getInstance();
@@ -854,7 +854,7 @@ export function registerAccountCommands(context: vscode.ExtensionContext): vscod
         })
     );
 
-    // Command Quick Switch cho provider cụ thể
+    // Command Quick Switch for a specific provider
     disposables.push(
         vscode.commands.registerCommand('chp.accounts.quickSwitchProvider', async (provider?: string) => {
             const ui = AccountUI.getInstance();

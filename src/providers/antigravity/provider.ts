@@ -381,7 +381,8 @@ export class AntigravityProvider extends GenericModelProvider implements Languag
             msg.includes('HTTP 429') ||
             msg.includes('"code": 429') ||
             msg.includes('"code":429') ||
-            msg.includes('RESOURCE_EXHAUSTED')
+            msg.includes('RESOURCE_EXHAUSTED') ||
+            (msg.includes('429') && msg.includes('Resource has been exhausted'))
         );
     }
 

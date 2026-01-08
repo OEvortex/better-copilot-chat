@@ -1,11 +1,11 @@
 {
     "displayName": "Qwen Code CLI",
     "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-    "apiKeyTemplate": "OAuth via CLI",
+    "apiKeyTemplate": "OAuth via Qwen CLI",
     "models": [
         {
             "id": "qwen-coder-plus",
-            "name": "Qwen3 Coder Plus (Free)",
+            "name": "Qwen3 Coder Plus",
             "tooltip": "Qwen3 Coder Plus via CLI",
             "maxInputTokens": 1000000,
             "maxOutputTokens": 65536,
@@ -13,18 +13,6 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
-            }
-        },
-        {
-            "id": "qwen3-vl-plus",
-            "name": "Qwen3 VL Plus (Free)",
-            "tooltip": "Qwen3 vl plus via CLI",
-            "maxInputTokens": 256000,
-            "maxOutputTokens": 65536,
-            "model": "qwen3-vl-plus",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
             }
         }
     ]

@@ -32,14 +32,23 @@ import {
     AccountQuotaCache
 } from './accounts';
 import { registerSettingsPageCommand } from './ui';
-import { CodexRateLimitStatusBar } from './status/codexRateLimitStatusBar';
 
 /**
  * Global variables - Store registered provider instances for cleanup on extension uninstall
  */
 const registeredProviders: Record<
     string,
-    GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider | OpenCodeProvider | QwenCliProvider | GeminiCliProvider | HuggingfaceProvider | CompatibleProvider | AntigravityProvider | CodexProvider
+    | GenericModelProvider
+    | ZhipuProvider
+    | MiniMaxProvider
+    | ChutesProvider
+    | OpenCodeProvider
+    | QwenCliProvider
+    | GeminiCliProvider
+    | HuggingfaceProvider
+    | CompatibleProvider
+    | AntigravityProvider
+    | CodexProvider
 > = {};
 const registeredDisposables: vscode.Disposable[] = [];
 
@@ -235,10 +244,7 @@ export async function activate(context: vscode.ExtensionContext) {
         // Initialize account status bar
         const accountStatusBar = AccountStatusBar.initialize();
         context.subscriptions.push({ dispose: () => accountStatusBar.dispose() });
-        // Initialize Codex Rate Limit status bar (restore cached data)
-        const codexRateLimitStatusBar = CodexRateLimitStatusBar.initialize(context);
-        context.subscriptions.push({ dispose: () => codexRateLimitStatusBar.dispose() });
-        // Register Combined Quota Popup command (shared by Antigravity + Codex)
+        // Register Combined Quota Popup command (Antigravity)
         registerCombinedQuotaCommand(context);
         // Initialize account sync adapter and sync existing accounts
         const accountSyncAdapter = AccountSyncAdapter.initialize();
@@ -251,10 +257,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const updateAntigravityConfig = async () => {
             const activeAccount = accountManager.getActiveAccount(ProviderKey.Antigravity);
-            if (!activeAccount) {return;}
+            if (!activeAccount) {
+                return;
+            }
 
             const credentials = await accountManager.getCredentials(activeAccount.id);
-            if (!credentials) {return;}
+            if (!credentials) {
+                return;
+            }
 
             // Extract token from credentials (supports both accessToken and apiKey formats)
             const token =
