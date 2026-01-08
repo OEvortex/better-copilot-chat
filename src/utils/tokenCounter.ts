@@ -69,7 +69,7 @@ export class TokenCounter {
      */
     static setExtensionPath(path: string): void {
         extensionPath = path;
-        Logger.trace('✓ [TokenCounter] Extension path set');
+        Logger.trace('[TokenCounter] Extension path set');
     }
 
     /**
@@ -78,7 +78,7 @@ export class TokenCounter {
     static getInstance(): TokenCounter {
         if (!sharedTokenCounterInstance) {
             sharedTokenCounterInstance = new TokenCounter();
-            Logger.trace('✓ [TokenCounter] Global instance created');
+            Logger.trace('[TokenCounter] Global instance created');
         }
         return sharedTokenCounterInstance;
     }
@@ -88,7 +88,7 @@ export class TokenCounter {
      */
     static getSharedTokenizer(): TikTokenizer {
         if (!sharedTokenizerPromise) {
-            Logger.trace('🔧 [TokenCounter] First request for tokenizer, initializing global shared instance...');
+            Logger.trace('[TokenCounter] First request for tokenizer, initializing global shared instance...');
             if (!extensionPath) {
                 throw new Error('[TokenCounter] Extension path not initialized, please call TokenCounter.setExtensionPath() first');
             }
@@ -99,7 +99,7 @@ export class TokenCounter {
                 getSpecialTokensByEncoder('o200k_base'),
                 getRegexByEncoder('o200k_base')
             );
-            Logger.trace('✓ [TokenCounter] Tokenizer initialization complete');
+            Logger.trace('[TokenCounter] Tokenizer initialization complete');
         }
         return sharedTokenizerPromise;
     }

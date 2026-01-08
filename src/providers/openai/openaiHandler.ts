@@ -329,19 +329,19 @@ export class OpenAIHandler {
             //     cacheControlParts += cacheControls.length;
 
             //     if (dataParts.length > 0) {
-            //         Logger.debug(`📷 Message ${index}: Found ${dataParts.length} data parts, including ${imageParts.length} images, ${cacheControls.length} cache identifiers`);
+            //         Logger.debug(`Message ${index}: Found ${dataParts.length} data parts, including ${imageParts.length} images, ${cacheControls.length} cache identifiers`);
             //         dataParts.forEach((part, partIndex) => {
             //             const dataPart = part as vscode.LanguageModelDataPart;
             //             const isImage = this.isImageMimeType(dataPart.mimeType);
             //             const isCache = dataPart.mimeType === 'cache_control';
-            //             const icon = isImage ? '🖼️' : isCache ? '📄' : '📄';
+            //             const icon = isImage ? 'IMAGE' : isCache ? 'CACHE' : 'OTHER';
             //             Logger.trace(`${icon} Data part ${partIndex}: MIME=${dataPart.mimeType}, size=${dataPart.data.length} bytes, type=${isImage ? 'image' : isCache ? 'cache' : 'other'}`);
             //         });
             //     }
             // });
             // if (totalDataParts > 0) {
             //     const effectiveDataParts = totalDataParts - cacheControlParts;
-            //     Logger.debug(`📊 Data statistics: total ${totalDataParts} data parts (${effectiveDataParts} effective data + ${cacheControlParts} cache identifiers), including ${totalImageParts} images, model image capability: ${model.capabilities?.imageInput}`);
+            //     Logger.debug(`Data statistics: total ${totalDataParts} data parts (${effectiveDataParts} effective data + ${cacheControlParts} cache identifiers), including ${totalImageParts} images, model image capability: ${model.capabilities?.imageInput}`);
             // }
             // #endregion
 
@@ -378,7 +378,7 @@ export class OpenAIHandler {
             // const totalToolCalls = openaiMessages.reduce((sum, msg) => {
             //     return sum + (('tool_calls' in msg && msg.tool_calls) ? msg.tool_calls.length : 0);
             // }, 0);
-            // Logger.debug(`📊 ${model.name} Message statistics: ${openaiMessages.length} messages, ${totalContentLength} characters, ${totalToolCalls} tool calls`);
+            // Logger.debug(`${model.name} Message statistics: ${openaiMessages.length} messages, ${totalContentLength} characters, ${totalToolCalls} tool calls`);
 
             // // Detailed message debug info
             // openaiMessages.forEach((msg, index) => {
@@ -394,13 +394,13 @@ export class OpenAIHandler {
             //         msg.tool_calls.forEach(tc => {
             //             if (tc.type === 'function' && tc.function) {
             //                 const argsLength = tc.function.arguments ? tc.function.arguments.length : 0;
-            //                 Logger.trace(`🔧 Tool call: ${tc.id} -> ${tc.function.name}(${argsLength}chars)`);
+            //                 Logger.trace(`Tool call: ${tc.id} -> ${tc.function.name}(${argsLength}chars)`);
             //             }
             //         });
             //     }
             // });
             // #endregion
-            Logger.info(`🚀 ${model.name} sending ${this.displayName} request`);
+            Logger.info(`${model.name} sending ${this.displayName} request`);
 
             let hasReceivedContent = false;
             let hasThinkingContent = false; // Mark whether thinking content was output
@@ -603,12 +603,12 @@ export class OpenAIHandler {
                                 try {
                                     parsedArgs = JSON.parse(cleanedArgs);
                                     Logger.debug(
-                                        `✅ Deduplication fix successful: ${event.name} (index: ${event.index}), parsed successfully after fix`
+                                        `Deduplication fix successful: ${event.name} (index: ${event.index}), parsed successfully after fix`
                                     );
                                 } catch (secondError) {
                                     // Still failed after fix, output detailed error info
                                     Logger.error(
-                                        `❌ Failed to parse tool call parameters: ${event.name} (index: ${event.index})`
+                                        `Failed to parse tool call parameters: ${event.name} (index: ${event.index})`
                                     );
                                     Logger.error(
                                         `Original parameter string (first 100 characters): ${event.arguments?.substring(0, 100)}`
@@ -760,7 +760,7 @@ export class OpenAIHandler {
                     try {
                         const usage = finalUsage as OpenAI.Completions.CompletionUsage;
                         Logger.info(
-                            `📊 ${model.name} Token usage: ${usage.prompt_tokens}+${usage.completion_tokens}=${usage.total_tokens}`
+                            `${model.name} Token usage: ${usage.prompt_tokens}+${usage.completion_tokens}=${usage.total_tokens}`
                         );
                     } catch (e) {
                         Logger.trace(`${model.name} failed to print finalUsage: ${String(e)}`);
@@ -786,7 +786,7 @@ export class OpenAIHandler {
                     `${model.name} end of message stream has only thinking content and no text content, added <think/> placeholder as output`
                 );
             }
-            Logger.debug(`✅ ${model.name} ${this.displayName} request complete`);
+            Logger.debug(`${model.name} ${this.displayName} request complete`);
         } catch (error) {
             if (error instanceof Error) {
                 if (error.cause instanceof Error) {
@@ -936,25 +936,25 @@ export class OpenAIHandler {
         const imageParts: vscode.LanguageModelDataPart[] = [];
         // Collect images (if supported)
         if (capabilities?.imageInput === true) {
-            Logger.debug('🖼️ Model supports image input, starting to collect image parts');
+            Logger.debug('Model supports image input, starting to collect image parts');
             for (const part of message.content) {
                 if (part instanceof vscode.LanguageModelDataPart) {
-                    Logger.debug(`📷 Found data part: MIME=${part.mimeType}, size=${part.data.length} bytes`);
+                    Logger.debug(`Found data part: MIME=${part.mimeType}, size=${part.data.length} bytes`);
                     if (this.isImageMimeType(part.mimeType)) {
                         imageParts.push(part);
-                        Logger.debug(`✅ Add image: MIME=${part.mimeType}, size=${part.data.length} bytes`);
+                        Logger.debug(`Add image: MIME=${part.mimeType}, size=${part.data.length} bytes`);
                     } else {
                         // Classify and process different types of data
                         if (part.mimeType === 'cache_control') {
-                            Logger.trace('⚠️ Ignore Claude cache identifier: cache_control');
+                            Logger.trace('Ignore Claude cache identifier: cache_control');
                         } else if (part.mimeType.startsWith('image/')) {
-                            Logger.warn(`❌ Unsupported image MIME type: ${part.mimeType}`);
+                            Logger.warn(`Unsupported image MIME type: ${part.mimeType}`);
                         } else {
-                            Logger.trace(`📄 Skip non-image data: ${part.mimeType}`);
+                            Logger.trace(`Skip non-image data: ${part.mimeType}`);
                         }
                     }
                 } else {
-                    Logger.trace(`📝 Non-data part: ${part.constructor.name}`);
+                    Logger.trace(`Non-data part: ${part.constructor.name}`);
                 }
             }
             // Special note: if no images found but there are non-cache_control data parts
@@ -965,7 +965,7 @@ export class OpenAIHandler {
             });
             if (nonCacheDataParts.length > 0 && imageParts.length === 0) {
                 Logger.warn(
-                    `⚠️ Found ${nonCacheDataParts.length} non-cache_control data parts but no valid images, please check image attachment format`
+                    `Found ${nonCacheDataParts.length} non-cache_control data parts but no valid images, please check image attachment format`
                 );
             }
         }
@@ -976,7 +976,7 @@ export class OpenAIHandler {
         if (imageParts.length > 0) {
             // Multimodal message: text + images
             Logger.debug(
-                `🖼️ Build multimodal message: ${textParts.length} text parts + ${imageParts.length} image parts`
+                `Build multimodal message: ${textParts.length} text parts + ${imageParts.length} image parts`
             );
             const contentArray: OpenAI.Chat.ChatCompletionContentPart[] = [];
             if (textParts.length > 0) {
@@ -985,7 +985,7 @@ export class OpenAIHandler {
                     type: 'text',
                     text: textContent
                 });
-                Logger.trace(`📝 Add text content: ${textContent.length} characters`);
+                Logger.trace(`Add text content: ${textContent.length} characters`);
             }
             for (const imagePart of imageParts) {
                 const dataUrl = this.createDataUrl(imagePart);
@@ -994,10 +994,10 @@ export class OpenAIHandler {
                     image_url: { url: dataUrl }
                 });
                 Logger.trace(
-                    `📷 Add image URL: MIME=${imagePart.mimeType}, Base64 length=${dataUrl.length} characters`
+                    `Add image URL: MIME=${imagePart.mimeType}, Base64 length=${dataUrl.length} characters`
                 );
             }
-            Logger.debug(`✅ Multimodal message construction complete: ${contentArray.length} content parts`);
+            Logger.debug(`Multimodal message construction complete: ${contentArray.length} content parts`);
             return { role: 'user', content: contentArray };
         } else {
             // Pure text message
@@ -1205,11 +1205,11 @@ export class OpenAIHandler {
         // Debug logs
         if (isImageCategory && !isSupported) {
             Logger.warn(
-                `🚫 Image type not in support list: ${mimeType}, supported types: ${supportedTypes.join(', ')}`
+                `Image type not in support list: ${mimeType}, supported types: ${supportedTypes.join(', ')}`
             );
         } else if (!isImageCategory && normalizedMime !== 'cache_control') {
             // For cache_control (Claude cache identifier) no debug info recorded, for other non-image types record trace level log
-            Logger.trace(`📄 Non-image data type: ${mimeType}`);
+            Logger.trace(`Non-image data type: ${mimeType}`);
         }
         return isImageCategory && isSupported;
     }
@@ -1222,11 +1222,11 @@ export class OpenAIHandler {
             const base64Data = Buffer.from(dataPart.data).toString('base64');
             const dataUrl = `data:${dataPart.mimeType};base64,${base64Data}`;
             Logger.debug(
-                `🔗 Create image DataURL: MIME=${dataPart.mimeType}, original size=${dataPart.data.length} bytes, Base64 size=${base64Data.length} characters`
+                `Create image DataURL: MIME=${dataPart.mimeType}, original size=${dataPart.data.length} bytes, Base64 size=${base64Data.length} characters`
             );
             return dataUrl;
         } catch (error) {
-            Logger.error(`❌ Failed to create image DataURL: ${error}`);
+            Logger.error(`Failed to create image DataURL: ${error}`);
             throw error;
         }
     }

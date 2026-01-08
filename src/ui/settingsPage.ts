@@ -132,7 +132,7 @@ export class SettingsPage {
             <div id="app">
                 <div class="settings-header">
                     <h1>
-                        <span class="icon">⚙️</span>
+                        <span class="icon"></span>
                         Copilot ++ Settings
                     </h1>
                     <p>Loading settings...</p>

@@ -94,7 +94,7 @@ async function showCombinedQuotaPopup(): Promise<void> {
 
                     for (const model of antigravityData.modelQuotas) {
                         const pct = Math.round(model.remainingFraction * 100);
-                        const icon = pct > 50 ? '✓' : pct > 20 ? '⚠' : '✗';
+                        const icon = pct > 50 ? 'OK' : pct > 20 ? 'WARN' : 'FAIL';
                         let detail = '';
                         if (model.resetTime) {
                             const resetDate = new Date(model.resetTime);

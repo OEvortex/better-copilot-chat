@@ -54,7 +54,7 @@ function renderHeader() {
     return `
         <div class="settings-header">
             <h1>
-                <span class="icon">⚙️</span>
+                <span class="icon"></span>
                 GCMP Settings
             </h1>
             <p>Configure load balancing and advanced settings for AI Chat Models</p>
@@ -67,10 +67,10 @@ function renderHeader() {
  */
 function renderLoadBalanceSection() {
     const providers = settingsState.providers || [];
-    
+
     // Filter providers that have accounts
     const providersWithAccounts = providers.filter(p => p.accountCount > 0);
-    
+
     if (providersWithAccounts.length === 0) {
         return `
             <div class="settings-section">
@@ -133,7 +133,7 @@ function renderProviderCard(provider) {
                 <span class="account-badge">
                     👤 ${accountCount} account${accountCount !== 1 ? 's' : ''}
                 </span>
-                ${accountCount >= 2 ? '<span class="account-badge success">✓ Ready for LB</span>' : '<span class="account-badge warning">Need 2+ accounts</span>'}
+                ${accountCount >= 2 ? '<span class="account-badge success">Ready for LB</span>' : '<span class="account-badge warning">Need 2+ accounts</span>'}
             </div>
             <div class="toggle-container">
                 <div class="toggle-label">
@@ -189,14 +189,14 @@ function renderAdvancedSection() {
     return `
         <div class="settings-section">
             <h2 class="section-title">
-                🔧 Quick Actions
+                Quick Actions
             </h2>
             <div class="action-buttons">
                 <button class="action-button" onclick="openAccountManager()">
                     👤 Manage Accounts
                 </button>
                 <button class="action-button secondary" onclick="refreshSettings()">
-                    🔄 Refresh
+                    Refresh
                 </button>
             </div>
         </div>
@@ -210,7 +210,7 @@ function renderInfoSection() {
     return `
         <div class="divider"></div>
         <div class="info-box">
-            <span class="info-icon">💡</span>
+            <span class="info-icon"></span>
             <div class="info-content">
                 <p><strong>About Load Balancing:</strong></p>
                 <p>When enabled, requests will be distributed across multiple accounts to optimize quota usage and improve reliability. 
@@ -218,7 +218,7 @@ function renderInfoSection() {
             </div>
         </div>
         <div class="info-box" style="margin-top: 12px;">
-            <span class="info-icon">📊</span>
+            <span class="info-icon"></span>
             <div class="info-content">
                 <p><strong>Load Balance Strategies:</strong></p>
                 <p>• <strong>Round Robin:</strong> Requests are distributed evenly across accounts<br>
@@ -234,13 +234,13 @@ function renderInfoSection() {
  */
 function getProviderIcon(providerId) {
     const icons = {
-        'antigravity': '🚀',
+        'antigravity': '',
         'codex': '🤖',
         'zhipu': '🧠',
         'moonshot': '🌙',
-        'minimax': '⚡',
-        'deepseek': '🔍',
-        'compatible': '🔌'
+        'minimax': '',
+        'deepseek': '',
+        'compatible': ''
     };
     return icons[providerId] || '🤖';
 }
@@ -267,7 +267,7 @@ function getProviderDescription(providerId) {
 function handleToggleChange(providerId, enabled) {
     // Update local state
     settingsState.loadBalanceSettings[providerId] = enabled;
-    
+
     // Send message to extension
     vscode.postMessage({
         command: 'setLoadBalance',
@@ -286,7 +286,7 @@ function handleToggleChange(providerId, enabled) {
 function handleStrategyChange(providerId, strategy) {
     // Update local state
     settingsState.loadBalanceStrategies[providerId] = strategy;
-    
+
     // Send message to extension
     vscode.postMessage({
         command: 'setLoadBalanceStrategy',
@@ -348,7 +348,7 @@ function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.innerHTML = `
-        <span>${type === 'success' ? '✓' : '✕'}</span>
+        <span>${type === 'success' ? 'OK' : 'NO'}</span>
         <span>${escapeHtml(message)}</span>
     `;
     document.body.appendChild(toast);

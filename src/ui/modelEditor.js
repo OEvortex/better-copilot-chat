@@ -769,14 +769,14 @@ function validateJSON_UI(fieldId) {
             // Validation passed - restore default state (no green style added)
             const indicator = statusDiv.querySelector('.json-status-indicator');
             indicator.className = 'json-status-indicator';
-            statusText.textContent = 'Valid ✓';
+            statusText.textContent = 'Valid';
             return true;
         } else {
             // Not an object type - show red error state
             textarea.classList.add('json-invalid');
             const indicator = statusDiv.querySelector('.json-status-indicator');
             indicator.className = 'json-status-indicator invalid';
-            statusText.textContent = 'Invalid ✗';
+            statusText.textContent = 'Invalid';
             if (errorDiv) {
                 errorDiv.textContent = 'Must be object type (like {"key": "value"}), cannot be array, number or string';
                 errorDiv.classList.add('show');
@@ -788,7 +788,7 @@ function validateJSON_UI(fieldId) {
         textarea.classList.add('json-invalid');
         const indicator = statusDiv.querySelector('.json-status-indicator');
         indicator.className = 'json-status-indicator invalid';
-        statusText.textContent = 'Invalid ✗';
+        statusText.textContent = 'Invalid';
         if (errorDiv) {
             errorDiv.textContent = 'Error: ' + e.message;
             errorDiv.classList.add('show');

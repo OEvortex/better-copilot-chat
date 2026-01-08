@@ -220,7 +220,7 @@ export class TokenUsageStatusBar {
 
         // If default data (no request), show hint
         if (data.inputTokens === 0 && data.maxInputTokens === 0) {
-            md.appendMarkdown('💡 Displayed after sending any request provided by Copilot ++\n');
+            md.appendMarkdown('Note: Displayed after sending any request provided by Copilot ++\n');
             return md;
         }
 
@@ -236,7 +236,7 @@ export class TokenUsageStatusBar {
         md.appendMarkdown(`| **Request Time** | ${requestTimeStr} |\n`);
 
         md.appendMarkdown('\n---\n');
-        md.appendMarkdown('💡 This data shows the context usage of the most recent request\n');
+        md.appendMarkdown('Note: This data shows the context usage of the most recent request\n');
 
         return md;
     }

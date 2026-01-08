@@ -1,6 +1,6 @@
 # Copilot Helper Codebase Instructions
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 This extension provides multi-provider support for GitHub Copilot Chat. The core architecture revolves around a plugin-based provider system.
 
@@ -14,7 +14,7 @@ This extension provides multi-provider support for GitHub Copilot Chat. The core
   - **Status Bar**: `src/status/` manages UI indicators for quotas and active accounts.
   - **Tools**: `src/tools/` registers MCP-compatible tools (e.g., web search).
 
-## 🚀 Developer Workflows
+## Developer Workflows
 
 - **Build & Watch**:
   - Run `npm run watch` to build in development mode with file watching.
@@ -24,7 +24,7 @@ This extension provides multi-provider support for GitHub Copilot Chat. The core
   - Use the "Extension" launch configuration in VS Code.
   - Logs are written via `Logger` class to the "Copilot ++" output channel.
 
-## 🧩 Key Patterns & Conventions
+## Key Patterns & Conventions
 
 - **Provider Implementation**:
   - Extend `GenericModelProvider` for standard providers.
@@ -42,13 +42,13 @@ This extension provides multi-provider support for GitHub Copilot Chat. The core
 - **Logging**:
   - ALWAYS use `Logger.info()`, `Logger.warn()`, `Logger.error()` instead of `console.log`.
 
-## ⚠️ Critical Integration Points
+## Critical Integration Points
 
 - **Copilot Chat**: The extension registers as a chat provider (`vscode.lm.registerLanguageModelChatProvider`).
 - **Secret Storage**: Credentials are stored using `context.secrets` via `AccountManager` or `ApiKeyManager`.
 - **Global State**: `globalThis.__chp_singletons` is used to share singleton instances with `copilot.bundle.ts`.
 
-## 📂 Important Paths
+## Important Paths
 
 - `src/extension.ts`: Main activation logic.
 - `src/providers/`: Provider implementations.

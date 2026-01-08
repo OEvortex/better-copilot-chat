@@ -30,14 +30,14 @@ export class Logger {
         const channelLevel = this.outputChannel.logLevel;
         const envLevel = vscode.env.logLevel;
 
-        Logger.info('📊 VS Code log level status:');
+        Logger.info('VS Code log level status:');
         Logger.info(`  - Output channel level: ${vscode.LogLevel[channelLevel]} (${channelLevel})`);
         Logger.info(`  - Editor environment level: ${vscode.LogLevel[envLevel]} (${envLevel})`);
 
         // If log level is higher than Debug, prompt user
         if (channelLevel > vscode.LogLevel.Debug) {
-            Logger.warn(`⚠️ Current VS Code log level is ${vscode.LogLevel[channelLevel]}, detailed debug information may not be displayed`);
-            Logger.info('💡 To view detailed debug logs, please execute command: "Developer: Set Log Level" → select "Debug"');
+            Logger.warn(`Current VS Code log level is ${vscode.LogLevel[channelLevel]}, detailed debug information may not be displayed`);
+            Logger.info('To view detailed debug logs, please execute command: "Developer: Set Log Level" → select "Debug"');
 
             // Show notification
             vscode.window
@@ -52,7 +52,7 @@ export class Logger {
                     }
                 });
         } else {
-            Logger.info(`✅ VS Code log level is set to ${vscode.LogLevel[channelLevel]}, detailed debug information can be viewed`);
+            Logger.info(`VS Code log level is set to ${vscode.LogLevel[channelLevel]}, detailed debug information can be viewed`);
         }
     }
 

@@ -561,7 +561,7 @@ export class OpenAIStreamProcessor {
     ): void {
         // Send a thinking indicator to show tool call is being prepared
         const thinkingId = `tool_prep_${Date.now()}`;
-        const message = `\n🔧 Preparing tool: ${toolName}...\n`;
+        const message = `\nPreparing tool: ${toolName}...\n`; 
         progress.report(new vscode.LanguageModelThinkingPart(message, thinkingId));
     }
 

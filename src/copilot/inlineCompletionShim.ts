@@ -110,13 +110,13 @@ export class InlineCompletionShim implements vscode.InlineCompletionItemProvider
 
                 const loadTime = Date.now() - startTime;
                 CompletionLogger.info(
-                    `[InlineCompletionShim] ✅ copilot module loading complete (elapsed: ${loadTime}ms)`
+                    `[InlineCompletionShim] copilot module loading complete (elapsed: ${loadTime}ms)`
                 );
 
                 return this._realProvider;
             } catch (error) {
                 const CompletionLogger = getCompletionLogger();
-                CompletionLogger.error('[InlineCompletionShim] ❌ Failed to load copilot module:', error);
+                CompletionLogger.error('[InlineCompletionShim] Failed to load copilot module:', error);
                 this._loadingPromise = null;
                 return null;
             }
@@ -157,7 +157,7 @@ export class InlineCompletionShim implements vscode.InlineCompletionItemProvider
                 })
             );
 
-            CompletionLogger.info('[InlineCompletionShim] ✅ Activated (using lazy loading strategy)');
+            CompletionLogger.info('[InlineCompletionShim] Activated (using lazy loading strategy)');
         } catch (error) {
             CompletionLogger.error('[InlineCompletionShim] Activation failed:', error);
             throw error;
@@ -220,7 +220,7 @@ export class InlineCompletionShim implements vscode.InlineCompletionItemProvider
         });
         this.disposables.length = 0;
 
-        CompletionLogger.info('🧹 [InlineCompletionShim] All resources released');
+        CompletionLogger.info('[InlineCompletionShim] All resources released');
     }
 
     /**

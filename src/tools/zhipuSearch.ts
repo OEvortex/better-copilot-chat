@@ -79,7 +79,7 @@ export class ZhipuSearchTool {
      * Search via MCP
      */
     private async searchViaMCP(params: ZhipuSearchRequest): Promise<ZhipuSearchResult[]> {
-        Logger.info(`🔄 [Zhipu Search] Using MCP mode search: "${params.search_query}"`);
+        Logger.info(`[Zhipu Search] Using MCP mode search: "${params.search_query}"`);
 
         // Get MCP client instance (singleton pattern, with cache)
         const mcpClient = await MCPWebSearchClient.getInstance();
@@ -138,9 +138,9 @@ export class ZhipuSearchTool {
         };
 
         Logger.info(
-            `🔍 [Zhipu Search] Starting search: "${params.search_query}" using engine ${params.search_engine || 'search_std'}`
+            `[Zhipu Search] Starting search: "${params.search_query}" using engine ${params.search_engine || 'search_std'}`
         );
-        Logger.debug(`📝 [Zhipu Search] Request data: ${requestData}`);
+        Logger.debug(`[Zhipu Search] Request data: ${requestData}`);
 
         return new Promise((resolve, reject) => {
             const req = https.request(url, options, res => {
@@ -152,8 +152,8 @@ export class ZhipuSearchTool {
 
                 res.on('end', () => {
                     try {
-                        Logger.debug(`📊 [Zhipu Search] Response status code: ${res.statusCode}`);
-                        Logger.debug(`📄 [Zhipu Search] Response data: ${data}`);
+                        Logger.debug(`[Zhipu Search] Response status code: ${res.statusCode}`);
+                        Logger.debug(`[Zhipu Search] Response data: ${data}`);
 
                         if (res.statusCode !== 200) {
                             let errorMessage = `ZhipuAI search API error ${res.statusCode}`;
@@ -163,16 +163,16 @@ export class ZhipuSearchTool {
                             } catch {
                                 errorMessage += `: ${data}`;
                             }
-                            Logger.error('❌ [Zhipu Search] API returned error', new Error(errorMessage));
+                            Logger.error('[Zhipu Search] API returned error', new Error(errorMessage));
                             reject(new Error(errorMessage));
                             return;
                         }
 
                         const response = JSON.parse(data) as ZhipuSearchResponse;
-                        Logger.info(`✅ [Zhipu Search] Search complete: found ${response.search_result?.length || 0} results`);
+                        Logger.info(`[Zhipu Search] Search complete: found ${response.search_result?.length || 0} results`);
                         resolve(response);
                     } catch (error) {
-                        Logger.error('❌ [Zhipu Search] Failed to parse response', error instanceof Error ? error : undefined);
+                        Logger.error('[Zhipu Search] Failed to parse response', error instanceof Error ? error : undefined);
                         reject(
                             new Error(`Failed to parse ZhipuAI search response: ${error instanceof Error ? error.message : 'Unknown error'}`)
                         );
@@ -181,7 +181,7 @@ export class ZhipuSearchTool {
             });
 
             req.on('error', error => {
-                Logger.error('❌ [Zhipu Search] Request failed', error);
+                Logger.error('[Zhipu Search] Request failed', error);
                 reject(new Error(`ZhipuAI search request failed: ${error.message}`));
             });
 
@@ -197,7 +197,7 @@ export class ZhipuSearchTool {
         request: vscode.LanguageModelToolInvocationOptions<ZhipuSearchRequest>
     ): Promise<vscode.LanguageModelToolResult> {
         try {
-            Logger.info(`🚀 [Tool Invocation] ZhipuAI web search tool invoked: ${JSON.stringify(request.input)}`);
+            Logger.info(`[Tool Invocation] ZhipuAI web search tool invoked: ${JSON.stringify(request.input)}`);
 
             const params = request.input as ZhipuSearchRequest;
             if (!params.search_query) {
@@ -207,15 +207,15 @@ export class ZhipuSearchTool {
             // Select search mode based on configuration
             let searchResults: ZhipuSearchResult[];
             if (this.isMCPEnabled()) {
-                Logger.info('🔄 [Zhipu Search] Using MCP mode search');
+                Logger.info('[Zhipu Search] Using MCP mode search');
                 searchResults = await this.searchViaMCP(params);
             } else {
-                Logger.info('🔄 [Zhipu Search] Using standard billing interface search (pay-per-use)');
+                Logger.info('[Zhipu Search] Using standard billing interface search (pay-per-use)');
                 const response = await this.search(params);
                 searchResults = response.search_result || [];
             }
 
-            Logger.info('✅ [Tool Invocation] ZhipuAI web search tool invocation successful');
+            Logger.info('[Tool Invocation] ZhipuAI web search tool invocation successful');
 
             // After search complete, delayed update ZhipuAI status bar (usage display)
             StatusBarManager.zhipu?.delayedUpdate();
@@ -225,7 +225,7 @@ export class ZhipuSearchTool {
             ]);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            Logger.error('❌ [Tool Invocation] ZhipuAI web search tool invocation failed', error instanceof Error ? error : undefined);
+            Logger.error('[Tool Invocation] ZhipuAI web search tool invocation failed', error instanceof Error ? error : undefined);
 
             throw new vscode.LanguageModelError(`ZhipuAI search failed: ${errorMessage}`);
         }
@@ -249,9 +249,9 @@ export class ZhipuSearchTool {
         try {
             // MCP client uses singleton pattern, no need to clean up here
             // If all MCP client caches need to be cleared, call MCPWebSearchClient.clearCache()
-            Logger.info('✅ [Zhipu Search] Tool resources cleaned up');
+            Logger.info('[Zhipu Search] Tool resources cleaned up');
         } catch (error) {
-            Logger.error('❌ [Zhipu Search] Resource cleanup failed', error instanceof Error ? error : undefined);
+            Logger.error('[Zhipu Search] Resource cleanup failed', error instanceof Error ? error : undefined);
         }
     }
 

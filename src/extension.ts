@@ -112,10 +112,10 @@ async function activateProviders(context: vscode.ExtensionContext): Promise<void
             }
 
             const providerTime = Date.now() - providerStartTime;
-            Logger.info(`✅ ${providerConfig.displayName} provider registered successfully (time: ${providerTime}ms)`);
+            Logger.info(`${providerConfig.displayName} provider registered successfully (time: ${providerTime}ms)`);
             return { providerKey, provider, disposables };
         } catch (error) {
-            Logger.error(`❌ Failed to register provider ${providerKey}:`, error);
+            Logger.error(`Failed to register provider ${providerKey}:`, error);
             return null;
         }
     });
@@ -156,9 +156,9 @@ async function activateCompatibleProvider(context: vscode.ExtensionContext): Pro
         registeredDisposables.push(...disposables);
 
         const providerTime = Date.now() - providerStartTime;
-        Logger.info(`✅ Compatible Provider registered successfully (time: ${providerTime}ms)`);
+        Logger.info(`Compatible Provider registered successfully (time: ${providerTime}ms)`);
     } catch (error) {
-        Logger.error('❌ Failed to register compatible provider:', error);
+        Logger.error('Failed to register compatible provider:', error);
     }
 }
 
@@ -176,9 +176,9 @@ async function activateInlineCompletionProvider(context: vscode.ExtensionContext
         registeredDisposables.push(...result.disposables);
 
         const providerTime = Date.now() - providerStartTime;
-        Logger.info(`✅ Inline completion provider registered successfully - Shim mode (time: ${providerTime}ms)`);
+        Logger.info(`Inline completion provider registered successfully - Shim mode (time: ${providerTime}ms)`);
     } catch (error) {
-        Logger.error('❌ Failed to register inline completion provider:', error);
+        Logger.error('Failed to register inline completion provider:', error);
     }
 }
 
@@ -201,7 +201,7 @@ export async function activate(context: vscode.ExtensionContext) {
         CompletionLogger.initialize('Copilot ++Inline Completion'); // Initialize high-frequency inline completion log manager
 
         const isDevelopment = context.extensionMode === vscode.ExtensionMode.Development;
-        Logger.info(`🔧 Copilot ++Extension Mode: ${isDevelopment ? 'Development' : 'Production'}`);
+        Logger.info(`Copilot ++Extension Mode: ${isDevelopment ? 'Development' : 'Production'}`);
         // Check and prompt VS Code log level settings
         if (isDevelopment) {
             Logger.checkAndPromptLogLevel();
@@ -464,7 +464,7 @@ export async function activate(context: vscode.ExtensionContext) {
         Logger.trace(`⏱️ Copilot helper commands registered (time: ${Date.now() - stepStartTime}ms)`);
 
         const totalActivationTime = Date.now() - activationStartTime;
-        Logger.info(`✅ Copilot ++extension activation completed (total time: ${totalActivationTime}ms)`);
+        Logger.info(`Copilot ++extension activation completed (total time: ${totalActivationTime}ms)`);
     } catch (error) {
         const errorMessage = `Copilot ++extension activation failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
         Logger.error(errorMessage, error instanceof Error ? error : undefined);

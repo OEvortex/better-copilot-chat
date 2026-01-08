@@ -29,7 +29,7 @@ export class AccountStatusBar {
             vscode.StatusBarAlignment.Right,
             99 // Priority
         );
-        // 🚀 Click vào sẽ mở Account Manager
+        // Click vào sẽ mở Account Manager
         this.statusBarItem.command = 'chp.accounts.openManager';
         
         // Lắng nghe thay đổi tài khoản
@@ -140,7 +140,7 @@ export class AccountStatusBar {
         md.isTrusted = true;
         md.supportThemeIcons = true;
 
-        md.appendMarkdown('### ⚡ Quick Switch Account\n\n');
+        md.appendMarkdown('### Quick Switch Account\n\n');
         
         if (activeAccounts.length > 0) {
             md.appendMarkdown('**Active Accounts:**\n');
@@ -151,7 +151,7 @@ export class AccountStatusBar {
             md.appendMarkdown('\n');
         }
 
-        md.appendMarkdown(`📊 Total: ${allAccounts.length} account(s)\n\n`);
+        md.appendMarkdown(`Total: ${allAccounts.length} account(s)\n\n`);
         
         const codexAccounts = allAccounts.filter(acc => acc.provider === 'codex');
         if (codexAccounts.length > 0) {
@@ -213,7 +213,7 @@ export class AccountStatusBar {
         md.supportThemeIcons = true;
 
         const providerName = this.getProviderDisplayName(providerKey);
-        md.appendMarkdown(`### 🎯 Currently Using: ${providerName}\n\n`);
+        md.appendMarkdown(`### Currently Using: ${providerName}\n\n`);
         md.appendMarkdown(`**Account:** $(check) **${currentAccount.displayName}**\n\n`);
 
         // Hiển thị các account khác của cùng provider
@@ -229,7 +229,7 @@ export class AccountStatusBar {
         }
 
         // Hiển thị tổng số account
-        md.appendMarkdown(`📊 Total: ${allAccounts.length} account(s)\n\n`);
+        md.appendMarkdown(`Total: ${allAccounts.length} account(s)\n\n`);
 
         // Hiển thị rate limits nếu là Codex
         if (providerKey === 'codex') {

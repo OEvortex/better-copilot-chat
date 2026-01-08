@@ -208,9 +208,9 @@ export class AccountUI {
         });
 
         if (result.success) {
-            vscode.window.showInformationMessage(`✅ Account "${displayName}" added successfully for ${providerLabel}`);
+            vscode.window.showInformationMessage(`Account "${displayName}" added successfully for ${providerLabel}`);
         } else {
-            vscode.window.showErrorMessage(`❌ Failed to add account: ${result.error}`);
+            vscode.window.showErrorMessage(`Failed to add account: ${result.error}`);
         }
     }
 
@@ -346,9 +346,9 @@ export class AccountUI {
         const success = await this.accountManager.switchAccount(selectedProvider.provider, selectedAccount.account.id);
 
         if (success) {
-            vscode.window.showInformationMessage(`✅ Switched to "${selectedAccount.account.displayName}"`);
+            vscode.window.showInformationMessage(`Switched to "${selectedAccount.account.displayName}"`);
         } else {
-            vscode.window.showErrorMessage(`❌ Failed to switch to "${selectedAccount.account.displayName}"`);
+            vscode.window.showErrorMessage(`Failed to switch to "${selectedAccount.account.displayName}"`);
         }
     }
 
@@ -366,7 +366,7 @@ export class AccountUI {
         const accountItems: AccountQuickPickItem[] = accounts.map(account => ({
             label: `${account.displayName}`,
             description: `${account.provider} - ${account.email || account.authType}`,
-            detail: account.isDefault ? '⚠️ This is the active account' : undefined,
+            detail: account.isDefault ? 'This is the active account' : undefined,
             account
         }));
 
@@ -393,7 +393,7 @@ export class AccountUI {
         const success = await this.accountManager.removeAccount(selectedAccount.account.id);
 
         if (success) {
-            vscode.window.showInformationMessage(`✅ Account "${selectedAccount.account.displayName}" removed`);
+            vscode.window.showInformationMessage(`Account "${selectedAccount.account.displayName}" removed`);
         } else {
             vscode.window.showErrorMessage('Failed to remove account');
         }
@@ -544,7 +544,7 @@ export class AccountUI {
     }
 
     /**
-     * 🚀 Quick Switch - Chuyển đổi tài khoản nhanh với 1 click
+     * Quick Switch - Chuyển đổi tài khoản nhanh với 1 click
      * Hiển thị tất cả tài khoản theo provider, cho phép chuyển đổi ngay lập tức
      */
     async showQuickSwitch(): Promise<void> {
@@ -571,7 +571,7 @@ export class AccountUI {
 
         // Tạo QuickPick với buttons
         const quickPick = vscode.window.createQuickPick<AccountQuickPickItem & { provider?: string }>();
-        quickPick.title = '⚡ Quick Switch Account';
+        quickPick.title = 'Quick Switch Account';
         quickPick.placeholder = 'Select an account to switch to (or type to filter)';
         quickPick.matchOnDescription = true;
         quickPick.matchOnDetail = true;
@@ -680,7 +680,7 @@ export class AccountUI {
     }
 
     /**
-     * 🚀 Quick Switch cho một provider cụ thể
+     * Quick Switch cho một provider cụ thể
      * Hiển thị chỉ các tài khoản của provider đó
      */
     async showQuickSwitchForProvider(provider: string): Promise<void> {
@@ -705,7 +705,7 @@ export class AccountUI {
         }
 
         const quickPick = vscode.window.createQuickPick<AccountQuickPickItem>();
-        quickPick.title = `⚡ Switch ${this.getProviderDisplayName(provider)} Account`;
+        quickPick.title = `Switch ${this.getProviderDisplayName(provider)} Account`; 
         quickPick.placeholder = 'Select an account to switch to';
 
         const items: AccountQuickPickItem[] = accounts.map(account => {
@@ -748,10 +748,10 @@ export class AccountUI {
 
             // Cũng hiển thị information message
             vscode.window.showInformationMessage(
-                `✅ Now using: ${account.displayName} (${this.getProviderDisplayName(account.provider)})`
+                `Now using: ${account.displayName} (${this.getProviderDisplayName(account.provider)})`
             );
         } else {
-            vscode.window.showErrorMessage(`❌ Failed to switch to "${account.displayName}"`);
+            vscode.window.showErrorMessage(`Failed to switch to "${account.displayName}"`);
         }
     }
 
@@ -845,7 +845,7 @@ export function registerAccountCommands(context: vscode.ExtensionContext): vscod
         })
     );
 
-    // 🚀 Command Quick Switch - Chuyển đổi nhanh với 1 click
+    // Command Quick Switch - Chuyển đổi nhanh với 1 click
     disposables.push(
         vscode.commands.registerCommand('chp.accounts.quickSwitch', async () => {
             const ui = AccountUI.getInstance();
@@ -853,7 +853,7 @@ export function registerAccountCommands(context: vscode.ExtensionContext): vscod
         })
     );
 
-    // 🚀 Command Quick Switch cho provider cụ thể
+    // Command Quick Switch cho provider cụ thể
     disposables.push(
         vscode.commands.registerCommand('chp.accounts.quickSwitchProvider', async (provider?: string) => {
             const ui = AccountUI.getInstance();

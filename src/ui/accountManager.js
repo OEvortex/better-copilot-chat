@@ -79,7 +79,7 @@ function renderHeader() {
             </div>
             <div class="topbar-actions">
                 <a class="settings-link" href="#" onclick="openGCMPSettings(); return false;" title="Configure load balancing and advanced settings for AI Chat Models">
-                    <span class="settings-icon">⚙️</span>
+                    <span class="settings-icon"></span>
                     <span class="settings-text">GCMP Settings</span>
                 </a>
                 <button class="btn btn-primary" onclick="showAddAccountModal()">Add account</button>
@@ -262,7 +262,7 @@ function renderAccountQuotaState(accountId) {
     return `
         <div class="account-quota-state ${statusClass}">
             <div class="quota-state-header">
-                <span class="quota-state-icon">${isInCooldown ? '⏳' : '📊'}</span>
+                <span class="quota-state-icon">${isInCooldown ? 'WAIT' : 'STATS'}</span>
                 <span class="quota-state-title">Quota Status</span>
             </div>
             <div class="quota-state-content">
@@ -378,7 +378,7 @@ function renderAccountRateLimit(accountId) {
     return `
         <div class="account-rate-limit ${isWarning ? 'warning' : ''}">
             <div class="rate-limit-header-inline">
-                <span class="rate-limit-icon">⚡</span>
+                <span class="rate-limit-icon"></span>
                 <span class="rate-limit-title-small">Rate Limit</span>
                 ${updatedAt ? `<span class="rate-limit-updated">${updatedAt}</span>` : ''}
             </div>
@@ -491,7 +491,7 @@ function renderAccountCard(account) {
     if (quotaState) {
         const total = quotaState.successCount + quotaState.failureCount;
         const rate = total > 0 ? Math.round((quotaState.successCount / total) * 100) : 100;
-        statsText = `✓${quotaState.successCount} ✗${quotaState.failureCount}`;
+        statsText = `${quotaState.successCount}/${quotaState.failureCount}`;
     }
 
     return `
@@ -761,16 +761,15 @@ function handleQuotaCheckResult(message) {
             // Show quota info in toast with color coding
             const minQuota = quotaData.minQuota;
             let toastType = 'success';
-            let icon = '✅';
+            let icon = 'OK';
 
             if (minQuota < 10) {
                 toastType = 'error';
-                icon = '⚠️';
+                icon = 'WARN';
             } else if (minQuota < 30) {
                 toastType = 'warning';
-                icon = '⚠️';
+                icon = 'WARN';
             }
-
             const quotaMsg = `${icon} Quota refreshed - Gemini: ${quotaData.geminiQuota}%, Claude: ${quotaData.claudeQuota}%`;
             showToast(quotaMsg, toastType);
         } else if (resultMessage) {
@@ -809,7 +808,7 @@ function showAccountDetails(accountId) {
     const quotaSection = isQuotaLimited ? `
         <div style="margin-top: 16px; padding: 12px; background: rgba(255, 196, 0, 0.1); border-radius: 8px; border: 1px solid rgba(255, 196, 0, 0.3);">
             <div style="font-weight: 600; color: var(--vscode-notificationsWarningForeground, #ffc400); margin-bottom: 8px;">
-                ⚠️ Quota Exceeded
+                Quota Exceeded
             </div>
             <div style="display: grid; gap: 8px; font-size: 13px;">
                 <div>
@@ -897,13 +896,13 @@ function confirmDeleteAccount(accountId, displayName) {
                 <div class="modal-body">
                     <p>Are you sure you want to delete the account "<strong>${escapeHtml(displayName)}</strong>"?</p>
                     <p style="color: var(--vscode-errorForeground); margin-top: 12px;">
-                        ⚠️ This action cannot be undone. All credentials will be permanently removed.
+                        This action cannot be undone. All credentials will be permanently removed.
                     </p>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     <button class="btn btn-danger" onclick="deleteAccount('${accountId}')">
-                        🗑️ Delete Account
+                        Delete Account
                     </button>
                 </div>
             </div>
@@ -975,7 +974,7 @@ function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.innerHTML = `
-        <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+        <span>${type === 'success' ? 'OK' : type === 'error' ? 'ERR' : 'INFO'}</span>
         <span>${escapeHtml(message)}</span>
     `;
     container.appendChild(toast);
@@ -1070,8 +1069,8 @@ function getProviderIcon(providerId) {
         'zhipu': '🧠',
         'moonshot': '🌙',
         'minimax': '🔷',
-        'deepseek': '🔍',
-        'compatible': '🔌'
+        'deepseek': '',
+        'compatible': ''
     };
     return icons[providerId] || '🤖';
 }

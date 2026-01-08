@@ -345,7 +345,7 @@ export class CodexHandler {
                 
                 // Show notification about auto-switch
                 vscode.window.showWarningMessage(
-                    `⚠️ Codex quota exceeded (${planType}). Resets in ${resetTimeStr}. Auto-switched to: ${nextAccount.displayName}`,
+                    `Codex quota exceeded (${planType}). Resets in ${resetTimeStr}. Auto-switched to: ${nextAccount.displayName}`,
                     'OK',
                     'Manage Accounts'
                 ).then(selection => {
@@ -356,7 +356,7 @@ export class CodexHandler {
             } else if (otherAccounts.length > 0) {
                 // Load balance disabled but other accounts available
                 vscode.window.showWarningMessage(
-                    `⚠️ Codex quota exceeded (${planType}). Resets in ${resetTimeStr}. You have ${otherAccounts.length} other account(s) available.`,
+                    `Codex quota exceeded (${planType}). Resets in ${resetTimeStr}. You have ${otherAccounts.length} other account(s) available.`,
                     'Switch Account',
                     'Enable Auto-Switch',
                     'Dismiss'
@@ -371,7 +371,7 @@ export class CodexHandler {
             } else {
                 // No other accounts available
                 vscode.window.showErrorMessage(
-                    `❌ Codex quota exceeded (${planType}). Resets in ${resetTimeStr}. No other accounts available.`,
+                    `Codex quota exceeded (${planType}). Resets in ${resetTimeStr}. No other accounts available.`,
                     'Add Account',
                     'Dismiss'
                 ).then(selection => {
@@ -384,7 +384,7 @@ export class CodexHandler {
             // AccountManager might not be initialized, just show basic notification
             Logger.warn(`[codex] Failed to handle usage limit with account manager: ${err}`);
             vscode.window.showErrorMessage(
-                `❌ Codex quota exceeded (${planType}). Resets in ${resetTimeStr}.`,
+                `Codex quota exceeded (${planType}). Resets in ${resetTimeStr}.`,
                 'OK'
             );
         }
@@ -892,10 +892,10 @@ export class CodexHandler {
                                                         } else {
                                                             // Format manage_todo_list nicely when not using VS Code tools
                                                             if (name === 'manage_todo_list' && parsedArgs.todoList) {
-                                                                let todoText = '\n📋 **Todo List:**\n';
+                                                                let todoText = '\n**Todo List:**\n';
                                                                 for (const item of parsedArgs.todoList) {
-                                                                    const icon = item.status === 'completed' ? '✅' : 
-                                                                        item.status === 'in-progress' ? '🔄' : '⏳';
+                                                                    const icon = item.status === 'completed' ? 'OK' : 
+                                                                        item.status === 'in-progress' ? 'IN-PROG' : 'PENDING';
                                                                     todoText += `${icon} **${item.title}**`;
                                                                     if (item.description) {
                                                                         todoText += ` - ${item.description}`;
@@ -908,7 +908,7 @@ export class CodexHandler {
                                                                 const truncated = argsPreview.length > 500 
                                                                     ? argsPreview.substring(0, 500) + '\n...'
                                                                     : argsPreview;
-                                                                progress.report(new vscode.LanguageModelTextPart(`\n🔧 **Tool: ${name}**\n\`\`\`json\n${truncated}\n\`\`\`\n`));
+                                                                progress.report(new vscode.LanguageModelTextPart(`\n**Tool: ${name}**\n\`\`\`json\n${truncated}\n\`\`\`\n`));
                                                             }
                                                         }
                                                     } catch (parseErr) {
@@ -980,10 +980,10 @@ export class CodexHandler {
                                                 // Using Codex native tools - display as formatted text
                                                 if (name === 'update_plan' && parsedArgs.steps) {
                                                     // Format plan nicely
-                                                    let planText = '\n📋 **Plan:**\n';
+                                                    let planText = '\n**Plan:**\n';
                                                     for (const step of parsedArgs.steps) {
-                                                        const icon = step.status === 'completed' ? '✅' : 
-                                                            step.status === 'in_progress' ? '🔄' : '⏳';
+                                                        const icon = step.status === 'completed' ? 'OK' : 
+                                                            step.status === 'in_progress' ? 'IN-PROG' : 'PENDING';
                                                         planText += `${icon} ${step.description}\n`;
                                                     }
                                                     if (parsedArgs.explanation) {
@@ -996,20 +996,20 @@ export class CodexHandler {
                                                         : parsedArgs.command;
                                                     let shellText = `\n🖥️ **Running command:**\n\`\`\`bash\n${cmd}\n\`\`\`\n`;
                                                     if (parsedArgs.workdir) {
-                                                        shellText += `📁 Working directory: \`${parsedArgs.workdir}\`\n`;
+                                                        shellText += `Working directory: \`${parsedArgs.workdir}\`\n`; 
                                                     }
                                                     progress.report(new vscode.LanguageModelTextPart(shellText));
                                                 } else if (name === 'apply_patch' && parsedArgs.patch) {
                                                     const patchPreview = parsedArgs.patch.length > 1000 
                                                         ? parsedArgs.patch.substring(0, 1000) + '\n... (truncated)'
                                                         : parsedArgs.patch;
-                                                    progress.report(new vscode.LanguageModelTextPart(`\n📝 **Applying patch:**\n\`\`\`diff\n${patchPreview}\n\`\`\`\n`));
+                                                    progress.report(new vscode.LanguageModelTextPart(`\n**Applying patch:**\n\`\`\`diff\n${patchPreview}\n\`\`\`\n`));
                                                 } else if (name === 'manage_todo_list' && parsedArgs.todoList) {
                                                     // Format todo list nicely (similar to update_plan)
                                                     let todoText = '\n📋 **Todo List:**\n';
                                                     for (const item of parsedArgs.todoList) {
-                                                        const icon = item.status === 'completed' ? '✅' : 
-                                                            item.status === 'in-progress' ? '🔄' : '⏳';
+                                                        const icon = item.status === 'completed' ? 'OK' : 
+                                                            item.status === 'in-progress' ? 'IN-PROG' : 'PENDING';
                                                         todoText += `${icon} **${item.title}**`;
                                                         if (item.description) {
                                                             todoText += ` - ${item.description}`;
@@ -1023,7 +1023,7 @@ export class CodexHandler {
                                                     const truncated = argsPreview.length > 500 
                                                         ? argsPreview.substring(0, 500) + '\n...'
                                                         : argsPreview;
-                                                    progress.report(new vscode.LanguageModelTextPart(`\n🔧 **Tool: ${name}**\n\`\`\`json\n${truncated}\n\`\`\`\n`));
+                                                    progress.report(new vscode.LanguageModelTextPart(`\n**Tool: ${name}**\n\`\`\`json\n${truncated}\n\`\`\`\n`));
                                                 }
                                                 Logger.info(`[codex] Displayed tool call as text: ${name}`);
                                             }
@@ -1033,7 +1033,7 @@ export class CodexHandler {
                                             if (usingVSCodeTools) {
                                                 progress.report(new vscode.LanguageModelToolCallPart(vsCodeCallId, name, { raw: args }));
                                             } else {
-                                                progress.report(new vscode.LanguageModelTextPart(`\n🔧 **Tool: ${name || 'unknown'}**\n\`\`\`\n${args.substring(0, 500)}\n\`\`\`\n`));
+                                                progress.report(new vscode.LanguageModelTextPart(`\n**Tool: ${name || 'unknown'}**\n\`\`\`\n${args.substring(0, 500)}\n\`\`\`\n`));
                                             }
                                         }
                                         
@@ -1078,8 +1078,8 @@ export class CodexHandler {
                                                     if (name === 'manage_todo_list' && parsedArgs.todoList) {
                                                         let todoText = '\n📋 **Todo List:**\n';
                                                         for (const item of parsedArgs.todoList) {
-                                                            const icon = item.status === 'completed' ? '✅' : 
-                                                                item.status === 'in-progress' ? '🔄' : '⏳';
+                                                            const icon = item.status === 'completed' ? 'OK' : 
+                                                                item.status === 'in-progress' ? 'IN-PROG' : 'PENDING';
                                                             todoText += `${icon} **${item.title}**`;
                                                             if (item.description) {
                                                                 todoText += ` - ${item.description}`;
@@ -1092,14 +1092,14 @@ export class CodexHandler {
                                                         const truncated = argsPreview.length > 500 
                                                             ? argsPreview.substring(0, 500) + '\n...'
                                                             : argsPreview;
-                                                        progress.report(new vscode.LanguageModelTextPart(`\n🔧 **Tool: ${name}**\n\`\`\`json\n${truncated}\n\`\`\`\n`));
+                                                        progress.report(new vscode.LanguageModelTextPart(`\n**Tool: ${name}**\n\`\`\`json\n${truncated}\n\`\`\`\n`));
                                                     }
                                                 }
                                             } catch {
                                                 if (usingVSCodeTools) {
                                                     progress.report(new vscode.LanguageModelToolCallPart(vsCodeCallId, name, { raw: args }));
                                                 } else {
-                                                    progress.report(new vscode.LanguageModelTextPart(`\n🔧 **Tool: ${name}**\n\`\`\`\n${args.substring(0, 500)}\n\`\`\`\n`));
+                                                    progress.report(new vscode.LanguageModelTextPart(`\n**Tool: ${name}**\n\`\`\`\n${args.substring(0, 500)}\n\`\`\`\n`));
                                                 }
                                             }
                                         }

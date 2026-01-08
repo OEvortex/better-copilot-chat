@@ -270,7 +270,7 @@ export class MiniMaxProvider extends GenericModelProvider implements LanguageMod
             Logger.error(errorMessage);
             throw error;
         } finally {
-            Logger.info(`✅ ${this.providerConfig.displayName}: ${model.name} Request completed`);
+            Logger.info(`${this.providerConfig.displayName}: ${model.name} Request completed`);
 
             // If using Coding Plan key, delay status bar usage update
             if (providerKey === 'minimax-coding') {

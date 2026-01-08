@@ -340,7 +340,7 @@ export class ConfigManager {
             return originalConfig;
         }
 
-        Logger.info(`🔧 Applying provider ${providerKey} configuration override`);
+        Logger.info(`Applying provider ${providerKey} configuration override`);
 
         // Create deep copy of configuration
         const config: ProviderConfig = JSON.parse(JSON.stringify(originalConfig));

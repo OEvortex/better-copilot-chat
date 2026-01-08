@@ -54,15 +54,15 @@ export async function cleanupAllTools(): Promise<void> {
         if (zhipuSearchTool) {
             await zhipuSearchTool.cleanup();
             zhipuSearchTool = undefined;
-            Logger.info('✅ ZhipuAI web search tool resources cleaned up');
+            Logger.info('ZhipuAI web search tool resources cleaned up');
         }
 
         if (minimaxSearchTool) {
             await minimaxSearchTool.cleanup();
             minimaxSearchTool = undefined;
-            Logger.info('✅ MiniMax web search tool resources cleaned up');
+            Logger.info('MiniMax web search tool resources cleaned up');
         }
     } catch (error) {
-        Logger.error('❌ Tool cleanup failed', error instanceof Error ? error : undefined);
+        Logger.error('Tool cleanup failed', error instanceof Error ? error : undefined);
     }
 }

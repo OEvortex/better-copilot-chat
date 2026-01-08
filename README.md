@@ -34,8 +34,8 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 
 |      Provider      |     Description      | Highlights                         |
 | :----------------: | :------------------: | :--------------------------------- |
-| 🌐 **Antigravity** |  Google Cloud Code   | `Gemini Models` `Quota Tracking`   |
-|    💻 **Codex**    |        OpenAI        | `GPT-5` `Apply Patch` `Shell Exec` |
+| Antigravity |  Google Cloud Code   | `Gemini Models` `Quota Tracking`   |
+|    Codex    |        OpenAI        | `GPT-5` `Apply Patch` `Shell Exec` |
 |    **ZhipuAI**     |   GLM Coding Plan    | `Web Search` `MCP SDK`             |
 |    **MiniMax**     |     Coding Plan      | `Web Search` `Global Endpoints`    |
 |   **MoonshotAI**   |   Kimi For Coding    | `High-quality Responses`           |
@@ -263,13 +263,13 @@ Special thanks to these amazing projects:
 
 Have questions or suggestions? Reach out on Telegram:
 
-[![Telegram](https://img.shields.io/badge/Telegram-@bie9999-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/bie9999)
+[![Telegram](https://img.shields.io/badge/Telegram-@OEvortex-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/OEvortex)
 
 </div>
 
 ---
 
-## �📄 License
+## License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 

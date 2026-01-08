@@ -147,11 +147,11 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
 
     private getStatusEmoji(percentage: number): string {
         if (percentage >= 50) {
-            return '✅';
+            return 'OK';
         } else if (percentage >= 20) {
-            return '⚠️';
+            return 'WARN';
         } else {
-            return '❌';
+            return 'FAIL';
         }
     }
 
@@ -549,7 +549,7 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
                         // Hiển thị quota info của từng model nếu có
                         if (model.quotaInfo?.remainingFraction !== undefined) {
                             const modelQuota = Math.round(model.quotaInfo.remainingFraction * 100);
-                            const quotaIcon = modelQuota > 50 ? '✓' : modelQuota > 20 ? '⚠' : '✗';
+                            const quotaIcon = modelQuota > 50 ? 'OK' : modelQuota > 20 ? 'WARN' : 'FAIL';
                             description = `${model.id} (${quotaIcon} ${modelQuota}%)`;
 
                             if (model.quotaInfo.resetTime) {

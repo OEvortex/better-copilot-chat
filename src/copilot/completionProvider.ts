@@ -186,7 +186,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
             const provider = vscode.languages.registerInlineCompletionItemProvider({ pattern: '**/*' }, this);
             this.disposables.push(provider);
 
-            CompletionLogger.info('✅ [InlineCompletionProvider] Activated (using lazy loading)');
+            CompletionLogger.info('[InlineCompletionProvider] Activated (using lazy loading)');
         } catch (error) {
             CompletionLogger.error('[InlineCompletionProvider.activate] Activation failed:', error);
             throw error;
@@ -663,6 +663,6 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
         });
         this.disposables.length = 0;
 
-        CompletionLogger.info('🧹 [InlineCompletionProvider] All resources released');
+        CompletionLogger.info('[InlineCompletionProvider] All resources released');
     }
 }

@@ -66,8 +66,8 @@ export class MiniMaxSearchTool {
             }
         };
 
-        Logger.info(`🔍 [MiniMax Search] Starting search: "${params.q}"`);
-        Logger.debug(`📝 [MiniMax Search] Request data: ${requestData}`);
+        Logger.info(`[MiniMax Search] Starting search: "${params.q}"`);
+        Logger.debug(`[MiniMax Search] Request data: ${requestData}`);
 
         let requestUrl = this.baseURL;
         if (ConfigManager.getMinimaxEndpoint() === 'minimax.io') {
@@ -85,8 +85,8 @@ export class MiniMaxSearchTool {
 
                 res.on('end', () => {
                     try {
-                        Logger.debug(`📊 [MiniMax Search] Response status code: ${res.statusCode}`);
-                        Logger.debug(`📄 [MiniMax Search] Response data: ${data}`);
+                        Logger.debug(`[MiniMax Search] Response status code: ${res.statusCode}`);
+                        Logger.debug(`[MiniMax Search] Response data: ${data}`);
 
                         if (res.statusCode !== 200) {
                             let errorMessage = `MiniMax search API error ${res.statusCode}`;
@@ -96,16 +96,16 @@ export class MiniMaxSearchTool {
                             } catch {
                                 errorMessage += `: ${data}`;
                             }
-                            Logger.error('❌ [MiniMax Search] API returned error', new Error(errorMessage));
+                            Logger.error('[MiniMax Search] API returned error', new Error(errorMessage));
                             reject(new Error(errorMessage));
                             return;
                         }
 
                         const response = JSON.parse(data) as MiniMaxSearchResponse;
-                        Logger.info(`✅ [MiniMax Search] Search complete: found ${response.organic?.length || 0} results`);
+                        Logger.info(`[MiniMax Search] Search complete: found ${response.organic?.length || 0} results`);
                         resolve(response);
                     } catch (error) {
-                        Logger.error('❌ [MiniMax Search] Failed to parse response', error instanceof Error ? error : undefined);
+                        Logger.error('[MiniMax Search] Failed to parse response', error instanceof Error ? error : undefined);
                         reject(
                             new Error(`Failed to parse MiniMax search response: ${error instanceof Error ? error.message : 'Unknown error'}`)
                         );
@@ -114,7 +114,7 @@ export class MiniMaxSearchTool {
             });
 
             req.on('error', error => {
-                Logger.error('❌ [MiniMax Search] Request failed', error);
+                Logger.error('[MiniMax Search] Request failed', error);
                 reject(new Error(`MiniMax search request failed: ${error.message}`));
             });
 
@@ -130,7 +130,7 @@ export class MiniMaxSearchTool {
         request: vscode.LanguageModelToolInvocationOptions<MiniMaxSearchRequest>
     ): Promise<vscode.LanguageModelToolResult> {
         try {
-            Logger.info(`🚀 [Tool Invocation] MiniMax web search tool invoked: ${JSON.stringify(request.input)}`);
+            Logger.info(`[Tool Invocation] MiniMax web search tool invoked: ${JSON.stringify(request.input)}`);
 
             const params = request.input as MiniMaxSearchRequest;
             if (!params.q) {
@@ -141,7 +141,7 @@ export class MiniMaxSearchTool {
             const response = await this.search(params);
             const searchResults = response.organic || [];
 
-            Logger.info('✅ [Tool Invocation] MiniMax web search tool invocation successful');
+            Logger.info('[Tool Invocation] MiniMax web search tool invocation successful');
 
             // Create richer search result display
             const parts: vscode.LanguageModelTextPart[] = [];
@@ -152,7 +152,7 @@ export class MiniMaxSearchTool {
                 // Create structured display for each search result
                 searchResults.forEach((result, index) => {
                     // Create formatted search result text
-                    const formattedResult = `**${index + 1}. ${result.title}**\n\n${result.snippet}\n\n📅 ${result.date}\n\n🔗 [View Original](${result.link})\n\n---\n`;
+                    const formattedResult = `**${index + 1}. ${result.title}**\n\n${result.snippet}\n\n${result.date}\n\n[View Original](${result.link})\n\n---\n`;
                     parts.push(new vscode.LanguageModelTextPart(formattedResult));
                 });
             } else {
@@ -166,7 +166,7 @@ export class MiniMaxSearchTool {
             return new vscode.LanguageModelToolResult(parts);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            Logger.error('❌ [Tool Invocation] MiniMax web search tool invocation failed', error instanceof Error ? error : undefined);
+            Logger.error('[Tool Invocation] MiniMax web search tool invocation failed', error instanceof Error ? error : undefined);
             throw new vscode.LanguageModelError(`MiniMax search failed: ${errorMessage}`);
         }
     }
@@ -176,9 +176,9 @@ export class MiniMaxSearchTool {
      */
     async cleanup(): Promise<void> {
         try {
-            Logger.info('✅ [MiniMax Search] Tool resources cleaned up');
+            Logger.info('[MiniMax Search] Tool resources cleaned up');
         } catch (error) {
-            Logger.error('❌ [MiniMax Search] Resource cleanup failed', error instanceof Error ? error : undefined);
+            Logger.error('[MiniMax Search] Resource cleanup failed', error instanceof Error ? error : undefined);
         }
     }
 }

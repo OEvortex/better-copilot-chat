@@ -153,7 +153,7 @@ export class CompatibleProvider extends GenericModelProvider {
             // Fast path: check cache
             let cachedModels = await this.modelInfoCache?.getCachedModels(CompatibleProvider.PROVIDER_KEY, apiKeyHash);
             if (cachedModels) {
-                Logger.trace(`✓ Compatible Provider cache hit: ${cachedModels.length} models`);
+                Logger.trace(`Compatible Provider cache hit: ${cachedModels.length} models`);
 
                 // Read user's last selected model and mark as default (only if memory is enabled)
                 const rememberLastModel = ConfigManager.getRememberLastModel();
@@ -380,7 +380,7 @@ export class CompatibleProvider extends GenericModelProvider {
                 Logger.error(errorMessage);
                 throw error;
             } finally {
-                Logger.info(`✅ Compatible Provider: ${model.name} Request completed`);
+                Logger.info(`Compatible Provider: ${model.name} Request completed`);
                 // Delay updating status bar to reflect latest balance
                 StatusBarManager.compatible?.delayedUpdate(modelConfig.provider!, 2000);
             }
@@ -797,7 +797,7 @@ export class CompatibleProvider extends GenericModelProvider {
                                                         }
                                                     }
                                                     Logger.trace(
-                                                        `🔧 [${model.name}] Tool call start: ${toolCall.function?.name || 'unknown'} (index: ${toolIndex})`
+                                                        `[${model.name}] Tool call start: ${toolCall.function?.name || 'unknown'} (index: ${toolIndex})`
                                                     );
                                                 }
 

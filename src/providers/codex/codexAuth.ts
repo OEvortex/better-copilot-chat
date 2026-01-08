@@ -173,7 +173,7 @@ function startCallbackServer(): Promise<{
                         <head><title>Authentication Failed</title></head>
                         <body style="font-family: system-ui; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
                             <div style="text-align: center; color: white;">
-                                <h1 style="color: #ff6b6b;">❌ Authentication Failed</h1>
+                                <h1 style="color: #ff6b6b;">Authentication Failed</h1>
                                 <p>Error: ${error}</p>
                                 <p style="color: #888;">You can close this window.</p>
                             </div>
@@ -187,7 +187,7 @@ function startCallbackServer(): Promise<{
                         <head><title>Authentication Successful</title></head>
                         <body style="font-family: system-ui; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
                             <div style="text-align: center; color: white;">
-                                <h1 style="color: #4ade80;">✅ Authentication Successful</h1>
+                                <h1 style="color: #4ade80;">Authentication Successful</h1>
                                 <p>You can close this window and return to VS Code.</p>
                             </div>
                         </body>
@@ -202,7 +202,7 @@ function startCallbackServer(): Promise<{
                     <head><title>Success</title></head>
                     <body style="font-family: system-ui; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
                         <div style="text-align: center; color: white;">
-                            <h1 style="color: #4ade80;">✅ Success</h1>
+                            <h1 style="color: #4ade80;">Success</h1>
                             <p>You can close this window.</p>
                         </div>
                     </body>
@@ -490,8 +490,8 @@ async function doCodexLoginAndSave(isAddingNewAccount: boolean): Promise<void> {
         await ApiKeyManager.setApiKey('codex', JSON.stringify(authData));
 
         const message = result.email
-            ? `✅ Codex login successful! Authenticated as ${result.email}`
-            : '✅ Codex login successful!';
+            ? `Codex login successful! Authenticated as ${result.email}`
+            : 'Codex login successful!';
 
         vscode.window.showInformationMessage(message);
         Logger.info('Codex credentials saved successfully');

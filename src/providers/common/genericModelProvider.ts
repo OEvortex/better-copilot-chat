@@ -95,7 +95,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
         // Release handler resources
         // this.anthropicHandler?.dispose();
         this.openaiHandler?.dispose();
-        Logger.info(`🧹 ${this.providerConfig.displayName}: Extension destroyed`);
+        Logger.info(`${this.providerConfig.displayName}: Extension destroyed`);
     }
 
     /**
@@ -176,7 +176,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
             let cachedModels = await this.modelInfoCache?.getCachedModels(this.providerKey, apiKeyHash);
 
             if (cachedModels) {
-                Logger.trace(`✓ [${this.providerKey}] Return model list from cache ` + `(${cachedModels.length} models)`);
+                Logger.trace(`[${this.providerKey}] Return model list from cache ` + `(${cachedModels.length} models)`);
 
                 // Read user's last selected model and mark as default (only if memory is enabled)
                 const rememberLastModel = ConfigManager.getRememberLastModel();
@@ -333,7 +333,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
             // Throw error directly, let VS Code handle retry
             throw error;
         } finally {
-            Logger.info(`✅ ${this.providerConfig.displayName}: ${model.name} Request completed`);
+            Logger.info(`${this.providerConfig.displayName}: ${model.name} Request completed`);
         }
     }
 

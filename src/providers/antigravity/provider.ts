@@ -306,7 +306,7 @@ export class AntigravityProvider extends GenericModelProvider implements Languag
             Logger.error('Antigravity request failed:', error);
             throw error;
         } finally {
-            Logger.info(`✅ Antigravity Provider: ${model.name} request completed`);
+            Logger.info(`Antigravity Provider: ${model.name} request completed`);
             StatusBarManager.compatible?.delayedUpdate(AntigravityProvider.PROVIDER_KEY, 2000);
         }
     }

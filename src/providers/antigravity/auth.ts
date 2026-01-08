@@ -257,7 +257,7 @@ async function addAllAntigravityModelsToCompatible(models: AntigravityModel[]): 
     }
     if (addedCount > 0) {
         vscode.window.showInformationMessage(
-            `✅ Automatically added ${addedCount} Antigravity model(s) to Compatible Provider`
+            `Automatically added ${addedCount} Antigravity model(s) to Compatible Provider`
         );
     }
 }
@@ -352,8 +352,8 @@ async function doAntigravityLoginAndSave(isAddingNewAccount: boolean): Promise<v
         })
     );
     const message = result.email
-        ? `✅ Antigravity login successful! Authenticated as ${result.email}`
-        : '✅ Antigravity login successful!';
+        ? `Antigravity login successful! Authenticated as ${result.email}`
+        : 'Antigravity login successful!';
     const modelsInfo = models.length > 0 ? ` | ${models.length} models available` : '';
     vscode.window.showInformationMessage(
         result.projectId ? `${message} (Project: ${result.projectId})${modelsInfo}` : `${message}${modelsInfo}`

@@ -56,12 +56,12 @@ export class MCPWebSearchClient {
         let instance = MCPWebSearchClient.clientCache.get(key);
 
         if (!instance) {
-            Logger.debug(`📦 [MCP WebSearch] Creating new client instance (API key: ${key.substring(0, 8)}...)`);
+            Logger.debug(`[MCP WebSearch] Creating new client instance (API key: ${key.substring(0, 8)}...)`);
             instance = new MCPWebSearchClient();
             instance.currentApiKey = key;
             MCPWebSearchClient.clientCache.set(key, instance);
         } else {
-            Logger.debug(`♻️ [MCP WebSearch] Reusing cached client instance (API key: ${key.substring(0, 8)}...)`);
+            Logger.debug(`[MCP WebSearch] Reusing cached client instance (API key: ${key.substring(0, 8)}...)`);
         }
 
         // Ensure client is initialized and connected
@@ -79,16 +79,16 @@ export class MCPWebSearchClient {
             if (instance) {
                 await instance.cleanup();
                 MCPWebSearchClient.clientCache.delete(apiKey);
-                Logger.info(`🗑️ [MCP WebSearch] Cleared cache for API key ${apiKey.substring(0, 8)}...`);
+                Logger.info(`[MCP WebSearch] Cleared cache for API key ${apiKey.substring(0, 8)}...`);
             }
         } else {
             // Clear all caches
             for (const [key, instance] of MCPWebSearchClient.clientCache.entries()) {
                 await instance.cleanup();
-                Logger.info(`🗑️ [MCP WebSearch] Cleared cache for API key ${key.substring(0, 8)}...`);
+                Logger.info(`[MCP WebSearch] Cleared cache for API key ${key.substring(0, 8)}...`);
             }
             MCPWebSearchClient.clientCache.clear();
-            Logger.info('🗑️ [MCP WebSearch] Cleared all client caches');
+            Logger.info('[MCP WebSearch] Cleared all client caches');
         }
     }
 
@@ -122,7 +122,7 @@ export class MCPWebSearchClient {
         if (errorMessage.includes('403') || errorMessage.includes('You do not have access')) {
             // Special handling for MCP 403 permission error
             if (errorMessage.includes('search-prime') || errorMessage.includes('web_search_prime')) {
-                Logger.warn(`⚠️ [MCP WebSearch] Detected insufficient MCP permissions for web search: ${errorMessage}`);
+                Logger.warn(`[MCP WebSearch] Detected insufficient MCP permissions for web search: ${errorMessage}`);
 
                 // Pop up user dialog asking whether to deactivate MCP mode
                 const shouldDisableMCP = await this.showMCPDisableDialog();
@@ -181,7 +181,7 @@ export class MCPWebSearchClient {
             const config = vscode.workspace.getConfiguration('chp.zhipu.search');
             await config.update('enableMCP', false, vscode.ConfigurationTarget.Global);
 
-            Logger.info('✅ [MCP WebSearch] MCP mode disabled, switched to standard billing mode');
+            Logger.info('[MCP WebSearch] MCP mode disabled, switched to standard billing mode');
 
             // Show notification
             vscode.window.showInformationMessage(
@@ -191,7 +191,7 @@ export class MCPWebSearchClient {
             // Clean up current client
             await this.internalCleanup();
         } catch (error) {
-            Logger.error('❌ [MCP WebSearch] Failed to disable MCP mode', error instanceof Error ? error : undefined);
+            Logger.error('[MCP WebSearch] Failed to disable MCP mode', error instanceof Error ? error : undefined);
             throw new Error(`Failed to disable MCP mode: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
@@ -217,13 +217,13 @@ export class MCPWebSearchClient {
     private async ensureConnected(): Promise<void> {
         // If already connected, return directly
         if (this.isConnected()) {
-            Logger.debug('✅ [MCP WebSearch] Client connected');
+            Logger.debug('[MCP WebSearch] Client connected');
             return;
         }
 
         // If connecting, wait for connection to complete
         if (this.isConnecting && this.connectionPromise) {
-            Logger.debug('⏳ [MCP WebSearch] Waiting for connection to complete...');
+            Logger.debug('[MCP WebSearch] Waiting for connection to complete...');
             return this.connectionPromise;
         }
 
@@ -242,7 +242,7 @@ export class MCPWebSearchClient {
      */
     private async initializeClient(): Promise<void> {
         if (this.client && this.transport) {
-            Logger.debug('✅ [MCP WebSearch] Client initialized');
+            Logger.debug('[MCP WebSearch] Client initialized');
             return;
         }
 
@@ -254,7 +254,7 @@ export class MCPWebSearchClient {
         // Update current API key
         this.currentApiKey = apiKey;
 
-        Logger.info('🔗 [MCP WebSearch] Initializing MCP client...');
+        Logger.info('[MCP WebSearch] Initializing MCP client...');
 
         try {
             // Use StreamableHTTP transport, pass Authorization token via requestInit.headers
@@ -287,9 +287,9 @@ export class MCPWebSearchClient {
             });
 
             await this.client.connect(this.transport);
-            Logger.info('✅ [MCP WebSearch] Connected successfully using StreamableHTTP transport (authenticated via Authorization header)');
+            Logger.info('[MCP WebSearch] Connected successfully using StreamableHTTP transport (authenticated via Authorization header)');
         } catch (error) {
-            Logger.error('❌ [MCP WebSearch] Client initialization failed', error instanceof Error ? error : undefined);
+            Logger.error('[MCP WebSearch] Client initialization failed', error instanceof Error ? error : undefined);
             await this.internalCleanup();
             throw new Error(`MCP client connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -299,7 +299,7 @@ export class MCPWebSearchClient {
      * Execute search
      */
     async search(params: WebSearchRequest): Promise<ZhipuSearchResult[]> {
-        Logger.info(`🔍 [MCP WebSearch] Starting search: "${params.search_query}"`);
+        Logger.info(`[MCP WebSearch] Starting search: "${params.search_query}"`);
 
         // Ensure client is connected (auto-reconnect)
         await this.ensureConnected();
@@ -311,7 +311,7 @@ export class MCPWebSearchClient {
         try {
             // List available tools
             const tools = await this.client.listTools();
-            Logger.debug(`📋 [MCP WebSearch] Available tools: ${tools.tools.map(t => t.name).join(', ')}`);
+            Logger.debug(`[MCP WebSearch] Available tools: ${tools.tools.map(t => t.name).join(', ')}`);
 
             // Find webSearchPrime tool
             const webSearchTool = tools.tools.find(t => t.name === 'webSearchPrime');
@@ -339,14 +339,14 @@ export class MCPWebSearchClient {
                     throw new Error(text);
                 }
                 const searchResults = JSON.parse(JSON.parse(text) as string) as ZhipuSearchResult[];
-                Logger.debug(`📊 [MCP WebSearch] Tool invocation successful: ${searchResults?.length || 0} results`);
+                Logger.debug(`[MCP WebSearch] Tool invocation successful: ${searchResults?.length || 0} results`);
                 return searchResults;
             }
 
-            Logger.debug('📊 [MCP WebSearch] Tool invocation finished: no results');
+            Logger.debug('[MCP WebSearch] Tool invocation finished: no results');
             return [];
         } catch (error) {
-            Logger.error('❌ [MCP WebSearch] Search failed', error instanceof Error ? error : undefined);
+            Logger.error('[MCP WebSearch] Search failed', error instanceof Error ? error : undefined);
 
             // Use unified error handling
             if (error instanceof Error) {
@@ -355,7 +355,7 @@ export class MCPWebSearchClient {
 
             // Check if it is a connection error, if so, mark as disconnected for next auto-reconnect
             if (error instanceof Error && (error.message.includes('connection') || error.message.includes('connect'))) {
-                Logger.warn('⚠️ [MCP WebSearch] Connection error detected, will auto-reconnect on next search');
+                Logger.warn('[MCP WebSearch] Connection error detected, will auto-reconnect on next search');
                 await this.internalCleanup();
             }
 
@@ -379,7 +379,7 @@ export class MCPWebSearchClient {
      * Internal cleanup method (does not remove from cache)
      */
     private async internalCleanup(): Promise<void> {
-        Logger.debug('🔌 [MCP WebSearch] Cleaning up client connection...');
+        Logger.debug('[MCP WebSearch] Cleaning up client connection...');
 
         try {
             if (this.transport) {
@@ -389,9 +389,9 @@ export class MCPWebSearchClient {
 
             this.client = null;
 
-            Logger.debug('✅ [MCP WebSearch] Client connection cleaned up');
+            Logger.debug('[MCP WebSearch] Client connection cleaned up');
         } catch (error) {
-            Logger.error('❌ [MCP WebSearch] Connection cleanup failed', error instanceof Error ? error : undefined);
+            Logger.error('[MCP WebSearch] Connection cleanup failed', error instanceof Error ? error : undefined);
         }
     }
 
@@ -399,7 +399,7 @@ export class MCPWebSearchClient {
      * Cleanup resources (public method, removes from cache)
      */
     async cleanup(): Promise<void> {
-        Logger.info('🔌 [MCP WebSearch] Cleaning up client resources...');
+        Logger.info('[MCP WebSearch] Cleaning up client resources...');
 
         try {
             await this.internalCleanup();
@@ -408,13 +408,13 @@ export class MCPWebSearchClient {
             if (this.currentApiKey) {
                 MCPWebSearchClient.clientCache.delete(this.currentApiKey);
                 Logger.info(
-                    `🗑️ [MCP WebSearch] Removed client from cache (API key: ${this.currentApiKey.substring(0, 8)}...)`
+                    `[MCP WebSearch] Removed client from cache (API key: ${this.currentApiKey.substring(0, 8)}...)`
                 );
             }
 
-            Logger.info('✅ [MCP WebSearch] Client resources cleaned up');
+            Logger.info('[MCP WebSearch] Client resources cleaned up');
         } catch (error) {
-            Logger.error('❌ [MCP WebSearch] Resource cleanup failed', error instanceof Error ? error : undefined);
+            Logger.error('[MCP WebSearch] Resource cleanup failed', error instanceof Error ? error : undefined);
         }
     }
 
@@ -422,7 +422,7 @@ export class MCPWebSearchClient {
      * Reconnect
      */
     async reconnect(): Promise<void> {
-        Logger.info('🔄 [MCP WebSearch] Reconnecting client...');
+        Logger.info('[MCP WebSearch] Reconnecting client...');
         await this.internalCleanup();
         await this.ensureConnected();
     }
