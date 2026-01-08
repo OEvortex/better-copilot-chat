@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
  *  Account UI Service
- *  Giao diện người dùng để quản lý nhiều tài khoản
+ *  User interface for managing multiple accounts
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -9,7 +9,6 @@ import { Account } from './types';
 import { Logger } from '../utils/logger';
 import { ProviderKey } from '../types/providerKeys';
 import { AntigravityAuth } from '../providers/antigravity/auth';
-import { CodexAuth } from '../providers/codex/codexAuth';
 
 /**
  * Extended QuickPickItem với account data
@@ -123,6 +122,8 @@ export class AccountUI {
         const providers = [
             { label: 'Antigravity (Google)', value: ProviderKey.Antigravity, authType: 'oauth' as const },
             { label: 'Codex (OpenAI)', value: ProviderKey.Codex, authType: 'oauth' as const },
+            { label: 'Qwen Code CLI', value: 'qwencli', authType: 'oauth' as const },
+            { label: 'Gemini CLI', value: 'geminicli', authType: 'oauth' as const },
             { label: 'ZhipuAI', value: ProviderKey.Zhipu, authType: 'apiKey' as const },
             { label: 'Moonshot', value: ProviderKey.Moonshot, authType: 'apiKey' as const },
             { label: 'MiniMax', value: ProviderKey.MiniMax, authType: 'apiKey' as const },
@@ -601,11 +602,11 @@ export class AccountUI {
                     buttons: isActive
                         ? []
                         : [
-                              {
-                                  iconPath: new vscode.ThemeIcon('arrow-swap'),
-                                  tooltip: 'Switch to this account'
-                              }
-                          ]
+                            {
+                                iconPath: new vscode.ThemeIcon('arrow-swap'),
+                                tooltip: 'Switch to this account'
+                            }
+                        ]
                 });
             }
         }

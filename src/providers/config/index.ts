@@ -10,6 +10,7 @@ import chutes from './chutes.json';
 import opencode from './opencode.json';
 import qwencli from './qwencli.json';
 import geminicli from './geminicli.json';
+import huggingface from './huggingface.json';
 
 const providers = {
     zhipu,
@@ -21,7 +22,8 @@ const providers = {
     chutes,
     opencode,
     qwencli,
-    geminicli
+    geminicli,
+    huggingface
 };
 
 export type ProviderName = keyof typeof providers;

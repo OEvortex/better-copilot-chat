@@ -305,7 +305,7 @@ export async function doCodexLogin(): Promise<CodexAuthResult | null> {
                 organizations = authClaims?.organizations;
                 projectId = authClaims?.project_id;
                 
-                Logger.info(`[codex] Extracted values:`);
+                Logger.info('[codex] Extracted values:');
                 Logger.info(`  - email: ${email}`);
                 Logger.info(`  - accountId: ${accountId}`);
                 Logger.info(`  - projectId (direct): ${projectId || 'NOT_FOUND'}`);
@@ -329,7 +329,7 @@ export async function doCodexLogin(): Promise<CodexAuthResult | null> {
                     if (selectedOrg.project_id) {
                         projectId = selectedOrg.project_id;
                     }
-                    Logger.info(`[codex] Organization selection:`);
+                    Logger.info('[codex] Organization selection:');
                     Logger.info(`  - Found ${organizations.length} organization(s)`);
                     Logger.info(`  - Selected: ${selectedOrg.name}`);
                     Logger.info(`  - Organization ID: ${organizationId}`);

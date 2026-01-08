@@ -63,8 +63,8 @@ async function showCombinedQuotaPopup(): Promise<void> {
                         antigravityData.geminiQuota > 50
                             ? '$(check)'
                             : antigravityData.geminiQuota > 20
-                              ? '$(warning)'
-                              : '$(error)';
+                                ? '$(warning)'
+                                : '$(error)';
                     items.push({
                         label: `${icon} Gemini`,
                         description: `${antigravityData.geminiQuota}% remaining`
@@ -77,8 +77,8 @@ async function showCombinedQuotaPopup(): Promise<void> {
                         antigravityData.claudeQuota > 50
                             ? '$(check)'
                             : antigravityData.claudeQuota > 20
-                              ? '$(warning)'
-                              : '$(error)';
+                                ? '$(warning)'
+                                : '$(error)';
                     items.push({
                         label: `${icon} Claude`,
                         description: `${antigravityData.claudeQuota}% remaining`
@@ -222,7 +222,7 @@ async function showCombinedQuotaPopup(): Promise<void> {
             const selected = quickPick.selectedItems[0];
             quickPick.hide();
 
-            if (!selected) return;
+            if (!selected) {return;}
 
             const label = selected.label;
 

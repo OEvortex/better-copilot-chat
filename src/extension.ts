@@ -3,6 +3,7 @@ import { GenericModelProvider } from './providers/common/genericModelProvider';
 import { ZhipuProvider } from './providers/zhipu/zhipuProvider';
 import { ChutesProvider } from './providers/chutes/chutesProvider';
 import { OpenCodeProvider } from './providers/opencode/opencodeProvider';
+import { HuggingfaceProvider } from './providers/huggingface/provider';
 import { QwenCliProvider } from './providers/qwencli/provider';
 import { GeminiCliProvider } from './providers/geminicli/provider';
 import { MiniMaxProvider } from './providers/minimax/minimaxProvider';
@@ -38,7 +39,7 @@ import { CodexRateLimitStatusBar } from './status/codexRateLimitStatusBar';
  */
 const registeredProviders: Record<
     string,
-    GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider | OpenCodeProvider | QwenCliProvider | GeminiCliProvider | CompatibleProvider | AntigravityProvider | CodexProvider
+    GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider | OpenCodeProvider | QwenCliProvider | GeminiCliProvider | HuggingfaceProvider | CompatibleProvider | AntigravityProvider | CodexProvider
 > = {};
 const registeredDisposables: vscode.Disposable[] = [];
 
@@ -104,6 +105,11 @@ async function activateProviders(context: vscode.ExtensionContext): Promise<void
                 const result = GeminiCliProvider.createAndActivate(context, providerKey, providerConfig);
                 provider = result.provider;
                 disposables = result.disposables;
+            } else if (providerKey === 'huggingface') {
+                // Use specialized provider for huggingface (dedicated Hugging Face Router integration)
+                const result = HuggingfaceProvider.createAndActivate(context, providerKey, providerConfig);
+                provider = result.provider as any;
+                disposables = result.disposables as any;
             } else {
                 // Other providers use generic provider (supports automatic selection based on sdkMode)
                 const result = GenericModelProvider.createAndActivate(context, providerKey, providerConfig);
@@ -245,10 +251,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const updateAntigravityConfig = async () => {
             const activeAccount = accountManager.getActiveAccount(ProviderKey.Antigravity);
-            if (!activeAccount) return;
+            if (!activeAccount) {return;}
 
             const credentials = await accountManager.getCredentials(activeAccount.id);
-            if (!credentials) return;
+            if (!credentials) {return;}
 
             // Extract token from credentials (supports both accessToken and apiKey formats)
             const token =

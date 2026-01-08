@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  OpenCode Status Bar Item
- *  Inherits ProviderStatusBarItem, displays OpenCode status
+ *  Hugging Face Status Bar Item
+ *  Inherits ProviderStatusBarItem, displays Hugging Face status
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -8,27 +8,27 @@ import { ProviderStatusBarItem, StatusBarItemConfig } from './providerStatusBarI
 import { ApiKeyManager } from '../utils/apiKeyManager';
 
 /**
- * OpenCode status data
+ * Hugging Face status data
  */
-export interface OpenCodeStatusData {
+export interface HuggingFaceStatusData {
     lastUpdated: string;
 }
 
 /**
- * OpenCode status bar item
+ * Hugging Face status bar item
  */
-export class OpenCodeStatusBar extends ProviderStatusBarItem<OpenCodeStatusData> {
+export class HuggingFaceStatusBar extends ProviderStatusBarItem<HuggingFaceStatusData> {
     constructor() {
         const config: StatusBarItemConfig = {
-            id: 'chp.statusBar.opencode',
-            name: 'Copilot ++: OpenCode Status',
+            id: 'chp.statusBar.huggingface',
+            name: 'Copilot ++: Hugging Face Status',
             alignment: vscode.StatusBarAlignment.Right,
-            priority: 74,
-            refreshCommand: 'chp.opencode.refreshStatus',
-            apiKeyProvider: 'opencode',
-            cacheKeyPrefix: 'opencode',
-            logPrefix: 'OpenCode Status Bar',
-            icon: '$(code)'
+            priority: 73,
+            refreshCommand: 'chp.huggingface.refreshStatus',
+            apiKeyProvider: 'huggingface',
+            cacheKeyPrefix: 'huggingface',
+            logPrefix: 'Hugging Face Status Bar',
+            icon: '$(hubot)'
         };
         super(config);
     }
@@ -36,17 +36,17 @@ export class OpenCodeStatusBar extends ProviderStatusBarItem<OpenCodeStatusData>
     /**
      * Get display text
      */
-    protected getDisplayText(_data: OpenCodeStatusData): string {
-        return `${this.config.icon} OpenCode`;
+    protected getDisplayText(_data: HuggingFaceStatusData): string {
+        return `${this.config.icon} HF`;
     }
 
     /**
      * Generate Tooltip content
      */
-    protected generateTooltip(data: OpenCodeStatusData): vscode.MarkdownString {
+    protected generateTooltip(data: HuggingFaceStatusData): vscode.MarkdownString {
         const md = new vscode.MarkdownString();
         md.supportHtml = true;
-        md.appendMarkdown('#### OpenCode Provider Status\n\n');
+        md.appendMarkdown('#### Hugging Face Provider Status\n\n');
         md.appendMarkdown('**Status:** Active\n\n');
         md.appendMarkdown(`**Last Updated:** ${data.lastUpdated}\n`);
         md.appendMarkdown('---\n');
@@ -57,12 +57,12 @@ export class OpenCodeStatusBar extends ProviderStatusBarItem<OpenCodeStatusData>
     /**
      * Execute API query
      */
-    protected async performApiQuery(): Promise<{ success: boolean; data?: OpenCodeStatusData; error?: string }> {
-        const hasApiKey = await ApiKeyManager.hasValidApiKey('opencode');
+    protected async performApiQuery(): Promise<{ success: boolean; data?: HuggingFaceStatusData; error?: string }> {
+        const hasApiKey = await ApiKeyManager.hasValidApiKey('huggingface');
         if (!hasApiKey) {
             return {
                 success: false,
-                error: 'OpenCode API key not configured'
+                error: 'Hugging Face API key not configured'
             };
         }
 
@@ -74,7 +74,7 @@ export class OpenCodeStatusBar extends ProviderStatusBarItem<OpenCodeStatusData>
         };
     }
 
-    protected shouldHighlightWarning(_data: OpenCodeStatusData): boolean {
+    protected shouldHighlightWarning(_data: HuggingFaceStatusData): boolean {
         return false;
     }
 

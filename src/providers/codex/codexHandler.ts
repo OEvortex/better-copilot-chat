@@ -120,107 +120,107 @@ const CODEX_TOOLS = [
             required: ['todoList']
         }
     },{
-        "name": "file_search",
-        "description": "Search for files in the workspace by glob pattern. This only returns the paths of matching files. Use this tool when you know the exact filename pattern of the files you're searching for. Glob patterns match from the root of the workspace folder. Examples:\n- **/*.{js,ts} to match all js/ts files in the workspace.\n- src/** to match all files under the top-level src folder.\n- **/foo/**/*.js to match all js files under any foo folder in the workspace.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "Search for files with names or paths matching this glob pattern."
+        'name': 'file_search',
+        'description': 'Search for files in the workspace by glob pattern. This only returns the paths of matching files. Use this tool when you know the exact filename pattern of the files you\'re searching for. Glob patterns match from the root of the workspace folder. Examples:\n- **/*.{js,ts} to match all js/ts files in the workspace.\n- src/** to match all files under the top-level src folder.\n- **/foo/**/*.js to match all js files under any foo folder in the workspace.',
+        'parameters': {
+            'type': 'object',
+            'properties': {
+                'query': {
+                    'type': 'string',
+                    'description': 'Search for files with names or paths matching this glob pattern.'
                 },
-                "maxResults": {
-                    "type": "number",
-                    "description": "The maximum number of results to return. Do not use this unless necessary, it can slow things down. By default, only some matches are returned. If you use this and don't see what you're looking for, you can try again with a more specific query or a larger maxResults."
+                'maxResults': {
+                    'type': 'number',
+                    'description': 'The maximum number of results to return. Do not use this unless necessary, it can slow things down. By default, only some matches are returned. If you use this and don\'t see what you\'re looking for, you can try again with a more specific query or a larger maxResults.'
                 }
             },
-            "required": [
-                "query"
+            'required': [
+                'query'
             ]
         },
-        "type": "function",
-        "strict": false
+        'type': 'function',
+        'strict': false
     },
     {
-        "name": "grep_search",
-        "description": "Do a fast text search in the workspace. Use this tool when you want to search with an exact string or regex. If you are not sure what words will appear in the workspace, prefer using regex patterns with alternation (|) or character classes to search for multiple potential words at once instead of making separate searches. For example, use 'function|method|procedure' to look for all of those words at once. Use includePattern to search within files matching a specific pattern, or in a specific file, using a relative path. Use 'includeIgnoredFiles' to include files normally ignored by .gitignore, other ignore files, and `files.exclude` and `search.exclude` settings. Warning: using this may cause the search to be slower, only set it when you want to search in ignored folders like node_modules or build outputs. Use this tool when you want to see an overview of a particular file, instead of using read_file many times to look for code within a file.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "The pattern to search for in files in the workspace. Use regex with alternation (e.g., 'word1|word2|word3') or character classes to find multiple potential words in a single search. Be sure to set the isRegexp property properly to declare whether it's a regex or plain text pattern. Is case-insensitive."
+        'name': 'grep_search',
+        'description': 'Do a fast text search in the workspace. Use this tool when you want to search with an exact string or regex. If you are not sure what words will appear in the workspace, prefer using regex patterns with alternation (|) or character classes to search for multiple potential words at once instead of making separate searches. For example, use \'function|method|procedure\' to look for all of those words at once. Use includePattern to search within files matching a specific pattern, or in a specific file, using a relative path. Use \'includeIgnoredFiles\' to include files normally ignored by .gitignore, other ignore files, and `files.exclude` and `search.exclude` settings. Warning: using this may cause the search to be slower, only set it when you want to search in ignored folders like node_modules or build outputs. Use this tool when you want to see an overview of a particular file, instead of using read_file many times to look for code within a file.',
+        'parameters': {
+            'type': 'object',
+            'properties': {
+                'query': {
+                    'type': 'string',
+                    'description': 'The pattern to search for in files in the workspace. Use regex with alternation (e.g., \'word1|word2|word3\') or character classes to find multiple potential words in a single search. Be sure to set the isRegexp property properly to declare whether it\'s a regex or plain text pattern. Is case-insensitive.'
                 },
-                "isRegexp": {
-                    "type": "boolean",
-                    "description": "Whether the pattern is a regex."
+                'isRegexp': {
+                    'type': 'boolean',
+                    'description': 'Whether the pattern is a regex.'
                 },
-                "includePattern": {
-                    "type": "string",
-                    "description": "Search files matching this glob pattern. Will be applied to the relative path of files within the workspace. To search recursively inside a folder, use a proper glob pattern like \"src/folder/**\". Do not use | in includePattern."
+                'includePattern': {
+                    'type': 'string',
+                    'description': 'Search files matching this glob pattern. Will be applied to the relative path of files within the workspace. To search recursively inside a folder, use a proper glob pattern like "src/folder/**". Do not use | in includePattern.'
                 },
-                "maxResults": {
-                    "type": "number",
-                    "description": "The maximum number of results to return. Do not use this unless necessary, it can slow things down. By default, only some matches are returned. If you use this and don't see what you're looking for, you can try again with a more specific query or a larger maxResults."
+                'maxResults': {
+                    'type': 'number',
+                    'description': 'The maximum number of results to return. Do not use this unless necessary, it can slow things down. By default, only some matches are returned. If you use this and don\'t see what you\'re looking for, you can try again with a more specific query or a larger maxResults.'
                 },
-                "includeIgnoredFiles": {
-                    "type": "boolean",
-                    "description": "Whether to include files that would normally be ignored according to .gitignore, other ignore files and `files.exclude` and `search.exclude` settings. Warning: using this may cause the search to be slower. Only set it when you want to search in ignored folders like node_modules or build outputs."
+                'includeIgnoredFiles': {
+                    'type': 'boolean',
+                    'description': 'Whether to include files that would normally be ignored according to .gitignore, other ignore files and `files.exclude` and `search.exclude` settings. Warning: using this may cause the search to be slower. Only set it when you want to search in ignored folders like node_modules or build outputs.'
                 }
             },
-            "required": [
-                "query",
-                "isRegexp"
+            'required': [
+                'query',
+                'isRegexp'
             ]
         },
-        "type": "function",
-        "strict": false
+        'type': 'function',
+        'strict': false
     },
     {
-        "name": "get_changed_files",
-        "description": "Get git diffs of current file changes in a git repository. Don't forget that you can use run_in_terminal to run git commands in a terminal as well.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "repositoryPath": {
-                    "type": "string",
-                    "description": "The absolute path to the git repository to look for changes in. If not provided, the active git repository will be used."
+        'name': 'get_changed_files',
+        'description': 'Get git diffs of current file changes in a git repository. Don\'t forget that you can use run_in_terminal to run git commands in a terminal as well.',
+        'parameters': {
+            'type': 'object',
+            'properties': {
+                'repositoryPath': {
+                    'type': 'string',
+                    'description': 'The absolute path to the git repository to look for changes in. If not provided, the active git repository will be used.'
                 },
-                "sourceControlState": {
-                    "type": "array",
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "staged",
-                            "unstaged",
-                            "merge-conflicts"
+                'sourceControlState': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string',
+                        'enum': [
+                            'staged',
+                            'unstaged',
+                            'merge-conflicts'
                         ]
                     },
-                    "description": "The kinds of git state to filter by. Allowed values are: 'staged', 'unstaged', and 'merge-conflicts'. If not provided, all states will be included."
+                    'description': 'The kinds of git state to filter by. Allowed values are: \'staged\', \'unstaged\', and \'merge-conflicts\'. If not provided, all states will be included.'
                 }
             }
         },
-        "type": "function",
-        "strict": false
+        'type': 'function',
+        'strict': false
     },
     {
-        "name": "get_errors",
-        "description": "Get any compile or lint errors in a specific file or across all files. If the user mentions errors or problems in a file, they may be referring to these. Use the tool to see the same errors that the user is seeing. If the user asks you to analyze all errors, or does not specify a file, use this tool to gather errors for all files. Also use this tool after editing a file to validate the change.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "filePaths": {
-                    "description": "The absolute paths to the files or folders to check for errors. Omit 'filePaths' when retrieving all errors.",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
+        'name': 'get_errors',
+        'description': 'Get any compile or lint errors in a specific file or across all files. If the user mentions errors or problems in a file, they may be referring to these. Use the tool to see the same errors that the user is seeing. If the user asks you to analyze all errors, or does not specify a file, use this tool to gather errors for all files. Also use this tool after editing a file to validate the change.',
+        'parameters': {
+            'type': 'object',
+            'properties': {
+                'filePaths': {
+                    'description': 'The absolute paths to the files or folders to check for errors. Omit \'filePaths\' when retrieving all errors.',
+                    'type': 'array',
+                    'items': {
+                        'type': 'string'
                     }
                 }
             }
         },
-        "type": "function",
-        "strict": false
-    },
+        'type': 'function',
+        'strict': false
+    }
 ];
 
 /**
@@ -1249,8 +1249,8 @@ export class CodexHandler {
                         } else if (Array.isArray(part.content)) {
                             // Handle array of content parts
                             resultContent = part.content.map(c => {
-                                if (typeof c === 'string') return c;
-                                if (c && typeof c === 'object' && 'value' in c) return String(c.value);
+                                if (typeof c === 'string') {return c;}
+                                if (c && typeof c === 'object' && 'value' in c) {return String(c.value);}
                                 return JSON.stringify(c);
                             }).join('\n');
                         } else {

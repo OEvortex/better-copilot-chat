@@ -320,10 +320,10 @@ export class OpenAIStreamProcessor {
             
             // Log what parts we received for debugging
             const partTypes = parts.map(p => {
-                if (p.thought) return 'thought';
-                if (p.text !== undefined) return 'text';
-                if (p.functionCall) return 'functionCall';
-                if (p.inlineData) return 'inlineData';
+                if (p.thought) {return 'thought';}
+                if (p.text !== undefined) {return 'text';}
+                if (p.functionCall) {return 'functionCall';}
+                if (p.inlineData) {return 'inlineData';}
                 return 'unknown';
             });
 

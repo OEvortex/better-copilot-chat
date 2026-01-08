@@ -266,17 +266,17 @@ export class AccountManagerPage {
                         accountName: data.accountName,
                         primary: data.snapshot.primary
                             ? {
-                                  usedPercent: data.snapshot.primary.usedPercent,
-                                  windowMinutes: data.snapshot.primary.windowMinutes,
-                                  resetsAt: data.snapshot.primary.resetsAt
-                              }
+                                usedPercent: data.snapshot.primary.usedPercent,
+                                windowMinutes: data.snapshot.primary.windowMinutes,
+                                resetsAt: data.snapshot.primary.resetsAt
+                            }
                             : null,
                         secondary: data.snapshot.secondary
                             ? {
-                                  usedPercent: data.snapshot.secondary.usedPercent,
-                                  windowMinutes: data.snapshot.secondary.windowMinutes,
-                                  resetsAt: data.snapshot.secondary.resetsAt
-                              }
+                                usedPercent: data.snapshot.secondary.usedPercent,
+                                windowMinutes: data.snapshot.secondary.windowMinutes,
+                                resetsAt: data.snapshot.secondary.resetsAt
+                            }
                             : null,
                         credits: data.snapshot.credits,
                         capturedAt: capturedAtStr

@@ -25,7 +25,7 @@ type LoadBalanceStrategy = 'round-robin' | 'quota-aware' | 'failover';
 
 /**
  * Settings Page class
- * Quản lý trang cài đặt Copilot ++ với webview
+ * Manage the Copilot ++ settings page via webview
  */
 export class SettingsPage {
     private static currentPanel: vscode.WebviewPanel | undefined;

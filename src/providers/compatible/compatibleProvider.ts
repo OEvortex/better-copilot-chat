@@ -585,7 +585,7 @@ export class CompatibleProvider extends GenericModelProvider {
             // State for parsing <thinking>...</thinking> tags
             let isInsideThinkingTag = false; // Whether inside <thinking> tag
             let thinkingTagBuffer: string = ''; // Used to accumulate possible tag fragments
-            let pendingContentBuffer: string = ''; // Used to accumulate normal content to be output
+            const pendingContentBuffer: string = ''; // Used to accumulate normal content to be output
 
             try {
                 while (true) {

@@ -20,7 +20,7 @@ export class OpenAIHandler {
     // SDK event deduplication tracker (request level)
     private currentRequestProcessedEvents = new Set<string>();
     // Cache client instance to avoid creating new one for each request
-    private clientCache: Map<string, { client: OpenAI; lastUsed: number }> = new Map();
+    private clientCache = new Map<string, { client: OpenAI; lastUsed: number }>();
     private readonly CLIENT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
     private cleanupInterval?: NodeJS.Timeout;
 
@@ -432,7 +432,7 @@ export class OpenAIHandler {
             // Interval to automatically report activity when no data
             let activityInterval: NodeJS.Timeout | null = null;
             const startActivityInterval = () => {
-                if (activityInterval) return;
+                if (activityInterval) {return;}
                 activityInterval = setInterval(() => {
                     if (!token.isCancellationRequested) {
                         reportActivity();

@@ -479,7 +479,7 @@ export class CodexRateLimitStatusBar {
 
         // Build the message content
         const lines: string[] = [];
-        lines.push(`$(pulse) Codex Rate Limit`);
+        lines.push('$(pulse) Codex Rate Limit');
         lines.push(`Account: ${accountLabel}`);
         lines.push('');
         lines.push('Summary:');

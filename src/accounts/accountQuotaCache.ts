@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------
  *  Account Quota Cache
- *  Cache trạng thái quota và status của từng account
- *  Lưu trữ persistent để giữ lại khi restart extension
+ *  Cache quota state and status for each account
+ *  Persisted to survive extension restarts
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -11,7 +11,7 @@ const STORAGE_KEY = 'chp.accountQuotaCache';
 const STORAGE_VERSION = 1;
 
 /**
- * Trạng thái quota của một account
+ * Quota state for an account
  */
 export interface AccountQuotaState {
     /** Account ID */
@@ -22,23 +22,23 @@ export interface AccountQuotaState {
     provider: string;
     /** Quota exceeded flag */
     quotaExceeded: boolean;
-    /** Timestamp khi quota sẽ reset */
+    /** Timestamp when quota will reset */
     quotaResetAt?: number;
-    /** Backoff level cho exponential backoff */
+    /** Backoff level for exponential backoff */
     backoffLevel: number;
-    /** Model bị ảnh hưởng (nếu có) */
+    /** Affected model (if any) */
     affectedModel?: string;
-    /** Lỗi cuối cùng */
+    /** Last error message */
     lastError?: string;
-    /** Thời gian cập nhật cuối */
+    /** Last updated timestamp */
     updatedAt: number;
-    /** Số lần request thành công */
+    /** Number of successful requests */
     successCount: number;
-    /** Số lần request thất bại */
+    /** Number of failed requests */
     failureCount: number;
-    /** Thời gian request thành công cuối */
+    /** Timestamp of last successful request */
     lastSuccessAt?: number;
-    /** Thời gian request thất bại cuối */
+    /** Timestamp of last failed request */
     lastFailureAt?: number;
 }
 
@@ -154,7 +154,7 @@ export class AccountQuotaCache {
     private getOrCreateState(accountId: string, provider: string, accountName?: string): AccountQuotaState {
         if (!accountId) {
             Logger.warn(`[AccountQuotaCache] getOrCreateState called with empty accountId! provider: ${provider}, accountName: ${accountName}`);
-            Logger.warn(`[AccountQuotaCache] Stack trace:`, new Error().stack);
+            Logger.warn('[AccountQuotaCache] Stack trace:', new Error().stack);
         }
         
         let state = this.cache.get(accountId);
@@ -192,7 +192,7 @@ export class AccountQuotaCache {
     ): Promise<void> {
         if (!accountId || accountId === 'undefined') {
             Logger.error(`[AccountQuotaCache] markQuotaExceeded called with invalid accountId: "${accountId}", provider: ${provider}, accountName: ${options?.accountName}`);
-            Logger.error(`[AccountQuotaCache] Stack trace:`, new Error().stack);
+            Logger.error('[AccountQuotaCache] Stack trace:', new Error().stack);
             return;
         }
         
@@ -241,7 +241,7 @@ export class AccountQuotaCache {
     async recordSuccess(accountId: string, provider: string, accountName?: string): Promise<void> {
         if (!accountId || accountId === 'undefined') {
             Logger.error(`[AccountQuotaCache] recordSuccess called with invalid accountId: "${accountId}", provider: ${provider}, accountName: ${accountName}`);
-            Logger.error(`[AccountQuotaCache] Stack trace:`, new Error().stack);
+            Logger.error('[AccountQuotaCache] Stack trace:', new Error().stack);
             return;
         }
         

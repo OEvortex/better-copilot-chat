@@ -41,5 +41,6 @@ export const KnownProviders: Record<string, KnownProviderConfig> = {
     tbox: { displayName: 'Bailian' },
     chutes: { displayName: 'Chutes' },
     opencode: { displayName: 'OpenCode' },
+    huggingface: { displayName: 'Hugging Face' },
     qwencli: { displayName: 'Qwen Code CLI' }
 };

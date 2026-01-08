@@ -328,8 +328,8 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
                 gemini3ProQuota !== null
                     ? Math.round(gemini3ProQuota * 100)
                     : hasGemini
-                      ? Math.round(geminiMinQuota * 100)
-                      : undefined,
+                        ? Math.round(geminiMinQuota * 100)
+                        : undefined,
             claudeQuota: hasClaude ? Math.round(claudeMinQuota * 100) : undefined,
             modelQuotas: modelQuotas
         };
@@ -451,10 +451,10 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
             StatusLogger.error(`[${this.config.logPrefix}] Refresh failed`, error);
 
             if (this.geminiStatusBarItem) {
-                this.geminiStatusBarItem.text = `$(arrow-up) Gemini: ERR`;
+                this.geminiStatusBarItem.text = '$(arrow-up) Gemini: ERR';
             }
             if (this.claudeStatusBarItem) {
-                this.claudeStatusBarItem.text = `Claude: ERR`;
+                this.claudeStatusBarItem.text = 'Claude: ERR';
             }
         }
     }
@@ -464,11 +464,11 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
      */
     private showRefreshingState(): void {
         if (this.geminiStatusBarItem) {
-            this.geminiStatusBarItem.text = `$(sync~spin) Gemini: Refreshing...  `;
+            this.geminiStatusBarItem.text = '$(sync~spin) Gemini: Refreshing...  ';
             this.geminiStatusBarItem.tooltip = 'Refreshing quota data...';
         }
         if (this.claudeStatusBarItem) {
-            this.claudeStatusBarItem.text = `$(sync~spin) Claude: Refreshing...`;
+            this.claudeStatusBarItem.text = '$(sync~spin) Claude: Refreshing...';
             this.claudeStatusBarItem.tooltip = 'Refreshing quota data...';
         }
     }
@@ -594,7 +594,7 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
                     const selected = quickPick.selectedItems[0];
                     quickPick.hide();
 
-                    if (!selected) return;
+                    if (!selected) {return;}
 
                     if (selected.label.includes('Refresh Quota')) {
                         await this.executeApiQuery(true);

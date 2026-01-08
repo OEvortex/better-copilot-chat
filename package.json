@@ -53,6 +53,7 @@
         "onLanguageModelProvider:chp.deepseek",
         "onLanguageModelProvider:chp.chutes",
         "onLanguageModelProvider:chp.opencode",
+        "onLanguageModelProvider:chp.huggingface",
         "onLanguageModelProvider:chp.qwencli",
         "onLanguageModelProvider:chp.geminicli",
         "onLanguageModelProvider:chp.codex",
@@ -195,6 +196,11 @@
             {
                 "command": "chp.opencode.setApiKey",
                 "title": "Set OpenCode API Key",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.huggingface.setApiKey",
+                "title": "Set Hugging Face API Key",
                 "category": "Copilot ++"
             },
             {
@@ -581,6 +587,11 @@
                 "vendor": "chp.opencode",
                 "displayName": "⦿ OpenCode",
                 "managementCommand": "chp.opencode.setApiKey"
+            },
+            {
+                "vendor": "chp.huggingface",
+                "displayName": "⦿ Hugging Face",
+                "managementCommand": "chp.huggingface.setApiKey"
             },
             {
                 "vendor": "chp.qwencli",

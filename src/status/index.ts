@@ -6,6 +6,7 @@ export { AntigravityStatusBar } from './antigravityStatusBar';
 export { CodexRateLimitStatusBar } from './codexRateLimitStatusBar';
 export { ChutesStatusBar } from './chutesStatusBar';
 export { OpenCodeStatusBar } from './opencodeStatusBar';
+export { HuggingFaceStatusBar } from './huggingfaceStatusBar';
 export { QwenCliStatusBar } from './qwencliStatusBar';
 export { registerCombinedQuotaCommand } from './combinedQuotaPopup';
 export { TokenUsageStatusBar, TokenUsageData } from './tokenUsageStatusBar';

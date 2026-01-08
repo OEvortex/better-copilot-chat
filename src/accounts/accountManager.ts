@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------
  *  Account Manager Service
- *  Quản lý nhiều tài khoản cho các provider khác nhau
- *  Lấy cảm hứng từ llm-mux OAuth Registry
+ *  Manage multiple accounts for different providers and route requests.
+ *  Inspired by the llm-mux OAuth Registry.
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
@@ -28,28 +28,31 @@ const STORAGE_KEY = 'chp.accounts';
 const STORAGE_VERSION = 1;
 
 /**
- * Account Manager - Quản lý nhiều tài khoản
+ * Account Manager - Manage multiple accounts for providers
  */
 export class AccountManager {
     private static instance: AccountManager;
     private context: vscode.ExtensionContext;
-    private accounts: Map<string, Account> = new Map();
+    private accounts = new Map<string, Account>();
     private activeAccounts: ActiveAccounts = {};
     private routingConfig: AccountRoutingConfig = {};
     private _onAccountChange = new vscode.EventEmitter<AccountChangeEvent>();
     
-    /** Event khi tài khoản thay đổi */
+    /** Event fired when accounts change */
     public readonly onAccountChange = this._onAccountChange.event;
 
-    /** Cấu hình provider */
-    private static providerConfigs: Map<string, ProviderAccountConfig> = new Map([
+    /** Provider configuration */
+    private static providerConfigs = new Map<string, ProviderAccountConfig>([
         [ProviderKey.Antigravity, { supportsMultiAccount: true, supportsOAuth: true, supportsApiKey: false }],
         [ProviderKey.Codex, { supportsMultiAccount: true, supportsOAuth: true, supportsApiKey: true }],
         [ProviderKey.Zhipu, { supportsMultiAccount: true, supportsOAuth: false, supportsApiKey: true }],
         [ProviderKey.Moonshot, { supportsMultiAccount: true, supportsOAuth: false, supportsApiKey: true }],
         [ProviderKey.MiniMax, { supportsMultiAccount: true, supportsOAuth: false, supportsApiKey: true }],
         [ProviderKey.Compatible, { supportsMultiAccount: true, supportsOAuth: false, supportsApiKey: true }],
-        ['deepseek', { supportsMultiAccount: true, supportsOAuth: false, supportsApiKey: true }]
+        ['deepseek', { supportsMultiAccount: true, supportsOAuth: false, supportsApiKey: true }],
+        // Register CLI OAuth providers so they can be managed via AccountManager
+        ['qwencli', { supportsMultiAccount: true, supportsOAuth: true, supportsApiKey: false }],
+        ['geminicli', { supportsMultiAccount: true, supportsOAuth: true, supportsApiKey: false }]
     ]);
 
     private constructor(context: vscode.ExtensionContext) {
@@ -57,7 +60,7 @@ export class AccountManager {
     }
 
     /**
-     * Khởi tạo AccountManager
+     * Initialize AccountManager
      */
     static initialize(context: vscode.ExtensionContext): AccountManager {
         if (!AccountManager.instance) {
@@ -69,7 +72,7 @@ export class AccountManager {
     }
 
     /**
-     * Lấy instance
+     * Get instance
      */
     static getInstance(): AccountManager {
         if (!AccountManager.instance) {
@@ -79,7 +82,7 @@ export class AccountManager {
     }
 
     /**
-     * Tạo ID duy nhất cho tài khoản
+     * Generate unique ID for account
      */
     private generateAccountId(): string {
         const timestamp = Date.now().toString(36);
@@ -88,7 +91,7 @@ export class AccountManager {
     }
 
     /**
-     * Load dữ liệu từ storage
+     * Load data from storage
      */
     private async loadFromStorage(): Promise<void> {
         try {

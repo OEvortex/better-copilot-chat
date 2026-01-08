@@ -165,7 +165,7 @@ export class GeminiStreamProcessor {
             progress.report(new vscode.LanguageModelToolCallPart(toolCall.callId, toolCall.name, toolCall.args));
             this.markActivity();
         }
-        console.log(`GeminiCLI: All pending tool calls flushed`);
+        console.log('GeminiCLI: All pending tool calls flushed');
     }
 
     private processSSELines(
@@ -340,7 +340,7 @@ export class GeminiStreamProcessor {
         }
         if (typeof part.text === 'string') {
             // Prepend any leftover function_calls fragment from previous parts
-            let textToProcess = this.functionCallsBuffer + part.text;
+            const textToProcess = this.functionCallsBuffer + part.text;
 
             // Try to extract complete <function_calls>...</function_calls> blocks
             const funcCallsRegex = /<function_calls>[\s\S]*?<\/function_calls>/g;
@@ -371,7 +371,7 @@ export class GeminiStreamProcessor {
                 this.flushThinkingBuffer(progress);
                 while ((toolMatch = toolCallRegex.exec(block)) !== null) {
                     const name = toolMatch[1];
-                    let argsString = toolMatch[2] || '';
+                    const argsString = toolMatch[2] || '';
                     let argsObj: Record<string, unknown> = {};
                     try {
                         argsObj = JSON.parse(argsString);

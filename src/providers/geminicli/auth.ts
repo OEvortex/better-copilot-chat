@@ -183,7 +183,6 @@ export class GeminiOAuthManager {
 
     invalidateCredentials(): void {
         // Invalidate cached credentials to force a refresh on next request
-        // Call this when receiving authentication errors (401) from the API
         this.credentials = null;
     }
 

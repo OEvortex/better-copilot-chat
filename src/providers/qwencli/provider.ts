@@ -15,6 +15,7 @@ import { GenericModelProvider } from '../common/genericModelProvider';
 import { ProviderConfig, ModelConfig } from '../../types/sharedTypes';
 import { Logger } from '../../utils/logger';
 import { QwenOAuthManager } from './auth';
+import { AccountManager, Account, AccountCredentials, OAuthCredentials, ApiKeyCredentials } from '../../accounts';
 
 class ThinkingBlockParser {
     private inThinkingBlock = false;
@@ -55,8 +56,32 @@ class ThinkingBlockParser {
 }
 
 export class QwenCliProvider extends GenericModelProvider implements LanguageModelChatProvider {
+    private readonly cooldowns = new Map<string, number>();
+
     constructor(context: vscode.ExtensionContext, providerKey: string, providerConfig: ProviderConfig) {
         super(context, providerKey, providerConfig);
+    }
+
+    private isInCooldown(modelId: string): boolean {
+        const until = this.cooldowns.get(modelId);
+        return typeof until === 'number' && Date.now() < until;
+    }
+
+    private setCooldown(modelId: string, ms = 10000): void {
+        this.cooldowns.set(modelId, Date.now() + ms);
+    }
+
+    private isRateLimitError(error: unknown): boolean {
+        if (!(error instanceof Error)) {
+            return false;
+        }
+        const msg = error.message;
+        return (
+            msg.includes('HTTP 429') ||
+            msg.includes('Rate limited') ||
+            msg.includes('Quota exceeded') ||
+            msg.includes('429')
+        );
     }
 
     static override createAndActivate(
@@ -70,8 +95,24 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
 
         const loginCommand = vscode.commands.registerCommand(`chp.${providerKey}.login`, async () => {
             try {
-                await QwenOAuthManager.getInstance().ensureAuthenticated(true);
+                const { accessToken, baseURL } = await QwenOAuthManager.getInstance().ensureAuthenticated(true);
                 vscode.window.showInformationMessage(`${providerConfig.displayName} login successful!`);
+                // Register CLI-managed account in AccountManager if not present
+                try {
+                    const accountManager = AccountManager.getInstance();
+                    const existing = accountManager.getAccountsByProvider('qwencli').find(a => a.metadata?.source === 'cli');
+                    if (!existing) {
+                        await accountManager.addOAuthAccount(
+                            'qwencli',
+                            'Qwen CLI (Local)',
+                            '',
+                            { accessToken: accessToken ?? '', refreshToken: '', expiresAt: '', tokenType: '' },
+                            { source: 'cli', baseURL }
+                        );
+                    }
+                } catch (e) {
+                    Logger.warn('[qwencli] Failed to register CLI account with AccountManager', e);
+                }
                 await provider.modelInfoCache?.invalidateCache(providerKey);
                 provider._onDidChangeLanguageModelChatInformation.fire();
             } catch (error) {
@@ -85,7 +126,7 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
     }
 
     override async provideLanguageModelChatInformation(
-        options: { silent: boolean },
+        _options: { silent: boolean },
         _token: CancellationToken
     ): Promise<LanguageModelChatInformation[]> {
         // Always return models immediately without any async checks
@@ -107,9 +148,110 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
         }
 
         try {
+            // Short cooldown check to avoid hammering after rate limits
+            if (this.isInCooldown(model.id)) {
+                throw new Error('Rate limited: please try again later');
+            }
+
+            // Try to use managed accounts first (load balancing if configured)
+            const accountManager = AccountManager.getInstance();
+            const accounts = accountManager.getAccountsByProvider('qwencli');
+            const loadBalanceEnabled = accountManager.getLoadBalanceEnabled('qwencli');
+            const assignedAccountId = accountManager.getAccountIdForModel('qwencli', model.id);
+
+            // Helper to attempt using account credentials
+            const tryAccountRequest = async (account: Account, accountAccessToken?: string) => {
+                if (!accountAccessToken) {
+                    const creds = (await accountManager.getCredentials(account.id)) as AccountCredentials | undefined;
+                    if (!creds) {
+                        return { success: false, reason: 'no-creds' };
+                    }
+                    if ('accessToken' in creds) {
+                        accountAccessToken = (creds as OAuthCredentials).accessToken;
+                    } else if ('apiKey' in creds) {
+                        accountAccessToken = (creds as ApiKeyCredentials).apiKey;
+                    }
+                    if (!accountAccessToken) {
+                        return { success: false, reason: 'no-token' };
+                    }
+                }
+
+                const configWithAuth: ModelConfig = {
+                    ...modelConfig,
+                    baseUrl: modelConfig.baseUrl || undefined,
+                    customHeader: { ...(modelConfig.customHeader || {}), Authorization: `Bearer ${accountAccessToken}` }
+                };
+
+                try {
+                    await this.openaiHandler.handleRequest(model, configWithAuth, messages, options, progress, token);
+                    return { success: true };
+                } catch (err) {
+                    return { success: false, error: err };
+                }
+            };
+
+            // If there are managed accounts, attempt to use them with optional load balancing
+            if (accounts && accounts.length > 0) {
+                const usableAccounts = accounts.filter(a => a.status === 'active');
+                const candidates = usableAccounts.length > 0 ? usableAccounts : accounts;
+
+                // If load balance is enabled, try multiple accounts, otherwise use active/default account
+                const activeAccount = accountManager.getActiveAccount('qwencli');
+                let accountsToTry: Account[];
+                if (loadBalanceEnabled) {
+                    // Place assignedAccountId or activeAccount first
+                    if (activeAccount && candidates.some(a => a.id === activeAccount.id)) {
+                        accountsToTry = [activeAccount, ...candidates.filter(a => a.id !== activeAccount.id)];
+                    } else {
+                        accountsToTry = candidates;
+                    }
+                } else {
+                    const assigned = assignedAccountId ? accounts.find(a => a.id === assignedAccountId) : activeAccount;
+                    accountsToTry = assigned ? [assigned] : candidates.length > 0 ? [candidates[0]] : [];
+                }
+
+                let lastError: unknown;
+                let switchedAccount = false;
+                for (const account of accountsToTry) {
+                    const result = await tryAccountRequest(account);
+                    if (result.success) {
+                        if (switchedAccount && loadBalanceEnabled) {
+                            // Save preferred account mapping
+                            accountManager.setAccountForModel('qwencli', model.id, account.id).catch(() => {});
+                        }
+                        return;
+                    }
+
+                    lastError = result.error ?? result.reason;
+
+                    // If 401, mark account expired and continue
+                    if (result.error instanceof Error && result.error.message.includes('401')) {
+                        await accountManager.markAccountExpired(account.id);
+                        continue;
+                    }
+
+                    // If rate limited and load balancing enabled, try next account
+                    if (this.isRateLimitError(result.error) && loadBalanceEnabled) {
+                        switchedAccount = true;
+                        continue;
+                    }
+
+                    // Other errors -> rethrow
+                    if (result.error) {
+                        throw result.error;
+                    }
+                }
+
+                if (lastError) {
+                    // No managed account worked, fall back to CLI OAuth behavior below
+                    Logger.warn('[qwencli] Managed accounts failed, falling back to CLI credentials', lastError);
+                }
+            }
+
+            // Fallback: Ensure we read latest token (in case CLI updated credentials externally)
             const { accessToken, baseURL } = await QwenOAuthManager.getInstance().ensureAuthenticated();
             
-            // Update handler with latest credentials
+            // Update handler with latest credentials (CLI)
             // Pass accessToken as apiKey so OpenAIHandler uses it for Authorization header
             const configWithAuth: ModelConfig = {
                 ...modelConfig,
@@ -136,7 +278,7 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
                         }
 
                         // Next, handle function_calls XML embedded in regular text
-                        let textToHandle = functionCallsBuffer + (regular || '');
+                        const textToHandle = functionCallsBuffer + (regular || '');
                         // Extract complete <function_calls>...</function_calls> blocks
                         const funcCallsRegex = /<function_calls>[\s\S]*?<\/function_calls>/g;
                         let lastIdx = 0;
@@ -158,7 +300,7 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
                             let tm: RegExpExecArray | null;
                             while ((tm = toolCallRegex.exec(block)) !== null) {
                                 const name = tm[1];
-                                let argsString = tm[2] || '';
+                                const argsString = tm[2] || '';
                                 let argsObj: Record<string, unknown> = {};
                                 try {
                                     argsObj = JSON.parse(argsString);
@@ -211,24 +353,28 @@ export class QwenCliProvider extends GenericModelProvider implements LanguageMod
 
             await this.openaiHandler.handleRequest(model, configWithAuth, messages, options, wrappedProgress, token);
         } catch (error) {
+            // If we got a 401, invalidate cached credentials and retry once with fresh token
             if (error instanceof Error && error.message.includes('401')) {
-                // Try refreshing once on 401
-                try {
-                    const { accessToken, baseURL } = await QwenOAuthManager.getInstance().ensureAuthenticated(true);
-                    const configWithAuth: ModelConfig = {
-                        ...modelConfig,
-                        baseUrl: baseURL,
-                        customHeader: {
-                            ...modelConfig.customHeader,
-                            'Authorization': `Bearer ${accessToken}`
-                        }
-                    };
-                    await this.openaiHandler.handleRequest(model, configWithAuth, messages, options, progress, token);
-                    return;
-                } catch (retryError) {
-                    throw retryError;
-                }
+                QwenOAuthManager.getInstance().invalidateCredentials();
+                const { accessToken, baseURL } = await QwenOAuthManager.getInstance().ensureAuthenticated(true);
+                const configWithAuth: ModelConfig = {
+                    ...modelConfig,
+                    baseUrl: baseURL,
+                    customHeader: {
+                        ...modelConfig.customHeader,
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                };
+                await this.openaiHandler.handleRequest(model, configWithAuth, messages, options, progress, token);
+                return;
             }
+
+            // If we got a rate limit error, set short cooldown and surface a friendly error
+            if (this.isRateLimitError(error)) {
+                this.setCooldown(model.id, 10000);
+                throw new Error('Rate limited: please try again in a few seconds');
+            }
+
             throw error;
         }
     }

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
  *  Accounts Module Index
- *  Export tất cả các thành phần của module accounts
+ *  Export all components of the accounts module
  *--------------------------------------------------------------------------------------------*/
 
 export * from './types';

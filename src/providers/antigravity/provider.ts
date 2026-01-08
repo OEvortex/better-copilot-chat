@@ -217,10 +217,10 @@ export class AntigravityProvider extends GenericModelProvider implements Languag
 
             const available = loadBalanceEnabled
                 ? candidates.filter(
-                      a =>
-                          !this.accountManager.isAccountQuotaLimited(a.id) &&
+                    a =>
+                        !this.accountManager.isAccountQuotaLimited(a.id) &&
                           !this.antigravityHandler.isInCooldown(model.id, a.id)
-                  )
+                )
                 : candidates;
 
             // Đảm bảo activeAccount luôn được thử đầu tiên nếu nó trong candidates

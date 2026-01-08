@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
  *  Multi-Account Types
- *  Định nghĩa các kiểu dữ liệu cho hệ thống quản lý nhiều tài khoản
+ *  Type definitions for the multi-account management system
  *--------------------------------------------------------------------------------------------*/
 
 /**
@@ -120,23 +120,17 @@ export interface ProviderRoutingConfig {
 /**
  * Cấu hình định tuyến theo provider
  */
-export interface AccountRoutingConfig {
-    [provider: string]: ProviderRoutingConfig;
-}
+export type AccountRoutingConfig = Record<string, ProviderRoutingConfig>;
 
 /**
  * Danh sách tài khoản theo provider
  */
-export interface AccountsByProvider {
-    [provider: string]: Account[];
-}
+export type AccountsByProvider = Record<string, Account[]>;
 
 /**
  * Tài khoản đang active theo provider
  */
-export interface ActiveAccounts {
-    [provider: string]: string; // provider -> accountId
-}
+export type ActiveAccounts = Record<string, string>;
 
 /**
  * Storage schema cho accounts

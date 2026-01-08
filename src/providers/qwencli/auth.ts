@@ -2,7 +2,6 @@
  *  Qwen Code CLI OAuth Authentication
  *--------------------------------------------------------------------------------------------*/
 
-import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -154,25 +153,9 @@ export class QwenOAuthManager {
     }
 
     async ensureAuthenticated(forceRefresh = false): Promise<{ accessToken: string; baseURL: string }> {
-        // If we already have valid credentials in memory and not forcing refresh, return them
-        if (this.credentials && !forceRefresh && this.isTokenValid(this.credentials)) {
-            return {
-                accessToken: this.credentials.access_token,
-                baseURL: this.getBaseURL(this.credentials)
-            };
-        }
+        // Always reload credentials from file to pick up external updates (like CLI login)
+        this.credentials = this.loadCachedCredentials();
 
-        // Try to load from file if not in memory
-        if (!this.credentials) {
-            try {
-                this.credentials = this.loadCachedCredentials();
-            } catch (error) {
-                // If file doesn't exist or is invalid, re-throw
-                throw error;
-            }
-        }
-
-        // Check validity and refresh if needed
         if (forceRefresh || !this.isTokenValid(this.credentials)) {
             this.credentials = await this.refreshAccessToken(this.credentials);
         }
@@ -181,6 +164,11 @@ export class QwenOAuthManager {
             accessToken: this.credentials.access_token,
             baseURL: this.getBaseURL(this.credentials)
         };
+    }
+
+    invalidateCredentials(): void {
+        // Invalidate cached credentials to force a reload on next request
+        this.credentials = null;
     }
 
     private getBaseURL(credentials: QwenOAuthCredentials): string {
