@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import OpenAI from 'openai';
 import {
     CancellationToken,
     LanguageModelChatInformation,
@@ -9,11 +10,12 @@ import {
     ProvideLanguageModelChatResponseOptions
 } from 'vscode';
 import type { HFModelItem, HFModelsResponse } from './types';
-import { convertTools, convertMessages, validateRequest } from './utils';
+import { validateRequest } from './utils';
 import { GenericModelProvider } from '../common/genericModelProvider';
 import { Logger } from '../../utils/logger';
 import { ApiKeyManager } from '../../utils/apiKeyManager';
 import { ProviderConfig } from '../../types/sharedTypes';
+import { ConfigManager } from '../../utils/configManager';
 
 const BASE_URL = 'https://router.huggingface.co/v1';
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
@@ -22,6 +24,8 @@ const DEFAULT_CONTEXT_LENGTH = 128000;
 export class HuggingfaceProvider extends GenericModelProvider implements LanguageModelChatProvider {
     private _chatEndpoints: { model: string; modelMaxPromptTokens: number }[] = [];
     private readonly userAgent: string;
+    private clientCache = new Map<string, { client: OpenAI; lastUsed: number }>();
+    private readonly CLIENT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
     constructor(
         context: vscode.ExtensionContext,
@@ -210,41 +214,26 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
         progress: Progress<LanguageModelResponsePart>,
         token: CancellationToken
     ): Promise<void> {
-        let requestBody: Record<string, unknown> | undefined;
-        const trackingProgress: Progress<LanguageModelResponsePart> = {
-            report: (part: LanguageModelResponsePart) => {
-                try {
-                    progress.report(part);
-                } catch (e) {
-                    Logger.error('[Hugging Face Model Provider] Progress.report failed', {
-                        modelId: model.id,
-                        error: e instanceof Error ? { name: e.name, message: e.message } : String(e)
-                    });
-                }
-            }
-        };
         try {
             const apiKey = await this.ensureApiKey(true);
             if (!apiKey) {
                 throw new Error('Hugging Face API key not found');
             }
 
-            const openaiMessages = convertMessages(messages as readonly vscode.LanguageModelChatRequestMessage[]);
-
             validateRequest(messages as readonly vscode.LanguageModelChatRequestMessage[]);
-
-            const toolConfig = convertTools(options);
 
             if (options.tools && options.tools.length > 128) {
                 throw new Error('Cannot have more than 128 tools per request.');
             }
 
             const inputTokenCount = this.estimateMessagesTokens(messages as readonly vscode.LanguageModelChatMessage[]);
-            const toolTokenCount = this.estimateToolTokens(
-                toolConfig.tools as
-                    | { type: string; function: { name: string; description?: string; parameters?: object } }[]
-                    | undefined
-            );
+            const toolTokenCount = options.tools
+                ? this.estimateToolTokens(
+                      this.openaiHandler.convertToolsToOpenAI([...options.tools]) as
+                          | { type: string; function: { name: string; description?: string; parameters?: object } }[]
+                          | undefined
+                  )
+                : 0;
             const tokenLimit = Math.max(1, model.maxInputTokens);
             if (inputTokenCount + toolTokenCount > tokenLimit) {
                 Logger.error('[Hugging Face Model Provider] Message exceeds token limit', {
@@ -254,57 +243,168 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
                 throw new Error('Message exceeds token limit.');
             }
 
-            requestBody = {
+            // Create OpenAI client
+            const client = await this.createOpenAIClient(apiKey);
+
+            // Get model config for conversion
+            const modelConfig = this.providerConfig.models.find(m => m.id === model.id);
+
+            // Convert messages using OpenAIHandler
+            const openaiMessages = this.openaiHandler.convertMessagesToOpenAI(
+                messages,
+                model.capabilities || undefined,
+                modelConfig
+            );
+
+            // Create stream parameters
+            const createParams: OpenAI.Chat.ChatCompletionCreateParamsStreaming = {
                 model: model.id,
                 messages: openaiMessages,
                 stream: true,
+                stream_options: { include_usage: true },
                 max_tokens: Math.min(options.modelOptions?.max_tokens || 4096, model.maxOutputTokens),
-                temperature: options.modelOptions?.temperature ?? 0.7
+                temperature: options.modelOptions?.temperature ?? ConfigManager.getTemperature(),
+                top_p: ConfigManager.getTopP()
             };
 
+            // Add model options
             if (options.modelOptions) {
                 const mo = options.modelOptions as Record<string, unknown>;
                 if (typeof mo.stop === 'string' || Array.isArray(mo.stop)) {
-                    (requestBody as Record<string, unknown>).stop = mo.stop;
+                    createParams.stop = mo.stop;
                 }
                 if (typeof mo.frequency_penalty === 'number') {
-                    (requestBody as Record<string, unknown>).frequency_penalty = mo.frequency_penalty;
+                    createParams.frequency_penalty = mo.frequency_penalty;
                 }
                 if (typeof mo.presence_penalty === 'number') {
-                    (requestBody as Record<string, unknown>).presence_penalty = mo.presence_penalty;
+                    createParams.presence_penalty = mo.presence_penalty;
                 }
             }
 
-            if (toolConfig.tools) {
-                (requestBody as Record<string, unknown>).tools = toolConfig.tools;
+            // Add tools using OpenAIHandler
+            if (options.tools && options.tools.length > 0 && model.capabilities?.toolCalling) {
+                createParams.tools = this.openaiHandler.convertToolsToOpenAI([...options.tools]);
+                createParams.tool_choice = 'auto';
             }
-            if (toolConfig.tool_choice) {
-                (requestBody as Record<string, unknown>).tool_choice = toolConfig.tool_choice;
-            }
-            const response = await fetch(`${BASE_URL}/chat/completions`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                    'User-Agent': this.userAgent
-                },
-                body: JSON.stringify(requestBody)
+
+            // Use OpenAI SDK streaming
+            const abortController = new AbortController();
+            token.onCancellationRequested(() => abortController.abort());
+
+            const stream = client.chat.completions.stream(createParams, { signal: abortController.signal });
+
+            let currentThinkingId: string | null = null;
+            let thinkingContentBuffer = '';
+            let hasReceivedContent = false;
+
+            // Handle chunks for reasoning_content
+            stream.on('chunk', (chunk: OpenAI.Chat.ChatCompletionChunk) => {
+                if (token.isCancellationRequested) {
+                    return;
+                }
+
+                // Process reasoning/reasoning_content from chunk choices
+                if (chunk.choices && chunk.choices.length > 0) {
+                    for (const choice of chunk.choices) {
+                        const delta = choice.delta as { reasoning?: string; reasoning_content?: string } | undefined;
+                        const reasoningContent = delta?.reasoning ?? delta?.reasoning_content;
+
+                        if (reasoningContent && typeof reasoningContent === 'string') {
+                            if (!currentThinkingId) {
+                                currentThinkingId = `hf_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+                            }
+                            thinkingContentBuffer += reasoningContent;
+                            try {
+                                progress.report(
+                                    new vscode.LanguageModelThinkingPart(
+                                        thinkingContentBuffer,
+                                        currentThinkingId
+                                    ) as unknown as LanguageModelResponsePart
+                                );
+                                thinkingContentBuffer = '';
+                            } catch (e) {
+                                Logger.warn(
+                                    '[Hugging Face] Failed to report thinking',
+                                    e instanceof Error ? e.message : String(e)
+                                );
+                            }
+                        }
+                    }
+                }
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                Logger.error('[Hugging Face Model Provider] HF API error response', errorText);
-                throw new Error(
-                    `Hugging Face API error: ${response.status} ${response.statusText}${errorText ? `\n${errorText}` : ''}`
-                );
-            }
+            // Handle content stream
+            stream.on('content', (delta: string) => {
+                if (token.isCancellationRequested) {
+                    return;
+                }
 
-            if (!response.body) {
-                throw new Error('No response body from Hugging Face API');
-            }
+                // Handle regular content
+                if (delta && typeof delta === 'string' && delta.trim().length > 0) {
+                    // End thinking if we're starting to output regular content
+                    if (currentThinkingId) {
+                        try {
+                            progress.report(
+                                new vscode.LanguageModelThinkingPart(
+                                    '',
+                                    currentThinkingId
+                                ) as unknown as LanguageModelResponsePart
+                            );
+                        } catch {
+                            // ignore
+                        }
+                        currentThinkingId = null;
+                    }
 
-            // stream processing - reuse a small parser similar to upstream implementation
-            await this.processStreamingResponse(response.body, trackingProgress, token);
+                    try {
+                        progress.report(new vscode.LanguageModelTextPart(delta));
+                        hasReceivedContent = true;
+                    } catch (e) {
+                        Logger.warn(
+                            '[Hugging Face] Failed to report content',
+                            e instanceof Error ? e.message : String(e)
+                        );
+                    }
+                }
+            });
+
+            // Handle tool calls
+            stream.on('tool_calls.function.arguments.done', () => {
+                if (token.isCancellationRequested) {
+                    return;
+                }
+                // Finalize thinking before tool calls
+                if (currentThinkingId) {
+                    try {
+                        progress.report(
+                            new vscode.LanguageModelThinkingPart(
+                                '',
+                                currentThinkingId
+                            ) as unknown as LanguageModelResponsePart
+                        );
+                    } catch {
+                        // ignore
+                    }
+                    currentThinkingId = null;
+                }
+            });
+
+            // Wait for stream to complete
+            await stream.finalChatCompletion();
+
+            // Finalize thinking if still active
+            if (currentThinkingId) {
+                try {
+                    progress.report(
+                        new vscode.LanguageModelThinkingPart(
+                            '',
+                            currentThinkingId
+                        ) as unknown as LanguageModelResponsePart
+                    );
+                } catch {
+                    // ignore
+                }
+            }
         } catch (err) {
             Logger.error('[Hugging Face Model Provider] Chat request failed', {
                 modelId: model.id,
@@ -313,6 +413,31 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
             });
             throw err;
         }
+    }
+
+    /**
+     * Create OpenAI client for HuggingFace API
+     */
+    private async createOpenAIClient(apiKey: string): Promise<OpenAI> {
+        const cacheKey = `huggingface:${BASE_URL}`;
+        const cached = this.clientCache.get(cacheKey);
+        if (cached) {
+            cached.lastUsed = Date.now();
+            return cached.client;
+        }
+
+        const client = new OpenAI({
+            apiKey: apiKey,
+            baseURL: BASE_URL,
+            defaultHeaders: {
+                'User-Agent': this.userAgent
+            },
+            maxRetries: 2,
+            timeout: 60000
+        });
+
+        this.clientCache.set(cacheKey, { client, lastUsed: Date.now() });
+        return client;
     }
 
     async provideTokenCount(
@@ -346,162 +471,6 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
         return apiKey;
     }
 
-    private async processStreamingResponse(
-        responseBody: ReadableStream<Uint8Array>,
-        progress: vscode.Progress<vscode.LanguageModelResponsePart>,
-        token: vscode.CancellationToken
-    ): Promise<void> {
-        const reader = responseBody.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        let currentThinkingId: string | null = null;
-
-        try {
-            while (!token.isCancellationRequested) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    // Finalize thinking if still active
-                    if (currentThinkingId) {
-                        try {
-                            progress.report(
-                                new vscode.LanguageModelThinkingPart(
-                                    '',
-                                    currentThinkingId
-                                ) as unknown as LanguageModelResponsePart
-                            );
-                        } catch {
-                            // ignore
-                        }
-                    }
-                    break;
-                }
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || '';
-
-                for (const line of lines) {
-                    if (!line.startsWith('data: ')) {
-                        continue;
-                    }
-                    const data = line.slice(6);
-                    if (data === '[DONE]') {
-                        // Finalize thinking if still active
-                        if (currentThinkingId) {
-                            try {
-                                progress.report(
-                                    new vscode.LanguageModelThinkingPart(
-                                        '',
-                                        currentThinkingId
-                                    ) as unknown as LanguageModelResponsePart
-                                );
-                            } catch {
-                                // ignore
-                            }
-                            currentThinkingId = null;
-                        }
-                        continue;
-                    }
-                    try {
-                        const parsed = JSON.parse(data);
-                        const newThinkingId = await this.processDelta(parsed, progress, currentThinkingId);
-                        if (newThinkingId !== currentThinkingId) {
-                            currentThinkingId = newThinkingId;
-                        }
-                    } catch {
-                        // ignore malformed chunks
-                    }
-                }
-            }
-        } finally {
-            reader.releaseLock();
-        }
-    }
-
-    private async processDelta(
-        delta: Record<string, unknown>,
-        progress: vscode.Progress<vscode.LanguageModelResponsePart>,
-        currentThinkingId: string | null
-    ): Promise<string | null> {
-        const choice = (delta.choices as Record<string, unknown>[] | undefined)?.[0];
-        if (!choice) {
-            return currentThinkingId;
-        }
-
-        const deltaObj = choice.delta as Record<string, unknown> | undefined;
-        const message = choice.message as Record<string, unknown> | undefined;
-        if (!deltaObj) {
-            return currentThinkingId;
-        }
-
-        // Handle reasoning/reasoning_content (thinking content)
-        // Note: Some providers use 'reasoning', others use 'reasoning_content'
-        const reasoningContent =
-            deltaObj.reasoning ?? deltaObj.reasoning_content ?? message?.reasoning ?? message?.reasoning_content;
-        if (reasoningContent && typeof reasoningContent === 'string') {
-            try {
-                // If currently no active id, generate one for this chain of thought
-                let thinkingId = currentThinkingId;
-                if (!thinkingId) {
-                    thinkingId = `hf_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-                }
-
-                // Report thinking immediately for real-time streaming
-                progress.report(
-                    new vscode.LanguageModelThinkingPart(
-                        reasoningContent,
-                        thinkingId
-                    ) as unknown as LanguageModelResponsePart
-                );
-                return thinkingId;
-            } catch (e) {
-                Logger.warn(
-                    '[Hugging Face Model Provider] Failed to report thinking',
-                    e instanceof Error ? e.message : String(e)
-                );
-            }
-        }
-
-        // Handle regular text content
-        const content = deltaObj.content ?? deltaObj; // sometimes content nested
-        if (typeof content === 'string') {
-            // End thinking if we're starting to output regular content
-            if (currentThinkingId && content.trim().length > 0) {
-                try {
-                    progress.report(
-                        new vscode.LanguageModelThinkingPart(
-                            '',
-                            currentThinkingId
-                        ) as unknown as LanguageModelResponsePart
-                    );
-                } catch {
-                    // ignore
-                }
-                currentThinkingId = null;
-            }
-
-            const TextCtor = (vscode as unknown as Record<string, unknown>)['LanguageModelTextPart'] as unknown as
-                | (new (val: string) => unknown)
-                | undefined;
-            if (TextCtor) {
-                try {
-                    const textPartInstance = new (TextCtor as new (val: string) => unknown)(content);
-                    progress.report(textPartInstance as unknown as LanguageModelResponsePart);
-                    return currentThinkingId;
-                } catch (e) {
-                    Logger.warn(
-                        '[Hugging Face Model Provider] Failed to construct LanguageModelTextPart',
-                        e instanceof Error ? e.message : String(e)
-                    );
-                }
-            }
-            // fallback to reporting as plain text part
-            progress.report({ type: 'message', text: content } as unknown as LanguageModelResponsePart);
-            return currentThinkingId;
-        }
-
-        return currentThinkingId;
-    }
 
     static createAndActivate(
         context: vscode.ExtensionContext,

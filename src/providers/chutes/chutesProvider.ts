@@ -17,7 +17,7 @@ import {
     ProvideLanguageModelChatResponseOptions
 } from 'vscode';
 import type { ChutesModelItem, ChutesModelsResponse } from './types';
-import { convertTools, convertMessages, validateRequest } from './utils';
+import { validateRequest } from './utils';
 import { GenericModelProvider } from '../common/genericModelProvider';
 import { Logger } from '../../utils/logger';
 import { ApiKeyManager } from '../../utils/apiKeyManager';
@@ -264,18 +264,18 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
 
             validateRequest(messages as readonly vscode.LanguageModelChatRequestMessage[]);
 
-            const toolConfig = convertTools(options);
-
             if (options.tools && options.tools.length > 128) {
                 throw new Error('Cannot have more than 128 tools per request.');
             }
 
             const inputTokenCount = this.estimateMessagesTokens(messages as readonly vscode.LanguageModelChatMessage[]);
-            const toolTokenCount = this.estimateToolTokens(
-                toolConfig.tools as
-                    | { type: string; function: { name: string; description?: string; parameters?: object } }[]
-                    | undefined
-            );
+            const toolTokenCount = options.tools
+                ? this.estimateToolTokens(
+                      this.openaiHandler.convertToolsToOpenAI([...options.tools]) as
+                          | { type: string; function: { name: string; description?: string; parameters?: object } }[]
+                          | undefined
+                  )
+                : 0;
             const tokenLimit = Math.max(1, model.maxInputTokens);
             if (inputTokenCount + toolTokenCount > tokenLimit) {
                 Logger.error('[Chutes Model Provider] Message exceeds token limit', {
@@ -288,8 +288,15 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
             // Create OpenAI client
             const client = await this.createOpenAIClient(apiKey);
 
-            // Convert messages
-            const openaiMessages = convertMessages(messages as readonly vscode.LanguageModelChatRequestMessage[]);
+            // Get model config for conversion
+            const modelConfig = this.providerConfig.models.find(m => m.id === model.id);
+
+            // Convert messages using OpenAIHandler
+            const openaiMessages = this.openaiHandler.convertMessagesToOpenAI(
+                messages,
+                model.capabilities || undefined,
+                modelConfig
+            );
 
             // Create stream parameters
             const createParams: OpenAI.Chat.ChatCompletionCreateParamsStreaming = {
@@ -316,10 +323,10 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
                 }
             }
 
-            // Add tools
-            if (toolConfig.tools) {
-                createParams.tools = toolConfig.tools;
-                createParams.tool_choice = toolConfig.tool_choice || 'auto';
+            // Add tools using OpenAIHandler
+            if (options.tools && options.tools.length > 0 && model.capabilities?.toolCalling) {
+                createParams.tools = this.openaiHandler.convertToolsToOpenAI([...options.tools]);
+                createParams.tool_choice = 'auto';
             }
 
             // Use OpenAI SDK streaming
@@ -332,31 +339,46 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
             let thinkingContentBuffer = '';
             let hasReceivedContent = false;
 
-            // Handle content stream
-            stream.on('content', (delta: string) => {
+            // Handle chunks for reasoning_content
+            stream.on('chunk', (chunk: OpenAI.Chat.ChatCompletionChunk) => {
                 if (token.isCancellationRequested) {
                     return;
                 }
 
-                // Handle reasoning/reasoning_content from snapshot if available
-                const snapshot = (stream as unknown as { _snapshot?: { reasoning?: string; reasoning_content?: string } })
-                    ._snapshot;
-                const reasoningContent =
-                    snapshot?.reasoning ?? snapshot?.reasoning_content ?? (delta as unknown as { reasoning?: string })?.reasoning;
+                // Process reasoning/reasoning_content from chunk choices
+                if (chunk.choices && chunk.choices.length > 0) {
+                    for (const choice of chunk.choices) {
+                        const delta = choice.delta as { reasoning?: string; reasoning_content?: string } | undefined;
+                        const reasoningContent = delta?.reasoning ?? delta?.reasoning_content;
 
-                if (reasoningContent && typeof reasoningContent === 'string') {
-                    if (!currentThinkingId) {
-                        currentThinkingId = `chutes_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+                        if (reasoningContent && typeof reasoningContent === 'string') {
+                            if (!currentThinkingId) {
+                                currentThinkingId = `chutes_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+                            }
+                            thinkingContentBuffer += reasoningContent;
+                            try {
+                                progress.report(
+                                    new vscode.LanguageModelThinkingPart(
+                                        thinkingContentBuffer,
+                                        currentThinkingId
+                                    ) as unknown as LanguageModelResponsePart
+                                );
+                                thinkingContentBuffer = '';
+                            } catch (e) {
+                                Logger.warn(
+                                    '[Chutes] Failed to report thinking',
+                                    e instanceof Error ? e.message : String(e)
+                                );
+                            }
+                        }
                     }
-                    thinkingContentBuffer += reasoningContent;
-                    try {
-                        progress.report(
-                            new vscode.LanguageModelThinkingPart(thinkingContentBuffer, currentThinkingId) as unknown as LanguageModelResponsePart
-                        );
-                        thinkingContentBuffer = '';
-                    } catch (e) {
-                        Logger.warn('[Chutes] Failed to report thinking', e instanceof Error ? e.message : String(e));
-                    }
+                }
+            });
+
+            // Handle content stream
+            stream.on('content', (delta: string) => {
+                if (token.isCancellationRequested) {
+                    return;
                 }
 
                 // Handle regular content
@@ -365,7 +387,10 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
                     if (currentThinkingId) {
                         try {
                             progress.report(
-                                new vscode.LanguageModelThinkingPart('', currentThinkingId) as unknown as LanguageModelResponsePart
+                                new vscode.LanguageModelThinkingPart(
+                                    '',
+                                    currentThinkingId
+                                ) as unknown as LanguageModelResponsePart
                             );
                         } catch {
                             // ignore
@@ -391,7 +416,10 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
                 if (currentThinkingId) {
                     try {
                         progress.report(
-                            new vscode.LanguageModelThinkingPart('', currentThinkingId) as unknown as LanguageModelResponsePart
+                            new vscode.LanguageModelThinkingPart(
+                                '',
+                                currentThinkingId
+                            ) as unknown as LanguageModelResponsePart
                         );
                     } catch {
                         // ignore
@@ -407,7 +435,10 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
             if (currentThinkingId) {
                 try {
                     progress.report(
-                        new vscode.LanguageModelThinkingPart('', currentThinkingId) as unknown as LanguageModelResponsePart
+                        new vscode.LanguageModelThinkingPart(
+                            '',
+                            currentThinkingId
+                        ) as unknown as LanguageModelResponsePart
                     );
                 } catch {
                     // ignore
@@ -480,187 +511,6 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
             apiKey = await ApiKeyManager.getApiKey('chutes');
         }
         return apiKey;
-    }
-
-    private async processStreamingResponse(
-        responseBody: ReadableStream<Uint8Array>,
-        progress: vscode.Progress<vscode.LanguageModelResponsePart>,
-        token: vscode.CancellationToken
-    ): Promise<void> {
-        const reader = responseBody.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        let currentThinkingId: string | null = null;
-
-        try {
-            while (!token.isCancellationRequested) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    // Process any remaining buffer before breaking
-                    if (buffer.trim()) {
-                        const lines = buffer.split('\n');
-                        for (const line of lines) {
-                            if (line.trim() && line.startsWith('data: ')) {
-                                const data = line.slice(6).trim();
-                                if (data && data !== '[DONE]') {
-                                    try {
-                                        const parsed = JSON.parse(data);
-                                        const newThinkingId = await this.processDelta(
-                                            parsed,
-                                            progress,
-                                            currentThinkingId
-                                        );
-                                        if (newThinkingId !== currentThinkingId) {
-                                            currentThinkingId = newThinkingId;
-                                        }
-                                    } catch {
-                                        // ignore malformed chunks
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    break;
-                }
-
-                buffer += decoder.decode(value, { stream: true });
-                buffer = buffer.replace(/\r\n/g, '\n');
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || '';
-
-                for (const line of lines) {
-                    // Skip empty lines
-                    if (!line.trim()) {
-                        continue;
-                    }
-
-                    // Process SSE data lines
-                    if (line.startsWith('data: ')) {
-                        const data = line.slice(6).trim();
-
-                        // Skip [DONE] marker but continue processing
-                        if (data === '[DONE]') {
-                            continue;
-                        }
-
-                        // Skip empty data
-                        if (!data) {
-                            continue;
-                        }
-
-                        try {
-                            const parsed = JSON.parse(data);
-                            const newThinkingId = await this.processDelta(parsed, progress, currentThinkingId);
-                            if (newThinkingId !== currentThinkingId) {
-                                currentThinkingId = newThinkingId;
-                            }
-                        } catch {
-                            // ignore malformed chunks
-                        }
-                    }
-                }
-            }
-        } finally {
-            // Finalize thinking if still active
-            if (currentThinkingId) {
-                try {
-                    progress.report(
-                        new vscode.LanguageModelThinkingPart(
-                            '',
-                            currentThinkingId
-                        ) as unknown as LanguageModelResponsePart
-                    );
-                } catch {
-                    // ignore
-                }
-            }
-            reader.releaseLock();
-        }
-    }
-
-    private async processDelta(
-        delta: Record<string, unknown>,
-        progress: vscode.Progress<vscode.LanguageModelResponsePart>,
-        currentThinkingId: string | null
-    ): Promise<string | null> {
-        const choice = (delta.choices as Record<string, unknown>[] | undefined)?.[0];
-        if (!choice) {
-            return currentThinkingId;
-        }
-
-        const deltaObj = choice.delta as Record<string, unknown> | undefined;
-        const message = choice.message as Record<string, unknown> | undefined;
-        if (!deltaObj) {
-            return currentThinkingId;
-        }
-
-        // Handle reasoning/reasoning_content (thinking content)
-        // Note: Some providers use 'reasoning', others use 'reasoning_content'
-        const reasoningContent =
-            deltaObj.reasoning ?? deltaObj.reasoning_content ?? message?.reasoning ?? message?.reasoning_content;
-        if (reasoningContent && typeof reasoningContent === 'string') {
-            try {
-                // If currently no active id, generate one for this chain of thought
-                let thinkingId = currentThinkingId;
-                if (!thinkingId) {
-                    thinkingId = `chutes_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-                }
-
-                // Report thinking immediately for real-time streaming
-                progress.report(
-                    new vscode.LanguageModelThinkingPart(
-                        reasoningContent,
-                        thinkingId
-                    ) as unknown as LanguageModelResponsePart
-                );
-                return thinkingId;
-            } catch (e) {
-                Logger.warn(
-                    '[Chutes Model Provider] Failed to report thinking',
-                    e instanceof Error ? e.message : String(e)
-                );
-            }
-        }
-
-        // Handle regular text content
-        const content = deltaObj.content ?? deltaObj; // sometimes content nested
-        if (typeof content === 'string') {
-            // End thinking if we're starting to output regular content
-            if (currentThinkingId && content.trim().length > 0) {
-                try {
-                    progress.report(
-                        new vscode.LanguageModelThinkingPart(
-                            '',
-                            currentThinkingId
-                        ) as unknown as LanguageModelResponsePart
-                    );
-                } catch {
-                    // ignore
-                }
-                currentThinkingId = null;
-            }
-
-            const TextCtor = (vscode as unknown as Record<string, unknown>)['LanguageModelTextPart'] as unknown as
-                | (new (val: string) => unknown)
-                | undefined;
-            if (TextCtor) {
-                try {
-                    const textPartInstance = new (TextCtor as new (val: string) => unknown)(content);
-                    progress.report(textPartInstance as unknown as LanguageModelResponsePart);
-                    return currentThinkingId;
-                } catch (e) {
-                    Logger.warn(
-                        '[Chutes Model Provider] Failed to construct LanguageModelTextPart',
-                        e instanceof Error ? e.message : String(e)
-                    );
-                }
-            }
-            // fallback to reporting as plain text part
-            progress.report({ type: 'message', text: content } as unknown as LanguageModelResponsePart);
-            return currentThinkingId;
-        }
-
-        return currentThinkingId;
     }
 
     /**

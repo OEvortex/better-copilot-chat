@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 ## [0.1.2] - 2026-01-08
 
 ### Changed / Improved
+- **Provider streaming architecture**: Migrated Chutes, HuggingFace, and OpenCode providers to use official OpenAI TypeScript SDK for robust streaming:
+  - **Chutes**: Refactored to use OpenAI SDK, eliminating premature response stopping issues. Added dynamic model fetching from API with auto-update of config file (`src/providers/chutes/chutesProvider.ts`).
+  - **HuggingFace**: Migrated to OpenAI SDK for reliable streaming and proper reasoning content handling (`src/providers/huggingface/provider.ts`).
+  - **OpenCode**: Already using OpenAI SDK via GenericModelProvider (no changes needed).
+  - All providers now properly handle reasoning/reasoning_content (thinking content) similar to OpenAI handler.
 - Authentication and provider reliability:
   - Antigravity: improved OAuth/auth flow and provider handling (`src/providers/antigravity/auth.ts`, `src/providers/antigravity/provider.ts`).
   - Codex: authentication and handler fixes (`src/providers/codex/codexAuth.ts`, `src/providers/codex/codexHandler.ts`).
@@ -24,8 +29,9 @@ All notable changes to this project will be documented in this file.
   - Improvements to configuration, logging, and web search utilities (`src/utils/configManager.ts`, `src/utils/logger.ts`, `src/utils/mcpWebSearchClient.ts`).
   - OpenAI stream processing and token counting fixes (`src/utils/openaiStreamProcessor.ts`, `src/utils/tokenCounter.ts`).
 
-
 ### Fixed
+- **Fixed premature response stopping**: Chutes and HuggingFace providers now use OpenAI SDK which properly handles stream completion, eliminating premature stopping issues.
+- **Fixed reasoning content rendering**: Chutes and HuggingFace now properly render thinking/reasoning content similar to other providers.
 - Various bug fixes addressing completion, streaming, authentication, and concurrency issues that improved stability across providers and the extension.
 
 ### Miscellaneous
