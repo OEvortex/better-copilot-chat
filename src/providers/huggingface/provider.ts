@@ -471,7 +471,6 @@ export class HuggingfaceProvider extends GenericModelProvider implements Languag
         return apiKey;
     }
 
-
     static createAndActivate(
         context: vscode.ExtensionContext,
         providerKey: string,
