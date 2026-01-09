@@ -51,6 +51,8 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 
 ## Key Features
 
+- Unified status bar: a single Copilot ++ status bar consolidates provider status, context usage, and settings into an integrated panel (click the status icon to inspect details).
+
 ### Multi-Account Management
 
 > **Manage multiple accounts per provider with ease**

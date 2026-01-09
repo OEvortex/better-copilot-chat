@@ -219,6 +219,11 @@
                 "category": "Copilot ++"
             },
             {
+                "command": "chp.copilot.refreshStatus",
+                "title": "Refresh Copilot ++ Status",
+                "category": "Copilot ++"
+            },
+            {
                 "command": "chp.qwencli.login",
                 "title": "Qwen CLI Login (OAuth)",
                 "category": "Copilot ++"
