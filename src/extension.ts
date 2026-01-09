@@ -24,12 +24,10 @@ import {
     JsonSchemaProvider
 } from './utils';
 import { CompatibleModelManager } from './utils/compatibleModelManager';
-import { LeaderElectionService, StatusBarManager, registerCombinedQuotaCommand } from './status';
 import { registerAllTools } from './tools';
 import {
     AccountManager,
     registerAccountCommands,
-    AccountStatusBar,
     AccountSyncAdapter,
     AccountQuotaCache
 } from './accounts';
@@ -226,7 +224,6 @@ export async function activate(context: vscode.ExtensionContext) {
     globalThis.__chp_singletons = {
         CompletionLogger,
         ApiKeyManager,
-        StatusBarManager,
         ConfigManager
     };
 
@@ -246,13 +243,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
         Logger.info('⏱️ Starting Copilot ++extension activation...');
 
-        // Step 0: Initialize leader election service
-        let stepStartTime = Date.now();
-        LeaderElectionService.initialize(context);
-        Logger.trace(`⏱️ Leader election service initialized (time: ${Date.now() - stepStartTime}ms)`);
-
         // Step 1: Initialize API key manager
-        stepStartTime = Date.now();
+        let stepStartTime = Date.now();
         ApiKeyManager.initialize(context);
         Logger.trace(`⏱️ API key manager initialization complete (time: ${Date.now() - stepStartTime}ms)`);
 
@@ -263,11 +255,6 @@ export async function activate(context: vscode.ExtensionContext) {
         AccountQuotaCache.initialize(context);
         const accountDisposables = registerAccountCommands(context);
         context.subscriptions.push(...accountDisposables);
-        // Initialize account status bar
-        const accountStatusBar = AccountStatusBar.initialize();
-        context.subscriptions.push({ dispose: () => accountStatusBar.dispose() });
-        // Register Combined Quota Popup command (Antigravity)
-        registerCombinedQuotaCommand(context);
         // Initialize account sync adapter and sync existing accounts
         const accountSyncAdapter = AccountSyncAdapter.initialize();
         context.subscriptions.push({ dispose: () => accountSyncAdapter.dispose() });
@@ -346,11 +333,6 @@ export async function activate(context: vscode.ExtensionContext) {
         stepStartTime = Date.now();
         await activateCompatibleProvider(context);
         Logger.trace(`⏱️ Compatible provider registration complete (time: ${Date.now() - stepStartTime}ms)`);
-
-        // Step 3.2: Initialize all status bars (including creation and registration)
-        stepStartTime = Date.now();
-        await StatusBarManager.initializeAll(context);
-        Logger.trace(`⏱️ All status bars initialization complete (time: ${Date.now() - stepStartTime}ms)`);
 
         // Step 4: Register tools
         stepStartTime = Date.now();
@@ -519,12 +501,6 @@ export async function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {
     try {
-        // Clean up all status bars
-        StatusBarManager.disposeAll();
-
-        // Stop leader election service
-        LeaderElectionService.stop();
-
         // Clean up all registered provider resources
         for (const [providerKey, provider] of Object.entries(registeredProviders)) {
             try {

@@ -17,7 +17,6 @@ import { Logger } from '../../utils/logger';
 import { ApiKeyManager } from '../../utils/apiKeyManager';
 import { ZhipuWizard } from './zhipuWizard';
 import { GenericModelProvider } from '../common/genericModelProvider';
-import { StatusBarManager } from '../../status/statusBarManager';
 
 /**
  * Zhipu AI Dedicated Model Provider Class
@@ -66,13 +65,6 @@ export class ZhipuProvider extends GenericModelProvider implements LanguageModel
     }
 
     /**
-     * Get Zhipu status bar instance (for delayedUpdate calls)
-     */
-    static getZhipuStatusBar() {
-        return StatusBarManager.zhipu;
-    }
-
-    /**
      * Override provideChatResponse to update status bar after request completion
      */
     override async provideLanguageModelChatResponse(
@@ -82,12 +74,7 @@ export class ZhipuProvider extends GenericModelProvider implements LanguageModel
         progress: Progress<vscode.LanguageModelResponsePart>,
         token: CancellationToken
     ): Promise<void> {
-        try {
-            // Call parent class implementation
-            await super.provideLanguageModelChatResponse(model, messages, options, progress, token);
-        } finally {
-            // After request completion, delayed update of Zhipu AI status bar usage
-            StatusBarManager.zhipu?.delayedUpdate();
-        }
+        // Call parent class implementation
+        await super.provideLanguageModelChatResponse(model, messages, options, progress, token);
     }
 }

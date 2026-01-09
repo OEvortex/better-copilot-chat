@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import copilotCss from './copilotOverview.css?raw';
 import copilotJs from './copilotOverview.js?raw';
-import { TokenUsageData, TokenUsageStatusBar } from '../status/tokenUsageStatusBar';
 import { ApiKeyManager } from '../utils/apiKeyManager';
 
 export class CopilotOverview {
@@ -76,16 +75,13 @@ export class CopilotOverview {
                 }
             }));
 
-            const tokenBar = TokenUsageStatusBar.getInstance();
-            const tokenData = tokenBar?.getCurrentData();
-
             const inlineEnabled = vscode.workspace.getConfiguration('editor').get<boolean>('inlineSuggest.enabled', true);
             const fimEnabled = vscode.workspace.getConfiguration('chp').get<boolean>('fimCompletion.enabled', false);
             const nesEnabled = vscode.workspace.getConfiguration('chp').get<boolean>('nesCompletion.enabled', false);
 
             webview.postMessage({ command: 'updateState', data: {
                 providers: providerStatuses,
-                tokenUsage: tokenData ? { modelName: tokenData.modelName, percentage: tokenData.percentage } : null,
+                tokenUsage: null,
                 inlineEnabled, fimEnabled, nesEnabled
             }});
         } catch (e) {
@@ -95,10 +91,7 @@ export class CopilotOverview {
 
     private static tokenListener?: vscode.Disposable;
     private static attachTokenListener(webview: vscode.Webview) {
-        // subscribe to token usage event
-        this.tokenListener = TokenUsageStatusBar.onDidChangeActiveModel(data => {
-            webview.postMessage({ command: 'tokenUpdate', data });
-        });
+        // Token usage status bar removed
     }
 
     private static detachTokenListener() {

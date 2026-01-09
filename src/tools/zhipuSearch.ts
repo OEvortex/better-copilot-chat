@@ -10,7 +10,6 @@ import { ApiKeyManager } from '../utils/apiKeyManager';
 import { ConfigManager } from '../utils/configManager';
 import { VersionManager } from '../utils/versionManager';
 import { MCPWebSearchClient, type WebSearchRequest } from '../utils/mcpWebSearchClient';
-import { StatusBarManager } from '../status/statusBarManager';
 
 /**
  * ZhipuAI search engine type
@@ -216,9 +215,6 @@ export class ZhipuSearchTool {
             }
 
             Logger.info('[Tool Invocation] ZhipuAI web search tool invocation successful');
-
-            // After search complete, delayed update ZhipuAI status bar (usage display)
-            StatusBarManager.zhipu?.delayedUpdate();
 
             return new vscode.LanguageModelToolResult([
                 new vscode.LanguageModelTextPart(JSON.stringify(searchResults))

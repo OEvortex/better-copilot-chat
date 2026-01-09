@@ -6,7 +6,6 @@
 export * from './types';
 export * from './accountManager';
 export * from './accountUI';
-export * from './accountStatusBar';
 export * from './accountSyncAdapter';
 export * from './accountManagerPage';
 export * from './accountQuotaCache';

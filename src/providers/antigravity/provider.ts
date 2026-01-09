@@ -10,7 +10,6 @@ import {
 import { ModelConfig, ProviderConfig } from '../../types/sharedTypes';
 import { Logger, ConfigManager } from '../../utils';
 import { GenericModelProvider } from '../common/genericModelProvider';
-import { StatusBarManager } from '../../status';
 import { AccountManager } from '../../accounts';
 import { Account } from '../../accounts/types';
 import { AntigravityAuth, antigravityLoginCommand } from './auth';
@@ -173,7 +172,6 @@ export class AntigravityProvider extends GenericModelProvider implements Languag
         if (!modelConfig) {
             throw new Error(`Model not found: ${model.id}`);
         }
-        await this.updateTokenUsageStatusBar(model, messages, modelConfig, options);
         try {
             const configWithAuth: ModelConfig = { ...modelConfig, model: model.id };
             const accounts = this.accountManager.getAccountsByProvider(AntigravityProvider.PROVIDER_KEY);
@@ -307,7 +305,6 @@ export class AntigravityProvider extends GenericModelProvider implements Languag
             throw error;
         } finally {
             Logger.info(`Antigravity Provider: ${model.name} request completed`);
-            StatusBarManager.compatible?.delayedUpdate(AntigravityProvider.PROVIDER_KEY, 2000);
         }
     }
 

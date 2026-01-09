@@ -15,7 +15,6 @@ import {
 import { GenericModelProvider } from '../common/genericModelProvider';
 import { ProviderConfig, ModelConfig } from '../../types/sharedTypes';
 import { Logger, ApiKeyManager, MistralHandler } from '../../utils';
-import { StatusBarManager } from '../../status';
 
 /**
  * Mistral AI dedicated model provider class
@@ -86,9 +85,6 @@ export class MistralProvider extends GenericModelProvider implements LanguageMod
             throw new Error(errorMessage);
         }
 
-        // Calculate input token count and update status bar
-        await this.updateTokenUsageStatusBar(model, messages, modelConfig, options);
-
         try {
             Logger.info(`[Mistral] Starting request for model: ${model.name}`);
             await this.mistralHandler.handleRequest(model, modelConfig, messages, options, progress, token);
@@ -96,8 +92,6 @@ export class MistralProvider extends GenericModelProvider implements LanguageMod
             Logger.error(`[Mistral] Request failed: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         } finally {
-            // Trigger status bar update if needed
-            StatusBarManager.delayedUpdate('mistral', 100);
             Logger.info(`${this.providerConfig.displayName}: ${model.name} Request completed`);
         }
     }

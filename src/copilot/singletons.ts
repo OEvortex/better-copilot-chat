@@ -8,14 +8,12 @@
 
 import { CompletionLogger } from '../utils/completionLogger';
 import { ApiKeyManager } from '../utils/apiKeyManager';
-import { StatusBarManager } from '../status/statusBarManager';
 import { ConfigManager } from '../utils/configManager';
 
 /** Type definition for singleton container */
 interface CHPSingletons {
     CompletionLogger: typeof CompletionLogger;
     ApiKeyManager: typeof ApiKeyManager;
-    StatusBarManager: typeof StatusBarManager;
     ConfigManager: typeof ConfigManager;
 }
 
@@ -41,14 +39,6 @@ export function getApiKeyManager(): typeof ApiKeyManager {
 }
 
 /**
- * Get shared StatusBarManager instance
- * Prefer to get from globalThis (instance initialized by extension.js), otherwise fallback to direct import
- */
-export function getStatusBarManager(): typeof StatusBarManager {
-    return globalThis.__chp_singletons?.StatusBarManager || StatusBarManager;
-}
-
-/**
  * Get shared ConfigManager instance
  * Prefer to get from globalThis (instance initialized by extension.js), otherwise fallback to direct import
  */
@@ -64,7 +54,6 @@ export function getAllSingletons(): CHPSingletons {
     return {
         CompletionLogger: getCompletionLogger(),
         ApiKeyManager: getApiKeyManager(),
-        StatusBarManager: getStatusBarManager(),
         ConfigManager: getConfigManager()
     };
 }

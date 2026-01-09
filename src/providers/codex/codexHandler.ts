@@ -10,7 +10,6 @@ import { Logger } from '../../utils/logger';
 import { ModelConfig } from '../../types/sharedTypes';
 import { RateLimitSnapshot } from '../../types/rateLimitTypes';
 import { parseRateLimitFromHeaders, formatRateLimitSummary } from '../../utils/rateLimitParser';
-import { CodexRateLimitStatusBar } from '../../status/codexRateLimitStatusBar';
 import { loadGpt52Instructions, loadCodexInstructions, loadCodexDefaultInstructions, loadCodexVscodeToolsInstructions } from '../../prompt/promptLoader';
 import { AccountManager } from '../../accounts';
 import { UsageLimitError } from './codexTypes';
@@ -612,11 +611,6 @@ export class CodexHandler {
                 const rateLimitSnapshot = parseRateLimitFromHeaders(res.headers as Record<string, string | string[] | undefined>);
                 if (rateLimitSnapshot) {
                     this.lastRateLimitSnapshot = rateLimitSnapshot;
-                    
-                    
-                    if (accountId) {
-                        CodexRateLimitStatusBar.getInstance().update(rateLimitSnapshot, accountId);
-                    }
                 }
                 
                 if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {

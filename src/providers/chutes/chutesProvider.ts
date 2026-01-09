@@ -22,7 +22,6 @@ import { GenericModelProvider } from '../common/genericModelProvider';
 import { Logger } from '../../utils/logger';
 import { ApiKeyManager } from '../../utils/apiKeyManager';
 import { ProviderConfig, ModelConfig } from '../../types/sharedTypes';
-import { StatusBarManager } from '../../status';
 import { ConfigManager } from '../../utils/configManager';
 
 const BASE_URL = 'https://llm.chutes.ai/v1';
@@ -531,9 +530,6 @@ export class ChutesProvider extends GenericModelProvider implements LanguageMode
 
         this.context?.globalState.update('chutes.requestCount', count);
         Logger.debug(`[Chutes] Global request count: ${count}/5000`);
-
-        // Trigger status bar update
-        StatusBarManager.delayedUpdate('chutes', 100);
     }
 
     static createAndActivate(

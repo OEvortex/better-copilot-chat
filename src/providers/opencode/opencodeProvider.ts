@@ -15,7 +15,6 @@ import {
 import { GenericModelProvider } from '../common/genericModelProvider';
 import { ProviderConfig } from '../../types/sharedTypes';
 import { Logger, ApiKeyManager } from '../../utils';
-import { StatusBarManager } from '../../status';
 
 /**
  * OpenCode dedicated model provider class
@@ -73,9 +72,6 @@ export class OpenCodeProvider extends GenericModelProvider implements LanguageMo
         } catch (error) {
             Logger.error(`[OpenCode] Request failed: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
-        } finally {
-            // Trigger status bar update if needed
-            StatusBarManager.delayedUpdate('opencode', 100);
         }
     }
 }

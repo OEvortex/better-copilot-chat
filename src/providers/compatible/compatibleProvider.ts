@@ -13,7 +13,6 @@ import {
 import { ProviderConfig, ModelConfig, ModelOverride } from '../../types/sharedTypes';
 import { Logger, ApiKeyManager, CompatibleModelManager, RetryManager, ConfigManager } from '../../utils';
 import { GenericModelProvider } from '../common/genericModelProvider';
-import { StatusBarManager } from '../../status';
 import OpenAI from 'openai';
 import { ExtendedDelta } from '../openai/openaiTypes';
 import { KnownProviders } from '../../utils';
@@ -335,9 +334,6 @@ export class CompatibleProvider extends GenericModelProvider {
 
             Logger.info(`Compatible Provider starts processing request (${sdkName}): ${modelConfig.name}`);
 
-            // Calculate input token count and update status bar
-            await this.updateTokenUsageStatusBar(model, messages, modelConfig, options);
-
             try {
                 // Execute request using retry mechanism
                 await this.retryManager.executeWithRetry(
@@ -381,8 +377,6 @@ export class CompatibleProvider extends GenericModelProvider {
                 throw error;
             } finally {
                 Logger.info(`Compatible Provider: ${model.name} Request completed`);
-                // Delay updating status bar to reflect latest balance
-                StatusBarManager.compatible?.delayedUpdate(modelConfig.provider!, 2000);
             }
         } catch (error) {
             Logger.error('Compatible Provider failed to process request:', error);

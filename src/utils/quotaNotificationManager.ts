@@ -108,11 +108,6 @@ export class QuotaNotificationManager {
         const accountLabel = this.quotaCountdownAccountName ? ` [${this.quotaCountdownAccountName}]` : '';
         const message = `Copilot ++ Antigravity limited${modelLabel}${accountLabel}: ${this.formatCountdown(remaining)}`;
 
-        if (this.quotaCountdownMessage) {
-            this.quotaCountdownMessage.dispose();
-        }
-        this.quotaCountdownMessage = vscode.window.setStatusBarMessage(message);
-
         const nextDelay = this.getCountdownUpdateInterval(remaining);
         this.quotaCountdownTimer = setTimeout(() => this.updateQuotaCountdown(), nextDelay);
     }

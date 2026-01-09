@@ -6,7 +6,6 @@
 import * as vscode from 'vscode';
 import { Logger } from './logger';
 import { ApiKeyManager } from './apiKeyManager';
-import { StatusBarManager } from '../status';
 import { KnownProviders } from './knownProviders';
 import { configProviders } from '../providers/config';
 import { ModelEditor } from '../ui/modelEditor';
@@ -243,8 +242,6 @@ export class CompatibleModelManager {
         this.models.push(model);
         await this.saveModels();
         Logger.info(`Added custom model: ${model.name} (${model.provider}, ${model.sdkMode})`);
-
-        StatusBarManager.compatible?.checkAndShowStatus();
     }
 
     /**
@@ -269,8 +266,6 @@ export class CompatibleModelManager {
         this.models[index] = { ...this.models[index], ...updates };
         await this.saveModels();
         Logger.info(`Updated custom model: ${id}`);
-
-        StatusBarManager.compatible?.checkAndShowStatus();
     }
 
     /**
@@ -291,8 +286,6 @@ export class CompatibleModelManager {
         this.models.splice(index, 1);
         await this.saveModels();
         Logger.info(`Deleted custom model: ${removedModel.name}`);
-
-        await StatusBarManager.compatible?.checkAndShowStatus();
     }
 
     /**
@@ -320,7 +313,6 @@ export class CompatibleModelManager {
 
         if (success > 0) {
             await this.saveModels();
-            await StatusBarManager.compatible?.checkAndShowStatus();
         }
 
         return { success, failed };
@@ -502,10 +494,6 @@ export class CompatibleModelManager {
             await ApiKeyManager.setApiKey(provider, apiKey.trim());
             Logger.info(`API key for provider "${provider}" has been set`);
         }
-
-        // Check if Compatible status bar needs to be shown/hidden after modifying API Key
-        await StatusBarManager.compatible?.checkAndShowStatus();
-        await StatusBarManager.compatible?.delayedUpdate(provider, 0);
     } /**
      * Configure models - main configuration flow
      */

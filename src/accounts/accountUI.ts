@@ -744,10 +744,6 @@ export class AccountUI {
         const success = await this.accountManager.switchAccount(account.provider, account.id);
 
         if (success) {
-            // Show notification with animation
-            const message = `$(check) Switched to "${account.displayName}"`;
-            vscode.window.setStatusBarMessage(message, 3000);
-
             // Also show information message
             vscode.window.showInformationMessage(
                 `Now using: ${account.displayName} (${this.getProviderDisplayName(account.provider)})`

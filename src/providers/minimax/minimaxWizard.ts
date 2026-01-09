@@ -7,7 +7,6 @@ import * as vscode from 'vscode';
 import { Logger } from '../../utils/logger';
 import { ApiKeyManager } from '../../utils/apiKeyManager';
 import { ConfigManager } from '../../utils/configManager';
-import { StatusBarManager } from '../../status';
 import { MiniMaxConfig } from '../../utils/configManager';
 
 export class MiniMaxWizard {
@@ -153,9 +152,6 @@ export class MiniMaxWizard {
             Logger.error(`Coding Plan API Key operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
             vscode.window.showErrorMessage(`Setup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
-
-        // Check and show status bar
-        await StatusBarManager.checkAndShowStatus('minimax');
     }
 
     /**

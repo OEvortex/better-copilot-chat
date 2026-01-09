@@ -6,7 +6,6 @@
 import * as vscode from 'vscode';
 import { ApiKeyValidation } from '../types/sharedTypes';
 import { Logger } from './logger';
-import { StatusBarManager } from '../status';
 
 /**
  * API Key Secure Storage Manager
@@ -168,15 +167,6 @@ export class ApiKeyManager {
             }
             // After API key changes, related components will automatically update through ConfigManager's configuration listeners
             Logger.debug(`API key updated: ${vendor}`);
-
-            // After API key setup, update status bar
-            if (vendor === 'deepseek' || vendor === 'moonshot') {
-                try {
-                    StatusBarManager.checkAndShowStatus(vendor);
-                } catch (error) {
-                    Logger.warn('Failed to update status bar:', vendor, error);
-                }
-            }
         }
     }
 }

@@ -10,7 +10,6 @@ import { Logger } from '../utils/logger';
 import { ProviderKey } from '../types/providerKeys';
 import accountManagerCss from '../ui/accountManager.css?raw';
 import accountManagerJs from '../ui/accountManager.js?raw';
-import { CodexRateLimitStatusBar } from '../status/codexRateLimitStatusBar';
 
 /**
  * Provider info for UI
@@ -245,44 +244,7 @@ export class AccountManagerPage {
         }
 
         try {
-            const codexRateLimits = CodexRateLimitStatusBar.getInstance().getAllAccountSnapshots();
-            codexRateLimitsJson = JSON.stringify(
-                codexRateLimits.map(data => {
-                    // Safely convert capturedAt to ISO string
-                    let capturedAtStr: string;
-                    const capturedAt = data.snapshot.capturedAt;
-                    if (capturedAt instanceof Date) {
-                        capturedAtStr = capturedAt.toISOString();
-                    } else if (typeof capturedAt === 'number') {
-                        capturedAtStr = new Date(capturedAt).toISOString();
-                    } else if (typeof capturedAt === 'string') {
-                        capturedAtStr = capturedAt;
-                    } else {
-                        capturedAtStr = new Date().toISOString();
-                    }
-
-                    return {
-                        accountId: data.accountId,
-                        accountName: data.accountName,
-                        primary: data.snapshot.primary
-                            ? {
-                                usedPercent: data.snapshot.primary.usedPercent,
-                                windowMinutes: data.snapshot.primary.windowMinutes,
-                                resetsAt: data.snapshot.primary.resetsAt
-                            }
-                            : null,
-                        secondary: data.snapshot.secondary
-                            ? {
-                                usedPercent: data.snapshot.secondary.usedPercent,
-                                windowMinutes: data.snapshot.secondary.windowMinutes,
-                                resetsAt: data.snapshot.secondary.resetsAt
-                            }
-                            : null,
-                        credits: data.snapshot.credits,
-                        capturedAt: capturedAtStr
-                    };
-                })
-            );
+            codexRateLimitsJson = '[]';
         } catch (e) {
             Logger.error('Failed to get codex rate limits:', e);
         }
@@ -512,62 +474,23 @@ export class AccountManagerPage {
             // IMPORTANT: Temporarily switch to the target account to check its quota
             await this.accountManager.switchAccount(account.provider, accountId);
 
-            // Import StatusBarManager to get AntigravityStatusBar instance
-            const { StatusBarManager } = await import('../status/statusBarManager.js');
-            const statusBar = StatusBarManager.antigravity as any;
-
-            if (!statusBar) {
-                // Restore original account before returning
-                if (currentAccountId) {
-                    await this.accountManager.switchAccount(account.provider, currentAccountId);
-                }
-                this.sendToWebview({
-                    command: 'quotaCheckResult',
-                    accountId,
-                    success: false,
-                    error: 'Antigravity status bar not initialized'
-                });
-                return;
-            }
-
             // Trigger quota refresh by executing the refresh command
             await vscode.commands.executeCommand('chp.antigravity.refreshAndShowQuota');
 
             // Wait a bit for the refresh to complete
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Get the latest quota data
-            const quotaData = statusBar.getLastStatusData ? statusBar.getLastStatusData() : null;
-
             // Restore original account after checking quota
             if (currentAccountId && currentAccountId !== accountId) {
                 await this.accountManager.switchAccount(account.provider, currentAccountId);
             }
 
-            if (quotaData?.data) {
-                const geminiQuota = quotaData.data.geminiQuota ?? 100;
-                const claudeQuota = quotaData.data.claudeQuota ?? 100;
-                const minQuota = Math.min(geminiQuota, claudeQuota);
-
-                this.sendToWebview({
-                    command: 'quotaCheckResult',
-                    accountId,
-                    success: true,
-                    quotaData: {
-                        geminiQuota,
-                        claudeQuota,
-                        minQuota
-                    },
-                    message: `Quota refreshed: Gemini ${geminiQuota}%, Claude ${claudeQuota}%`
-                });
-            } else {
-                this.sendToWebview({
-                    command: 'quotaCheckResult',
-                    accountId,
-                    success: false,
-                    error: 'Failed to fetch quota data'
-                });
-            }
+            this.sendToWebview({
+                command: 'quotaCheckResult',
+                accountId,
+                success: true,
+                message: 'Quota refresh triggered'
+            });
         } catch (error) {
             Logger.error('Failed to check quota:', error);
             this.sendToWebview({

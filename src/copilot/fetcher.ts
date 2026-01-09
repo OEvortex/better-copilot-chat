@@ -14,7 +14,6 @@ import type {
     Response
 } from '@vscode/chat-lib/dist/src/_internal/platform/networking/common/fetcherService';
 import { IFetcher } from '@vscode/chat-lib/dist/src/_internal/platform/networking/common/networking';
-import { StatusBarManager } from '../status';
 import { configProviders } from '../providers/config';
 import OpenAI from 'openai';
 import { getCompletionLogger, getApiKeyManager, getConfigManager } from './singletons';
@@ -279,12 +278,6 @@ export class Fetcher implements IFetcher {
                 logger.error('[Fetcher] Exception:', error);
             }
             throw error;
-        } finally {
-            if (Object.keys(configProviders).includes(provider)) {
-                StatusBarManager.getStatusBar(provider)?.delayedUpdate(200);
-            } else {
-                StatusBarManager.compatible?.delayedUpdate(provider, 200);
-            }
         }
     }
 

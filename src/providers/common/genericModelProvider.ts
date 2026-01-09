@@ -22,7 +22,6 @@ import {
     ModelInfoCache,
     TokenCounter
 } from '../../utils';
-import { TokenUsageStatusBar } from '../../status/tokenUsageStatusBar';
 
 /**
  * Generic Model Provider Class
@@ -306,9 +305,6 @@ export class GenericModelProvider implements LanguageModelChatProvider {
             throw new Error(errorMessage);
         }
 
-        // Calculate input token count and update status bar
-        await this.updateTokenUsageStatusBar(model, messages, modelConfig, options);
-
         // Determine actual provider based on provider field in model configuration
         // This correctly handles cases where different models under the same provider use different keys
         const effectiveProviderKey = modelConfig.provider || this.providerKey;
@@ -355,40 +351,5 @@ export class GenericModelProvider implements LanguageModelChatProvider {
         options?: ProvideLanguageModelChatResponseOptions
     ): Promise<number> {
         return TokenCounter.getInstance().countMessagesTokens(model, messages, modelConfig, options);
-    }
-
-    /**
-     * Update token usage status bar
-     * Calculate input token count and usage percentage, update status bar display
-     * For subclass reuse
-     */
-    protected async updateTokenUsageStatusBar(
-        model: LanguageModelChatInformation,
-        messages: Array<LanguageModelChatMessage>,
-        modelConfig: ModelConfig,
-        options?: ProvideLanguageModelChatResponseOptions
-    ): Promise<void> {
-        try {
-            // Calculate usage percentage
-            const totalInputTokens = await this.countMessagesTokens(model, messages, modelConfig, options);
-            const maxInputTokens = model.maxInputTokens || modelConfig.maxInputTokens;
-            const percentage = (totalInputTokens / maxInputTokens) * 100;
-
-            // Update token usage status bar
-            const tokenUsageStatusBar = TokenUsageStatusBar.getInstance();
-            if (tokenUsageStatusBar) {
-                tokenUsageStatusBar.updateTokenUsage({
-                    modelId: model.id,
-                    modelName: model.name || modelConfig.name,
-                    inputTokens: totalInputTokens,
-                    maxInputTokens: maxInputTokens,
-                    percentage: percentage,
-                    timestamp: Date.now()
-                });
-            }
-        } catch (error) {
-            // Token calculation failure should not block request, only log warning
-            Logger.warn(`[${this.providerKey}] Token calculation failed:`, error);
-        }
     }
 }

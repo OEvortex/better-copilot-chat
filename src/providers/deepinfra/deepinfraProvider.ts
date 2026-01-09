@@ -12,7 +12,6 @@ import {
 import { ProviderConfig } from '../../types/sharedTypes';
 import { Logger, ApiKeyManager, ConfigManager } from '../../utils';
 import { GenericModelProvider } from '../common/genericModelProvider';
-import { StatusBarManager } from '../../status';
 import { DeepInfraModelsResponse, DeepInfraModelItem } from './types';
 
 /**
@@ -296,8 +295,6 @@ export class DeepInfraProvider extends GenericModelProvider implements LanguageM
         } catch (error) {
             Logger.error(`[DeepInfra] Request failed: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
-        } finally {
-            StatusBarManager.delayedUpdate('deepinfra', 100);
         }
     }
 }

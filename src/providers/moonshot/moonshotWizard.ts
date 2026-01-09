@@ -7,7 +7,6 @@
 import * as vscode from 'vscode';
 import { Logger } from '../../utils/logger';
 import { ApiKeyManager } from '../../utils/apiKeyManager';
-import { StatusBarManager } from '../../status';
 
 export class MoonshotWizard {
     private static readonly PROVIDER_KEY = 'moonshot';
@@ -95,9 +94,6 @@ export class MoonshotWizard {
             Logger.error(`Moonshot API Key operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
             vscode.window.showErrorMessage(`Setup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
-
-        // Check and show status bar
-        await StatusBarManager.checkAndShowStatus('moonshot');
     }
 
     /**
@@ -138,8 +134,5 @@ export class MoonshotWizard {
             Logger.error(`Kimi For Coding API Key operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
             vscode.window.showErrorMessage(`Setup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
-
-        // Check and show status bar
-        await StatusBarManager.checkAndShowStatus('kimi');
     }
 }

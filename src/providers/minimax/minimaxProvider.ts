@@ -15,7 +15,6 @@ import {
 import { GenericModelProvider } from '../common/genericModelProvider';
 import { ProviderConfig, ModelConfig } from '../../types/sharedTypes';
 import { Logger, ApiKeyManager, MiniMaxWizard, ConfigManager } from '../../utils';
-import { StatusBarManager } from '../../status';
 
 /**
  * MiniMax dedicated model provider class
@@ -85,13 +84,6 @@ export class MiniMaxProvider extends GenericModelProvider implements LanguageMod
         ];
         disposables.forEach(disposable => context.subscriptions.push(disposable));
         return { provider, disposables };
-    }
-
-    /**
-     * Get MiniMax status bar instance (for delayedUpdate calls)
-     */
-    static getMiniMaxStatusBar() {
-        return StatusBarManager.minimax;
     }
 
     /**
@@ -249,9 +241,6 @@ export class MiniMaxProvider extends GenericModelProvider implements LanguageMod
             `${this.providerConfig.displayName}: About to process request, using ${providerKey === 'minimax-coding' ? 'Coding Plan' : 'Normal'} key - model: ${modelConfig.name}`
         );
 
-        // Calculate input token count and update status bar
-        await this.updateTokenUsageStatusBar(model, messages, modelConfig, options);
-
         // Select handler based on model's sdkMode
         // Note: Do not call super.provideLanguageModelChatResponse here, process directly
         // Avoid double key checks as we already checked in ensureApiKeyForModel
@@ -271,12 +260,6 @@ export class MiniMaxProvider extends GenericModelProvider implements LanguageMod
             throw error;
         } finally {
             Logger.info(`${this.providerConfig.displayName}: ${model.name} Request completed`);
-
-            // If using Coding Plan key, delay status bar usage update
-            if (providerKey === 'minimax-coding') {
-                const statusBar = MiniMaxProvider.getMiniMaxStatusBar();
-                statusBar?.delayedUpdate();
-            }
         }
     }
 }
