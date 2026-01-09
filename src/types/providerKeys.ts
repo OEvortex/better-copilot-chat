@@ -4,7 +4,6 @@ export enum ProviderKey {
     Zhipu = 'zhipu',
     Moonshot = 'moonshot',
     MiniMax = 'minimax',
-    DeepInfra = 'deepinfra',
     MiniMaxCoding = 'minimax-coding',
     Kimi = 'kimi',
     Compatible = 'compatible'

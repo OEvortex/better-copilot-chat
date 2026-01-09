@@ -42,6 +42,5 @@ export const KnownProviders: Record<string, KnownProviderConfig> = {
     chutes: { displayName: 'Chutes' },
     opencode: { displayName: 'OpenCode' },
     huggingface: { displayName: 'Hugging Face' },
-    qwencli: { displayName: 'Qwen Code CLI' },
-    deepinfra: { displayName: 'DeepInfra', openai: { baseUrl: 'https://api.deepinfra.com/v1/openai' } }
+    qwencli: { displayName: 'Qwen Code CLI' }
 };

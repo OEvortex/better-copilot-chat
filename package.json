@@ -54,7 +54,6 @@
         "onLanguageModelProvider:chp.chutes",
         "onLanguageModelProvider:chp.opencode",
         "onLanguageModelProvider:chp.huggingface",
-        "onLanguageModelProvider:chp.deepinfra",
         "onLanguageModelProvider:chp.qwencli",
         "onLanguageModelProvider:chp.geminicli",
         "onLanguageModelProvider:chp.codex",
@@ -136,15 +135,6 @@
                     "dark": "#34495E",
                     "highContrast": "#2E4053"
                 }
-            },
-            {
-                "id": "chp.statusBar.account.deepinfra",
-                "description": "Account status bar background for DeepInfra provider.",
-                "defaults": {
-                    "light": "#8E44AD",
-                    "dark": "#6C3483",
-                    "highContrast": "#7D3C98"
-                }
             }
         ],
         "commands": [
@@ -213,11 +203,7 @@
                 "title": "Set Hugging Face API Key",
                 "category": "Copilot ++"
             },
-            {
-                "command": "chp.deepinfra.setApiKey",
-                "title": "Set DeepInfra API Key",
-                "category": "Copilot ++"
-            },
+
             {
                 "command": "chp.copilot.refreshStatus",
                 "title": "Refresh Copilot ++ Status",
@@ -624,11 +610,7 @@
                 "displayName": "⦿ Hugging Face",
                 "managementCommand": "chp.huggingface.setApiKey"
             },
-            {
-                "vendor": "chp.deepinfra",
-                "displayName": "⦿ DeepInfra",
-                "managementCommand": "chp.deepinfra.setApiKey"
-            },
+
             {
                 "vendor": "chp.qwencli",
                 "displayName": "⦿ Qwen Code CLI",

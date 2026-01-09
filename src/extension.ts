@@ -4,7 +4,6 @@ import { ZhipuProvider } from './providers/zhipu/zhipuProvider';
 import { ChutesProvider } from './providers/chutes/chutesProvider';
 import { OpenCodeProvider } from './providers/opencode/opencodeProvider';
 import { HuggingfaceProvider } from './providers/huggingface/provider';
-import { DeepInfraProvider } from './providers/deepinfra/provider';
 import { QwenCliProvider } from './providers/qwencli/provider';
 import { GeminiCliProvider } from './providers/geminicli/provider';
 import { MiniMaxProvider } from './providers/minimax/minimaxProvider';
@@ -47,7 +46,6 @@ const registeredProviders: Record<
     | QwenCliProvider
     | GeminiCliProvider
     | HuggingfaceProvider
-    | DeepInfraProvider
     | CompatibleProvider
     | AntigravityProvider
     | CodexProvider
@@ -119,11 +117,6 @@ async function activateProviders(context: vscode.ExtensionContext): Promise<void
             } else if (providerKey === 'huggingface') {
                 // Use specialized provider for huggingface (dedicated Hugging Face Router integration)
                 const result = HuggingfaceProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider as any;
-                disposables = result.disposables as any;
-            } else if (providerKey === 'deepinfra') {
-                // Use specialized provider for DeepInfra (OpenAI-compatible endpoint that exposes /models)
-                const result = DeepInfraProvider.createAndActivate(context, providerKey, providerConfig);
                 provider = result.provider as any;
                 disposables = result.disposables as any;
             } else {

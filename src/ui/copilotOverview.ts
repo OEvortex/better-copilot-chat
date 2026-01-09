@@ -65,7 +65,7 @@ export class CopilotOverview {
 
     private static async sendStateUpdate(webview: vscode.Webview) {
         try {
-            const providers = ['deepseek','chutes','opencode','huggingface','deepinfra','minimax','zhipu','antigravity','codex','compatible'];
+            const providers = ['deepseek','chutes','opencode','huggingface','minimax','zhipu','antigravity','codex','compatible'];
             const providerStatuses: Record<string,string> = {};
             await Promise.all(providers.map(async p => {
                 try {

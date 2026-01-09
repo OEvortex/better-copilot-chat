@@ -74,7 +74,7 @@ export class CopilotStatusBar extends BaseStatusBarItem<CopilotStatusData> {
         // Providers summary
         md.appendMarkdown('---\n');
         md.appendMarkdown('#### Providers\n\n');
-        const knownProviders = ['deepseek', 'chutes', 'opencode', 'huggingface', 'deepinfra', 'minimax', 'zhipu', 'antigravity', 'codex', 'compatible'];
+        const knownProviders = ['deepseek', 'chutes', 'opencode', 'huggingface', 'minimax', 'zhipu', 'antigravity', 'codex', 'compatible'];
         for (const p of knownProviders) {
             md.appendMarkdown(`- **${this.titleCase(p)}**\n`);
         }
@@ -87,7 +87,7 @@ export class CopilotStatusBar extends BaseStatusBarItem<CopilotStatusData> {
 
     protected async performApiQuery(): Promise<{ success: boolean; data?: CopilotStatusData; error?: string }> {
         try {
-            const knownProviders = ['deepseek', 'chutes', 'opencode', 'huggingface', 'deepinfra', 'minimax', 'zhipu', 'antigravity', 'codex', 'compatible'];
+            const knownProviders = ['deepseek', 'chutes', 'opencode', 'huggingface', 'minimax', 'zhipu', 'antigravity', 'codex', 'compatible'];
 
             // Gather provider configuration status
             const providerStatuses: Record<string, string> = {};
