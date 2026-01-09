@@ -5,14 +5,17 @@ All notable changes to this project will be documented in this file.
 ## [0.1.3] - 2026-01-09
 
 ### Added
-- No notable provider additions in this release.
+- **DeepInfra Dynamic Models**: DeepInfra provider now dynamically fetches available models from the API.
+  - Filters models to only show those with `max_tokens` and `context_length` in metadata.
+  - Automatically detects vision support via tags.
+  - All DeepInfra models now support tool calling.
+  - Migrated to OpenAI SDK for robust streaming and reasoning content support.
 
 ### Changed / Improved
 - Replaced ESLint with Biome for linting and formatting. Added `biome.config.json`, updated `package.json` scripts (`lint`, `lint:fix`, `format`, `format:check`) and removed `eslint.config.mjs`. Updated documentation references in `AGENTS.md`.
-- Removed DeepInfra provider and all associated code and configuration.
 
 ### Fixed
-- N/A
+- Fixed DeepInfra registration in `package.json` to ensure it appears in the Language Models list.
 
 
 ### Miscellaneous

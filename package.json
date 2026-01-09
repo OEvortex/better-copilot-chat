@@ -54,6 +54,7 @@
         "onLanguageModelProvider:chp.chutes",
         "onLanguageModelProvider:chp.opencode",
         "onLanguageModelProvider:chp.huggingface",
+        "onLanguageModelProvider:chp.deepinfra",
         "onLanguageModelProvider:chp.qwencli",
         "onLanguageModelProvider:chp.geminicli",
         "onLanguageModelProvider:chp.codex",
@@ -116,6 +117,15 @@
                     "light": "#C0392B",
                     "dark": "#922B21",
                     "highContrast": "#A93226"
+                }
+            },
+            {
+                "id": "chp.statusBar.account.deepinfra",
+                "description": "Account status bar background for DeepInfra.",
+                "defaults": {
+                    "light": "#8E44AD",
+                    "dark": "#7030A0",
+                    "highContrast": "#5B2C6F"
                 }
             },
             {
@@ -609,7 +619,11 @@
                 "displayName": "⦿ Hugging Face",
                 "managementCommand": "chp.huggingface.setApiKey"
             },
-
+            {
+                "vendor": "chp.deepinfra",
+                "displayName": "⦿ DeepInfra",
+                "managementCommand": "chp.deepinfra.setApiKey"
+            },
             {
                 "vendor": "chp.qwencli",
                 "displayName": "⦿ Qwen Code CLI",

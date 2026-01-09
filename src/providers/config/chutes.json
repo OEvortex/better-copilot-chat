@@ -304,24 +304,24 @@
             }
         },
         {
-            "id": "mistralai-devstral-2-123b-instruct-2512",
-            "name": "mistralai/Devstral-2-123B-Instruct-2512",
-            "tooltip": "mistralai/Devstral-2-123B-Instruct-2512 by Chutes",
-            "maxInputTokens": 196608,
-            "maxOutputTokens": 65536,
-            "model": "mistralai/Devstral-2-123B-Instruct-2512",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "deepseek-ai-deepseek-r1-distill-llama-70b",
             "name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
             "tooltip": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B by Chutes",
             "maxInputTokens": 1,
             "maxOutputTokens": 131072,
             "model": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "mistralai-devstral-2-123b-instruct-2512",
+            "name": "mistralai/Devstral-2-123B-Instruct-2512",
+            "tooltip": "mistralai/Devstral-2-123B-Instruct-2512 by Chutes",
+            "maxInputTokens": 196608,
+            "maxOutputTokens": 65536,
+            "model": "mistralai/Devstral-2-123B-Instruct-2512",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -484,24 +484,24 @@
             }
         },
         {
-            "id": "minimaxai-minimax-m2-1-tee",
-            "name": "MiniMaxAI/MiniMax-M2.1-TEE",
-            "tooltip": "MiniMaxAI/MiniMax-M2.1-TEE by Chutes",
-            "maxInputTokens": 131072,
-            "maxOutputTokens": 65536,
-            "model": "MiniMaxAI/MiniMax-M2.1-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "qwen-qwen3-235b-a22b-thinking-2507",
             "name": "Qwen/Qwen3-235B-A22B-Thinking-2507",
             "tooltip": "Qwen/Qwen3-235B-A22B-Thinking-2507 by Chutes",
             "maxInputTokens": 1,
             "maxOutputTokens": 262144,
             "model": "Qwen/Qwen3-235B-A22B-Thinking-2507",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "minimaxai-minimax-m2-1-tee",
+            "name": "MiniMaxAI/MiniMax-M2.1-TEE",
+            "tooltip": "MiniMaxAI/MiniMax-M2.1-TEE by Chutes",
+            "maxInputTokens": 131072,
+            "maxOutputTokens": 65536,
+            "model": "MiniMaxAI/MiniMax-M2.1-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
