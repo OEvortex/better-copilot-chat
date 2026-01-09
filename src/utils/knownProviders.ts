@@ -48,5 +48,11 @@ export const KnownProviders: Record<string, KnownProviderConfig> = {
             baseUrl: 'https://api.deepinfra.com/v1/openai'
         }
     },
+    mistral: {
+        displayName: 'Mistral AI',
+        openai: {
+            baseUrl: 'https://api.mistral.ai/v1'
+        }
+    },
     qwencli: { displayName: 'Qwen Code CLI' }
 };

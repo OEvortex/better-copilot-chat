@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 ## [0.1.3] - 2026-01-09
 
 ### Added
+- **Mistral AI Provider**: Added support for Mistral AI (`https://api.mistral.ai/v1`) with Devstral models (Devstral Small 2 and Devstral 2).
+  - Fully compatible with OpenAI SDK for robust streaming and tool calling.
+  - Dedicated status bar item for Mistral AI.
+  - Integrated with multi-account management system.
 - **DeepInfra Dynamic Models**: DeepInfra provider now dynamically fetches available models from the API.
   - Filters models to only show those with `max_tokens` and `context_length` in metadata.
   - Automatically detects vision support via tags.
@@ -12,10 +16,12 @@ All notable changes to this project will be documented in this file.
   - Migrated to OpenAI SDK for robust streaming and reasoning content support.
 
 ### Changed / Improved
+- **Multi-Account UI**: Added Mistral AI and DeepInfra support to the Account Status Bar and Account Manager.
 - Replaced ESLint with Biome for linting and formatting. Added `biome.config.json`, updated `package.json` scripts (`lint`, `lint:fix`, `format`, `format:check`) and removed `eslint.config.mjs`. Updated documentation references in `AGENTS.md`.
 
 ### Fixed
 - Fixed DeepInfra registration in `package.json` to ensure it appears in the Language Models list.
+- Fixed Mistral and DeepInfra status bar colors and display names in the account management UI.
 
 
 ### Miscellaneous

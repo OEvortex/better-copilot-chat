@@ -6,6 +6,7 @@
 import * as vscode from 'vscode';
 import { StatusLogger } from '../utils/statusLogger';
 import { AntigravityStatusBar } from './antigravityStatusBar';
+import { MistralStatusBar } from './mistralStatusBar';
 
 /**
  * Status Bar Item Interface
@@ -27,6 +28,9 @@ export class StatusBarManager {
     /** Antigravity (Cloud Code) Quota Status Bar */
     static antigravity: IStatusBar | undefined;
 
+    /** Mistral AI Status Bar */
+    static mistral: IStatusBar | undefined;
+
     // ==================== Private Members ====================
     private static statusBars: Map<string, IStatusBar> = new Map<string, IStatusBar>();
     private static initialized = false;
@@ -41,6 +45,10 @@ export class StatusBarManager {
         // Create and register Antigravity (Cloud Code) status bar
         const antigravityStatusBar = new AntigravityStatusBar();
         this.registerStatusBar('antigravity', antigravityStatusBar);
+
+        // Create and register Mistral AI status bar
+        const mistralStatusBar = new MistralStatusBar();
+        this.registerStatusBar('mistral', mistralStatusBar);
     }
 
     /**
@@ -59,6 +67,9 @@ export class StatusBarManager {
         switch (key) {
             case 'antigravity':
                 this.antigravity = statusBar;
+                break;
+            case 'mistral':
+                this.mistral = statusBar;
                 break;
             default:
                 break;
@@ -163,6 +174,7 @@ export class StatusBarManager {
 
         // Clear public instance references
         this.antigravity = undefined;
+        this.mistral = undefined;
     }
 
     /**

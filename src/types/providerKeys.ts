@@ -7,6 +7,7 @@ export enum ProviderKey {
     GeminiCli = 'geminicli',
     Huggingface = 'huggingface',
     Kimi = 'kimi',
+    Mistral = 'mistral',
     MiniMax = 'minimax',
     MiniMaxCoding = 'minimax-coding',
     Moonshot = 'moonshot',

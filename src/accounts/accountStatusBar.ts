@@ -277,6 +277,8 @@ export class AccountStatusBar {
             'moonshot': 'Moonshot',
             'minimax': 'MiniMax',
             'deepseek': 'DeepSeek',
+            'deepinfra': 'DeepInfra',
+            'mistral': 'Mistral AI',
             'kimi': 'Kimi',
             'compatible': 'Compatible'
         };
@@ -294,6 +296,8 @@ export class AccountStatusBar {
             'moonshot': 'chp.statusBar.account.moonshot',
             'minimax': 'chp.statusBar.account.minimax',
             'deepseek': 'chp.statusBar.account.deepseek',
+            'deepinfra': 'chp.statusBar.account.deepinfra',
+            'mistral': 'chp.statusBar.account.mistral',
             'kimi': 'chp.statusBar.account.kimi',
             'compatible': 'chp.statusBar.account.compatible'
         };

@@ -12,6 +12,7 @@ import qwencli from './qwencli.json';
 import geminicli from './geminicli.json';
 import huggingface from './huggingface.json';
 import deepinfra from './deepinfra.json';
+import mistral from './mistral.json';
 
 const providers = {
     zhipu,
@@ -25,7 +26,8 @@ const providers = {
     qwencli,
     geminicli,
     huggingface,
-    deepinfra
+    deepinfra,
+    mistral
 };
 
 export type ProviderName = keyof typeof providers;

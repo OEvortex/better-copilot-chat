@@ -184,18 +184,6 @@
             }
         },
         {
-            "id": "deepseek-ai-deepseek-v3",
-            "name": "deepseek-ai/DeepSeek-V3",
-            "tooltip": "deepseek-ai/DeepSeek-V3 by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 163840,
-            "model": "deepseek-ai/DeepSeek-V3",
-            "capabilities": {
-                "toolCalling": false,
-                "imageInput": false
-            }
-        },
-        {
             "id": "moonshotai-kimi-k2-instruct-0905",
             "name": "moonshotai/Kimi-K2-Instruct-0905",
             "tooltip": "moonshotai/Kimi-K2-Instruct-0905 by Chutes",
@@ -204,6 +192,18 @@
             "model": "moonshotai/Kimi-K2-Instruct-0905",
             "capabilities": {
                 "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-ai-deepseek-v3",
+            "name": "deepseek-ai/DeepSeek-V3",
+            "tooltip": "deepseek-ai/DeepSeek-V3 by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 163840,
+            "model": "deepseek-ai/DeepSeek-V3",
+            "capabilities": {
+                "toolCalling": false,
                 "imageInput": false
             }
         },
@@ -328,18 +328,6 @@
             }
         },
         {
-            "id": "moonshotai-kimi-k2-thinking-tee",
-            "name": "moonshotai/Kimi-K2-Thinking-TEE",
-            "tooltip": "moonshotai/Kimi-K2-Thinking-TEE by Chutes",
-            "maxInputTokens": 196609,
-            "maxOutputTokens": 65535,
-            "model": "moonshotai/Kimi-K2-Thinking-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "qwen-qwen2-5-coder-32b-instruct",
             "name": "Qwen/Qwen2.5-Coder-32B-Instruct",
             "tooltip": "Qwen/Qwen2.5-Coder-32B-Instruct by Chutes",
@@ -352,27 +340,15 @@
             }
         },
         {
-            "id": "opengvlab-internvl3-78b-tee",
-            "name": "OpenGVLab/InternVL3-78B-TEE",
-            "tooltip": "OpenGVLab/InternVL3-78B-TEE by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 32768,
-            "model": "OpenGVLab/InternVL3-78B-TEE",
-            "capabilities": {
-                "toolCalling": false,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "chutesai-mistral-small-3-2-24b-instruct-2506",
-            "name": "chutesai/Mistral-Small-3.2-24B-Instruct-2506",
-            "tooltip": "chutesai/Mistral-Small-3.2-24B-Instruct-2506 by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 131072,
-            "model": "chutesai/Mistral-Small-3.2-24B-Instruct-2506",
+            "id": "moonshotai-kimi-k2-thinking-tee",
+            "name": "moonshotai/Kimi-K2-Thinking-TEE",
+            "tooltip": "moonshotai/Kimi-K2-Thinking-TEE by Chutes",
+            "maxInputTokens": 196609,
+            "maxOutputTokens": 65535,
+            "model": "moonshotai/Kimi-K2-Thinking-TEE",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": true
+                "imageInput": false
             }
         },
         {
@@ -385,6 +361,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "chutesai-mistral-small-3-2-24b-instruct-2506",
+            "name": "chutesai/Mistral-Small-3.2-24B-Instruct-2506",
+            "tooltip": "chutesai/Mistral-Small-3.2-24B-Instruct-2506 by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 131072,
+            "model": "chutesai/Mistral-Small-3.2-24B-Instruct-2506",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         },
         {
@@ -412,6 +400,18 @@
             }
         },
         {
+            "id": "opengvlab-internvl3-78b-tee",
+            "name": "OpenGVLab/InternVL3-78B-TEE",
+            "tooltip": "OpenGVLab/InternVL3-78B-TEE by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 32768,
+            "model": "OpenGVLab/InternVL3-78B-TEE",
+            "capabilities": {
+                "toolCalling": false,
+                "imageInput": true
+            }
+        },
+        {
             "id": "zai-org-glm-4-5-tee",
             "name": "zai-org/GLM-4.5-TEE",
             "tooltip": "zai-org/GLM-4.5-TEE by Chutes",
@@ -421,18 +421,6 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
-            }
-        },
-        {
-            "id": "unsloth-gemma-3-12b-it",
-            "name": "unsloth/gemma-3-12b-it",
-            "tooltip": "unsloth/gemma-3-12b-it by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 131072,
-            "model": "unsloth/gemma-3-12b-it",
-            "capabilities": {
-                "toolCalling": false,
-                "imageInput": true
             }
         },
         {
@@ -448,30 +436,6 @@
             }
         },
         {
-            "id": "deepseek-ai-deepseek-r1-tee",
-            "name": "deepseek-ai/DeepSeek-R1-TEE",
-            "tooltip": "deepseek-ai/DeepSeek-R1-TEE by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 163840,
-            "model": "deepseek-ai/DeepSeek-R1-TEE",
-            "capabilities": {
-                "toolCalling": false,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "qwen-qwen3-30b-a3b-instruct-2507",
-            "name": "Qwen/Qwen3-30B-A3B-Instruct-2507",
-            "tooltip": "Qwen/Qwen3-30B-A3B-Instruct-2507 by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 262144,
-            "model": "Qwen/Qwen3-30B-A3B-Instruct-2507",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "mistralai-devstral-2-123b-instruct-2512-tee",
             "name": "mistralai/Devstral-2-123B-Instruct-2512-TEE",
             "tooltip": "mistralai/Devstral-2-123B-Instruct-2512-TEE by Chutes",
@@ -480,6 +444,18 @@
             "model": "mistralai/Devstral-2-123B-Instruct-2512-TEE",
             "capabilities": {
                 "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-ai-deepseek-r1-tee",
+            "name": "deepseek-ai/DeepSeek-R1-TEE",
+            "tooltip": "deepseek-ai/DeepSeek-R1-TEE by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 163840,
+            "model": "deepseek-ai/DeepSeek-R1-TEE",
+            "capabilities": {
+                "toolCalling": false,
                 "imageInput": false
             }
         },
@@ -508,12 +484,24 @@
             }
         },
         {
-            "id": "qwen-qwen3-next-80b-a3b-instruct",
-            "name": "Qwen/Qwen3-Next-80B-A3B-Instruct",
-            "tooltip": "Qwen/Qwen3-Next-80B-A3B-Instruct by Chutes",
+            "id": "unsloth-gemma-3-12b-it",
+            "name": "unsloth/gemma-3-12b-it",
+            "tooltip": "unsloth/gemma-3-12b-it by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 131072,
+            "model": "unsloth/gemma-3-12b-it",
+            "capabilities": {
+                "toolCalling": false,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "qwen-qwen3-30b-a3b-instruct-2507",
+            "name": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+            "tooltip": "Qwen/Qwen3-30B-A3B-Instruct-2507 by Chutes",
             "maxInputTokens": 1,
             "maxOutputTokens": 262144,
-            "model": "Qwen/Qwen3-Next-80B-A3B-Instruct",
+            "model": "Qwen/Qwen3-30B-A3B-Instruct-2507",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -526,6 +514,18 @@
             "maxInputTokens": 1,
             "maxOutputTokens": 131072,
             "model": "zai-org/GLM-4.5-Air",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen3-next-80b-a3b-instruct",
+            "name": "Qwen/Qwen3-Next-80B-A3B-Instruct",
+            "tooltip": "Qwen/Qwen3-Next-80B-A3B-Instruct by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 262144,
+            "model": "Qwen/Qwen3-Next-80B-A3B-Instruct",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -604,18 +604,6 @@
             }
         },
         {
-            "id": "qwen-qwen2-5-vl-32b-instruct",
-            "name": "Qwen/Qwen2.5-VL-32B-Instruct",
-            "tooltip": "Qwen/Qwen2.5-VL-32B-Instruct by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 16384,
-            "model": "Qwen/Qwen2.5-VL-32B-Instruct",
-            "capabilities": {
-                "toolCalling": false,
-                "imageInput": true
-            }
-        },
-        {
             "id": "qwen-qwen3-30b-a3b",
             "name": "Qwen/Qwen3-30B-A3B",
             "tooltip": "Qwen/Qwen3-30B-A3B by Chutes",
@@ -625,6 +613,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen2-5-vl-32b-instruct",
+            "name": "Qwen/Qwen2.5-VL-32B-Instruct",
+            "tooltip": "Qwen/Qwen2.5-VL-32B-Instruct by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 16384,
+            "model": "Qwen/Qwen2.5-VL-32B-Instruct",
+            "capabilities": {
+                "toolCalling": false,
+                "imageInput": true
             }
         },
         {

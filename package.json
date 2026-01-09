@@ -55,6 +55,7 @@
         "onLanguageModelProvider:chp.opencode",
         "onLanguageModelProvider:chp.huggingface",
         "onLanguageModelProvider:chp.deepinfra",
+        "onLanguageModelProvider:chp.mistral",
         "onLanguageModelProvider:chp.qwencli",
         "onLanguageModelProvider:chp.geminicli",
         "onLanguageModelProvider:chp.codex",
@@ -126,6 +127,15 @@
                     "light": "#8E44AD",
                     "dark": "#7030A0",
                     "highContrast": "#5B2C6F"
+                }
+            },
+            {
+                "id": "chp.statusBar.account.mistral",
+                "description": "Account status bar background for Mistral AI.",
+                "defaults": {
+                    "light": "#F39C12",
+                    "dark": "#D35400",
+                    "highContrast": "#E67E22"
                 }
             },
             {
@@ -218,7 +228,16 @@
                 "title": "Set DeepInfra API Key",
                 "category": "Copilot ++"
             },
-
+            {
+                "command": "chp.mistral.setApiKey",
+                "title": "Set Mistral AI API Key",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.mistral.refreshStatus",
+                "title": "Refresh Mistral AI Status",
+                "category": "Copilot ++"
+            },
             {
                 "command": "chp.copilot.refreshStatus",
                 "title": "Refresh Copilot ++ Status",
@@ -625,6 +644,11 @@
                 "managementCommand": "chp.deepinfra.setApiKey"
             },
             {
+                "vendor": "chp.mistral",
+                "displayName": "⦿ Mistral AI",
+                "managementCommand": "chp.mistral.setApiKey"
+            },
+            {
                 "vendor": "chp.qwencli",
                 "displayName": "⦿ Qwen Code CLI",
                 "managementCommand": "chp.qwencli.login"
@@ -768,6 +792,13 @@
                 "default": {
                     "fontPath": "./fonts/deepseek.ttf",
                     "fontCharacter": "\\e726"
+                }
+            },
+            "chp-mistral": {
+                "description": "Mistral",
+                "default": {
+                    "fontPath": "./fonts/compatible.ttf",
+                    "fontCharacter": "\\eac8"
                 }
             },
             "chp-moonshot": {

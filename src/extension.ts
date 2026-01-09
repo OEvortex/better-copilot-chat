@@ -9,6 +9,7 @@ import { GeminiCliProvider } from './providers/geminicli/provider';
 import { MiniMaxProvider } from './providers/minimax/minimaxProvider';
 import { CompatibleProvider } from './providers/compatible/compatibleProvider';
 import { DeepInfraProvider } from './providers/deepinfra/deepinfraProvider';
+import { MistralProvider } from './providers/mistral/mistralProvider';
 import { ProviderKey } from './types/providerKeys';
 import { AntigravityProvider } from './providers/antigravity/provider';
 import { CodexProvider } from './providers/codex/codexProvider';
@@ -51,6 +52,7 @@ const registeredProviders: Record<
     | AntigravityProvider
     | CodexProvider
     | DeepInfraProvider
+    | MistralProvider
 > = {};
 const registeredDisposables: vscode.Disposable[] = [];
 
@@ -124,6 +126,11 @@ async function activateProviders(context: vscode.ExtensionContext): Promise<void
             } else if (providerKey === 'deepinfra') {
                 // Use specialized provider for DeepInfra (OpenAI-compatible endpoints)
                 const result = DeepInfraProvider.createAndActivate(context, providerKey, providerConfig);
+                provider = result.provider as any;
+                disposables = result.disposables as any;
+            } else if (providerKey === 'mistral') {
+                // Use specialized provider for Mistral AI (OpenAI-compatible endpoints)
+                const result = MistralProvider.createAndActivate(context, providerKey, providerConfig);
                 provider = result.provider as any;
                 disposables = result.disposables as any;
             } else {
