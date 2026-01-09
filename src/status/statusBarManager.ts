@@ -41,16 +41,6 @@ export class StatusBarManager {
         // Create and register Antigravity (Cloud Code) status bar
         const antigravityStatusBar = new AntigravityStatusBar();
         this.registerStatusBar('antigravity', antigravityStatusBar);
-
-        // Create and register unified Copilot status bar
-        try {
-            // Lazy require to avoid circular dependencies
-            const { CopilotStatusBar } = require('./copilotStatusBar');
-            const copilotStatusBar = new CopilotStatusBar();
-            this.registerStatusBar('copilot', copilotStatusBar);
-        } catch (e) {
-            StatusLogger.error('[StatusBarManager] Failed to register Copilot unified status bar', e);
-        }
     }
 
     /**

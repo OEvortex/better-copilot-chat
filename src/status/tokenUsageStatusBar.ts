@@ -243,19 +243,10 @@ export class TokenUsageStatusBar {
 
     /**
      * Check and show status
-     * Token usage status bar follows unified status bar setting
      */
     async checkAndShowStatus(): Promise<void> {
-        const unified = vscode.workspace.getConfiguration('chp').get<boolean>('unifiedStatusBar.enabled', true);
-        if (unified) {
-            // When unified is enabled, hide the separate token usage bar (copilot unified shows it)
-            if (this.statusBarItem) {
-                this.statusBarItem.hide();
-            }
-        } else {
-            if (this.statusBarItem) {
-                this.statusBarItem.show();
-            }
+        if (this.statusBarItem) {
+            this.statusBarItem.show();
         }
     }
 

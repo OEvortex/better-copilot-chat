@@ -4,4 +4,3 @@ export { BaseStatusBarItem, BaseStatusBarItemConfig, StatusBarItemConfig, Cached
 export { ProviderStatusBarItem } from './providerStatusBarItem';
 export { AntigravityStatusBar } from './antigravityStatusBar';
 export { registerCombinedQuotaCommand } from './combinedQuotaPopup';
-export { registerCopilotOverviewCommand, CopilotOverview } from '../ui/copilotOverview';

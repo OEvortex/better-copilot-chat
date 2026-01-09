@@ -207,6 +207,7 @@ export class SettingsPage {
             { id: 'moonshot', displayName: 'MoonshotAI (Kimi)' },
             { id: 'minimax', displayName: 'MiniMax' },
             { id: 'deepseek', displayName: 'DeepSeek' },
+            { id: 'deepinfra', displayName: 'DeepInfra' },
             { id: 'compatible', displayName: 'OpenAI/Anthropic Compatible' }
         ];
 

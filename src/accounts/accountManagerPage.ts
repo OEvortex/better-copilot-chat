@@ -47,6 +47,7 @@ export class AccountManagerPage {
         { id: 'moonshot', name: 'MoonshotAI', authType: 'apiKey' },
         { id: 'minimax', name: 'MiniMax', authType: 'apiKey' },
         { id: 'deepseek', name: 'DeepSeek', authType: 'apiKey' },
+        { id: 'deepinfra', name: 'DeepInfra', authType: 'apiKey' },
         { id: 'compatible', name: 'Compatible (Custom)', authType: 'apiKey' }
     ];
 

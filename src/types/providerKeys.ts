@@ -1,10 +1,18 @@
 export enum ProviderKey {
     Antigravity = 'antigravity',
+    Chutes = 'chutes',
     Codex = 'codex',
-    Zhipu = 'zhipu',
-    Moonshot = 'moonshot',
+    DeepInfra = 'deepinfra',
+    DeepSeek = 'deepseek',
+    GeminiCli = 'geminicli',
+    Huggingface = 'huggingface',
+    Kimi = 'kimi',
     MiniMax = 'minimax',
     MiniMaxCoding = 'minimax-coding',
-    Kimi = 'kimi',
+    Moonshot = 'moonshot',
+    OpenCode = 'opencode',
+    OpenAI = 'openai',
+    QwenCli = 'qwencli',
+    Zhipu = 'zhipu',
     Compatible = 'compatible'
 }

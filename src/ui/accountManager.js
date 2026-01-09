@@ -1069,8 +1069,9 @@ function getProviderIcon(providerId) {
         'zhipu': '🧠',
         'moonshot': '🌙',
         'minimax': '🔷',
-        'deepseek': '',
-        'compatible': ''
+        'deepseek': '🔍',
+        'deepinfra': '🚀',
+        'compatible': '⚙️'
     };
     return icons[providerId] || '🤖';
 }

@@ -39,11 +39,6 @@ export abstract class ProviderStatusBarItem<T> extends BaseStatusBarItem<T> {
      * @returns Whether status bar should be shown
      */
     protected async shouldShowStatusBar(): Promise<boolean> {
-        // If unified Copilot status bar is enabled globally, do not show individual provider status bars
-        const unified = vscode.workspace.getConfiguration('chp').get<boolean>('unifiedStatusBar.enabled', true);
-        if (unified) {
-            return false;
-        }
         return await ApiKeyManager.hasValidApiKey(this.config.apiKeyProvider);
     }
 }

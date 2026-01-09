@@ -8,6 +8,7 @@ import { QwenCliProvider } from './providers/qwencli/provider';
 import { GeminiCliProvider } from './providers/geminicli/provider';
 import { MiniMaxProvider } from './providers/minimax/minimaxProvider';
 import { CompatibleProvider } from './providers/compatible/compatibleProvider';
+import { DeepInfraProvider } from './providers/deepinfra/deepinfraProvider';
 import { ProviderKey } from './types/providerKeys';
 import { AntigravityProvider } from './providers/antigravity/provider';
 import { CodexProvider } from './providers/codex/codexProvider';
@@ -49,6 +50,7 @@ const registeredProviders: Record<
     | CompatibleProvider
     | AntigravityProvider
     | CodexProvider
+    | DeepInfraProvider
 > = {};
 const registeredDisposables: vscode.Disposable[] = [];
 
@@ -117,6 +119,11 @@ async function activateProviders(context: vscode.ExtensionContext): Promise<void
             } else if (providerKey === 'huggingface') {
                 // Use specialized provider for huggingface (dedicated Hugging Face Router integration)
                 const result = HuggingfaceProvider.createAndActivate(context, providerKey, providerConfig);
+                provider = result.provider as any;
+                disposables = result.disposables as any;
+            } else if (providerKey === 'deepinfra') {
+                // Use specialized provider for DeepInfra (OpenAI-compatible endpoints)
+                const result = DeepInfraProvider.createAndActivate(context, providerKey, providerConfig);
                 provider = result.provider as any;
                 disposables = result.disposables as any;
             } else {

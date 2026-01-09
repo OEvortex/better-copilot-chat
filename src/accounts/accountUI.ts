@@ -128,6 +128,7 @@ export class AccountUI {
             { label: 'Moonshot', value: ProviderKey.Moonshot, authType: 'apiKey' as const },
             { label: 'MiniMax', value: ProviderKey.MiniMax, authType: 'apiKey' as const },
             { label: 'DeepSeek', value: 'deepseek', authType: 'apiKey' as const },
+            { label: 'DeepInfra', value: 'deepinfra', authType: 'apiKey' as const },
             { label: 'Compatible (Custom)', value: ProviderKey.Compatible, authType: 'apiKey' as const }
         ];
 
@@ -767,6 +768,7 @@ export class AccountUI {
             moonshot: 'Moonshot',
             minimax: 'MiniMax',
             deepseek: 'DeepSeek',
+            deepinfra: 'DeepInfra',
             compatible: 'Compatible'
         };
         return names[provider] || provider.charAt(0).toUpperCase() + provider.slice(1);
