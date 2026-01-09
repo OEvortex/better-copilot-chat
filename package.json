@@ -557,6 +557,12 @@
                     "description": "Provider configuration override. Allows overriding provider baseUrl and model configuration, supports adding new models or overriding existing model parameters.",
                     "scope": "application"
                 },
+                "chp.unifiedStatusBar.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When enabled, hides individual provider status bars and shows a single unified Copilot ++ status bar.",
+                    "scope": "application"
+                },
                 "chp.compatibleModels": {
                     "type": "array",
                     "default": [],
