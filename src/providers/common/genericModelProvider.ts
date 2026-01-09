@@ -155,7 +155,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
             id: model.id,
             name: model.name,
             detail: this.providerConfig.displayName,
-            tooltip: model.tooltip,
+            tooltip: model.tooltip || `${model.name} via ${this.providerConfig.displayName}`,
             family: family,
             maxInputTokens: model.maxInputTokens,
             maxOutputTokens: model.maxOutputTokens,
