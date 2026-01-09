@@ -292,24 +292,24 @@
             }
         },
         {
-            "id": "tngtech-tng-r1t-chimera-tee",
-            "name": "tngtech/TNG-R1T-Chimera-TEE",
-            "tooltip": "tngtech/TNG-R1T-Chimera-TEE by Chutes",
-            "maxInputTokens": 98304,
-            "maxOutputTokens": 65536,
-            "model": "tngtech/TNG-R1T-Chimera-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "deepseek-ai-deepseek-r1-distill-llama-70b",
             "name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
             "tooltip": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B by Chutes",
             "maxInputTokens": 1,
             "maxOutputTokens": 131072,
             "model": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "tngtech-tng-r1t-chimera-tee",
+            "name": "tngtech/TNG-R1T-Chimera-TEE",
+            "tooltip": "tngtech/TNG-R1T-Chimera-TEE by Chutes",
+            "maxInputTokens": 98304,
+            "maxOutputTokens": 65536,
+            "model": "tngtech/TNG-R1T-Chimera-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -556,18 +556,6 @@
             }
         },
         {
-            "id": "zai-org-glm-4-6v",
-            "name": "zai-org/GLM-4.6V",
-            "tooltip": "zai-org/GLM-4.6V by Chutes",
-            "maxInputTokens": 65536,
-            "maxOutputTokens": 65536,
-            "model": "zai-org/GLM-4.6V",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "xiaomimimo-mimo-v2-flash",
             "name": "XiaomiMiMo/MiMo-V2-Flash",
             "tooltip": "XiaomiMiMo/MiMo-V2-Flash by Chutes",
@@ -577,6 +565,18 @@
             "capabilities": {
                 "toolCalling": false,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "zai-org-glm-4-6v",
+            "name": "zai-org/GLM-4.6V",
+            "tooltip": "zai-org/GLM-4.6V by Chutes",
+            "maxInputTokens": 65536,
+            "maxOutputTokens": 65536,
+            "model": "zai-org/GLM-4.6V",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         },
         {

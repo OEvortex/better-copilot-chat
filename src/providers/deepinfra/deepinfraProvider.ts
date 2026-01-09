@@ -98,9 +98,8 @@ export class DeepInfraProvider extends GenericModelProvider implements LanguageM
                 imageInput: vision
             };
 
-            const maxOutput = metadata.max_tokens || 8192;
-            const contextLen = metadata.context_length || 128000;
-            const maxInput = Math.max(1, contextLen - maxOutput);
+            const maxOutput = 16000;
+            const maxInput = metadata.max_tokens || 128000;
 
             return {
                 id: m.id,

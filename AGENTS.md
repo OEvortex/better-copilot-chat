@@ -92,3 +92,10 @@ npm run format           # Format code with Biome
 npm run package          # Create .vsix package
 npm run publish          # Publish to VS Code marketplace
 ```
+
+## RULES
+- Follow Biome linting rules as per biome.config.json
+- Adhere to TypeScript strict mode
+- Ensure compatibility with VS Code API version 1.80.0
+- Maintain modular structure for providers and utilities
+- Use batch eddits for large refactors
