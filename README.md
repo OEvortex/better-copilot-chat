@@ -42,6 +42,7 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 |    **DeepSeek**    |     DeepSeek AI      | `Fast Inference`                   |
 |     **Chutes**     |      Chutes AI       | `Global Request Limit`             |
 |    **OpenCode**    |     OpenCode AI      | `Claude 4.5` `GPT-5`               |
+|    **DeepInfra**   |     DeepInfra        | `OpenAI-compatible models` `Vision`|
 |   **Compatible**   | OpenAI/Anthropic API | `Custom Models Support`            |
 
 </div>
@@ -158,6 +159,7 @@ npm run package
 | MiniMax        | `Cmd+Shift+P` → `Start MiniMax Configuration Wizard`    |
 | MoonshotAI     | `Cmd+Shift+P` → `Start MoonshotAI Configuration Wizard` |
 | DeepSeek       | `Cmd+Shift+P` → `Set DeepSeek API Key`                  |
+| DeepInfra      | `Cmd+Shift+P` → `Set DeepInfra API Key`                 |
 | Custom         | `Cmd+Shift+P` → `Compatible Provider Settings`          |
 
 ### Step 2: Add Multiple Accounts _(Optional)_
