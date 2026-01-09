@@ -1,0 +1,6 @@
+{
+  "displayName": "DeepInfra",
+  "baseUrl": "https://api.deepinfra.com/v1/openai",
+  "apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "models": []
+}

@@ -30,6 +30,7 @@ export class StatusBarManager {
     // ==================== Private Members ====================
     private static statusBars: Map<string, IStatusBar> = new Map<string, IStatusBar>();
     private static initialized = false;
+    static compatible: any;
 
     /**
      * Register all built-in status bars

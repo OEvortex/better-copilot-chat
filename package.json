@@ -890,10 +890,10 @@
         "compile": "node esbuild.config.js",
         "compile:dev": "node esbuild.config.js --dev",
         "clean": "rimraf dist",
-        "lint": "eslint",
-        "lint:fix": "eslint --fix",
-        "format": "prettier --write \"src/**/*.{ts,js,json}\"",
-        "format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
+        "lint": "biome check",
+        "lint:fix": "biome check --apply",
+        "format": "biome format",
+        "format:check": "biome format --check",
         "watch": "node esbuild.config.js --watch --dev",
         "package": "vsce package",
         "publish": "vsce publish --allow-proposed-apis chatProvider",
@@ -909,19 +909,16 @@
         "openai": "^6.7.0"
     },
     "devDependencies": {
-        "@eslint/js": "^9.13.0",
-        "@stylistic/eslint-plugin": "^5.4.0",
+        "biome": "^1.0.0",
         "@types/json-schema": "^7.0.15",
         "@types/node": "^20.0.0",
         "@types/vscode": "^1.104.0",
         "@vscode/vsce": "^3.6.2",
         "esbuild": "^0.25.10",
-        "eslint": "^9.13.0",
         "prettier": "^3.6.2",
         "rimraf": "^6.0.1",
         "tsx": "^4.21.0",
-        "typescript": "^5.9.2",
-        "typescript-eslint": "^8.39.0"
+        "typescript": "^5.9.2"
     },
     "volta": {
         "node": "20.19.5"

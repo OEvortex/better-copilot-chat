@@ -6,7 +6,6 @@
 import * as vscode from 'vscode';
 import { AccountManager } from './accountManager';
 import { AccountQuotaCache } from './accountQuotaCache';
-import { Account } from './types';
 import { Logger } from '../utils/logger';
 import { ProviderKey } from '../types/providerKeys';
 import accountManagerCss from '../ui/accountManager.css?raw';

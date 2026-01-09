@@ -10,8 +10,6 @@ import { AccountQuotaCache } from './accountQuotaCache';
 import { ProviderKey } from '../types/providerKeys';
 import {
     Account,
-    AccountStatus,
-    AuthType,
     AccountCredentials,
     OAuthCredentials,
     ApiKeyCredentials,

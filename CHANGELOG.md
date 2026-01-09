@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2026-01-09
+
+### Added
+- New provider: **DeepInfra** (`https://api.deepinfra.com/v1/openai`) with model discovery via `/models`. The provider only exposes models that include both `metadata.context_length` and `metadata.max_tokens` and marks all exposed models as tool-calling capable; models with the `vision` tag expose imageInput capability. Implementation: `src/providers/deepinfra/*`, `src/providers/config/deepinfra.json`.
+
+### Changed / Improved
+- Replaced ESLint with Biome for linting and formatting. Added `biome.config.json`, updated `package.json` scripts (`lint`, `lint:fix`, `format`, `format:check`) and removed `eslint.config.mjs`. Updated documentation references in `AGENTS.md`.
+- Registered DeepInfra in KnownProviders and provider keys. Files changed: `src/utils/knownProviders.ts`, `src/types/providerKeys.ts`, and `src/extension.ts` provider registration.
+
+### Fixed
+- Ensured DeepInfra provider filters and capability inference match project expectations, and integrated model caching/invalidation flow consistent with other providers.
+
+### Miscellaneous
+- Build verified (dev compile) and project compiles cleanly after changes.
+
 ## [0.1.2] - 2026-01-08
 
 ### Changed / Improved

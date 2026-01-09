@@ -11,6 +11,7 @@ import opencode from './opencode.json';
 import qwencli from './qwencli.json';
 import geminicli from './geminicli.json';
 import huggingface from './huggingface.json';
+import deepinfra from './deepinfra.json';
 
 const providers = {
     zhipu,
@@ -23,7 +24,8 @@ const providers = {
     opencode,
     qwencli,
     geminicli,
-    huggingface
+    huggingface,
+    deepinfra
 };
 
 export type ProviderName = keyof typeof providers;
