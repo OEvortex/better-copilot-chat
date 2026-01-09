@@ -245,6 +245,18 @@ export class OpenAIHandler {
                                                 }
                                             }
                                         }
+
+                                        // Ensure tool_calls have 'type: function'
+                                        for (const choice of obj.choices) {
+                                            if (choice.delta?.tool_calls) {
+                                                for (const toolCall of choice.delta.tool_calls) {
+                                                    if (!toolCall.type) {
+                                                        toolCall.type = 'function';
+                                                        objModified = true;
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
 
                                     // Only re-serialize when object is modified

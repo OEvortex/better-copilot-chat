@@ -13,16 +13,19 @@ import {
     ProvideLanguageModelChatResponseOptions
 } from 'vscode';
 import { GenericModelProvider } from '../common/genericModelProvider';
-import { ProviderConfig } from '../../types/sharedTypes';
-import { Logger, ApiKeyManager } from '../../utils';
+import { ProviderConfig, ModelConfig } from '../../types/sharedTypes';
+import { Logger, ApiKeyManager, MistralHandler } from '../../utils';
 import { StatusBarManager } from '../../status';
 
 /**
  * Mistral AI dedicated model provider class
  */
 export class MistralProvider extends GenericModelProvider implements LanguageModelChatProvider {
+    private mistralHandler: MistralHandler;
+
     constructor(context: vscode.ExtensionContext, providerKey: string, providerConfig: ProviderConfig) {
         super(context, providerKey, providerConfig);
+        this.mistralHandler = new MistralHandler(providerKey, providerConfig.displayName, providerConfig.baseUrl);
     }
 
     /**
@@ -67,15 +70,35 @@ export class MistralProvider extends GenericModelProvider implements LanguageMod
         progress: Progress<vscode.LanguageModelResponsePart>,
         token: CancellationToken
     ): Promise<void> {
+        // Save user's selected model and its provider (only if memory is enabled)
+        const rememberLastModel = vscode.workspace.getConfiguration('chp').get('rememberLastModel', true);
+        if (rememberLastModel) {
+            this.modelInfoCache
+                ?.saveLastSelectedModel(this.providerKey, model.id)
+                .catch(err => Logger.warn(`[${this.providerKey}] Failed to save model selection:`, err));
+        }
+
+        // Find corresponding model configuration
+        const modelConfig = this.providerConfig.models.find((m: ModelConfig) => m.id === model.id);
+        if (!modelConfig) {
+            const errorMessage = `Model not found: ${model.id}`;
+            Logger.error(errorMessage);
+            throw new Error(errorMessage);
+        }
+
+        // Calculate input token count and update status bar
+        await this.updateTokenUsageStatusBar(model, messages, modelConfig, options);
+
         try {
             Logger.info(`[Mistral] Starting request for model: ${model.name}`);
-            await super.provideLanguageModelChatResponse(model, messages, options, progress, token);
+            await this.mistralHandler.handleRequest(model, modelConfig, messages, options, progress, token);
         } catch (error) {
             Logger.error(`[Mistral] Request failed: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         } finally {
             // Trigger status bar update if needed
             StatusBarManager.delayedUpdate('mistral', 100);
+            Logger.info(`${this.providerConfig.displayName}: ${model.name} Request completed`);
         }
     }
 }

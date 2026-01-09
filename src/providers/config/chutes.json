@@ -256,18 +256,6 @@
             }
         },
         {
-            "id": "openai-gpt-oss-20b",
-            "name": "openai/gpt-oss-20b",
-            "tooltip": "openai/gpt-oss-20b by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 131072,
-            "model": "openai/gpt-oss-20b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "unsloth-mistral-nemo-instruct-2407",
             "name": "unsloth/Mistral-Nemo-Instruct-2407",
             "tooltip": "unsloth/Mistral-Nemo-Instruct-2407 by Chutes",
@@ -276,6 +264,18 @@
             "model": "unsloth/Mistral-Nemo-Instruct-2407",
             "capabilities": {
                 "toolCalling": false,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "openai-gpt-oss-20b",
+            "name": "openai/gpt-oss-20b",
+            "tooltip": "openai/gpt-oss-20b by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 131072,
+            "model": "openai/gpt-oss-20b",
+            "capabilities": {
+                "toolCalling": true,
                 "imageInput": false
             }
         },
@@ -424,24 +424,24 @@
             }
         },
         {
-            "id": "qwen-qwen2-5-72b-instruct",
-            "name": "Qwen/Qwen2.5-72B-Instruct",
-            "tooltip": "Qwen/Qwen2.5-72B-Instruct by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 32768,
-            "model": "Qwen/Qwen2.5-72B-Instruct",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "mistralai-devstral-2-123b-instruct-2512-tee",
             "name": "mistralai/Devstral-2-123B-Instruct-2512-TEE",
             "tooltip": "mistralai/Devstral-2-123B-Instruct-2512-TEE by Chutes",
             "maxInputTokens": 196608,
             "maxOutputTokens": 65536,
             "model": "mistralai/Devstral-2-123B-Instruct-2512-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen2-5-72b-instruct",
+            "name": "Qwen/Qwen2.5-72B-Instruct",
+            "tooltip": "Qwen/Qwen2.5-72B-Instruct by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 32768,
+            "model": "Qwen/Qwen2.5-72B-Instruct",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -508,24 +508,24 @@
             }
         },
         {
-            "id": "zai-org-glm-4-5-air",
-            "name": "zai-org/GLM-4.5-Air",
-            "tooltip": "zai-org/GLM-4.5-Air by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 131072,
-            "model": "zai-org/GLM-4.5-Air",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "qwen-qwen3-next-80b-a3b-instruct",
             "name": "Qwen/Qwen3-Next-80B-A3B-Instruct",
             "tooltip": "Qwen/Qwen3-Next-80B-A3B-Instruct by Chutes",
             "maxInputTokens": 1,
             "maxOutputTokens": 262144,
             "model": "Qwen/Qwen3-Next-80B-A3B-Instruct",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "zai-org-glm-4-5-air",
+            "name": "zai-org/GLM-4.5-Air",
+            "tooltip": "zai-org/GLM-4.5-Air by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 131072,
+            "model": "zai-org/GLM-4.5-Air",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false

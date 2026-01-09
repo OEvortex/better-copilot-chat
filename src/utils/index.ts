@@ -34,6 +34,7 @@ export {
 export type { AntigravityModel } from '../providers/antigravity/types';
 export { CodexAuth, codexLoginCommand, doCodexLoginForNewAccount } from '../providers/codex/codexAuth';
 export { CodexHandler } from '../providers/codex/codexHandler';
+export { MistralHandler } from '../providers/mistral/mistralHandler';
 export { OpenAIStreamProcessor } from '../providers/openai/openaiStreamProcessor';
 export {
     parseRateLimitFromHeaders,

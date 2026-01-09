@@ -655,6 +655,9 @@ export class OpenAIStreamProcessor {
         if (toolCallDelta.id) {
             toolCall.id = toolCallDelta.id;
         }
+        if (toolCallDelta.type) {
+            // Some providers might send type in delta
+        }
         if (toolCallDelta.function?.name) {
             toolCall.name = toolCallDelta.function.name;
             
