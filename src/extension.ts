@@ -32,7 +32,7 @@ import {
     AccountSyncAdapter,
     AccountQuotaCache
 } from './accounts';
-import { registerSettingsPageCommand } from './ui';
+import { registerSettingsPageCommand, registerCopilotOverviewCommand } from './ui';
 
 /**
  * Global variables - Store registered provider instances for cleanup on extension uninstall
@@ -181,6 +181,14 @@ async function activateCompatibleProvider(context: vscode.ExtensionContext): Pro
         Logger.info(`Compatible Provider registered successfully (time: ${providerTime}ms)`);
     } catch (error) {
         Logger.error('Failed to register compatible provider:', error);
+    }
+
+    // Register unified Copilot Overview command
+    try {
+        const copilotOverviewCmd = registerCopilotOverviewCommand(context);
+        registeredDisposables.push(copilotOverviewCmd);
+    } catch (e) {
+        Logger.warn('Failed to register Copilot Overview command', e);
     }
 }
 

@@ -23,7 +23,7 @@ export class CopilotStatusBar extends BaseStatusBarItem<CopilotStatusData> {
             name: 'Copilot ++: Unified Status',
             alignment: vscode.StatusBarAlignment.Right,
             priority: 100,
-            refreshCommand: 'chp.copilot.refreshStatus',
+            refreshCommand: 'chp.copilot.openOverview',
             cacheKeyPrefix: 'copilot',
             logPrefix: 'Copilot Status Bar',
             icon: '$(copilot)'
