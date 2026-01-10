@@ -1,109 +1,109 @@
 {
-    "displayName": "MoonshotAI",
-    "baseUrl": "https://api.moonshot.cn/v1",
-    "apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    "models": [
-        {
-            "id": "kimi-for-coding",
-            "name": "Kimi For Coding",
-            "sdkMode": "anthropic",
-            "baseUrl": "https://api.kimi.com/coding",
-            "provider": "kimi",
-            "tooltip": "Kimi For Coding - Professional programming model by Moonshot AI, providing strong code generation and understanding capabilities",
-            "maxInputTokens": 256000,
-            "maxOutputTokens": 32000,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            },
-            "customHeader": {
-                "HTTP-Referer": "https://github.com/RooVetGit/Roo-Cline",
-                "X-Title": "Roo Code",
-                "User-Agent": "RooCode/3.36.16"
-            }
-        },
-        {
-            "id": "kimi-k2-thinking",
-            "name": "Kimi-K2-Thinking",
-            "tooltip": "Moonshot AI Kimi-K2-Thinking - Model context length 256k, a thinking model with general Agentic and reasoning capabilities, excels at deep reasoning",
-            "maxInputTokens": 256000,
-            "maxOutputTokens": 16000,
-            "includeThinking": true,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            },
-            "extraBody": {
-                "temperature": 1.0,
-                "top_p": 1
-            }
-        },
-        {
-            "id": "kimi-k2-thinking-turbo",
-            "name": "Kimi-K2-Thinking-Turbo",
-            "tooltip": "Moonshot AI Kimi-K2-Thinking-Turbo - Model context length 256k, high-speed version of kimi-k2-thinking, suitable for scenarios requiring deep reasoning and extreme speed",
-            "maxInputTokens": 256000,
-            "maxOutputTokens": 16000,
-            "includeThinking": true,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            },
-            "extraBody": {
-                "temperature": 1.0,
-                "top_p": 1
-            }
-        },
-        {
-            "id": "kimi-k2-0905-preview",
-            "name": "Kimi-K2-0905-Preview",
-            "sdkMode": "anthropic",
-            "baseUrl": "https://api.moonshot.cn/anthropic",
-            "tooltip": "Moonshot AI Kimi-K2-0905-Preview - Stronger Agentic Coding capabilities, more prominent frontend code aesthetics and practicality, 256K context",
-            "maxInputTokens": 256000,
-            "maxOutputTokens": 8192,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "kimi-k2-turbo-preview",
-            "name": "Kimi-K2-Turbo-Preview",
-            "sdkMode": "anthropic",
-            "baseUrl": "https://api.moonshot.cn/anthropic",
-            "tooltip": "Moonshot AI Kimi-K2-Turbo-Preview - High-speed version model, output speed 60-100 tokens/sec, 256K context",
-            "maxInputTokens": 256000,
-            "maxOutputTokens": 8192,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "kimi-k2-0711-preview",
-            "name": "Kimi-K2-0711-Preview",
-            "sdkMode": "anthropic",
-            "baseUrl": "https://api.moonshot.cn/anthropic",
-            "tooltip": "Moonshot AI Kimi-K2-0711-Preview - K2 series base version, 128K context",
-            "maxInputTokens": 128000,
-            "maxOutputTokens": 8192,
-            "version": "kimi-k2-0711-previw",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "kimi-latest",
-            "name": "Kimi-Latest",
-            "tooltip": "Moonshot AI Kimi-Latest - Latest generation visual model, 128K context, supports image understanding, automatic context caching, intelligent selection of 8K/32K/128K billing models",
-            "maxInputTokens": 128000,
-            "maxOutputTokens": 8192,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        }
-    ]
+	"displayName": "MoonshotAI",
+	"baseUrl": "https://api.moonshot.cn/v1",
+	"apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+	"models": [
+		{
+			"id": "kimi-for-coding",
+			"name": "Kimi For Coding",
+			"sdkMode": "anthropic",
+			"baseUrl": "https://api.kimi.com/coding",
+			"provider": "kimi",
+			"tooltip": "Kimi For Coding - Professional programming model by Moonshot AI, providing strong code generation and understanding capabilities",
+			"maxInputTokens": 256000,
+			"maxOutputTokens": 32000,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			},
+			"customHeader": {
+				"HTTP-Referer": "https://github.com/RooVetGit/Roo-Cline",
+				"X-Title": "Roo Code",
+				"User-Agent": "RooCode/3.36.16"
+			}
+		},
+		{
+			"id": "kimi-k2-thinking",
+			"name": "Kimi-K2-Thinking",
+			"tooltip": "Moonshot AI Kimi-K2-Thinking - Model context length 256k, a thinking model with general Agentic and reasoning capabilities, excels at deep reasoning",
+			"maxInputTokens": 256000,
+			"maxOutputTokens": 16000,
+			"includeThinking": true,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			},
+			"extraBody": {
+				"temperature": 1.0,
+				"top_p": 1
+			}
+		},
+		{
+			"id": "kimi-k2-thinking-turbo",
+			"name": "Kimi-K2-Thinking-Turbo",
+			"tooltip": "Moonshot AI Kimi-K2-Thinking-Turbo - Model context length 256k, high-speed version of kimi-k2-thinking, suitable for scenarios requiring deep reasoning and extreme speed",
+			"maxInputTokens": 256000,
+			"maxOutputTokens": 16000,
+			"includeThinking": true,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			},
+			"extraBody": {
+				"temperature": 1.0,
+				"top_p": 1
+			}
+		},
+		{
+			"id": "kimi-k2-0905-preview",
+			"name": "Kimi-K2-0905-Preview",
+			"sdkMode": "anthropic",
+			"baseUrl": "https://api.moonshot.cn/anthropic",
+			"tooltip": "Moonshot AI Kimi-K2-0905-Preview - Stronger Agentic Coding capabilities, more prominent frontend code aesthetics and practicality, 256K context",
+			"maxInputTokens": 256000,
+			"maxOutputTokens": 8192,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			}
+		},
+		{
+			"id": "kimi-k2-turbo-preview",
+			"name": "Kimi-K2-Turbo-Preview",
+			"sdkMode": "anthropic",
+			"baseUrl": "https://api.moonshot.cn/anthropic",
+			"tooltip": "Moonshot AI Kimi-K2-Turbo-Preview - High-speed version model, output speed 60-100 tokens/sec, 256K context",
+			"maxInputTokens": 256000,
+			"maxOutputTokens": 8192,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			}
+		},
+		{
+			"id": "kimi-k2-0711-preview",
+			"name": "Kimi-K2-0711-Preview",
+			"sdkMode": "anthropic",
+			"baseUrl": "https://api.moonshot.cn/anthropic",
+			"tooltip": "Moonshot AI Kimi-K2-0711-Preview - K2 series base version, 128K context",
+			"maxInputTokens": 128000,
+			"maxOutputTokens": 8192,
+			"version": "kimi-k2-0711-previw",
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			}
+		},
+		{
+			"id": "kimi-latest",
+			"name": "Kimi-Latest",
+			"tooltip": "Moonshot AI Kimi-Latest - Latest generation visual model, 128K context, supports image understanding, automatic context caching, intelligent selection of 8K/32K/128K billing models",
+			"maxInputTokens": 128000,
+			"maxOutputTokens": 8192,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": true
+			}
+		}
+	]
 }

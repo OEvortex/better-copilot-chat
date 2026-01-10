@@ -8,4 +8,4 @@
  *--------------------------------------------------------------------------------------------*/
 
 // Export complete InlineCompletionProvider
-export { InlineCompletionProvider } from './completionProvider';
+export { InlineCompletionProvider } from "./completionProvider";

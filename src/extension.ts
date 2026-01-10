@@ -1,56 +1,59 @@
-import * as vscode from 'vscode';
-import { GenericModelProvider } from './providers/common/genericModelProvider';
-import { ZhipuProvider } from './providers/zhipu/zhipuProvider';
-import { ChutesProvider } from './providers/chutes/chutesProvider';
-import { OpenCodeProvider } from './providers/opencode/opencodeProvider';
-import { HuggingfaceProvider } from './providers/huggingface/provider';
-import { QwenCliProvider } from './providers/qwencli/provider';
-import { GeminiCliProvider } from './providers/geminicli/provider';
-import { MiniMaxProvider } from './providers/minimax/minimaxProvider';
-import { CompatibleProvider } from './providers/compatible/compatibleProvider';
-import { DeepInfraProvider } from './providers/deepinfra/deepinfraProvider';
-import { MistralProvider } from './providers/mistral/mistralProvider';
-import { ProviderKey } from './types/providerKeys';
-import { AntigravityProvider } from './providers/antigravity/provider';
-import { CodexProvider } from './providers/codex/codexProvider';
-import { InlineCompletionShim } from './copilot/inlineCompletionShim';
+import * as vscode from "vscode";
 import {
-    Logger,
-    StatusLogger,
-    CompletionLogger,
-    TokenCounter,
-    ApiKeyManager,
-    ConfigManager,
-    JsonSchemaProvider
-} from './utils';
-import { CompatibleModelManager } from './utils/compatibleModelManager';
-import { registerAllTools } from './tools';
+	AccountManager,
+	AccountQuotaCache,
+	AccountSyncAdapter,
+	registerAccountCommands,
+} from "./accounts";
+import { InlineCompletionShim } from "./copilot/inlineCompletionShim";
+import { AntigravityProvider } from "./providers/antigravity/provider";
+import { ChutesProvider } from "./providers/chutes/chutesProvider";
+import { CodexProvider } from "./providers/codex/codexProvider";
+import { GenericModelProvider } from "./providers/common/genericModelProvider";
+import { CompatibleProvider } from "./providers/compatible/compatibleProvider";
+import { DeepInfraProvider } from "./providers/deepinfra/deepinfraProvider";
+import { GeminiCliProvider } from "./providers/geminicli/provider";
+import { HuggingfaceProvider } from "./providers/huggingface/provider";
+import { MiniMaxProvider } from "./providers/minimax/minimaxProvider";
+import { MistralProvider } from "./providers/mistral/mistralProvider";
+import { OpenCodeProvider } from "./providers/opencode/opencodeProvider";
+import { QwenCliProvider } from "./providers/qwencli/provider";
+import { ZhipuProvider } from "./providers/zhipu/zhipuProvider";
+import { registerAllTools } from "./tools";
+import { ProviderKey } from "./types/providerKeys";
 import {
-    AccountManager,
-    registerAccountCommands,
-    AccountSyncAdapter,
-    AccountQuotaCache
-} from './accounts';
-import { registerSettingsPageCommand, registerCopilotOverviewCommand } from './ui';
+	registerCopilotOverviewCommand,
+	registerSettingsPageCommand,
+} from "./ui";
+import {
+	ApiKeyManager,
+	CompletionLogger,
+	ConfigManager,
+	JsonSchemaProvider,
+	Logger,
+	StatusLogger,
+	TokenCounter,
+} from "./utils";
+import { CompatibleModelManager } from "./utils/compatibleModelManager";
 
 /**
  * Global variables - Store registered provider instances for cleanup on extension uninstall
  */
 const registeredProviders: Record<
-    string,
-    | GenericModelProvider
-    | ZhipuProvider
-    | MiniMaxProvider
-    | ChutesProvider
-    | OpenCodeProvider
-    | QwenCliProvider
-    | GeminiCliProvider
-    | HuggingfaceProvider
-    | CompatibleProvider
-    | AntigravityProvider
-    | CodexProvider
-    | DeepInfraProvider
-    | MistralProvider
+	string,
+	| GenericModelProvider
+	| ZhipuProvider
+	| MiniMaxProvider
+	| ChutesProvider
+	| OpenCodeProvider
+	| QwenCliProvider
+	| GeminiCliProvider
+	| HuggingfaceProvider
+	| CompatibleProvider
+	| AntigravityProvider
+	| CodexProvider
+	| DeepInfraProvider
+	| MistralProvider
 > = {};
 const registeredDisposables: vscode.Disposable[] = [];
 
@@ -60,478 +63,615 @@ let inlineCompletionProvider: InlineCompletionShim | undefined;
 /**
  * Activate providers - dynamic registration based on config file (parallel optimized version)
  */
-async function activateProviders(context: vscode.ExtensionContext): Promise<void> {
-    const startTime = Date.now();
-    const configProvider = ConfigManager.getConfigProvider();
+async function activateProviders(
+	context: vscode.ExtensionContext,
+): Promise<void> {
+	const startTime = Date.now();
+	const configProvider = ConfigManager.getConfigProvider();
 
-    if (!configProvider) {
-        Logger.warn('Provider configuration not found, skipping provider registration');
-        return;
-    }
+	if (!configProvider) {
+		Logger.warn(
+			"Provider configuration not found, skipping provider registration",
+		);
+		return;
+	}
 
-    // Skip Codex here because it is registered separately with a specialized provider (CodexProvider)
-    const providerEntries = Object.entries(configProvider).filter(([providerKey]) => providerKey !== 'codex');
+	// Skip Codex here because it is registered separately with a specialized provider (CodexProvider)
+	const providerEntries = Object.entries(configProvider).filter(
+		([providerKey]) => providerKey !== "codex",
+	);
 
-    // Set extension path (for tokenizer initialization)
-    TokenCounter.setExtensionPath(context.extensionPath);
+	// Set extension path (for tokenizer initialization)
+	TokenCounter.setExtensionPath(context.extensionPath);
 
-    Logger.info(`⏱️ Starting parallel registration of ${providerEntries.length} providers...`);
+	Logger.info(
+		`⏱️ Starting parallel registration of ${providerEntries.length} providers...`,
+	);
 
-    // Register all providers in parallel to improve performance
-    const registrationPromises = providerEntries.map(async ([providerKey, providerConfig]) => {
-        try {
-            Logger.trace(`Registering provider: ${providerConfig.displayName} (${providerKey})`);
-            const providerStartTime = Date.now();
+	// Register all providers in parallel to improve performance
+	const registrationPromises = providerEntries.map(
+		async ([providerKey, providerConfig]) => {
+			try {
+				Logger.trace(
+					`Registering provider: ${providerConfig.displayName} (${providerKey})`,
+				);
+				const providerStartTime = Date.now();
 
-            let provider: GenericModelProvider | ZhipuProvider | MiniMaxProvider | ChutesProvider | OpenCodeProvider;
-            let disposables: vscode.Disposable[];
+				let provider:
+					| GenericModelProvider
+					| ZhipuProvider
+					| MiniMaxProvider
+					| ChutesProvider
+					| OpenCodeProvider;
+				let disposables: vscode.Disposable[];
 
-            if (providerKey === 'zhipu') {
-                // Use specialized provider for zhipu (config wizard function)
-                const result = ZhipuProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider;
-                disposables = result.disposables;
-            } else if (providerKey === 'minimax') {
-                // Use specialized provider for minimax (multi-key management and config wizard)
-                const result = MiniMaxProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider;
-                disposables = result.disposables;
-            } else if (providerKey === 'chutes') {
-                // Use specialized provider for chutes (global request limit tracking)
-                const result = ChutesProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider;
-                disposables = result.disposables;
-            } else if (providerKey === 'opencode') {
-                // Use specialized provider for opencode (dedicated error handling and status)
-                const result = OpenCodeProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider;
-                disposables = result.disposables;
-            } else if (providerKey === 'qwencli') {
-                // Use specialized provider for qwencli (OAuth via CLI)
-                const result = QwenCliProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider;
-                disposables = result.disposables;
-            } else if (providerKey === 'geminicli') {
-                // Use specialized provider for geminicli (OAuth via CLI)
-                const result = GeminiCliProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider;
-                disposables = result.disposables;
-            } else if (providerKey === 'huggingface') {
-                // Use specialized provider for huggingface (dedicated Hugging Face Router integration)
-                const result = HuggingfaceProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider as any;
-                disposables = result.disposables as any;
-            } else if (providerKey === 'deepinfra') {
-                // Use specialized provider for DeepInfra (OpenAI-compatible endpoints)
-                const result = DeepInfraProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider as any;
-                disposables = result.disposables as any;
-            } else if (providerKey === 'mistral') {
-                // Use specialized provider for Mistral AI (OpenAI-compatible endpoints)
-                const result = MistralProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider as any;
-                disposables = result.disposables as any;
-            } else {
-                // Other providers use generic provider (supports automatic selection based on sdkMode)
-                const result = GenericModelProvider.createAndActivate(context, providerKey, providerConfig);
-                provider = result.provider;
-                disposables = result.disposables;
-            }
+				if (providerKey === "zhipu") {
+					// Use specialized provider for zhipu (config wizard function)
+					const result = ZhipuProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider;
+					disposables = result.disposables;
+				} else if (providerKey === "minimax") {
+					// Use specialized provider for minimax (multi-key management and config wizard)
+					const result = MiniMaxProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider;
+					disposables = result.disposables;
+				} else if (providerKey === "chutes") {
+					// Use specialized provider for chutes (global request limit tracking)
+					const result = ChutesProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider;
+					disposables = result.disposables;
+				} else if (providerKey === "opencode") {
+					// Use specialized provider for opencode (dedicated error handling and status)
+					const result = OpenCodeProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider;
+					disposables = result.disposables;
+				} else if (providerKey === "qwencli") {
+					// Use specialized provider for qwencli (OAuth via CLI)
+					const result = QwenCliProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider;
+					disposables = result.disposables;
+				} else if (providerKey === "geminicli") {
+					// Use specialized provider for geminicli (OAuth via CLI)
+					const result = GeminiCliProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider;
+					disposables = result.disposables;
+				} else if (providerKey === "huggingface") {
+					// Use specialized provider for huggingface (dedicated Hugging Face Router integration)
+					const result = HuggingfaceProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider as unknown as GenericModelProvider;
+					disposables = result.disposables as unknown as vscode.Disposable[];
+				} else if (providerKey === "deepinfra") {
+					// Use specialized provider for DeepInfra (OpenAI-compatible endpoints)
+					const result = DeepInfraProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider as unknown as GenericModelProvider;
+					disposables = result.disposables as unknown as vscode.Disposable[];
+				} else if (providerKey === "mistral") {
+					// Use specialized provider for Mistral AI (OpenAI-compatible endpoints)
+					const result = MistralProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider as unknown as GenericModelProvider;
+					disposables = result.disposables as unknown as vscode.Disposable[];
+				} else {
+					// Other providers use generic provider (supports automatic selection based on sdkMode)
+					const result = GenericModelProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider;
+					disposables = result.disposables;
+				}
 
-            const providerTime = Date.now() - providerStartTime;
-            Logger.info(`${providerConfig.displayName} provider registered successfully (time: ${providerTime}ms)`);
-            return { providerKey, provider, disposables };
-        } catch (error) {
-            Logger.error(`Failed to register provider ${providerKey}:`, error);
-            return null;
-        }
-    });
+				const providerTime = Date.now() - providerStartTime;
+				Logger.info(
+					`${providerConfig.displayName} provider registered successfully (time: ${providerTime}ms)`,
+				);
+				return { providerKey, provider, disposables };
+			} catch (error) {
+				Logger.error(`Failed to register provider ${providerKey}:`, error);
+				return null;
+			}
+		},
+	);
 
-    // Wait for all provider registrations to complete
-    const results = await Promise.all(registrationPromises);
+	// Wait for all provider registrations to complete
+	const results = await Promise.all(registrationPromises);
 
-    // Collect successfully registered providers
-    for (const result of results) {
-        if (result) {
-            registeredProviders[result.providerKey] = result.provider;
-            registeredDisposables.push(...result.disposables);
-        }
-    }
+	// Collect successfully registered providers
+	for (const result of results) {
+		if (result) {
+			registeredProviders[result.providerKey] = result.provider;
+			registeredDisposables.push(...result.disposables);
+		}
+	}
 
-    const totalTime = Date.now() - startTime;
-    const successCount = results.filter(r => r !== null).length;
-    Logger.info(
-        `⏱️ Provider registration completed: ${successCount}/${providerEntries.length} successful (total time: ${totalTime}ms)`
-    );
+	const totalTime = Date.now() - startTime;
+	const successCount = results.filter((r) => r !== null).length;
+	Logger.info(
+		`⏱️ Provider registration completed: ${successCount}/${providerEntries.length} successful (total time: ${totalTime}ms)`,
+	);
 }
 
 /**
  * Activate compatible provider
  */
-async function activateCompatibleProvider(context: vscode.ExtensionContext): Promise<void> {
-    try {
-        Logger.trace('Registering compatible provider...');
-        const providerStartTime = Date.now();
+async function activateCompatibleProvider(
+	context: vscode.ExtensionContext,
+): Promise<void> {
+	try {
+		Logger.trace("Registering compatible provider...");
+		const providerStartTime = Date.now();
 
-        // Create and activate compatible provider
-        const result = CompatibleProvider.createAndActivate(context);
-        const provider = result.provider;
-        const disposables = result.disposables;
+		// Create and activate compatible provider
+		const result = CompatibleProvider.createAndActivate(context);
+		const provider = result.provider;
+		const disposables = result.disposables;
 
-        // Store registered providers and disposables
-        registeredProviders['compatible'] = provider;
-        registeredDisposables.push(...disposables);
+		// Store registered providers and disposables
+		registeredProviders.compatible = provider;
+		registeredDisposables.push(...disposables);
 
-        const providerTime = Date.now() - providerStartTime;
-        Logger.info(`Compatible Provider registered successfully (time: ${providerTime}ms)`);
-    } catch (error) {
-        Logger.error('Failed to register compatible provider:', error);
-    }
+		const providerTime = Date.now() - providerStartTime;
+		Logger.info(
+			`Compatible Provider registered successfully (time: ${providerTime}ms)`,
+		);
+	} catch (error) {
+		Logger.error("Failed to register compatible provider:", error);
+	}
 
-    // Register unified Copilot Overview command
-    try {
-        const copilotOverviewCmd = registerCopilotOverviewCommand(context);
-        registeredDisposables.push(copilotOverviewCmd);
-    } catch (e) {
-        Logger.warn('Failed to register Copilot Overview command', e);
-    }
+	// Register unified Copilot Overview command
+	try {
+		const copilotOverviewCmd = registerCopilotOverviewCommand(context);
+		registeredDisposables.push(copilotOverviewCmd);
+	} catch (e) {
+		Logger.warn("Failed to register Copilot Overview command", e);
+	}
 }
 
 /**
  * Activate inline completion provider (lightweight Shim, lazy load the actual completion engine)
  */
-async function activateInlineCompletionProvider(context: vscode.ExtensionContext): Promise<void> {
-    try {
-        Logger.trace('Registering inline completion provider (Shim mode)...');
-        const providerStartTime = Date.now();
+async function activateInlineCompletionProvider(
+	context: vscode.ExtensionContext,
+): Promise<void> {
+	try {
+		Logger.trace("Registering inline completion provider (Shim mode)...");
+		const providerStartTime = Date.now();
 
-        // Create and activate lightweight Shim (no @vscode/chat-lib dependency)
-        const result = InlineCompletionShim.createAndActivate(context);
-        inlineCompletionProvider = result.provider;
-        registeredDisposables.push(...result.disposables);
+		// Create and activate lightweight Shim (no @vscode/chat-lib dependency)
+		const result = InlineCompletionShim.createAndActivate(context);
+		inlineCompletionProvider = result.provider;
+		registeredDisposables.push(...result.disposables);
 
-        const providerTime = Date.now() - providerStartTime;
-        Logger.info(`Inline completion provider registered successfully - Shim mode (time: ${providerTime}ms)`);
-    } catch (error) {
-        Logger.error('Failed to register inline completion provider:', error);
-    }
+		const providerTime = Date.now() - providerStartTime;
+		Logger.info(
+			`Inline completion provider registered successfully - Shim mode (time: ${providerTime}ms)`,
+		);
+	} catch (error) {
+		Logger.error("Failed to register inline completion provider:", error);
+	}
 }
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-    // Store singleton instances in globalThis for use by modules in copilot.bundle.js
-    globalThis.__chp_singletons = {
-        CompletionLogger,
-        ApiKeyManager,
-        ConfigManager
-    };
+	// Store singleton instances in globalThis for use by modules in copilot.bundle.js
+	globalThis.__chp_singletons = {
+		CompletionLogger,
+		ApiKeyManager,
+		ConfigManager,
+	};
 
-    const activationStartTime = Date.now();
+	const activationStartTime = Date.now();
 
-    try {
-        Logger.initialize('Copilot ++'); // Initialize log manager
-        StatusLogger.initialize('GitHub Copilot Models Provider Status'); // Initialize high-frequency status log manager
-        CompletionLogger.initialize('Copilot ++Inline Completion'); // Initialize high-frequency inline completion log manager
+	try {
+		Logger.initialize("Copilot ++"); // Initialize log manager
+		StatusLogger.initialize("GitHub Copilot Models Provider Status"); // Initialize high-frequency status log manager
+		CompletionLogger.initialize("Copilot ++Inline Completion"); // Initialize high-frequency inline completion log manager
 
-        const isDevelopment = context.extensionMode === vscode.ExtensionMode.Development;
-        Logger.info(`Copilot ++Extension Mode: ${isDevelopment ? 'Development' : 'Production'}`);
-        // Check and prompt VS Code log level settings
-        if (isDevelopment) {
-            Logger.checkAndPromptLogLevel();
-        }
+		const isDevelopment =
+			context.extensionMode === vscode.ExtensionMode.Development;
+		Logger.info(
+			`Copilot ++Extension Mode: ${isDevelopment ? "Development" : "Production"}`,
+		);
+		// Check and prompt VS Code log level settings
+		if (isDevelopment) {
+			Logger.checkAndPromptLogLevel();
+		}
 
-        Logger.info('⏱️ Starting Copilot ++extension activation...');
+		Logger.info("⏱️ Starting Copilot ++extension activation...");
 
-        // Step 1: Initialize API key manager
-        let stepStartTime = Date.now();
-        ApiKeyManager.initialize(context);
-        Logger.trace(`⏱️ API key manager initialization complete (time: ${Date.now() - stepStartTime}ms)`);
+		// Step 1: Initialize API key manager
+		let stepStartTime = Date.now();
+		ApiKeyManager.initialize(context);
+		Logger.trace(
+			`⏱️ API key manager initialization complete (time: ${Date.now() - stepStartTime}ms)`,
+		);
 
-        // Step 1.1: Initialize multi-account manager
-        stepStartTime = Date.now();
-        AccountManager.initialize(context);
-        // Initialize Account Quota Cache
-        AccountQuotaCache.initialize(context);
-        const accountDisposables = registerAccountCommands(context);
-        context.subscriptions.push(...accountDisposables);
-        // Initialize account sync adapter and sync existing accounts
-        const accountSyncAdapter = AccountSyncAdapter.initialize();
-        context.subscriptions.push({ dispose: () => accountSyncAdapter.dispose() });
-        // Asynchronously sync existing accounts (non-blocking startup)
-        accountSyncAdapter.syncAllAccounts().catch(err => Logger.warn('Account sync failed:', err));
+		// Step 1.1: Initialize multi-account manager
+		stepStartTime = Date.now();
+		AccountManager.initialize(context);
+		// Initialize Account Quota Cache
+		AccountQuotaCache.initialize(context);
+		const accountDisposables = registerAccountCommands(context);
+		context.subscriptions.push(...accountDisposables);
+		// Initialize account sync adapter and sync existing accounts
+		const accountSyncAdapter = AccountSyncAdapter.initialize();
+		context.subscriptions.push({ dispose: () => accountSyncAdapter.dispose() });
+		// Asynchronously sync existing accounts (non-blocking startup)
+		accountSyncAdapter
+			.syncAllAccounts()
+			.catch((err) => Logger.warn("Account sync failed:", err));
 
-        // Listen to account changes and update AntigravityQuotaWatcher config
-        const accountManager = AccountManager.getInstance();
+		// Listen to account changes and update AntigravityQuotaWatcher config
+		const accountManager = AccountManager.getInstance();
 
-        const updateAntigravityConfig = async () => {
-            const activeAccount = accountManager.getActiveAccount(ProviderKey.Antigravity);
-            if (!activeAccount) {
-                return;
-            }
+		const updateAntigravityConfig = async () => {
+			const activeAccount = accountManager.getActiveAccount(
+				ProviderKey.Antigravity,
+			);
+			if (!activeAccount) {
+				return;
+			}
 
-            const credentials = await accountManager.getCredentials(activeAccount.id);
-            if (!credentials) {
-                return;
-            }
+			const credentials = await accountManager.getCredentials(activeAccount.id);
+			if (!credentials) {
+				return;
+			}
 
-            // Extract token from credentials (supports both accessToken and apiKey formats)
-            const token =
-                (credentials as { accessToken?: string; apiKey?: string }).accessToken ??
-                (credentials as { accessToken?: string; apiKey?: string }).apiKey;
+			// Extract token from credentials (supports both accessToken and apiKey formats)
+			const token =
+				(credentials as { accessToken?: string; apiKey?: string })
+					.accessToken ??
+				(credentials as { accessToken?: string; apiKey?: string }).apiKey;
 
-            if (token) {
-                const config = vscode.workspace.getConfiguration('antigravityQuotaWatcher');
-                if (config.get('apiKey') !== token) {
-                    await config.update('apiKey', token, vscode.ConfigurationTarget.Global);
-                }
-            }
-        };
+			if (token) {
+				const config = vscode.workspace.getConfiguration(
+					"antigravityQuotaWatcher",
+				);
+				if (config.get("apiKey") !== token) {
+					await config.update(
+						"apiKey",
+						token,
+						vscode.ConfigurationTarget.Global,
+					);
+				}
+			}
+		};
 
-        // Initial update
-        updateAntigravityConfig();
+		// Initial update
+		updateAntigravityConfig();
 
-        context.subscriptions.push(
-            accountManager.onAccountChange(async event => {
-                if (
-                    event.provider === ProviderKey.Antigravity &&
-                    (event.type === 'switched' || event.type === 'updated' || event.type === 'added')
-                ) {
-                    await updateAntigravityConfig();
-                }
-            })
-        );
+		context.subscriptions.push(
+			accountManager.onAccountChange(async (event) => {
+				if (
+					event.provider === ProviderKey.Antigravity &&
+					(event.type === "switched" ||
+						event.type === "updated" ||
+						event.type === "added")
+				) {
+					await updateAntigravityConfig();
+				}
+			}),
+		);
 
-        Logger.trace(`⏱️ Multi-account manager initialization complete (time: ${Date.now() - stepStartTime}ms)`);
+		Logger.trace(
+			`⏱️ Multi-account manager initialization complete (time: ${Date.now() - stepStartTime}ms)`,
+		);
 
-        // Step 1.2: Register settings page command
-        stepStartTime = Date.now();
-        const settingsPageDisposable = registerSettingsPageCommand(context);
-        context.subscriptions.push(settingsPageDisposable);
-        Logger.trace(`⏱️ Settings page command registered (time: ${Date.now() - stepStartTime}ms)`);
+		// Step 1.2: Register settings page command
+		stepStartTime = Date.now();
+		const settingsPageDisposable = registerSettingsPageCommand(context);
+		context.subscriptions.push(settingsPageDisposable);
+		Logger.trace(
+			`⏱️ Settings page command registered (time: ${Date.now() - stepStartTime}ms)`,
+		);
 
-        // Step 2: Initialize configuration manager
-        stepStartTime = Date.now();
-        const configDisposable = ConfigManager.initialize();
-        context.subscriptions.push(configDisposable);
-        Logger.trace(`⏱️ Configuration manager initialized (time: ${Date.now() - stepStartTime}ms)`);
-        // Step 2.1: Initialize JSON Schema provider
-        stepStartTime = Date.now();
-        JsonSchemaProvider.initialize();
-        context.subscriptions.push({ dispose: () => JsonSchemaProvider.dispose() });
-        Logger.trace(`⏱️ JSON Schema provider initialized (time: ${Date.now() - stepStartTime}ms)`);
-        // Step 2.2: Initialize compatible model manager
-        stepStartTime = Date.now();
-        CompatibleModelManager.initialize();
-        Logger.trace(`⏱️ Compatible model manager initialized (time: ${Date.now() - stepStartTime}ms)`);
+		// Step 2: Initialize configuration manager
+		stepStartTime = Date.now();
+		const configDisposable = ConfigManager.initialize();
+		context.subscriptions.push(configDisposable);
+		Logger.trace(
+			`⏱️ Configuration manager initialized (time: ${Date.now() - stepStartTime}ms)`,
+		);
+		// Step 2.1: Initialize JSON Schema provider
+		stepStartTime = Date.now();
+		JsonSchemaProvider.initialize();
+		context.subscriptions.push({ dispose: () => JsonSchemaProvider.dispose() });
+		Logger.trace(
+			`⏱️ JSON Schema provider initialized (time: ${Date.now() - stepStartTime}ms)`,
+		);
+		// Step 2.2: Initialize compatible model manager
+		stepStartTime = Date.now();
+		CompatibleModelManager.initialize();
+		Logger.trace(
+			`⏱️ Compatible model manager initialized (time: ${Date.now() - stepStartTime}ms)`,
+		);
 
-        // Step 3: Activate providers (parallel optimization)
-        stepStartTime = Date.now();
-        await activateProviders(context);
-        Logger.trace(`⏱️ Model provider registration complete (time: ${Date.now() - stepStartTime}ms)`);
-        // Step 3.1: Activate compatible provider
-        stepStartTime = Date.now();
-        await activateCompatibleProvider(context);
-        Logger.trace(`⏱️ Compatible provider registration complete (time: ${Date.now() - stepStartTime}ms)`);
+		// Step 3: Activate providers (parallel optimization)
+		stepStartTime = Date.now();
+		await activateProviders(context);
+		Logger.trace(
+			`⏱️ Model provider registration complete (time: ${Date.now() - stepStartTime}ms)`,
+		);
+		// Step 3.1: Activate compatible provider
+		stepStartTime = Date.now();
+		await activateCompatibleProvider(context);
+		Logger.trace(
+			`⏱️ Compatible provider registration complete (time: ${Date.now() - stepStartTime}ms)`,
+		);
 
-        // Step 4: Register tools
-        stepStartTime = Date.now();
-        registerAllTools(context);
-        Logger.trace(`⏱️ Tools registered (time: ${Date.now() - stepStartTime}ms)`);
+		// Step 4: Register tools
+		stepStartTime = Date.now();
+		registerAllTools(context);
+		Logger.trace(`⏱️ Tools registered (time: ${Date.now() - stepStartTime}ms)`);
 
-        // Step 4.1: Activate Antigravity Provider
-        stepStartTime = Date.now();
-        const antigravityResult = AntigravityProvider.createAndActivate(context);
-        registeredProviders[ProviderKey.Antigravity] = antigravityResult.provider;
-        registeredDisposables.push(...antigravityResult.disposables);
-        Logger.trace(`⏱️ Antigravity Provider registered (time: ${Date.now() - stepStartTime}ms)`);
+		// Step 4.1: Activate Antigravity Provider
+		stepStartTime = Date.now();
+		const antigravityResult = AntigravityProvider.createAndActivate(context);
+		registeredProviders[ProviderKey.Antigravity] = antigravityResult.provider;
+		registeredDisposables.push(...antigravityResult.disposables);
+		Logger.trace(
+			`⏱️ Antigravity Provider registered (time: ${Date.now() - stepStartTime}ms)`,
+		);
 
-        // Step 4.2: Activate Codex Provider (OpenAI GPT-5)
-        stepStartTime = Date.now();
-        const codexResult = CodexProvider.createAndActivate(context);
-        registeredProviders[ProviderKey.Codex] = codexResult.provider;
-        registeredDisposables.push(...codexResult.disposables);
-        Logger.trace(`⏱️ Codex Provider registered (time: ${Date.now() - stepStartTime}ms)`);
+		// Step 4.2: Activate Codex Provider (OpenAI GPT-5)
+		stepStartTime = Date.now();
+		const codexResult = CodexProvider.createAndActivate(context);
+		registeredProviders[ProviderKey.Codex] = codexResult.provider;
+		registeredDisposables.push(...codexResult.disposables);
+		Logger.trace(
+			`⏱️ Codex Provider registered (time: ${Date.now() - stepStartTime}ms)`,
+		);
 
-        // Step 5: Register inline completion provider (lightweight Shim, lazy load the actual completion engine)
-        stepStartTime = Date.now();
-        await activateInlineCompletionProvider(context);
-        Logger.trace(`⏱️ NES inline completion provider registered (time: ${Date.now() - stepStartTime}ms)`);
+		// Step 5: Register inline completion provider (lightweight Shim, lazy load the actual completion engine)
+		stepStartTime = Date.now();
+		await activateInlineCompletionProvider(context);
+		Logger.trace(
+			`⏱️ NES inline completion provider registered (time: ${Date.now() - stepStartTime}ms)`,
+		);
 
-        // Step 6: Register Copilot helper commands
-        stepStartTime = Date.now();
-        const copilotAttachSelectionCmd = vscode.commands.registerCommand('chp.copilot.attachSelection', async () => {
-            try {
-                const editor = vscode.window.activeTextEditor;
-                if (!editor) {
-                    vscode.window.showWarningMessage('No active editor found.');
-                    return;
-                }
+		// Step 6: Register Copilot helper commands
+		stepStartTime = Date.now();
+		const copilotAttachSelectionCmd = vscode.commands.registerCommand(
+			"chp.copilot.attachSelection",
+			async () => {
+				try {
+					const editor = vscode.window.activeTextEditor;
+					if (!editor) {
+						vscode.window.showWarningMessage("No active editor found.");
+						return;
+					}
 
-                const selection = editor.selection;
-                const document = editor.document;
-                const fileName = document.fileName.split('/').pop() || document.fileName;
+					const selection = editor.selection;
+					const document = editor.document;
+					const fileName =
+						document.fileName.split("/").pop() || document.fileName;
 
-                let lineRange: string;
-                if (selection.start.line === selection.end.line) {
-                    lineRange = `${selection.start.line + 1}`;
-                } else {
-                    lineRange = `${selection.start.line + 1}-${selection.end.line + 1}`;
-                }
+					let lineRange: string;
+					if (selection.start.line === selection.end.line) {
+						lineRange = `${selection.start.line + 1}`;
+					} else {
+						lineRange = `${selection.start.line + 1}-${selection.end.line + 1}`;
+					}
 
-                const referenceText = `@${fileName}:${lineRange} `;
+					const referenceText = `@${fileName}:${lineRange} `;
 
-                await vscode.commands.executeCommand('workbench.panel.chat.view.copilot.focus');
-                await vscode.commands.executeCommand('workbench.action.chat.insertIntoInput', referenceText);
-            } catch (error) {
-                Logger.warn('Unable to execute Copilot attach selection:', error);
-                vscode.window.showWarningMessage(
-                    'Failed to insert reference to Copilot Chat. Make sure GitHub Copilot Chat is installed.'
-                );
-            }
-        });
-        context.subscriptions.push(copilotAttachSelectionCmd);
+					await vscode.commands.executeCommand(
+						"workbench.panel.chat.view.copilot.focus",
+					);
+					await vscode.commands.executeCommand(
+						"workbench.action.chat.insertIntoInput",
+						referenceText,
+					);
+				} catch (error) {
+					Logger.warn("Unable to execute Copilot attach selection:", error);
+					vscode.window.showWarningMessage(
+						"Failed to insert reference to Copilot Chat. Make sure GitHub Copilot Chat is installed.",
+					);
+				}
+			},
+		);
+		context.subscriptions.push(copilotAttachSelectionCmd);
 
-        // Command: Insert file handle reference with line range (format: #handle:filename:L1-L100)
-        const copilotInsertHandleCmd = vscode.commands.registerCommand('chp.copilot.insertHandle', async () => {
-            try {
-                const editor = vscode.window.activeTextEditor;
-                if (!editor) {
-                    vscode.window.showWarningMessage('No active editor found.');
-                    return;
-                }
+		// Command: Insert file handle reference with line range (format: #handle:filename:L1-L100)
+		const copilotInsertHandleCmd = vscode.commands.registerCommand(
+			"chp.copilot.insertHandle",
+			async () => {
+				try {
+					const editor = vscode.window.activeTextEditor;
+					if (!editor) {
+						vscode.window.showWarningMessage("No active editor found.");
+						return;
+					}
 
-                const selection = editor.selection;
-                const document = editor.document;
-                const fileName = document.fileName.split('/').pop() || document.fileName;
+					const selection = editor.selection;
+					const document = editor.document;
+					const fileName =
+						document.fileName.split("/").pop() || document.fileName;
 
-                let lineRange: string;
-                if (selection.isEmpty) {
-                    // No selection - use current line
-                    lineRange = `L${selection.start.line + 1}`;
-                } else if (selection.start.line === selection.end.line) {
-                    // Single line selection
-                    lineRange = `L${selection.start.line + 1}`;
-                } else {
-                    // Multi-line selection
-                    lineRange = `L${selection.start.line + 1}-L${selection.end.line + 1}`;
-                }
+					let lineRange: string;
+					if (selection.isEmpty) {
+						// No selection - use current line
+						lineRange = `L${selection.start.line + 1}`;
+					} else if (selection.start.line === selection.end.line) {
+						// Single line selection
+						lineRange = `L${selection.start.line + 1}`;
+					} else {
+						// Multi-line selection
+						lineRange = `L${selection.start.line + 1}-L${selection.end.line + 1}`;
+					}
 
-                // Format: #handle:filename:L1-L100 (e.g., #handle:extension.ts:L1-L100)
-                const handleText = `#file:${fileName}:${lineRange} `;
+					// Format: #handle:filename:L1-L100 (e.g., #handle:extension.ts:L1-L100)
+					const handleText = `#file:${fileName}:${lineRange} `;
 
-                // Focus Copilot Chat panel
-                await vscode.commands.executeCommand('workbench.panel.chat.view.copilot.focus');
-                // Use 'type' command to insert text at cursor position (appends to existing text)
-                await vscode.commands.executeCommand('type', { text: handleText });
+					// Focus Copilot Chat panel
+					await vscode.commands.executeCommand(
+						"workbench.panel.chat.view.copilot.focus",
+					);
+					// Use 'type' command to insert text at cursor position (appends to existing text)
+					await vscode.commands.executeCommand("type", { text: handleText });
 
-                Logger.trace(`Inserted handle reference: ${handleText}`);
-            } catch (error) {
-                Logger.warn('Unable to insert handle reference:', error);
-                vscode.window.showWarningMessage(
-                    'Failed to insert handle reference to Copilot Chat. Make sure GitHub Copilot Chat is installed.'
-                );
-            }
-        });
-        context.subscriptions.push(copilotInsertHandleCmd);
+					Logger.trace(`Inserted handle reference: ${handleText}`);
+				} catch (error) {
+					Logger.warn("Unable to insert handle reference:", error);
+					vscode.window.showWarningMessage(
+						"Failed to insert handle reference to Copilot Chat. Make sure GitHub Copilot Chat is installed.",
+					);
+				}
+			},
+		);
+		context.subscriptions.push(copilotInsertHandleCmd);
 
-        // Command: Insert file handle with full path reference (format: #handle:path/to/file.ts:L1-L100)
-        const copilotInsertHandleFullPathCmd = vscode.commands.registerCommand(
-            'chp.copilot.insertHandleFullPath',
-            async () => {
-                try {
-                    const editor = vscode.window.activeTextEditor;
-                    if (!editor) {
-                        vscode.window.showWarningMessage('No active editor found.');
-                        return;
-                    }
+		// Command: Insert file handle with full path reference (format: #handle:path/to/file.ts:L1-L100)
+		const copilotInsertHandleFullPathCmd = vscode.commands.registerCommand(
+			"chp.copilot.insertHandleFullPath",
+			async () => {
+				try {
+					const editor = vscode.window.activeTextEditor;
+					if (!editor) {
+						vscode.window.showWarningMessage("No active editor found.");
+						return;
+					}
 
-                    const selection = editor.selection;
-                    const document = editor.document;
+					const selection = editor.selection;
+					const document = editor.document;
 
-                    // Get relative path from workspace
-                    const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-                    let relativePath: string;
-                    if (workspaceFolder) {
-                        relativePath = vscode.workspace.asRelativePath(document.uri, false);
-                    } else {
-                        relativePath = document.fileName.split('/').pop() || document.fileName;
-                    }
+					// Get relative path from workspace
+					const workspaceFolder = vscode.workspace.getWorkspaceFolder(
+						document.uri,
+					);
+					let relativePath: string;
+					if (workspaceFolder) {
+						relativePath = vscode.workspace.asRelativePath(document.uri, false);
+					} else {
+						relativePath =
+							document.fileName.split("/").pop() || document.fileName;
+					}
 
-                    let lineRange: string;
-                    if (selection.isEmpty) {
-                        lineRange = `L${selection.start.line + 1}`;
-                    } else if (selection.start.line === selection.end.line) {
-                        lineRange = `L${selection.start.line + 1}`;
-                    } else {
-                        lineRange = `L${selection.start.line + 1}-L${selection.end.line + 1}`;
-                    }
+					let lineRange: string;
+					if (selection.isEmpty) {
+						lineRange = `L${selection.start.line + 1}`;
+					} else if (selection.start.line === selection.end.line) {
+						lineRange = `L${selection.start.line + 1}`;
+					} else {
+						lineRange = `L${selection.start.line + 1}-L${selection.end.line + 1}`;
+					}
 
-                    // Format: #handle:path/to/file.ts:L1-L100
-                    const handleText = `#handle:${relativePath}:${lineRange} `;
+					// Format: #handle:path/to/file.ts:L1-L100
+					const handleText = `#handle:${relativePath}:${lineRange} `;
 
-                    // Focus Copilot Chat panel
-                    await vscode.commands.executeCommand('workbench.panel.chat.view.copilot.focus');
-                    // Use 'type' command to insert text at cursor position (appends to existing text)
-                    await vscode.commands.executeCommand('type', { text: handleText });
-                } catch (error) {
-                    Logger.warn('Unable to insert handle reference with full path:', error);
-                    vscode.window.showWarningMessage('Failed to insert handle reference to Copilot Chat.');
-                }
-            }
-        );
-        context.subscriptions.push(copilotInsertHandleFullPathCmd);
-        Logger.trace(`⏱️ Copilot helper commands registered (time: ${Date.now() - stepStartTime}ms)`);
+					// Focus Copilot Chat panel
+					await vscode.commands.executeCommand(
+						"workbench.panel.chat.view.copilot.focus",
+					);
+					// Use 'type' command to insert text at cursor position (appends to existing text)
+					await vscode.commands.executeCommand("type", { text: handleText });
+				} catch (error) {
+					Logger.warn(
+						"Unable to insert handle reference with full path:",
+						error,
+					);
+					vscode.window.showWarningMessage(
+						"Failed to insert handle reference to Copilot Chat.",
+					);
+				}
+			},
+		);
+		context.subscriptions.push(copilotInsertHandleFullPathCmd);
+		Logger.trace(
+			`⏱️ Copilot helper commands registered (time: ${Date.now() - stepStartTime}ms)`,
+		);
 
-        const totalActivationTime = Date.now() - activationStartTime;
-        Logger.info(`Copilot ++extension activation completed (total time: ${totalActivationTime}ms)`);
-    } catch (error) {
-        const errorMessage = `Copilot ++extension activation failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
-        Logger.error(errorMessage, error instanceof Error ? error : undefined);
+		const totalActivationTime = Date.now() - activationStartTime;
+		Logger.info(
+			`Copilot ++extension activation completed (total time: ${totalActivationTime}ms)`,
+		);
+	} catch (error) {
+		const errorMessage = `Copilot ++extension activation failed: ${error instanceof Error ? error.message : "Unknown error"}`;
+		Logger.error(errorMessage, error instanceof Error ? error : undefined);
 
-        // Try to display user-friendly error message
-        vscode.window.showErrorMessage(
-            'Copilot ++extension startup failed. Please check the output window for details.'
-        );
-        // Re-throw error to let VS Code know extension startup failed
-        throw error;
-    }
+		// Try to display user-friendly error message
+		vscode.window.showErrorMessage(
+			"Copilot ++extension startup failed. Please check the output window for details.",
+		);
+		// Re-throw error to let VS Code know extension startup failed
+		throw error;
+	}
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {
-    try {
-        // Clean up all registered provider resources
-        for (const [providerKey, provider] of Object.entries(registeredProviders)) {
-            try {
-                if (typeof provider.dispose === 'function') {
-                    provider.dispose();
-                    Logger.trace(`Provider ${providerKey} resources cleaned up`);
-                }
-            } catch (error) {
-                Logger.warn(`Error cleaning up provider ${providerKey} resources:`, error);
-            }
-        }
+	try {
+		// Clean up all registered provider resources
+		for (const [providerKey, provider] of Object.entries(registeredProviders)) {
+			try {
+				if (typeof provider.dispose === "function") {
+					provider.dispose();
+					Logger.trace(`Provider ${providerKey} resources cleaned up`);
+				}
+			} catch (error) {
+				Logger.warn(
+					`Error cleaning up provider ${providerKey} resources:`,
+					error,
+				);
+			}
+		}
 
-        // Clean up inline completion provider
-        if (inlineCompletionProvider) {
-            inlineCompletionProvider.dispose();
-            Logger.trace('Inline completion provider cleaned up');
-        }
+		// Clean up inline completion provider
+		if (inlineCompletionProvider) {
+			inlineCompletionProvider.dispose();
+			Logger.trace("Inline completion provider cleaned up");
+		}
 
-        // Clean up multi-account manager
-        try {
-            AccountManager.getInstance().dispose();
-            Logger.trace('Multi-account manager cleaned up');
-        } catch {
-            // AccountManager may not be initialized
-        }
+		// Clean up multi-account manager
+		try {
+			AccountManager.getInstance().dispose();
+			Logger.trace("Multi-account manager cleaned up");
+		} catch {
+			// AccountManager may not be initialized
+		}
 
-        ConfigManager.dispose(); // Clean up configuration manager
-        StatusLogger.dispose(); // Clean up status logger
-        CompletionLogger.dispose(); // Clean up inline completion logger
-        Logger.dispose(); // Dispose Logger only when extension is destroyed
-    } catch (error) {
-        Logger.error('Error during Copilot ++extension deactivation:', error);
-    }
+		ConfigManager.dispose(); // Clean up configuration manager
+		StatusLogger.dispose(); // Clean up status logger
+		CompletionLogger.dispose(); // Clean up inline completion logger
+		Logger.dispose(); // Dispose Logger only when extension is destroyed
+	} catch (error) {
+		Logger.error("Error during Copilot ++extension deactivation:", error);
+	}
 }

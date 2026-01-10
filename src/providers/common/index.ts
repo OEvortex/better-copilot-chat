@@ -3,5 +3,5 @@
  *  Central export point for common provider utilities and types
  *--------------------------------------------------------------------------------------------*/
 
-export { GenericModelProvider } from './genericModelProvider';
-export type { ProcessStreamOptions } from './commonTypes';
+export type { ProcessStreamOptions } from "./commonTypes";
+export { GenericModelProvider } from "./genericModelProvider";

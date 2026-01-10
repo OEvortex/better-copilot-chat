@@ -3,120 +3,122 @@
  * Trang cài đặt riêng cho Copilot ++ với giao diện hiện đại
  */
 
-import * as vscode from 'vscode';
-import { AccountManager } from '../accounts/accountManager';
-import settingsPageCss from './settingsPage.css?raw';
-import settingsPageJs from './settingsPage.js?raw';
+import * as vscode from "vscode";
+import { AccountManager } from "../accounts/accountManager";
+import settingsPageCss from "./settingsPage.css?raw";
+import settingsPageJs from "./settingsPage.js?raw";
 
 /**
  * Provider info for settings page
  */
 interface ProviderInfo {
-    id: string;
-    displayName: string;
-    accountCount: number;
-    supportsLoadBalance: boolean;
+	id: string;
+	displayName: string;
+	accountCount: number;
+	supportsLoadBalance: boolean;
 }
 
 /**
  * Load balance strategy type
  */
-type LoadBalanceStrategy = 'round-robin' | 'quota-aware' | 'failover';
+type LoadBalanceStrategy = "round-robin" | "quota-aware" | "failover";
 
 /**
  * Settings Page class
  * Manage the Copilot ++ settings page via webview
  */
 export class SettingsPage {
-    private static currentPanel: vscode.WebviewPanel | undefined;
-    private static accountManager: AccountManager;
-    private static context: vscode.ExtensionContext;
-    
-    // Store strategies in memory (can be extended to persist)
-    private static loadBalanceStrategies: Record<string, LoadBalanceStrategy> = {};
+	private static currentPanel: vscode.WebviewPanel | undefined;
+	private static accountManager: AccountManager;
 
-    /**
-     * Hiển thị trang settings
-     */
-    static async show(context: vscode.ExtensionContext): Promise<void> {
-        SettingsPage.context = context;
-        
-        // Nếu panel đã tồn tại, focus vào nó
-        if (SettingsPage.currentPanel) {
-            SettingsPage.currentPanel.reveal(vscode.ViewColumn.One);
-            return;
-        }
+	// Store strategies in memory (can be extended to persist)
+	private static loadBalanceStrategies: Record<string, LoadBalanceStrategy> =
+		{};
 
-        // Lấy AccountManager instance
-        try {
-            SettingsPage.accountManager = AccountManager.getInstance();
-        } catch {
-            vscode.window.showErrorMessage('Account Manager not initialized');
-            return;
-        }
+	/**
+	 * Hiển thị trang settings
+	 */
+	static async show(context: vscode.ExtensionContext): Promise<void> {
+		SettingsPage.context = context;
 
-        // Tạo webview panel mới
-        const panel = vscode.window.createWebviewPanel(
-            'chpSettings',
-            'Copilot ++ Settings',
-            vscode.ViewColumn.One,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-                localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'src', 'ui')]
-            }
-        );
+		// Nếu panel đã tồn tại, focus vào nó
+		if (SettingsPage.currentPanel) {
+			SettingsPage.currentPanel.reveal(vscode.ViewColumn.One);
+			return;
+		}
 
-        SettingsPage.currentPanel = panel;
+		// Lấy AccountManager instance
+		try {
+			SettingsPage.accountManager = AccountManager.getInstance();
+		} catch {
+			vscode.window.showErrorMessage("Account Manager not initialized");
+			return;
+		}
 
-        // Generate HTML content
-        panel.webview.html = SettingsPage.generateHTML(panel.webview);
+		// Tạo webview panel mới
+		const panel = vscode.window.createWebviewPanel(
+			"chpSettings",
+			"Copilot ++ Settings",
+			vscode.ViewColumn.One,
+			{
+				enableScripts: true,
+				retainContextWhenHidden: true,
+				localResourceRoots: [
+					vscode.Uri.joinPath(context.extensionUri, "src", "ui"),
+				],
+			},
+		);
 
-        // Handle messages from webview
-        const messageDisposable = panel.webview.onDidReceiveMessage(
-            async message => {
-                switch (message.command) {
-                    case 'setLoadBalance':
-                        await SettingsPage.handleSetLoadBalance(
-                            message.providerId,
-                            message.enabled,
-                            panel.webview
-                        );
-                        break;
-                    case 'setLoadBalanceStrategy':
-                        await SettingsPage.handleSetLoadBalanceStrategy(
-                            message.providerId,
-                            message.strategy,
-                            panel.webview
-                        );
-                        break;
-                    case 'openAccountManager':
-                        await vscode.commands.executeCommand('chp.accounts.openManager');
-                        break;
-                    case 'refresh':
-                        await SettingsPage.sendStateUpdate(panel.webview);
-                        break;
-                }
-            }
-        );
+		SettingsPage.currentPanel = panel;
 
-        // Handle panel dispose
-        panel.onDidDispose(() => {
-            SettingsPage.currentPanel = undefined;
-            messageDisposable.dispose();
-        });
+		// Generate HTML content
+		panel.webview.html = SettingsPage.generateHTML(panel.webview);
 
-        // Send initial state
-        await SettingsPage.sendStateUpdate(panel.webview);
-    }
+		// Handle messages from webview
+		const messageDisposable = panel.webview.onDidReceiveMessage(
+			async (message) => {
+				switch (message.command) {
+					case "setLoadBalance":
+						await SettingsPage.handleSetLoadBalance(
+							message.providerId,
+							message.enabled,
+							panel.webview,
+						);
+						break;
+					case "setLoadBalanceStrategy":
+						await SettingsPage.handleSetLoadBalanceStrategy(
+							message.providerId,
+							message.strategy,
+							panel.webview,
+						);
+						break;
+					case "openAccountManager":
+						await vscode.commands.executeCommand("chp.accounts.openManager");
+						break;
+					case "refresh":
+						await SettingsPage.sendStateUpdate(panel.webview);
+						break;
+				}
+			},
+		);
 
-    /**
-     * Generate HTML for the settings page
-     */
-    private static generateHTML(webview: vscode.Webview): string {
-        const cspSource = webview.cspSource || '';
+		// Handle panel dispose
+		panel.onDidDispose(() => {
+			SettingsPage.currentPanel = undefined;
+			messageDisposable.dispose();
+		});
 
-        return `<!DOCTYPE html>
+		// Send initial state
+		await SettingsPage.sendStateUpdate(panel.webview);
+	}
+
+	/**
+	 * Generate HTML for the settings page
+	 */
+	private static generateHTML(webview: vscode.Webview): string {
+		const cspSource = webview.cspSource || "";
+
+		return `<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -147,33 +149,35 @@ export class SettingsPage {
         </script>
     </body>
 </html>`;
-    }
+	}
 
-    /**
-     * Send state update to webview
-     */
-    private static async sendStateUpdate(webview: vscode.Webview): Promise<void> {
-        const providers = SettingsPage.getProvidersInfo();
-        const loadBalanceSettings: Record<string, boolean> = {};
-        const loadBalanceStrategies: Record<string, string> = {};
+	/**
+	 * Send state update to webview
+	 */
+	private static async sendStateUpdate(webview: vscode.Webview): Promise<void> {
+		const providers = SettingsPage.getProvidersInfo();
+		const loadBalanceSettings: Record<string, boolean> = {};
+		const loadBalanceStrategies: Record<string, string> = {};
 
-        for (const provider of providers) {
-            loadBalanceSettings[provider.id] = SettingsPage.accountManager.getLoadBalanceEnabled(provider.id);
-            loadBalanceStrategies[provider.id] = SettingsPage.loadBalanceStrategies[provider.id] || 'round-robin';
-        }
+		for (const provider of providers) {
+			loadBalanceSettings[provider.id] =
+				SettingsPage.accountManager.getLoadBalanceEnabled(provider.id);
+			loadBalanceStrategies[provider.id] =
+				SettingsPage.loadBalanceStrategies[provider.id] || "round-robin";
+		}
 
-        // Send initial data
-        webview.postMessage({
-            command: 'updateState',
-            data: {
-                providers,
-                loadBalanceSettings,
-                loadBalanceStrategies
-            }
-        });
+		// Send initial data
+		webview.postMessage({
+			command: "updateState",
+			data: {
+				providers,
+				loadBalanceSettings,
+				loadBalanceStrategies,
+			},
+		});
 
-        // Initialize the page
-        const initScript = `
+		// Initialize the page
+		const _initScript = `
             if (typeof initializeSettingsPage === 'function') {
                 initializeSettingsPage({
                     providers: ${JSON.stringify(providers)},
@@ -182,116 +186,123 @@ export class SettingsPage {
                 });
             }
         `;
-        
-        // Post a message to trigger initialization
-        setTimeout(() => {
-            webview.postMessage({
-                command: 'updateState',
-                data: {
-                    providers,
-                    loadBalanceSettings,
-                    loadBalanceStrategies
-                }
-            });
-        }, 100);
-    }
 
-    /**
-     * Get providers info for display
-     */
-    private static getProvidersInfo(): ProviderInfo[] {
-        const providerConfigs: Array<{ id: string; displayName: string }> = [
-            { id: 'antigravity', displayName: 'Antigravity (Google Cloud Code)' },
-            { id: 'codex', displayName: 'Codex (OpenAI Codex)' },
-            { id: 'zhipu', displayName: 'ZhipuAI (GLM)' },
-            { id: 'moonshot', displayName: 'MoonshotAI (Kimi)' },
-            { id: 'minimax', displayName: 'MiniMax' },
-            { id: 'deepseek', displayName: 'DeepSeek' },
-            { id: 'deepinfra', displayName: 'DeepInfra' },
-            { id: 'compatible', displayName: 'OpenAI/Anthropic Compatible' }
-        ];
+		// Post a message to trigger initialization
+		setTimeout(() => {
+			webview.postMessage({
+				command: "updateState",
+				data: {
+					providers,
+					loadBalanceSettings,
+					loadBalanceStrategies,
+				},
+			});
+		}, 100);
+	}
 
-        return providerConfigs.map(config => {
-            const accounts = SettingsPage.accountManager.getAccountsByProvider(config.id);
-            return {
-                id: config.id,
-                displayName: config.displayName,
-                accountCount: accounts.length,
-                supportsLoadBalance: AccountManager.supportsMultiAccount(config.id)
-            };
-        });
-    }
+	/**
+	 * Get providers info for display
+	 */
+	private static getProvidersInfo(): ProviderInfo[] {
+		const providerConfigs: Array<{ id: string; displayName: string }> = [
+			{ id: "antigravity", displayName: "Antigravity (Google Cloud Code)" },
+			{ id: "codex", displayName: "Codex (OpenAI Codex)" },
+			{ id: "zhipu", displayName: "ZhipuAI (GLM)" },
+			{ id: "moonshot", displayName: "MoonshotAI (Kimi)" },
+			{ id: "minimax", displayName: "MiniMax" },
+			{ id: "deepseek", displayName: "DeepSeek" },
+			{ id: "deepinfra", displayName: "DeepInfra" },
+			{ id: "compatible", displayName: "OpenAI/Anthropic Compatible" },
+		];
 
-    /**
-     * Handle set load balance request
-     */
-    private static async handleSetLoadBalance(
-        providerId: string,
-        enabled: boolean,
-        webview: vscode.Webview
-    ): Promise<void> {
-        try {
-            await SettingsPage.accountManager.setLoadBalanceEnabled(providerId, enabled);
-            
-            webview.postMessage({
-                command: 'showToast',
-                message: `Load balancing ${enabled ? 'enabled' : 'disabled'} for ${providerId}`,
-                type: 'success'
-            });
-        } catch (error) {
-            webview.postMessage({
-                command: 'showToast',
-                message: `Failed to update load balance setting: ${error}`,
-                type: 'error'
-            });
-        }
-    }
+		return providerConfigs.map((config) => {
+			const accounts = SettingsPage.accountManager.getAccountsByProvider(
+				config.id,
+			);
+			return {
+				id: config.id,
+				displayName: config.displayName,
+				accountCount: accounts.length,
+				supportsLoadBalance: AccountManager.supportsMultiAccount(config.id),
+			};
+		});
+	}
 
-    /**
-     * Handle set load balance strategy request
-     */
-    private static async handleSetLoadBalanceStrategy(
-        providerId: string,
-        strategy: LoadBalanceStrategy,
-        webview: vscode.Webview
-    ): Promise<void> {
-        try {
-            // Store strategy (can be extended to persist to storage)
-            SettingsPage.loadBalanceStrategies[providerId] = strategy;
-            
-            // TODO: Implement actual strategy change in AccountManager if needed
-            // await SettingsPage.accountManager.setLoadBalanceStrategy(providerId, strategy);
-            
-            webview.postMessage({
-                command: 'showToast',
-                message: `Strategy changed to ${strategy} for ${providerId}`,
-                type: 'success'
-            });
-        } catch (error) {
-            webview.postMessage({
-                command: 'showToast',
-                message: `Failed to update strategy: ${error}`,
-                type: 'error'
-            });
-        }
-    }
+	/**
+	 * Handle set load balance request
+	 */
+	private static async handleSetLoadBalance(
+		providerId: string,
+		enabled: boolean,
+		webview: vscode.Webview,
+	): Promise<void> {
+		try {
+			await SettingsPage.accountManager.setLoadBalanceEnabled(
+				providerId,
+				enabled,
+			);
 
-    /**
-     * Dispose the current panel
-     */
-    static dispose(): void {
-        if (SettingsPage.currentPanel) {
-            SettingsPage.currentPanel.dispose();
-            SettingsPage.currentPanel = undefined;
-        }
-    }
+			webview.postMessage({
+				command: "showToast",
+				message: `Load balancing ${enabled ? "enabled" : "disabled"} for ${providerId}`,
+				type: "success",
+			});
+		} catch (error) {
+			webview.postMessage({
+				command: "showToast",
+				message: `Failed to update load balance setting: ${error}`,
+				type: "error",
+			});
+		}
+	}
+
+	/**
+	 * Handle set load balance strategy request
+	 */
+	private static async handleSetLoadBalanceStrategy(
+		providerId: string,
+		strategy: LoadBalanceStrategy,
+		webview: vscode.Webview,
+	): Promise<void> {
+		try {
+			// Store strategy (can be extended to persist to storage)
+			SettingsPage.loadBalanceStrategies[providerId] = strategy;
+
+			// TODO: Implement actual strategy change in AccountManager if needed
+			// await SettingsPage.accountManager.setLoadBalanceStrategy(providerId, strategy);
+
+			webview.postMessage({
+				command: "showToast",
+				message: `Strategy changed to ${strategy} for ${providerId}`,
+				type: "success",
+			});
+		} catch (error) {
+			webview.postMessage({
+				command: "showToast",
+				message: `Failed to update strategy: ${error}`,
+				type: "error",
+			});
+		}
+	}
+
+	/**
+	 * Dispose the current panel
+	 */
+	static dispose(): void {
+		if (SettingsPage.currentPanel) {
+			SettingsPage.currentPanel.dispose();
+			SettingsPage.currentPanel = undefined;
+		}
+	}
 }
 
 /**
  * Register settings page command
  */
-export function registerSettingsPageCommand(context: vscode.ExtensionContext): vscode.Disposable {
-    return vscode.commands.registerCommand('chp.openSettings', async () => {
-        await SettingsPage.show(context);
-    });
+export function registerSettingsPageCommand(
+	context: vscode.ExtensionContext,
+): vscode.Disposable {
+	return vscode.commands.registerCommand("chp.openSettings", async () => {
+		await SettingsPage.show(context);
+	});
 }

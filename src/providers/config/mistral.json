@@ -1,29 +1,29 @@
 {
-    "displayName": "Mistral AI",
-    "baseUrl": "https://api.mistral.ai/v1",
-    "apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    "models": [
-        {
-            "id": "devstral-small-latest",
-            "name": "Devstral Small 2",
-            "tooltip": "Devstral Small 2 - Latest version",
-            "maxInputTokens": 256000,
-            "maxOutputTokens": 65536,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "devstral-latest",
-            "name": "Devstral 2",
-            "tooltip": "Devstral 2 - Latest version",
-            "maxInputTokens": 256000,
-            "maxOutputTokens": 65536,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        }
-    ]
+	"displayName": "Mistral AI",
+	"baseUrl": "https://api.mistral.ai/v1",
+	"apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+	"models": [
+		{
+			"id": "devstral-small-latest",
+			"name": "Devstral Small 2",
+			"tooltip": "Devstral Small 2 - Latest version",
+			"maxInputTokens": 256000,
+			"maxOutputTokens": 65536,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": true
+			}
+		},
+		{
+			"id": "devstral-latest",
+			"name": "Devstral 2",
+			"tooltip": "Devstral 2 - Latest version",
+			"maxInputTokens": 256000,
+			"maxOutputTokens": 65536,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			}
+		}
+	]
 }

@@ -3,6 +3,9 @@
  * Provides visual interface components
  */
 
-export { ModelEditor } from './modelEditor';
-export { SettingsPage, registerSettingsPageCommand } from './settingsPage';
-export { registerCopilotOverviewCommand, CopilotOverview } from './copilotOverview';
+export {
+	CopilotOverview,
+	registerCopilotOverviewCommand,
+} from "./copilotOverview";
+export { ModelEditor } from "./modelEditor";
+export { registerSettingsPageCommand, SettingsPage } from "./settingsPage";

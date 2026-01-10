@@ -1,6 +1,6 @@
 {
-  "displayName": "Hugging Face",
-  "baseUrl": "https://router.huggingface.co/v1",
-  "apiKeyTemplate": "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  "models": []
+	"displayName": "Hugging Face",
+	"baseUrl": "https://router.huggingface.co/v1",
+	"apiKeyTemplate": "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+	"models": []
 }

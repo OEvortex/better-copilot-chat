@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2026-01-10
+
+### Removed
+- **Complete Removal of Status Bars**: Removed all status bar items, managers, and related UI components from the extension for a cleaner interface.
+  - Deleted `src/status` directory and `src/accounts/accountStatusBar.ts`.
+  - Removed status bar initialization and disposal from `extension.ts`.
+  - Cleaned up status bar update logic from all AI providers and UI components.
+
+### Changed / Improved
+- **Code Cleanup & Refactoring**:
+  - Removed unused imports, variables, and dead code across the entire project.
+  - Replaced `forEach` loops with `for...of` loops in provider activation logic to fix callback return issues.
+  - Refactored `while` loops to avoid assignments in expressions for better readability and lint compliance.
+- **Type Safety Improvements**:
+  - Eliminated `any` usage in `AccountSyncAdapter`, `GeminiCliHandler`, and `DeepInfraProvider` in favor of more specific types like `Record<string, unknown>`.
+  - Improved type casting in `extension.ts` for provider registration.
+  - Replaced unsafe non-null assertions (`!`) with safe nullish coalescing (`??`) or proper conditional checks.
+- **Linting & Formatting**: Fixed hundreds of linting issues identified by Biome to improve code quality and consistency.
+- **Project Maintenance**: Updated `package.json` to version `0.1.4`.
+
 ## [0.1.3] - 2026-01-09
 
 ### Added

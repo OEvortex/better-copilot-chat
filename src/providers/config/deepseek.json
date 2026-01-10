@@ -1,34 +1,34 @@
 {
-    "displayName": "DeepSeek",
-    "baseUrl": "https://api.deepseek.com/v1",
-    "apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    "models": [
-        {
-            "id": "deepseek-chat",
-            "name": "DeepSeek-V3.2",
-            "tooltip": "DeepSeek V3.2 official model. DeepSeek-V3.2 aims to balance reasoning capability with output length, suitable for daily use such as Q&A and general Agent tasks. In public reasoning benchmarks, DeepSeek-V3.2 reached GPT-5 levels, slightly below Gemini-3.0-Pro; compared to Kimi-K2-Thinking, V3.2's output length is significantly reduced, notably decreasing computational overhead and user wait time.",
-            "sdkMode": "anthropic",
-            "baseUrl": "https://api.deepseek.com/anthropic",
-            "maxInputTokens": 128000,
-            "maxOutputTokens": 8192,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "deepseek-reasoner",
-            "name": "DeepSeek-V3.2 (Reasoner)",
-            "tooltip": "DeepSeek V3.2 reasoning mode. DeepSeek-V3.2 aims to balance reasoning capability with output length, suitable for daily use such as Q&A and general Agent tasks. In public reasoning benchmarks, DeepSeek-V3.2 reached GPT-5 levels, slightly below Gemini-3.0-Pro; compared to Kimi-K2-Thinking, V3.2's output length is significantly reduced, notably decreasing computational overhead and user wait time.",
-            "sdkMode": "anthropic",
-            "baseUrl": "https://api.deepseek.com/anthropic",
-            "maxInputTokens": 128000,
-            "maxOutputTokens": 64000,
-            "includeThinking": true,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        }
-    ]
+	"displayName": "DeepSeek",
+	"baseUrl": "https://api.deepseek.com/v1",
+	"apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+	"models": [
+		{
+			"id": "deepseek-chat",
+			"name": "DeepSeek-V3.2",
+			"tooltip": "DeepSeek V3.2 official model. DeepSeek-V3.2 aims to balance reasoning capability with output length, suitable for daily use such as Q&A and general Agent tasks. In public reasoning benchmarks, DeepSeek-V3.2 reached GPT-5 levels, slightly below Gemini-3.0-Pro; compared to Kimi-K2-Thinking, V3.2's output length is significantly reduced, notably decreasing computational overhead and user wait time.",
+			"sdkMode": "anthropic",
+			"baseUrl": "https://api.deepseek.com/anthropic",
+			"maxInputTokens": 128000,
+			"maxOutputTokens": 8192,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			}
+		},
+		{
+			"id": "deepseek-reasoner",
+			"name": "DeepSeek-V3.2 (Reasoner)",
+			"tooltip": "DeepSeek V3.2 reasoning mode. DeepSeek-V3.2 aims to balance reasoning capability with output length, suitable for daily use such as Q&A and general Agent tasks. In public reasoning benchmarks, DeepSeek-V3.2 reached GPT-5 levels, slightly below Gemini-3.0-Pro; compared to Kimi-K2-Thinking, V3.2's output length is significantly reduced, notably decreasing computational overhead and user wait time.",
+			"sdkMode": "anthropic",
+			"baseUrl": "https://api.deepseek.com/anthropic",
+			"maxInputTokens": 128000,
+			"maxOutputTokens": 64000,
+			"includeThinking": true,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			}
+		}
+	]
 }

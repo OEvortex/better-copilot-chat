@@ -7,7 +7,7 @@
  * Tool call buffer structure
  */
 export interface ToolCallBuffer {
-    id?: string;
-    name?: string;
-    arguments: string;
+	id?: string;
+	name?: string;
+	arguments: string;
 }

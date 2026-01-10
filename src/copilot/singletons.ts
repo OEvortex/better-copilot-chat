@@ -6,20 +6,20 @@
  * ensuring both bundles use the same instance
  */
 
-import { CompletionLogger } from '../utils/completionLogger';
-import { ApiKeyManager } from '../utils/apiKeyManager';
-import { ConfigManager } from '../utils/configManager';
+import { ApiKeyManager } from "../utils/apiKeyManager";
+import { CompletionLogger } from "../utils/completionLogger";
+import { ConfigManager } from "../utils/configManager";
 
 /** Type definition for singleton container */
 interface CHPSingletons {
-    CompletionLogger: typeof CompletionLogger;
-    ApiKeyManager: typeof ApiKeyManager;
-    ConfigManager: typeof ConfigManager;
+	CompletionLogger: typeof CompletionLogger;
+	ApiKeyManager: typeof ApiKeyManager;
+	ConfigManager: typeof ConfigManager;
 }
 
 /** Extend global types */
 declare global {
-    var __chp_singletons: CHPSingletons | undefined;
+	var __chp_singletons: CHPSingletons | undefined;
 }
 
 /**
@@ -27,7 +27,7 @@ declare global {
  * Prefer to get from globalThis (instance initialized by extension.js), otherwise fallback to direct import
  */
 export function getCompletionLogger(): typeof CompletionLogger {
-    return globalThis.__chp_singletons?.CompletionLogger || CompletionLogger;
+	return globalThis.__chp_singletons?.CompletionLogger || CompletionLogger;
 }
 
 /**
@@ -35,7 +35,7 @@ export function getCompletionLogger(): typeof CompletionLogger {
  * Prefer to get from globalThis (instance initialized by extension.js), otherwise fallback to direct import
  */
 export function getApiKeyManager(): typeof ApiKeyManager {
-    return globalThis.__chp_singletons?.ApiKeyManager || ApiKeyManager;
+	return globalThis.__chp_singletons?.ApiKeyManager || ApiKeyManager;
 }
 
 /**
@@ -43,7 +43,7 @@ export function getApiKeyManager(): typeof ApiKeyManager {
  * Prefer to get from globalThis (instance initialized by extension.js), otherwise fallback to direct import
  */
 export function getConfigManager(): typeof ConfigManager {
-    return globalThis.__chp_singletons?.ConfigManager || ConfigManager;
+	return globalThis.__chp_singletons?.ConfigManager || ConfigManager;
 }
 
 /**
@@ -51,9 +51,9 @@ export function getConfigManager(): typeof ConfigManager {
  * Used to get multiple instances at once
  */
 export function getAllSingletons(): CHPSingletons {
-    return {
-        CompletionLogger: getCompletionLogger(),
-        ApiKeyManager: getApiKeyManager(),
-        ConfigManager: getConfigManager()
-    };
+	return {
+		CompletionLogger: getCompletionLogger(),
+		ApiKeyManager: getApiKeyManager(),
+		ConfigManager: getConfigManager(),
+	};
 }

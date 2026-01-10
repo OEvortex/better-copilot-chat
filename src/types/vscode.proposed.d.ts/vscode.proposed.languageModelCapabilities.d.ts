@@ -3,27 +3,27 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-declare module 'vscode' {
-    // TODO - @lramos15 - Issue link
+declare module "vscode" {
+	// TODO - @lramos15 - Issue link
 
-    export interface LanguageModelChat {
-        /**
-         * The capabilities of the language model.
-         */
-        readonly capabilities: {
-            /**
-             * Whether the language model supports tool calling.
-             */
-            readonly supportsToolCalling: boolean;
-            /**
-             * Whether the language model supports image to text. This means it can take an image as input and produce a text response.
-             */
-            readonly supportsImageToText: boolean;
+	export interface LanguageModelChat {
+		/**
+		 * The capabilities of the language model.
+		 */
+		readonly capabilities: {
+			/**
+			 * Whether the language model supports tool calling.
+			 */
+			readonly supportsToolCalling: boolean;
+			/**
+			 * Whether the language model supports image to text. This means it can take an image as input and produce a text response.
+			 */
+			readonly supportsImageToText: boolean;
 
-            /**
-             * The tools the model prefers for making file edits. See {@link LanguageModelChatCapabilities.editTools}.
-             */
-            readonly editToolsHint?: readonly string[];
-        };
-    }
+			/**
+			 * The tools the model prefers for making file edits. See {@link LanguageModelChatCapabilities.editTools}.
+			 */
+			readonly editToolsHint?: readonly string[];
+		};
+	}
 }
