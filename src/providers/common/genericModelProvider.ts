@@ -12,6 +12,8 @@ import type {
 	ProvideLanguageModelChatResponseOptions,
 } from "vscode";
 import * as vscode from "vscode";
+import { AccountManager } from "../../accounts";
+import type { Account } from "../../accounts/types";
 import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import {
 	AnthropicHandler,
@@ -36,6 +38,8 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 	protected cachedProviderConfig: ProviderConfig; // Cached configuration
 	protected configListener?: vscode.Disposable; // Configuration listener
 	protected modelInfoCache?: ModelInfoCache; // Model information cache
+	protected readonly accountManager: AccountManager;
+	protected readonly lastUsedAccountByModel = new Map<string, string>();
 
 	// Cached chat endpoints for chat endpoint-aware providers (model id and max prompt tokens)
 	protected _chatEndpoints?: { model: string; modelMaxPromptTokens: number }[];
@@ -53,6 +57,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 	) {
 		this.context = context;
 		this.providerKey = providerKey;
+		this.accountManager = AccountManager.getInstance();
 		// Save original configuration (overrides not applied)
 		this.baseProviderConfig = providerConfig;
 		// Initialize cached configuration (overrides applied)
@@ -92,6 +97,22 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 					.catch((err) =>
 						Logger.warn(`[${this.providerKey}] Failed to clear cache:`, err),
 					);
+				this._onDidChangeLanguageModelChatInformation.fire();
+			}
+		});
+		// Listen for chat endpoint changes
+		this.accountManager.onAccountChange((e) => {
+			if (e.provider === this.providerKey || e.provider === "all") {
+				Logger.trace(
+					`[${this.providerKey}] Account change detected: ${e.type}`,
+				);
+				// Invalidate cache
+				this.modelInfoCache
+					?.invalidateCache(this.providerKey)
+					.catch((err) =>
+						Logger.warn(`[${this.providerKey}] Failed to clear cache:`, err),
+					);
+				// Trigger model info change event to sync with VS Code LM selection
 				this._onDidChangeLanguageModelChatInformation.fire();
 			}
 		});
@@ -379,52 +400,290 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 		}
 
 		// Determine actual provider based on provider field in model configuration
-		// This correctly handles cases where different models under the same provider use different keys
 		const effectiveProviderKey = modelConfig.provider || this.providerKey;
 
-		// Ensure API key for corresponding provider exists
-		await ApiKeyManager.ensureApiKey(
-			effectiveProviderKey,
-			this.providerConfig.displayName,
-		);
-
-		// Select handler based on model's sdkMode
-		const sdkMode = modelConfig.sdkMode || "openai";
-		const sdkName = sdkMode === "anthropic" ? "Anthropic SDK" : "OpenAI SDK";
-		Logger.info(
-			`${this.providerConfig.displayName} Provider starts processing request (${sdkName}): ${modelConfig.name}`,
-		);
-
 		try {
-			if (sdkMode === "anthropic") {
-				await this.anthropicHandler.handleRequest(
-					model,
-					modelConfig,
-					messages,
-					options,
-					progress,
-					token,
+			const accounts =
+				this.accountManager.getAccountsByProvider(effectiveProviderKey);
+			const loadBalanceEnabled =
+				this.accountManager.getLoadBalanceEnabled(effectiveProviderKey);
+			const assignedAccountId = this.accountManager.getAccountIdForModel(
+				effectiveProviderKey,
+				model.id,
+			);
+
+			// If no accounts managed by AccountManager, fall back to ApiKeyManager
+			if (accounts.length === 0) {
+				await ApiKeyManager.ensureApiKey(
+					effectiveProviderKey,
+					this.providerConfig.displayName,
 				);
-			} else {
-				await this.openaiHandler.handleRequest(
-					model,
-					modelConfig,
-					messages,
-					options,
-					progress,
-					token,
+
+				const sdkMode = modelConfig.sdkMode || "openai";
+				Logger.info(
+					`${this.providerConfig.displayName} Provider starts processing request (fallback mode): ${modelConfig.name}`,
 				);
+
+				if (sdkMode === "anthropic") {
+					await this.anthropicHandler.handleRequest(
+						model,
+						modelConfig,
+						messages,
+						options,
+						progress,
+						token,
+					);
+				} else {
+					await this.openaiHandler.handleRequest(
+						model,
+						modelConfig,
+						messages,
+						options,
+						progress,
+						token,
+					);
+				}
+				return;
 			}
+
+			// Use AccountManager for multi-account support
+			const usableAccounts =
+				accounts.filter((a) => a.status === "active").length > 0
+					? accounts.filter((a) => a.status === "active")
+					: accounts;
+
+			const candidates = this.buildAccountCandidates(
+				model.id,
+				usableAccounts,
+				assignedAccountId,
+				loadBalanceEnabled,
+				effectiveProviderKey,
+			);
+
+			const activeAccount =
+				this.accountManager.getActiveAccount(effectiveProviderKey);
+
+			const available = loadBalanceEnabled
+				? candidates.filter(
+						(a) => !this.accountManager.isAccountQuotaLimited(a.id),
+					)
+				: candidates;
+
+			let accountsToTry: Account[];
+			if (available.length > 0) {
+				if (activeAccount && available.some((a) => a.id === activeAccount.id)) {
+					accountsToTry = [
+						activeAccount,
+						...available.filter((a) => a.id !== activeAccount.id),
+					];
+				} else {
+					accountsToTry = available;
+				}
+			} else {
+				if (
+					activeAccount &&
+					candidates.some((a) => a.id === activeAccount.id)
+				) {
+					accountsToTry = [
+						activeAccount,
+						...candidates.filter((a) => a.id !== activeAccount.id),
+					];
+				} else {
+					accountsToTry = candidates;
+				}
+			}
+
+			Logger.debug(
+				`[${effectiveProviderKey}] Active account: ${activeAccount?.displayName || "none"}, accountsToTry: ${accountsToTry.map((a) => a.displayName).join(", ")}`,
+			);
+
+			let lastError: unknown;
+			let switchedAccount = false;
+
+			for (const account of accountsToTry) {
+				const credentials = await this.accountManager.getCredentials(
+					account.id,
+				);
+				if (!credentials) {
+					lastError = new Error(
+						`Missing credentials for ${account.displayName}`,
+					);
+					continue;
+				}
+
+				// Prepare model config with account-specific credentials
+				const configWithAuth: ModelConfig = {
+					...modelConfig,
+					apiKey: "apiKey" in credentials ? credentials.apiKey : undefined,
+					baseUrl: "endpoint" in credentials ? credentials.endpoint : undefined,
+					customHeader:
+						"customHeaders" in credentials
+							? credentials.customHeaders
+							: undefined,
+				};
+
+				// Handle OAuth tokens if needed
+				if ("accessToken" in credentials) {
+					// For OAuth accounts, we might need to refresh or pass the token differently
+					// Currently most GenericModelProvider models use API Key
+					(configWithAuth as any).accessToken = credentials.accessToken;
+					configWithAuth.apiKey = credentials.accessToken; // Often used as bearer token
+				}
+
+				try {
+					const sdkMode = modelConfig.sdkMode || "openai";
+					Logger.info(
+						`${this.providerConfig.displayName}: ${model.name} using account "${account.displayName}" (ID: ${account.id})`,
+					);
+
+					if (sdkMode === "anthropic") {
+						await this.anthropicHandler.handleRequest(
+							model,
+							configWithAuth,
+							messages,
+							options,
+							progress,
+							token
+						);
+					} else {
+						await this.openaiHandler.handleRequest(
+							model,
+							configWithAuth,
+							messages,
+							options,
+							progress,
+							token,
+							account.id,
+						);
+					}
+
+					this.lastUsedAccountByModel.set(model.id, account.id);
+
+					if (switchedAccount) {
+						Logger.info(
+							`[${effectiveProviderKey}] Saving account "${account.displayName}" as preferred for model ${model.id}`,
+						);
+						await this.accountManager.setAccountForModel(
+							effectiveProviderKey,
+							model.id,
+							account.id,
+						);
+					}
+					return;
+				} catch (error) {
+					switchedAccount = true;
+					if (this.isLongTermQuotaExhausted(error)) {
+						if (loadBalanceEnabled) {
+							Logger.warn(
+								`[${effectiveProviderKey}] Account ${account.displayName} quota exhausted, switching...`,
+							);
+							lastError = error;
+							continue;
+						}
+						throw error;
+					}
+					if (loadBalanceEnabled && this.isQuotaError(error)) {
+						Logger.warn(
+							`[${effectiveProviderKey}] Account ${account.displayName} rate limited, switching...`,
+						);
+						lastError = error;
+						continue;
+					}
+					throw error;
+				}
+			}
+
+			if (lastError) {
+				throw lastError;
+			}
+			throw new Error(`No available accounts for ${effectiveProviderKey}`);
 		} catch (error) {
 			const errorMessage = `Error: ${error instanceof Error ? error.message : "Unknown error"}`;
 			Logger.error(errorMessage);
-			// Throw error directly, let VS Code handle retry
 			throw error;
 		} finally {
 			Logger.info(
 				`${this.providerConfig.displayName}: ${model.name} Request completed`,
 			);
 		}
+	}
+
+	protected buildAccountCandidates(
+		modelId: string,
+		accounts: Account[],
+		assignedAccountId: string | undefined,
+		loadBalanceEnabled: boolean,
+		providerKey: string,
+	): Account[] {
+		if (accounts.length === 0) {
+			return [];
+		}
+		const assignedAccount = assignedAccountId
+			? accounts.find((a) => a.id === assignedAccountId)
+			: undefined;
+		const activeAccount = this.accountManager.getActiveAccount(providerKey);
+		const defaultAccount =
+			activeAccount || accounts.find((a) => a.isDefault) || accounts[0];
+
+		if (!loadBalanceEnabled) {
+			return assignedAccount
+				? [assignedAccount]
+				: defaultAccount
+					? [defaultAccount]
+					: [];
+		}
+
+		const ordered = [...accounts].sort(
+			(a, b) =>
+				new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+		);
+		const lastUsed = this.lastUsedAccountByModel.get(modelId);
+		let rotatedOrder = ordered;
+		if (lastUsed) {
+			const index = ordered.findIndex((a) => a.id === lastUsed);
+			if (index >= 0) {
+				rotatedOrder = [
+					...ordered.slice(index + 1),
+					...ordered.slice(0, index + 1),
+				];
+			}
+		}
+		if (assignedAccount) {
+			return [
+				assignedAccount,
+				...rotatedOrder.filter((a) => a.id !== assignedAccount.id),
+			];
+		}
+		if (defaultAccount) {
+			return [
+				defaultAccount,
+				...rotatedOrder.filter((a) => a.id !== defaultAccount.id),
+			];
+		}
+		return rotatedOrder;
+	}
+
+	protected isQuotaError(error: unknown): boolean {
+		if (!(error instanceof Error)) {
+			return false;
+		}
+		const msg = error.message;
+		return (
+			msg.startsWith("Quota exceeded") ||
+			msg.startsWith("Rate limited") ||
+			msg.includes("HTTP 429") ||
+			msg.includes('"code": 429') ||
+			msg.includes('"code":429') ||
+			msg.includes("RESOURCE_EXHAUSTED") ||
+			(msg.includes("429") && msg.includes("Resource has been exhausted"))
+		);
+	}
+
+	protected isLongTermQuotaExhausted(error: unknown): boolean {
+		return (
+			error instanceof Error &&
+			error.message.startsWith("Account quota exhausted")
+		);
 	}
 
 	async provideTokenCount(

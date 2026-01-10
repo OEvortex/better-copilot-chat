@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from "vscode";
+import { AccountQuotaCache } from "../../accounts/accountQuotaCache";
 import type { ModelConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
@@ -75,12 +76,15 @@ export interface MistralStreamChunk {
 export class MistralHandler {
 	private toolCallIdMapping = new Map<string, string>();
 	private reverseToolCallIdMapping = new Map<string, string>();
+	private quotaCache: AccountQuotaCache;
 
 	constructor(
 		private provider: string,
 		private displayName: string,
 		private baseURL: string = "https://api.mistral.ai/v1",
-	) {}
+	) {
+		this.quotaCache = AccountQuotaCache.getInstance();
+	}
 
 	/**
 	 * Generate a valid VS Code tool call ID (alphanumeric, exactly 9 characters)
@@ -133,12 +137,20 @@ export class MistralHandler {
 		options: vscode.ProvideLanguageModelChatResponseOptions,
 		progress: vscode.Progress<vscode.LanguageModelResponsePart2>,
 		token: vscode.CancellationToken,
+		accountId?: string,
 	): Promise<void> {
 		this.clearToolCallIdMappings();
-		Logger.debug(`${model.name} starting to process Mistral request`);
+		Logger.debug(
+			`${model.name} starting to process Mistral request${accountId ? ` (Account ID: ${accountId})` : ""}`,
+		);
 
 		try {
-			const apiKey = await ApiKeyManager.getApiKey(this.provider);
+			// Check if API key is provided in modelConfig (e.g. for Managed accounts)
+			let apiKey = modelConfig.apiKey;
+			if (!apiKey) {
+				apiKey = await ApiKeyManager.getApiKey(this.provider);
+			}
+
 			if (!apiKey) {
 				throw new Error(`Missing ${this.displayName} API key`);
 			}
@@ -190,7 +202,28 @@ export class MistralHandler {
 			}
 
 			await this.processStream(response.body, progress, token, model.name);
+
+			// Record success if accountId provided
+			if (accountId) {
+				await this.quotaCache.recordSuccess(accountId, this.provider);
+			}
 		} catch (error) {
+			// Record failure if accountId provided
+			if (accountId && !(error instanceof vscode.CancellationError)) {
+				if (this.isQuotaError(error)) {
+					await this.quotaCache.markQuotaExceeded(accountId, this.provider, {
+						error: error instanceof Error ? error.message : String(error),
+						affectedModel: model.id,
+					});
+				} else {
+					await this.quotaCache.recordFailure(
+						accountId,
+						this.provider,
+						error instanceof Error ? error.message : String(error),
+					);
+				}
+			}
+
 			if (error instanceof vscode.CancellationError) {
 				Logger.info(`${model.name} request cancelled by user`);
 				throw error;
@@ -426,6 +459,18 @@ export class MistralHandler {
 			default:
 				return "user";
 		}
+	}
+
+	private isQuotaError(error: unknown): boolean {
+		if (!(error instanceof Error)) {
+			return false;
+		}
+		const msg = error.message;
+		return (
+			msg.startsWith("Quota exceeded") ||
+			msg.startsWith("Rate limited") ||
+			msg.includes("429")
+		);
 	}
 
 	private extractTextContent(content: readonly any[]): string | null {

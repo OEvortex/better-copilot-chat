@@ -5,6 +5,7 @@
 
 import OpenAI from "openai";
 import * as vscode from "vscode";
+import { AccountQuotaCache } from "../../accounts/accountQuotaCache";
 import type { ModelConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
@@ -27,6 +28,7 @@ export class OpenAIHandler {
 	private clientCache = new Map<string, { client: OpenAI; lastUsed: number }>();
 	private readonly CLIENT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 	private cleanupInterval?: NodeJS.Timeout;
+	private quotaCache: AccountQuotaCache;
 
 	constructor(
 		private provider: string,
@@ -39,6 +41,7 @@ export class OpenAIHandler {
 			() => this.cleanupExpiredClients(),
 			60000,
 		);
+		this.quotaCache = AccountQuotaCache.getInstance();
 	}
 
 	/**
@@ -71,11 +74,14 @@ export class OpenAIHandler {
 	/**
 	 * Create new OpenAI client with caching
 	 */
-	private async createOpenAIClient(modelConfig?: ModelConfig): Promise<OpenAI> {
+	private async createOpenAIClient(
+		modelConfig?: ModelConfig,
+		accountId?: string,
+	): Promise<OpenAI> {
 		// Priority: model.provider -> this.provider
 		const providerKey = modelConfig?.provider || this.provider;
 
-		// Check if API key is provided in modelConfig (e.g. for OAuth providers)
+		// Check if API key is provided in modelConfig (e.g. for Managed accounts)
 		let currentApiKey = modelConfig?.apiKey;
 
 		if (!currentApiKey) {
@@ -113,14 +119,16 @@ export class OpenAIHandler {
 			);
 		}
 
-		// Create cache key based on config
-		const cacheKey = `${providerKey}:${baseURL}:${JSON.stringify(defaultHeaders)}`;
+		// Create cache key based on config and accountId to avoid crosstalk
+		const cacheKey = `${providerKey}:${accountId || "default"}:${baseURL}:${JSON.stringify(defaultHeaders)}`;
 
 		// Check cache
 		const cached = this.clientCache.get(cacheKey);
 		if (cached) {
 			cached.lastUsed = Date.now();
-			Logger.debug(`[${this.displayName}] Reusing cached OpenAI client`);
+			Logger.debug(
+				`[${this.displayName}] Reusing cached OpenAI client${accountId ? ` for account ${accountId}` : ""}`,
+			);
 			return cached.client;
 		}
 
@@ -136,7 +144,7 @@ export class OpenAIHandler {
 		// Cache client
 		this.clientCache.set(cacheKey, { client, lastUsed: Date.now() });
 		Logger.debug(
-			`${this.displayName} OpenAI SDK client created, using baseURL: ${baseURL}`,
+			`${this.displayName} OpenAI SDK client created, using baseURL: ${baseURL}${accountId ? ` for account ${accountId}` : ""}`,
 		);
 		return client;
 	}
@@ -332,14 +340,15 @@ export class OpenAIHandler {
 		options: vscode.ProvideLanguageModelChatResponseOptions,
 		progress: vscode.Progress<vscode.LanguageModelResponsePart2>,
 		token: vscode.CancellationToken,
+		accountId?: string,
 	): Promise<void> {
 		Logger.debug(
-			`${model.name} starting to process ${this.displayName} request`,
+			`${model.name} starting to process ${this.displayName} request${accountId ? ` (Account ID: ${accountId})` : ""}`,
 		);
 		// Clear event deduplication tracker for current request
 		this.currentRequestProcessedEvents.clear();
 		try {
-			const client = await this.createOpenAIClient(modelConfig);
+			const client = await this.createOpenAIClient(modelConfig, accountId);
 			Logger.debug(
 				`${model.name} sending ${messages.length} messages, using ${this.displayName}`,
 			);
@@ -899,10 +908,41 @@ export class OpenAIHandler {
 						);
 					}
 				}
+
+				// Record success if accountId provided
+				if (accountId) {
+					this.quotaCache.recordSuccess(accountId, this.provider).catch(() => {});
+				}
+
 				Logger.debug(
 					`${model.name} ${this.displayName} SDK stream processing complete`,
 				);
 			} catch (streamError) {
+				// Record failure if accountId provided
+				if (accountId && !(streamError instanceof vscode.CancellationError)) {
+					if (this.isQuotaError(streamError)) {
+						this.quotaCache
+							.markQuotaExceeded(accountId, this.provider, {
+								error:
+									streamError instanceof Error
+										? streamError.message
+										: String(streamError),
+								affectedModel: model.id,
+							})
+							.catch(() => {});
+					} else {
+						this.quotaCache
+							.recordFailure(
+								accountId,
+								this.provider,
+								streamError instanceof Error
+									? streamError.message
+									: String(streamError),
+							)
+							.catch(() => {});
+					}
+				}
+
 				// Improve error handling, distinguish cancellation and other errors
 				if (streamError instanceof vscode.CancellationError) {
 					Logger.info(`${model.name} request cancelled by user`);
@@ -988,6 +1028,22 @@ export class OpenAIHandler {
 		}
 	}
 
+	private isQuotaError(error: unknown): boolean {
+		if (!(error instanceof Error)) {
+			return false;
+		}
+		const msg = error.message;
+		return (
+			msg.startsWith("Quota exceeded") ||
+			msg.startsWith("Rate limited") ||
+			msg.includes("HTTP 429") ||
+			msg.includes('"code": 429') ||
+			msg.includes('"code":429') ||
+			msg.includes("RESOURCE_EXHAUSTED") ||
+			(msg.includes("429") && msg.includes("Resource has been exhausted"))
+		);
+	}
+
 	/**
 	 * Message conversion referring to official implementation - using OpenAI SDK standard mode
 	 * Support text, images and tool calls
@@ -1013,7 +1069,64 @@ export class OpenAIHandler {
 				}
 			}
 		}
+
+		// Balance function calls and responses to prevent API errors
+		this.balanceFunctionCallsAndResponses(result);
+
 		return result;
+	}
+
+	/**
+	 * Balance function calls and responses in OpenAI message format to prevent API errors
+	 * This ensures that every tool_call has a corresponding tool message and vice versa
+	 */
+	private balanceFunctionCallsAndResponses(
+		messages: OpenAI.Chat.ChatCompletionMessageParam[],
+	): void {
+		const toolCallsById = new Map<string, { index: number; name?: string }>();
+		const toolMessagesById = new Map<string, number>();
+
+		// Collect all tool calls and tool messages
+		for (let i = 0; i < messages.length; i++) {
+			const msg = messages[i];
+			if (msg.role === "assistant" && "tool_calls" in msg && msg.tool_calls) {
+				for (const toolCall of msg.tool_calls) {
+					if (toolCall.type === "function" && toolCall.id) {
+						toolCallsById.set(toolCall.id, { index: i, name: toolCall.function.name });
+					}
+				}
+			} else if (msg.role === "tool" && "tool_call_id" in msg) {
+				toolMessagesById.set(msg.tool_call_id, i);
+			}
+		}
+
+		// For every tool call without a response, add a placeholder tool message
+		for (const [id, info] of toolCallsById.entries()) {
+			if (!toolMessagesById.has(id)) {
+				const placeholderToolMessage: OpenAI.Chat.ChatCompletionToolMessageParam = {
+					role: "tool",
+					content: "Tool execution failed or was cancelled",
+					tool_call_id: id,
+				};
+				// Insert after the assistant message
+				messages.splice(info.index + 1, 0, placeholderToolMessage);
+				Logger.debug(`OpenAIHandler: Added placeholder tool message for call id=${id} name=${info.name || ""}`);
+			}
+		}
+
+		// For every tool message without a call, remove it or convert to user message
+		for (const [id, index] of toolMessagesById.entries()) {
+			if (!toolCallsById.has(id)) {
+				const msg = messages[index] as OpenAI.Chat.ChatCompletionToolMessageParam;
+				// Convert to user message with the content
+				const userMessage: OpenAI.Chat.ChatCompletionUserMessageParam = {
+					role: "user",
+					content: `Tool result (orphaned): ${msg.content}`,
+				};
+				messages[index] = userMessage;
+				Logger.warn(`OpenAIHandler: Converted orphaned tool message for id=${id} to user message`);
+			}
+		}
 	}
 
 	/**

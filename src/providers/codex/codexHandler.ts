@@ -7,6 +7,7 @@ import * as crypto from "node:crypto";
 import * as https from "node:https";
 import * as vscode from "vscode";
 import { AccountManager } from "../../accounts";
+import { AccountQuotaCache } from "../../accounts/accountQuotaCache";
 import {
 	loadCodexDefaultInstructions,
 	loadCodexInstructions,
@@ -318,9 +319,11 @@ export class CodexHandler {
 	private currentModelId: string = "";
 	private lastRateLimitSnapshot: RateLimitSnapshot | null = null;
     providerName: string;
+	private quotaCache: AccountQuotaCache;
 
 	constructor(providerName: string) {
 		this.providerName = providerName;
+		this.quotaCache = AccountQuotaCache.getInstance();
 	}
 
 	public getRateLimitSnapshot(): RateLimitSnapshot | null {
@@ -352,15 +355,11 @@ export class CodexHandler {
 				accountManager.getLoadBalanceEnabled("codex");
 			const accounts = accountManager.getAccountsByProvider("codex");
 
-			// Find other available accounts (not the current one)
-			const otherAccounts = accounts.filter(
-				(acc) => acc.id !== currentAccountId && acc.status === "active",
-			);
-
 			// Mark current account as having an error (quota exceeded)
 			if (currentAccountId) {
 				const currentAccount = accountManager.getAccount(currentAccountId);
 				if (currentAccount) {
+					// Also update legacy metadata for backward compatibility
 					await accountManager.updateAccount(currentAccountId, {
 						metadata: {
 							...currentAccount.metadata,
@@ -369,8 +368,19 @@ export class CodexHandler {
 							lastQuotaError: new Date().toISOString(),
 						},
 					});
+
+					// Update new QuotaCache
+					await this.quotaCache.markQuotaExceeded(currentAccountId, "codex", {
+						resetDelayMs: (error.resets_at - Date.now() / 1000) * 1000,
+						error: `Usage limit reached (${planType})`,
+					});
 				}
 			}
+
+			// Find other available accounts (not the current one)
+			const otherAccounts = accounts.filter(
+				(acc) => acc.id !== currentAccountId && acc.status === "active",
+			);
 
 			// Auto-switch if load balance is enabled and there are other accounts
 			if (isLoadBalanceEnabled && otherAccounts.length > 0) {

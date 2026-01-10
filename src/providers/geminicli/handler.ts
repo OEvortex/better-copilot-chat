@@ -716,6 +716,8 @@ class FromIRTranslator {
 
 		// DEBUG: Validate parts count to prevent "function response parts mismatch" error
 		this.validatePartsBalance(request.contents, resolvedModel);
+		// Attempt to automatically balance and fix any mismatches before sending the request
+		this.balanceFunctionCallResponses(request.contents, resolvedModel);
 
 		return payload;
 	}
@@ -754,14 +756,132 @@ class FromIRTranslator {
 
 		if (totalFunctionCalls !== totalFunctionResponses) {
 			console.warn(
-				`GeminiCLI: WARNING - Function call/response mismatch! calls=${totalFunctionCalls}, responses=${totalFunctionResponses}. This will likely cause a 400 error.`,
+				`GeminiCLI: WARNING - Function call/response mismatch! calls=${totalFunctionCalls}, responses=${totalFunctionResponses}. Attempting to automatically balance parts before sending.`,
 			);
 		}
 
 		if (totalThoughtSignatureParts > 0) {
 			console.warn(
-				`GeminiCLI: WARNING - Found ${totalThoughtSignatureParts} thoughtSignature parts without functionCall. These should be attached to functionCall parts.`,
+				`GeminiCLI: WARNING - Found ${totalThoughtSignatureParts} thoughtSignature parts without functionCall. Attempting to reattach them to the nearest functionCall part.`,
 			);
+		}
+	}
+
+	/**
+	 * Attempt to automatically balance functionCall/functionResponse parts and reattach orphan thoughtSignatures.
+	 * This mutates the contents array in-place to fix common causes of the "function response parts" 400 error.
+	 */
+	private balanceFunctionCallResponses(contents: GeminiContent[], _modelName: string): void {
+		const callsById = new Map<string, { name?: string; contentIndex: number; partIndex: number }>();
+		const responsesById = new Map<string, Array<{ contentIndex: number; partIndex: number }>>();
+
+		// Track orphan thoughtSignatures to try to reattach
+		const orphanThoughts: Array<{ signature: string; contentIndex: number; partIndex: number }> = [];
+
+		for (let ci = 0; ci < contents.length; ci++) {
+			const content = contents[ci];
+			for (let pi = 0; pi < content.parts.length; pi++) {
+				const part = content.parts[pi] as any;
+				if (part.functionCall) {
+					const id = part.functionCall.id || part.functionCall.callId || `call_${ci}_${pi}`;
+					callsById.set(String(id), { name: part.functionCall.name, contentIndex: ci, partIndex: pi });
+					// If thoughtSignature was on a separate part earlier, try to attach later
+					if (part.thoughtSignature) {
+						// normalize to string
+						part.thoughtSignature = String(part.thoughtSignature);
+					}
+				} else if (part.functionResponse) {
+					const id = part.functionResponse.id;
+					const key = id || `__name_${part.functionResponse.name}`;
+					const arr = responsesById.get(key) || [];
+					arr.push({ contentIndex: ci, partIndex: pi });
+					responsesById.set(key, arr);
+				}
+				if (part.thoughtSignature && !part.functionCall) {
+					orphanThoughts.push({ signature: String(part.thoughtSignature), contentIndex: ci, partIndex: pi });
+				}
+			}
+		}
+
+		// For every function call with no response, append a user content that contains an empty response
+		for (const [id, info] of callsById.entries()) {
+			const responseKey = id;
+			if (!responsesById.has(responseKey)) {
+				contents.push({ role: "user", parts: [{ functionResponse: { name: info.name || "", id, response: {} } }] });
+				console.log(`GeminiCLI: Added placeholder functionResponse for id=${id} name=${info.name || ""}`);
+			}
+		}
+
+		// Convert orphan functionResponse parts (that don't have a matching call id) into text parts or remove them
+		for (const [key, arr] of responsesById.entries()) {
+			// Key can be id or name-based key; it is only orphan if not present in callsById
+			if (!callsById.has(key)) {
+				for (let i = arr.length - 1; i >= 0; i--) {
+					const loc = arr[i];
+					const c = contents[loc.contentIndex];
+					const p = c.parts[loc.partIndex] as any;
+					const resp = p.functionResponse?.response;
+					if (resp && Object.keys(resp).length > 0) {
+						// replace with text part containing the serialized response
+						c.parts[loc.partIndex] = { text: JSON.stringify(resp) };
+					} else {
+						// remove empty orphan response
+						c.parts.splice(loc.partIndex, 1);
+					}
+				}
+				console.warn(`GeminiCLI: Converted/removed ${arr.length} orphan functionResponse(s) for key=${key}`);
+			}
+		}
+
+		// Attempt to reattach orphan thoughtSignatures to the nearest functionCall
+		for (const orphan of orphanThoughts) {
+			const { signature, contentIndex, partIndex } = orphan;
+			let attached = false;
+			// Search same content for a functionCall
+			const content = contents[contentIndex];
+			if (content) {
+				const idx = content.parts.findIndex((p) => (p as any).functionCall);
+				if (idx !== -1) {
+					(content.parts[idx] as any).thoughtSignature = signature;
+					// remove signature from original part
+					delete (content.parts[partIndex] as any).thoughtSignature;
+					attached = true;
+				}
+			}
+			if (!attached) {
+				// search previous contents
+				for (let ci = contentIndex - 1; ci >= 0 && !attached; ci--) {
+					const idx = contents[ci].parts.findIndex((p) => (p as any).functionCall);
+					if (idx !== -1) {
+						(contents[ci].parts[idx] as any).thoughtSignature = signature;
+						delete (contents[contentIndex].parts[partIndex] as any).thoughtSignature;
+						attached = true;
+					}
+				}
+			}
+			if (!attached) {
+				// search next contents
+				for (let ci = contentIndex + 1; ci < contents.length && !attached; ci++) {
+					const idx = contents[ci].parts.findIndex((p) => (p as any).functionCall);
+					if (idx !== -1) {
+						(contents[ci].parts[idx] as any).thoughtSignature = signature;
+						delete (contents[contentIndex].parts[partIndex] as any).thoughtSignature;
+						attached = true;
+					}
+				}
+			}
+			if (!attached) {
+				// Couldn't attach; just remove the orphan signature to avoid API errors
+				delete (contents[contentIndex].parts[partIndex] as any).thoughtSignature;
+				console.warn(`GeminiCLI: Removed orphan thoughtSignature at content=${contentIndex} part=${partIndex} - no functionCall found to attach to.`);
+			}
+		}
+
+		// Remove any empty contents
+		for (let i = contents.length - 1; i >= 0; i--) {
+			if (!contents[i].parts || contents[i].parts.length === 0) {
+				contents.splice(i, 1);
+			}
 		}
 	}
 }

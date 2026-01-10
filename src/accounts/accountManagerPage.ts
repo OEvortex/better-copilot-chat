@@ -47,6 +47,15 @@ export class AccountManagerPage {
 		{ id: "minimax", name: "MiniMax", authType: "apiKey" },
 		{ id: "deepseek", name: "DeepSeek", authType: "apiKey" },
 		{ id: "deepinfra", name: "DeepInfra", authType: "apiKey" },
+		{ id: "chutes", name: "Chutes", authType: "apiKey" },
+		{ id: "opencode", name: "OpenCode", authType: "apiKey" },
+		{ id: "huggingface", name: "Huggingface", authType: "apiKey" },
+		{ id: "mistral", name: "Mistral", authType: "apiKey" },
+		{ id: "openai", name: "OpenAI", authType: "apiKey" },
+		{ id: "kimi", name: "Kimi (Moonshot)", authType: "apiKey" },
+		{ id: "minimax-coding", name: "MiniMax Coding", authType: "apiKey" },
+		{ id: "qwencli", name: "Qwen CLI", authType: "oauth" },
+		{ id: "geminicli", name: "Gemini CLI", authType: "oauth" },
 		{ id: "compatible", name: "Compatible (Custom)", authType: "apiKey" },
 	];
 

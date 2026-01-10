@@ -86,7 +86,71 @@ export class AccountManager {
 			},
 		],
 		[
-			"deepseek",
+			ProviderKey.DeepSeek,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
+			ProviderKey.DeepInfra,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
+			ProviderKey.Chutes,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
+			ProviderKey.OpenCode,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
+			ProviderKey.Huggingface,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
+			ProviderKey.Mistral,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
+			ProviderKey.OpenAI,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
+			ProviderKey.Kimi,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
+			ProviderKey.MiniMaxCoding,
 			{
 				supportsMultiAccount: true,
 				supportsOAuth: false,
@@ -95,7 +159,7 @@ export class AccountManager {
 		],
 		// Register CLI OAuth providers so they can be managed via AccountManager
 		[
-			"qwencli",
+			ProviderKey.QwenCli,
 			{
 				supportsMultiAccount: true,
 				supportsOAuth: true,
@@ -103,7 +167,7 @@ export class AccountManager {
 			},
 		],
 		[
-			"geminicli",
+			ProviderKey.GeminiCli,
 			{
 				supportsMultiAccount: true,
 				supportsOAuth: true,

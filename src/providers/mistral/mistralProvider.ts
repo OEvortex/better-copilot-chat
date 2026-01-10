@@ -90,36 +90,11 @@ export class MistralProvider
 		progress: Progress<vscode.LanguageModelResponsePart>,
 		token: CancellationToken,
 	): Promise<void> {
-		// Save user's selected model and its provider (only if memory is enabled)
-		const rememberLastModel = vscode.workspace
-			.getConfiguration("chp")
-			.get("rememberLastModel", true);
-		if (rememberLastModel) {
-			this.modelInfoCache
-				?.saveLastSelectedModel(this.providerKey, model.id)
-				.catch((err) =>
-					Logger.warn(
-						`[${this.providerKey}] Failed to save model selection:`,
-						err,
-					),
-				);
-		}
-
-		// Find corresponding model configuration
-		const modelConfig = this.providerConfig.models.find(
-			(m: ModelConfig) => m.id === model.id,
-		);
-		if (!modelConfig) {
-			const errorMessage = `Model not found: ${model.id}`;
-			Logger.error(errorMessage);
-			throw new Error(errorMessage);
-		}
-
 		try {
 			Logger.info(`[Mistral] Starting request for model: ${model.name}`);
-			await this.mistralHandler.handleRequest(
+			// Use the base class implementation which now supports multi-account
+			await super.provideLanguageModelChatResponse(
 				model,
-				modelConfig,
 				messages,
 				options,
 				progress,
@@ -130,10 +105,6 @@ export class MistralProvider
 				`[Mistral] Request failed: ${error instanceof Error ? error.message : String(error)}`,
 			);
 			throw error;
-		} finally {
-			Logger.info(
-				`${this.providerConfig.displayName}: ${model.name} Request completed`,
-			);
 		}
 	}
 }

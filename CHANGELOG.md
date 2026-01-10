@@ -22,6 +22,9 @@ All notable changes to this project will be documented in this file.
 - **Linting & Formatting**: Fixed hundreds of linting issues identified by Biome to improve code quality and consistency.
 - **Project Maintenance**: Updated `package.json` to version `0.1.4`.
 
+### Fixed
+- **Fixed Function Call/Response Mismatch Error**: Resolved "Please ensure that the number of function response parts is equal to the number of function call parts of the function call turn" error by adding automatic balancing logic in the OpenAI handler to ensure every tool call has a corresponding tool result message and vice versa.
+
 ## [0.1.3] - 2026-01-09
 
 ### Added
@@ -46,8 +49,8 @@ All notable changes to this project will be documented in this file.
 - Fixed Mistral and DeepInfra status bar colors and display names in the account management UI.
 
 
-### Miscellaneous
-- Build verified (dev compile) and project compiles cleanly after changes.
+### Fixed
+- **Fixed Function Call/Response Mismatch Error**: Resolved "Please ensure that the number of function response parts is equal to the number of function call parts of the function call turn" error by adding automatic balancing logic in the OpenAI handler to ensure every tool call has a corresponding tool result message and vice versa.
 
 ## [0.1.2] - 2026-01-08
 

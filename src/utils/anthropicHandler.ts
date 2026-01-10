@@ -5,6 +5,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import * as vscode from "vscode";
+import { AccountQuotaCache } from "../accounts/accountQuotaCache";
 import {
 	apiMessageToAnthropicMessage,
 	convertToAnthropicTools,
@@ -21,12 +22,15 @@ import { VersionManager } from "./versionManager";
  * Receives complete provider configuration, uses Anthropic SDK to handle streaming chat completion
  */
 export class AnthropicHandler {
+	private quotaCache: AccountQuotaCache;
+
 	constructor(
 		public readonly provider: string,
 		public readonly displayName: string,
 		private readonly baseURL?: string,
 	) {
 		// provider, displayName and baseURL are passed by the caller
+		this.quotaCache = AccountQuotaCache.getInstance();
 	}
 
 	/**
@@ -35,11 +39,18 @@ export class AnthropicHandler {
 	 */
 	private async createAnthropicClient(
 		modelConfig?: ModelConfig,
+		accountId?: string,
 	): Promise<Anthropic> {
 		const providerKey = modelConfig?.provider || this.provider;
-		const currentApiKey = await ApiKeyManager.getApiKey(providerKey);
+
+		// Check if API key is provided in modelConfig (e.g. for Managed accounts)
+		let currentApiKey = modelConfig?.apiKey;
+
 		if (!currentApiKey) {
-			throw new Error(`Missing ${this.displayName} API key`);
+			currentApiKey = await ApiKeyManager.getApiKey(providerKey);
+			if (!currentApiKey) {
+				throw new Error(`Missing ${this.displayName} API key`);
+			}
 		}
 
 		// Use model configuration baseUrl or provider's default baseURL
@@ -83,7 +94,9 @@ export class AnthropicHandler {
 			defaultHeaders: defaultHeaders,
 		});
 
-		Logger.info(`${this.displayName} Anthropic compatible client created`);
+		Logger.info(
+			`${this.displayName} Anthropic compatible client created${accountId ? ` for account ${accountId}` : ""}`,
+		);
 		return client;
 	}
 
@@ -97,9 +110,10 @@ export class AnthropicHandler {
 		options: vscode.ProvideLanguageModelChatResponseOptions,
 		progress: vscode.Progress<vscode.LanguageModelResponsePart2>,
 		token: vscode.CancellationToken,
+		accountId?: string,
 	): Promise<void> {
 		try {
-			const client = await this.createAnthropicClient(modelConfig);
+			const client = await this.createAnthropicClient(modelConfig, accountId);
 			const { messages: anthropicMessages, system } =
 				apiMessageToAnthropicMessage(modelConfig, messages);
 
@@ -157,8 +171,34 @@ export class AnthropicHandler {
 				token,
 				modelConfig,
 			);
+
+			// Record success if accountId provided
+			if (accountId) {
+				this.quotaCache.recordSuccess(accountId, this.provider).catch(() => {});
+			}
+
 			Logger.info(`[${model.name}] Anthropic request completed`, result.usage);
 		} catch (error) {
+			// Record failure if accountId provided
+			if (accountId && !(error instanceof vscode.CancellationError)) {
+				if (this.isQuotaError(error)) {
+					this.quotaCache
+						.markQuotaExceeded(accountId, this.provider, {
+							error: error instanceof Error ? error.message : String(error),
+							affectedModel: model.id,
+						})
+						.catch(() => {});
+				} else {
+					this.quotaCache
+						.recordFailure(
+							accountId,
+							this.provider,
+							error instanceof Error ? error.message : String(error),
+						)
+						.catch(() => {});
+				}
+			}
+
 			Logger.error(`[${model.name}] Anthropic SDK error:`, error);
 
 			// Provide detailed error message
@@ -696,5 +736,18 @@ export class AnthropicHandler {
 				);
 			}
 		}
+	}
+
+	private isQuotaError(error: unknown): boolean {
+		if (!(error instanceof Error)) {
+			return false;
+		}
+		const msg = error.message;
+		return (
+			msg.startsWith("Quota exceeded") ||
+			msg.startsWith("Rate limited") ||
+			msg.includes("429") ||
+			msg.includes("RESOURCE_EXHAUSTED")
+		);
 	}
 }
