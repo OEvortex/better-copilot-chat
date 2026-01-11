@@ -46,8 +46,7 @@
     "main": "./dist/extension.js",
     "enabledApiProposals": [
         "chatProvider",
-        "chatParticipantAdditions",
-        "defaultChatParticipant"
+        "chatParticipantAdditions"
     ],
     "activationEvents": [
         "onStartupFinished",
