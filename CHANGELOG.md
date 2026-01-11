@@ -17,6 +17,11 @@ All notable changes to this project will be documented in this file.
     - Uses `ChatResponseStream.thinkingProgress()` for displaying agent reasoning/thinking
     - Uses `ChatToolInvocationPart` for displaying tool calls with proper UI components
     - Matches GitHub Copilot Chat's UI style and behavior exactly
+  - **Enhanced Tool Visualization**: Specialized UI mapping for all core Gemini CLI tools:
+    - `run_shell_command` (Bash): Shows exact command and streams output in shell-formatted blocks.
+    - `read_file`, `write_file`, `replace` (Edit): Clear file-specific status and past-tense messages.
+    - `list_directory` (LS), `search_file_content` (Grep): Parameter-aware invocation messages.
+    - `google_web_search`, `web_fetch`, `delegate_to_agent`, `save_memory`: Rich tool-specific UI treatments.
 
 ### Changed / Improved
 - **ACP Client Architecture**: 

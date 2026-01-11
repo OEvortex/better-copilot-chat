@@ -13,7 +13,15 @@ interface ToolCallInfo {
     title: string;
     status: string;
     kind?: string;
-    content?: string;
+    toolName?: string;
+    inputParameters?: any;
+    content?: string; // Summary of tool call content
+    contentItems?: ToolCallContentItem[]; // Detailed content items
+}
+
+interface ToolCallContentItem {
+    type: 'terminal' | 'diff' | 'resource' | 'text' | 'image';
+    data?: any; // Type-specific data
 }
 
 export class AcpClient implements acp.Client {
@@ -103,7 +111,7 @@ export class AcpClient implements acp.Client {
     async sendPrompt(
         prompt: string,
         workspacePath?: string,
-        onChunk?: (chunk: string, type: 'text' | 'thought' | 'tool') => void
+        onChunk?: (chunk: string, type: 'text' | 'thought' | 'tool', metadata?: any) => void
     ): Promise<string> {
         if (!this.connection) {
             await this.initialize();
@@ -188,7 +196,7 @@ export class AcpClient implements acp.Client {
 
         switch (update.sessionUpdate) {
             case 'agent_message_chunk':
-                if (update.content.type === 'text') {
+                if (update.content && 'type' in update.content && update.content.type === 'text') {
                     const text = update.content.text;
                     this.messageChunks.push(text);
                     // Stream chunk to callback if available
@@ -199,7 +207,7 @@ export class AcpClient implements acp.Client {
                 }
                 break;
             case 'agent_thought_chunk':
-                if (update.content.type === 'text') {
+                if (update.content && 'type' in update.content && update.content.type === 'text') {
                     const text = update.content.text;
                     this.thoughtChunks.push(text);
                     // Thoughts can also be streamed with special formatting
@@ -216,12 +224,16 @@ export class AcpClient implements acp.Client {
                     const title = toolCallUpdate.title || 'Unknown Tool';
                     const status = toolCallUpdate.status || 'pending';
                     const kind = toolCallUpdate.kind || undefined;
+                    const toolName = toolCallUpdate.toolName || toolCallUpdate.tool_name || undefined;
+                    const inputParameters = toolCallUpdate.inputParameters || toolCallUpdate.input_parameters || undefined;
 
                     const toolCall: ToolCallInfo = {
                         id: toolCallId,
                         title: title,
                         status: status,
-                        kind: kind
+                        kind: kind,
+                        toolName: toolName,
+                        inputParameters: inputParameters
                     };
                     this.toolCalls.set(toolCallId, toolCall);
 
@@ -251,11 +263,13 @@ export class AcpClient implements acp.Client {
                             existingToolCall.kind = toolCallUpdate.kind;
                         }
                         if (toolCallUpdate.content) {
-                            // Extract content summary
+                            // Extract content summary and detailed items
                             const contentSummary = this.extractContentSummary(toolCallUpdate.content);
                             if (contentSummary) {
                                 existingToolCall.content = contentSummary;
                             }
+                            // Extract detailed content items for better UI rendering
+                            existingToolCall.contentItems = this.extractContentItems(toolCallUpdate.content);
                         }
 
                         this.toolCalls.set(toolCallId, existingToolCall);
@@ -318,11 +332,58 @@ export class AcpClient implements acp.Client {
             } else if (item.type === 'diff') {
                 summaries.push(`Diff: ${item.path || 'unknown file'}`);
             } else if (item.type === 'terminal') {
-                summaries.push(`Terminal: ${item.terminal_id || 'unknown'}`);
+                const terminalId = item.terminal_id || item.terminalId || 'unknown';
+                const text = item.text || '';
+                summaries.push(`Terminal (${terminalId}): ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`);
             }
         }
 
         return summaries.length > 0 ? summaries.join('\n') : undefined;
+    }
+
+    private extractContentItems(content: any[]): ToolCallContentItem[] {
+        if (!content || content.length === 0) {
+            return [];
+        }
+
+        const items: ToolCallContentItem[] = [];
+
+        for (const item of content) {
+            if (item.type === 'content' && item.content) {
+                if (item.content.type === 'text') {
+                    items.push({
+                        type: 'text',
+                        data: { text: item.content.text }
+                    });
+                } else if (item.content.type === 'resource_link') {
+                    items.push({
+                        type: 'resource',
+                        data: { uri: item.content.uri }
+                    });
+                } else if (item.content.type === 'image') {
+                    items.push({
+                        type: 'image',
+                        data: item.content
+                    });
+                }
+            } else if (item.type === 'diff') {
+                items.push({
+                    type: 'diff',
+                    data: { path: item.path || 'unknown file', diff: item.diff }
+                });
+            } else if (item.type === 'terminal') {
+                items.push({
+                    type: 'terminal',
+                    data: { 
+                        terminalId: item.terminal_id || item.terminalId || 'unknown',
+                        text: item.text || '',
+                        exitCode: item.exit_code || item.exitCode
+                    }
+                });
+            }
+        }
+
+        return items;
     }
 
     async writeTextFile(params: acp.WriteTextFileRequest): Promise<acp.WriteTextFileResponse> {

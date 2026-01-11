@@ -198,6 +198,8 @@ export class GeminiCliChatParticipant {
             const THOUGHT_DEBOUNCE_MS = 200; // Debounce thought updates
 
             // Stream response chunks as they arrive
+            const activeToolCalls = new Map<string, vscode.ChatToolInvocationPart>();
+
             const result = await this.acpClient.sendPrompt(
                 prompt,
                 workspacePath,
@@ -205,26 +207,22 @@ export class GeminiCliChatParticipant {
                     switch (type) {
                         case 'text':
                             messageBuffer += chunk;
-                            // End thinking when regular content starts (like Copilot does)
+                            // End thinking when regular content starts
                             if (currentThinkingId) {
                                 response.thinkingProgress({ text: '', id: currentThinkingId });
                                 currentThinkingId = undefined;
                                 thoughtBuffer = '';
                             }
-                            // Stream message chunks immediately - Copilot style
                             response.markdown(chunk);
                             break;
                         case 'thought':
                             thoughtBuffer += chunk;
-                            // Initialize thinking ID if needed
                             if (!currentThinkingId) {
                                 currentThinkingId = `gemini_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
                             }
-                            // Debounce thought updates to avoid too many UI updates
                             const now = Date.now();
                             if (now - lastThoughtUpdate > THOUGHT_DEBOUNCE_MS) {
                                 lastThoughtUpdate = now;
-                                // Use proper thinkingProgress API like Copilot
                                 response.thinkingProgress({
                                     text: thoughtBuffer,
                                     id: currentThinkingId
@@ -232,25 +230,75 @@ export class GeminiCliChatParticipant {
                             }
                             break;
                         case 'tool':
-                            // End thinking before tool calls (like Copilot does)
-                            if (currentThinkingId) {
-                                response.thinkingProgress({ text: '', id: currentThinkingId });
-                                currentThinkingId = undefined;
-                                thoughtBuffer = '';
-                            }
-                            // Use proper tool invocation API like Copilot
                             if (metadata?.toolCall) {
                                 const toolCall = metadata.toolCall;
-                                response.prepareToolInvocation(toolCall.title || 'Tool');
-                                response.push(
-                                    new vscode.ChatToolInvocationPart(
-                                        toolCall.title || 'Tool',
-                                        toolCall.id || `tool_${Date.now()}`
-                                    )
+                                const toolCallId = toolCall.id || `tool_${Date.now()}`;
+                                const toolName = toolCall.title || 'Tool';
+                                const toolNameLower = (toolCall.toolName || toolCall.title || '').toLowerCase();
+                                const params = toolCall.inputParameters || {};
+
+                                // End thinking before tool calls
+                                if (currentThinkingId) {
+                                    response.thinkingProgress({ text: '', id: currentThinkingId });
+                                    currentThinkingId = undefined;
+                                    thoughtBuffer = '';
+                                }
+
+                                let toolPart = activeToolCalls.get(toolCallId);
+                                if (!toolPart) {
+                                    // First time seeing this tool call
+                                    response.prepareToolInvocation(toolName);
+                                    toolPart = new vscode.ChatToolInvocationPart(
+                                        toolName,
+                                        toolCallId,
+                                        toolCall.status === 'failed' || toolCall.status === 'rejected'
+                                    );
+                                    activeToolCalls.set(toolCallId, toolPart);
+                                    response.push(toolPart);
+                                }
+
+                                // Update tool part properties
+                                toolPart.invocationMessage = this.formatToolInvocationMessage(toolCall);
+                                toolPart.isError = toolCall.status === 'failed' || toolCall.status === 'rejected';
+                                
+                                if (toolCall.status === 'completed') {
+                                    toolPart.isComplete = true;
+                                    if (toolNameLower === 'run_shell_command' || toolNameLower === 'bash') {
+                                        toolPart.pastTenseMessage = new vscode.MarkdownString(`Ran command`);
+                                    } else if (toolNameLower === 'read_file' || toolNameLower === 'read') {
+                                        toolPart.pastTenseMessage = new vscode.MarkdownString(`Read file`);
+                                    } else if (toolNameLower === 'write_file' || toolNameLower === 'write') {
+                                        toolPart.pastTenseMessage = new vscode.MarkdownString(`Wrote file`);
+                                    } else if (toolNameLower === 'replace' || toolNameLower === 'edit') {
+                                        toolPart.pastTenseMessage = new vscode.MarkdownString(`Edited file`);
+                                    } else {
+                                        toolPart.pastTenseMessage = new vscode.MarkdownString(`Executed ${toolName}`);
+                                    }
+                                }
+
+                                // Handle terminal specific data
+                                const terminalItem = toolCall.contentItems?.find(
+                                    (item: any) => item.type === 'terminal'
                                 );
-                            } else {
-                                // Fallback to markdown if metadata is missing
-                                response.markdown(chunk);
+                                if (terminalItem || toolNameLower === 'run_shell_command' || toolNameLower === 'bash') {
+                                    toolPart.toolSpecificData = {
+                                        commandLine: {
+                                            original: params.command || toolCall.title || ''
+                                        },
+                                        language: 'shell'
+                                    };
+                                }
+
+                                // If it's an update and has content, we might want to show it
+                                if (metadata.isUpdate && toolCall.contentItems) {
+                                    const contentMarkdown = this.formatToolCallContent(toolCall.contentItems);
+                                    if (contentMarkdown) {
+                                        // For terminal tools, we might want to avoid double printing if VS Code handles it
+                                        if (!terminalItem) {
+                                            response.markdown(contentMarkdown);
+                                        }
+                                    }
+                                }
                             }
                             break;
                     }
@@ -275,6 +323,80 @@ export class GeminiCliChatParticipant {
                 `**Error:** ${errorMessage}\n\nPlease ensure Gemini CLI is installed and authenticated. Run \`gemini auth login\` in your terminal first.`
             );
         }
+    }
+
+    private formatToolInvocationMessage(toolCall: any): string {
+        // Format invocation message based on tool type and kind
+        // Similar to how Copilot Chat formats tool invocations
+        const toolName = toolCall.toolName || toolCall.title || 'Tool';
+        const kind = toolCall.kind || '';
+        const params = toolCall.inputParameters || {};
+
+        const nameLower = toolName.toLowerCase();
+
+        if (nameLower === 'run_shell_command' || nameLower === 'bash' || kind === 'execute') {
+            const cmd = params.command || toolCall.title || '';
+            return `Running command: \`${cmd}\``;
+        } else if (nameLower === 'read_file' || nameLower === 'read') {
+            return `Reading file: \`${params.file_path || params.filePath || toolCall.title}\``;
+        } else if (nameLower === 'write_file' || nameLower === 'write') {
+            return `Writing file: \`${params.file_path || params.filePath || toolCall.title}\``;
+        } else if (nameLower === 'replace' || nameLower === 'edit' || kind === 'edit') {
+            return `Editing file: \`${params.file_path || params.filePath || toolCall.title}\``;
+        } else if (nameLower === 'list_directory' || nameLower === 'ls') {
+            return `Listing directory: \`${params.dir_path || params.dirPath || params.directory || toolCall.title}\``;
+        } else if (nameLower === 'search_file_content' || nameLower === 'grep') {
+            return `Searching for: \`${params.pattern || toolCall.title}\``;
+        } else if (nameLower === 'google_web_search' || nameLower === 'web_search') {
+            return `Searching Google for: "${params.query || params.q || toolCall.title}"`;
+        } else if (nameLower === 'web_fetch') {
+            return `Fetching URL: ${params.url || toolCall.title}`;
+        } else if (nameLower === 'delegate_to_agent') {
+            return `Delegating to agent: ${params.agent_name || 'sub-agent'}`;
+        } else if (nameLower === 'save_memory') {
+            return `Saving memory: ${params.fact?.substring(0, 30) || 'fact'}...`;
+        } else {
+            // Generic tool
+            return `Using ${toolName}`;
+        }
+    }
+
+    private formatToolCallContent(contentItems: any[]): string {
+        if (!contentItems || contentItems.length === 0) {
+            return '';
+        }
+
+        const parts: string[] = [];
+
+        for (const item of contentItems) {
+            switch (item.type) {
+                case 'terminal':
+                    if (item.data?.text) {
+                        parts.push(`\n\`\`\`shell\n${item.data.text}\n\`\`\`\n`);
+                    }
+                    break;
+                case 'diff':
+                    if (item.data?.diff) {
+                        parts.push(`\n**Changes in ${item.data.path}:**\n\`\`\`diff\n${item.data.diff}\n\`\`\`\n`);
+                    } else {
+                        parts.push(`\n**File Changes:** ${item.data?.path || 'Unknown file'}\n`);
+                    }
+                    break;
+                case 'resource':
+                    parts.push(`\n**Resource:** ${item.data?.uri || 'Unknown resource'}\n`);
+                    break;
+                case 'text':
+                    if (item.data?.text) {
+                        parts.push(`\n${item.data.text}\n`);
+                    }
+                    break;
+                case 'image':
+                    parts.push(`\n**Image Content**\n`);
+                    break;
+            }
+        }
+
+        return parts.join('\n');
     }
 
     private extractPrompt(request: vscode.ChatRequest): string {

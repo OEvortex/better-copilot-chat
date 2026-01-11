@@ -256,24 +256,24 @@
             }
         },
         {
-            "id": "deepseek-ai-deepseek-v3-1-terminus-tee",
-            "name": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
-            "tooltip": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE by Chutes",
-            "maxInputTokens": 98304,
-            "maxOutputTokens": 65536,
-            "model": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "nousresearch-hermes-4-405b-fp8-tee",
             "name": "NousResearch/Hermes-4-405B-FP8-TEE",
             "tooltip": "NousResearch/Hermes-4-405B-FP8-TEE by Chutes",
             "maxInputTokens": 65536,
             "maxOutputTokens": 65536,
             "model": "NousResearch/Hermes-4-405B-FP8-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-ai-deepseek-v3-1-terminus-tee",
+            "name": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
+            "tooltip": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE by Chutes",
+            "maxInputTokens": 98304,
+            "maxOutputTokens": 65536,
+            "model": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -544,18 +544,6 @@
             }
         },
         {
-            "id": "xiaomimimo-mimo-v2-flash",
-            "name": "XiaomiMiMo/MiMo-V2-Flash",
-            "tooltip": "XiaomiMiMo/MiMo-V2-Flash by Chutes",
-            "maxInputTokens": 196608,
-            "maxOutputTokens": 65536,
-            "model": "XiaomiMiMo/MiMo-V2-Flash",
-            "capabilities": {
-                "toolCalling": false,
-                "imageInput": false
-            }
-        },
-        {
             "id": "qwen-qwen3-vl-235b-a22b-instruct",
             "name": "Qwen/Qwen3-VL-235B-A22B-Instruct",
             "tooltip": "Qwen/Qwen3-VL-235B-A22B-Instruct by Chutes",
@@ -565,6 +553,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
+            }
+        },
+        {
+            "id": "xiaomimimo-mimo-v2-flash",
+            "name": "XiaomiMiMo/MiMo-V2-Flash",
+            "tooltip": "XiaomiMiMo/MiMo-V2-Flash by Chutes",
+            "maxInputTokens": 196608,
+            "maxOutputTokens": 65536,
+            "model": "XiaomiMiMo/MiMo-V2-Flash",
+            "capabilities": {
+                "toolCalling": false,
+                "imageInput": false
             }
         },
         {
