@@ -45,7 +45,9 @@
     "icon": "./logo_ai.png",
     "main": "./dist/extension.js",
     "enabledApiProposals": [
-        "chatProvider"
+        "chatProvider",
+        "chatParticipantAdditions",
+        "defaultChatParticipant"
     ],
     "activationEvents": [
         "onStartupFinished",
@@ -741,6 +743,16 @@
                 "label": "Copilot ++",
                 "icon": "$(copilot)"
             }
+        ],
+        "chatParticipants": [
+            {
+                "id": "geminicli",
+                "name": "gemini",
+                "fullName": "Gemini CLI",
+                "description": "Interact with Gemini CLI using ACP (Agent Communication Protocol)",
+                "isSticky": true,
+                "canDelegate": true
+            }
         ]
     },
     "scripts": {
@@ -760,6 +772,7 @@
         "test": "echo \"No tests specified\" && exit 0"
     },
     "dependencies": {
+        "@agentclientprotocol/sdk": "^0.12.0",
         "@anthropic-ai/sdk": "^0.67.0",
         "@microsoft/tiktokenizer": "^1.0.10",
         "@modelcontextprotocol/sdk": "^1.20.2",
@@ -767,7 +780,7 @@
         "openai": "^6.7.0"
     },
     "devDependencies": {
-        "biome": "^1.0.0",
+        "@biomejs/biome": "^2.3.10",
         "@types/json-schema": "^7.0.15",
         "@types/node": "^20.0.0",
         "@types/vscode": "^1.104.0",

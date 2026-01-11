@@ -2,7 +2,45 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.4] - 2026-01-10
+## [0.1.4] - 2026-01-11
+
+### Added
+- **Gemini CLI Chat Participant with ACP Integration**: Added a new chat participant that integrates Gemini CLI using the Agent Communication Protocol (ACP).
+  - Uses the official `@agentclientprotocol/sdk` for standardized ACP communication
+  - Automatically detects Gemini CLI installation using `which` (Unix) or `where.exe` (Windows)
+  - Supports both global installation (`gemini`) and npx execution (`npx @google/gemini-cli`)
+  - Creates workspace-specific ACP sessions for proper context handling
+  - Streams responses in real-time to the VS Code chat interface
+  - Supports delegation to other chat participants (similar to Claude Code)
+  - Properly handles workspace directory context for file operations
+  - **Native VS Code Chat UI Integration**: Uses VS Code's native chat APIs for thinking and tool calls
+    - Uses `ChatResponseStream.thinkingProgress()` for displaying agent reasoning/thinking
+    - Uses `ChatToolInvocationPart` for displaying tool calls with proper UI components
+    - Matches GitHub Copilot Chat's UI style and behavior exactly
+
+### Changed / Improved
+- **ACP Client Architecture**: 
+  - Migrated from custom ACP implementation to official `@agentclientprotocol/sdk`
+  - Improved session management with workspace-aware session creation
+  - Better error handling and logging for ACP communication
+  - Fixed working directory issue - now uses workspace path instead of extension directory
+- **Gemini CLI Detection**: 
+  - Enhanced detection logic using system commands (`which`/`where.exe`)
+  - Better fallback mechanisms for different installation methods
+  - Improved error messages when Gemini CLI is not found
+- **UI/UX Improvements**:
+  - Removed custom markdown formatting for thinking and tool calls
+  - Now uses VS Code's native chat UI components for consistent appearance
+  - Thinking/reasoning content is displayed inline using proper `ThinkingDelta` API
+  - Tool calls are displayed using `ChatToolInvocationPart` for native UI rendering
+  - Proper state management: thinking ends when regular content or tool calls start
+  - Debounced thinking updates for better performance
+
+### Fixed
+- **Working Directory Context**: Fixed issue where Gemini CLI was operating in the wrong directory. Now correctly uses the workspace root path for all operations.
+- **Session Management**: Fixed session creation to use workspace-specific paths, ensuring proper file context for Gemini CLI operations.
+- **API Proposal Error**: Removed programmatic property assignments that required `defaultChatParticipant` API proposal.
+- **UI Consistency**: Fixed UI formatting to match GitHub Copilot Chat's native style by using proper VS Code Chat APIs instead of custom markdown.
 
 ### Removed
 - **Complete Removal of Status Bars**: Removed all status bar items, managers, and related UI components from the extension for a cleaner interface.
