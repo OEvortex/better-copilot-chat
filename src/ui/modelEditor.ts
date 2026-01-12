@@ -115,7 +115,9 @@ export class ModelEditor {
 				disposables.push(
 					panel.onDidDispose(
 						() => {
-							disposables.forEach((d) => d.dispose());
+							disposables.forEach((d) => {
+								d.dispose();
+							});
 						},
 						undefined,
 						disposables,

@@ -636,7 +636,9 @@ export class CompatibleModelManager {
 				disposables.push(
 					quickPick.onDidHide(() => {
 						resolve(undefined);
-						disposables.forEach((d) => d.dispose());
+						disposables.forEach((d) => {
+							d.dispose();
+						});
 					}),
 				);
 				quickPick.show();

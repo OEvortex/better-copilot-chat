@@ -1,907 +1,932 @@
 {
-    "name": "better-copilot-chat",
-    "publisher": "OEvortex",
-    "displayName": "Copilot ++",
-    "description": "An extension that provides model support for GitHub Copilot Chat, including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Alibaba Cloud Bailian, and custom OpenAI/Anthropic compatible models.",
-    "version": "0.1.4",
-    "license": "MIT",
-    "keywords": [
-        "ai",
-        "chat",
-        "copilot",
-        "github-copilot",
-        "language-model",
-        "zhipu",
-        "kimi",
-        "minimax",
-        "moonshot",
-        "deepseek",
-        "OpenAI Compatible",
-        "Anthropic Compatible",
-        "ZhipuAI",
-        "MoonshotAI",
-        "DeepSeek",
-        "Alibaba Cloud Bailian",
-        "Coding Plan",
-        "Mistral AI"
-
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/OEvortex/better-copilot-chat"
-    },
-    "engines": {
-        "vscode": ">=1.104.0",
-        "node": ">=20.0.0",
-        "npm": ">=9.0.0"
-    },
-    "extensionDependencies": [
-        "github.copilot-chat"
-    ],
-    "categories": [
-        "AI",
-        "Chat"
-    ],
-    "icon": "./logo_ai.png",
-    "main": "./dist/extension.js",
-    "enabledApiProposals": [
-        "chatProvider",
-        "chatParticipantAdditions"
-    ],
-    "activationEvents": [
-        "onStartupFinished",
-        "onLanguageModelProvider:chp.zhipu",
-        "onLanguageModelProvider:chp.minimax",
-        "onLanguageModelProvider:chp.moonshot",
-        "onLanguageModelProvider:chp.deepseek",
-        "onLanguageModelProvider:chp.chutes",
-        "onLanguageModelProvider:chp.opencode",
-        "onLanguageModelProvider:chp.huggingface",
-        "onLanguageModelProvider:chp.deepinfra",
-        "onLanguageModelProvider:chp.mistral",
-        "onLanguageModelProvider:chp.qwencli",
-        "onLanguageModelProvider:chp.geminicli",
-        "onLanguageModelProvider:chp.codex",
-        "onLanguageModelProvider:chp.compatible",
-        "onLanguageModelTool:chp_zhipuWebSearch",
-        "onLanguageModelTool:chp_minimaxWebSearch",
-        "onFileSystem:chp-settings"
-    ],
-    "contributes": {
-        "commands": [
-            {
-                "command": "chp.zhipu.setApiKey",
-                "title": "Set ZhipuAI API Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.zhipu.configWizard",
-                "title": "ZhipuAI Configuration Wizard (API Key & Search MCP Mode)",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.minimax.setApiKey",
-                "title": "Set MiniMax API Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.minimax.setCodingPlanApiKey",
-                "title": "Set MiniMax Coding Plan Dedicated Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.minimax.setCodingPlanEndpoint",
-                "title": "Set MiniMax Coding Plan Endpoint (Domestic/International)",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.minimax.configWizard",
-                "title": "Start MiniMax Configuration Wizard",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.kimi.setApiKey",
-                "title": "Set Kimi API Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.moonshot.setApiKey",
-                "title": "Set MoonshotAI API Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.moonshot.configWizard",
-                "title": "Start MoonshotAI Configuration Wizard",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.deepseek.setApiKey",
-                "title": "Set DeepSeek API Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.chutes.setApiKey",
-                "title": "Set Chutes API Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.opencode.setApiKey",
-                "title": "Set OpenCode API Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.huggingface.setApiKey",
-                "title": "Set Hugging Face API Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.deepinfra.setApiKey",
-                "title": "Set DeepInfra API Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.mistral.setApiKey",
-                "title": "Set Mistral AI API Key",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.mistral.refreshStatus",
-                "title": "Refresh Mistral AI Status",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.copilot.refreshStatus",
-                "title": "Refresh Copilot ++ Status",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.copilot.openOverview",
-                "title": "Open Copilot ++ Overview",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.qwencli.login",
-                "title": "Qwen CLI Login (OAuth)",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.geminicli.login",
-                "title": "Gemini CLI Login (OAuth)",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.compatible.manageModels",
-                "title": "Compatible Provider Settings",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.antigravity.login",
-                "title": "Antigravity Login (Google Cloud Code)",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.antigravity.logout",
-                "title": "Antigravity Logout",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.showAntigravityQuota",
-                "title": "Show Antigravity Quota & Models",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.codex.login",
-                "title": "Codex Login (OpenAI OAuth)",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.codex.logout",
-                "title": "Codex Logout",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.codex.selectWorkspace",
-                "title": "Codex - Select Workspace (Business/Personal)",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.nesCompletion.toggleManual",
-                "title": "Toggle NES Manual Trigger Mode",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.copilot.attachSelection",
-                "title": "Attach Selection to Copilot Chat",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.copilot.insertHandle",
-                "title": "Insert Handle Reference (#handle:filename:L1-L100)",
-                "category": "Copilot ++",
-                "icon": "$(symbol-reference)"
-            },
-            {
-                "command": "chp.copilot.insertHandleFullPath",
-                "title": "Insert Handle Reference with Full Path",
-                "category": "Copilot ++",
-                "icon": "$(file-symlink-file)"
-            },
-            {
-                "command": "chp.accounts.manage",
-                "title": "Manage Accounts",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.accounts.openManager",
-                "title": "Open Account Manager",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.accounts.add",
-                "title": "Add Account",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.accounts.switch",
-                "title": "Switch Account",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.accounts.remove",
-                "title": "Remove Account",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.accounts.list",
-                "title": "View All Accounts",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.accounts.quickSwitch",
-                "title": "Quick Switch Account",
-                "category": "Copilot ++",
-                "icon": "$(arrow-swap)"
-            },
-            {
-                "command": "chp.accounts.quickSwitchProvider",
-                "title": "Quick Switch Account for Provider",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.openSettings",
-                "title": "Open Copilot ++ Settings",
-                "category": "Copilot ++",
-                "icon": "$(settings-gear)"
-            }
-        ],
-        "configuration": {
-            "title": "Copilot ++ - AI Chat Models",
-            "properties": {
-                "chp.temperature": {
-                    "type": "number",
-                    "default": 0.1,
-                    "minimum": 0,
-                    "maximum": 2,
-                    "description": "Controls the randomness of AI model output. Lower values (like 0.1) produce more deterministic output, while higher values (like 1.0) produce more creative output.",
-                    "scope": "application"
-                },
-                "chp.topP": {
-                    "type": "number",
-                    "default": 1,
-                    "minimum": 0,
-                    "maximum": 1,
-                    "description": "Controls the diversity of AI model output. Using smaller values (like 0.9) reduces output randomness.",
-                    "scope": "application"
-                },
-                "chp.maxTokens": {
-                    "type": "number",
-                    "default": 8192,
-                    "minimum": 32,
-                    "maximum": 256000,
-                    "description": "Controls the maximum number of tokens in AI model output. Larger values allow longer responses.",
-                    "scope": "application"
-                },
-                "chp.editToolMode": {
-                    "type": "string",
-                    "enum": [
-                        "claude",
-                        "gpt-5",
-                        "none"
-                    ],
-                    "enumDescriptions": [
-                        "Use Claude-style editing tool (ReplaceString) - efficient and precise single replacement",
-                        "Use GPT-5-style editing tool (ApplyPatch) - batch difference application, supports complex refactoring",
-                        "Do not use specific optimization tools, direct file editing - lower efficiency, suitable for handling edit exceptions"
-                    ],
-                    "default": "claude",
-                    "description": "Select editing tool mode. Claude uses efficient ReplaceString, GPT-5 uses ApplyPatch for batch editing, None uses basic file editing directly.",
-                    "scope": "application"
-                },
-                "chp.rememberLastModel": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "When enabled, records and automatically restores the last used extension-provided model. (VSCode 1.106.0 will reset to default optimal model [e.g., Claude Sonnet 4.5])",
-                    "scope": "application"
-                },
-                "chp.zhipu.search.enableMCP": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable ZhipuAI search MCP SDK mode. Uses standard MCP protocol and official SDK for search functionality, providing more stable connections and better error handling. Non-subscription plans should disable this switch to use standard billing interface (per-request billing). Requires valid ZhipuAI API key.",
-                    "scope": "application"
-                },
-                "chp.zhipu.endpoint": {
-                    "type": "string",
-                    "enum": [
-                        "open.bigmodel.cn",
-                        "api.z.ai"
-                    ],
-                    "default": "open.bigmodel.cn",
-                    "description": "ZhipuAI access site. open.bigmodel.cn is domestic site (recommended), api.z.ai is international site.",
-                    "scope": "application"
-                },
-                "chp.minimax.endpoint": {
-                    "type": "string",
-                    "enum": [
-                        "minimaxi.com",
-                        "minimax.io"
-                    ],
-                    "default": "minimaxi.com",
-                    "description": "MiniMax Coding Plan access site. minimaxi.com is domestic site (recommended), minimax.io is international site.",
-                    "scope": "application"
-                },
-                "chp.fimCompletion.enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable FIM (Fill In the Middle) suggestion feature.",
-                    "scope": "application"
-                },
-                "chp.fimCompletion.debounceMs": {
-                    "type": "number",
-                    "default": 500,
-                    "minimum": 50,
-                    "maximum": 1000,
-                    "description": "Debounce delay for FIM completion (milliseconds).",
-                    "scope": "application"
-                },
-                "chp.fimCompletion.timeoutMs": {
-                    "type": "number",
-                    "default": 5000,
-                    "minimum": 1000,
-                    "maximum": 30000,
-                    "description": "Request timeout for FIM completion (milliseconds).",
-                    "scope": "application"
-                },
-                "chp.fimCompletion.modelConfig": {
-                    "type": "object",
-                    "default": {
-                        "provider": "",
-                        "baseUrl": "",
-                        "model": ""
-                    },
-                    "description": "Model configuration for FIM completion.",
-                    "scope": "application",
-                    "properties": {
-                        "provider": {
-                            "type": "string",
-                            "description": "Model provider identifier"
-                        },
-                        "baseUrl": {
-                            "type": "string",
-                            "description": "API base URL",
-                            "format": "uri"
-                        },
-                        "model": {
-                            "type": "string",
-                            "description": "Model name used for FIM completion"
-                        },
-                        "maxTokens": {
-                            "type": "number",
-                            "description": "Maximum length returned by FIM completion",
-                            "default": 200,
-                            "minimum": 50,
-                            "maximum": 16000
-                        },
-                        "extraBody": {
-                            "type": "object",
-                            "description": "Additional request body parameters, merged into the request body",
-                            "additionalProperties": {
-                                "description": "Additional request body parameter values"
-                            }
-                        }
-                    },
-                    "required": [
-                        "provider",
-                        "baseUrl",
-                        "model"
-                    ]
-                },
-                "chp.nesCompletion.enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable NES (Next Edit Suggestions) suggestion feature.",
-                    "scope": "application"
-                },
-                "chp.nesCompletion.debounceMs": {
-                    "type": "number",
-                    "default": 500,
-                    "minimum": 50,
-                    "maximum": 1000,
-                    "description": "Debounce delay for NES completion (milliseconds).",
-                    "scope": "application"
-                },
-                "chp.nesCompletion.timeoutMs": {
-                    "type": "number",
-                    "default": 5000,
-                    "minimum": 1000,
-                    "maximum": 30000,
-                    "description": "Request timeout for NES completion (milliseconds).",
-                    "scope": "application"
-                },
-                "chp.nesCompletion.manualOnly": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "When enabled, NES completion only responds to manual triggers (Alt+/), will not trigger automatically.",
-                    "scope": "application"
-                },
-                "chp.nesCompletion.modelConfig": {
-                    "type": "object",
-                    "default": {
-                        "provider": "",
-                        "baseUrl": "",
-                        "model": ""
-                    },
-                    "description": "Model configuration for NES completion.",
-                    "scope": "application",
-                    "properties": {
-                        "provider": {
-                            "type": "string",
-                            "description": "Model provider identifier"
-                        },
-                        "baseUrl": {
-                            "type": "string",
-                            "description": "API base URL",
-                            "format": "uri"
-                        },
-                        "model": {
-                            "type": "string",
-                            "description": "Model name used for NES completion"
-                        },
-                        "maxTokens": {
-                            "type": "number",
-                            "description": "Maximum length returned by NES completion",
-                            "default": 200,
-                            "minimum": 50,
-                            "maximum": 16000
-                        },
-                        "extraBody": {
-                            "type": "object",
-                            "description": "Additional request body parameters, will be merged into request body in API requests",
-                            "additionalProperties": {
-                                "description": "Additional request body parameter value"
-                            }
-                        }
-                    },
-                    "required": [
-                        "provider",
-                        "baseUrl",
-                        "model"
-                    ]
-                },
-                "chp.providerOverrides": {
-                    "type": "object",
-                    "default": {},
-                    "description": "Provider configuration override. Allows overriding provider baseUrl and model configuration, supports adding new models or overriding existing model parameters.",
-                    "scope": "application"
-                },
-                "chp.compatibleModels": {
-                    "type": "array",
-                    "default": [],
-                    "description": "Custom model configuration for Compatible Provider. Completely user-configured OpenAI/Anthropic compatible model list.",
-                    "scope": "application"
-                },
-                "antigravityQuotaWatcher.apiKey": {
-                    "type": "string",
-                    "default": "",
-                    "description": "API key for Antigravity quota watcher.",
-                    "scope": "application"
-                }
-            }
-        },
-        "jsonValidation": [
-            {
-                "fileMatch": "settings.json",
-                "url": "chp-settings://root/schema.json"
-            }
-        ],
-        "languageModelChatProviders": [
-            {
-                "vendor": "chp.zhipu",
-                "displayName": "⦿ ZhipuAI (GLM Coding Plan)",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "ZhipuAI API key.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.minimax",
-                "displayName": "⦿ MiniMax (Coding Plan)",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "MiniMax API key.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.moonshot",
-                "displayName": "⦿ MoonshotAI (Kimi For Coding)",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "MoonshotAI API key.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.deepseek",
-                "displayName": "⦿ DeepSeek",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "DeepSeek API key.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.chutes",
-                "displayName": "⦿ Chutes",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "Chutes API key.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.opencode",
-                "displayName": "⦿ OpenCode",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "OpenCode API key.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.huggingface",
-                "displayName": "⦿ Hugging Face",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "Hugging Face API key.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.deepinfra",
-                "displayName": "⦿ DeepInfra",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "DeepInfra API key.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.mistral",
-                "displayName": "⦿ Mistral AI",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "Mistral AI API key.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.qwencli",
-                "displayName": "⦿ Qwen Code CLI",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "Qwen Code API key or token.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.geminicli",
-                "displayName": "⦿ Gemini CLI",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "Gemini CLI API key or token.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.compatible",
-                "displayName": "⦿ OpenAI / Anthropic Compatible",
-                "configuration": {
-                    "properties": {
-                        "models": {
-                            "type": "array",
-                            "description": "User-configured compatible models (edit in settings).",
-                            "items": { "type": "object" }
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.antigravity",
-                "displayName": "⦿ Antigravity (Google Cloud Code)",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "Antigravity / Oauth.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.codex",
-                "displayName": "⦿ Codex (OpenAI)",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "OpenAI / OAuth.",
-                            "secret": true
-                        }
-                    }
-                }
-            }
-        ],
-        "languageModelTools": [
-            {
-                "name": "chp_zhipuWebSearch",
-                "displayName": "ZhipuAI Web Search",
-                "toolReferenceName": "zhipuWebSearch",
-                "modelDescription": "Uses ZhipuAI's web search functionality to get real-time information. Supports multiple search engines: search_std (standard search, ¥0.01), search_pro (advanced search, ¥0.03), search_pro_sogou (Sogou search, ¥0.05), search_pro_quark (Quark search, ¥0.05). Note: Pro+ plans can use MCP SSE calls, non-subscription plans use standard billing interface (per-request billing).",
-                "userDescription": "Get latest information through ZhipuAI web search",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "search_query": {
-                            "type": "string",
-                            "description": "Search query string"
-                        },
-                        "search_engine": {
-                            "type": "string",
-                            "enum": [
-                                "search_std",
-                                "search_pro",
-                                "search_pro_sogou",
-                                "search_pro_quark"
-                            ],
-                            "description": "Search engine type: search_std (standard, ¥0.01), search_pro (advanced, ¥0.03), search_pro_sogou (Sogou, ¥0.05), search_pro_quark (Quark, ¥0.05)",
-                            "default": "search_std"
-                        },
-                        "search_intent": {
-                            "type": "boolean",
-                            "description": "Whether to perform search intent analysis",
-                            "default": false
-                        },
-                        "count": {
-                            "type": "integer",
-                            "description": "Number of search results to return",
-                            "minimum": 1,
-                            "maximum": 20,
-                            "default": 10
-                        },
-                        "search_domain_filter": {
-                            "type": "string",
-                            "description": "Domain filter, limits search to specific websites"
-                        },
-                        "search_recency_filter": {
-                            "type": "string",
-                            "enum": [
-                                "noLimit",
-                                "day",
-                                "week",
-                                "month",
-                                "year"
-                            ],
-                            "description": "Time filter: noLimit (no limit), day (within one day), week (within one week), month (within one month), year (within one year)",
-                            "default": "noLimit"
-                        },
-                        "content_size": {
-                            "type": "string",
-                            "enum": [
-                                "low",
-                                "medium",
-                                "high"
-                            ],
-                            "description": "Content detail level: low (low), medium (medium), high (high)",
-                            "default": "medium"
-                        }
-                    },
-                    "required": [
-                        "search_query"
-                    ]
-                },
-                "canBeReferencedInPrompt": true
-            },
-            {
-                "name": "chp_minimaxWebSearch",
-                "displayName": "MiniMax Web Search",
-                "toolReferenceName": "minimaxWebSearch",
-                "modelDescription": "Uses MiniMax Coding Plan's web search functionality to get real-time information. Requires subscribing to MiniMax Coding Plan and setting dedicated API key.",
-                "userDescription": "Get latest information through MiniMax web search",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "q": {
-                            "type": "string",
-                            "description": "Search query string"
-                        }
-                    },
-                    "required": [
-                        "q"
-                    ]
-                },
-                "canBeReferencedInPrompt": true
-            }
-        ],
-        "keybindings": [
-            {
-                "command": "editor.action.inlineSuggest.trigger",
-                "key": "alt+/",
-                "when": "editorHasCompletionItemProvider && textInputFocus && !editorReadonly && !suggestWidgetVisible"
-            },
-            {
-                "command": "chp.nesCompletion.toggleManual",
-                "key": "shift+alt+/"
-            },
-            {
-                "command": "chp.copilot.attachSelection",
-                "key": "ctrl+shift+a",
-                "mac": "cmd+shift+a",
-                "when": "editorTextFocus && editorHasSelection"
-            },
-            {
-                "command": "chp.copilot.insertHandle",
-                "key": "ctrl+shift+h",
-                "mac": "cmd+shift+h",
-                "when": "editorTextFocus"
-            },
-            {
-                "command": "chp.copilot.insertHandleFullPath",
-                "key": "ctrl+alt+shift+h",
-                "mac": "cmd+alt+shift+h",
-                "when": "editorTextFocus"
-            },
-            {
-                "command": "chp.accounts.quickSwitch",
-                "key": "ctrl+shift+q",
-                "mac": "cmd+shift+q"
-            }
-        ],
-        "menus": {
-            "editor/context": [
-                {
-                    "submenu": "chp.copilot.submenu",
-                    "group": "1_copilot",
-                    "when": "editorTextFocus"
-                }
-            ],
-            "chp.copilot.submenu": [
-                {
-                    "command": "chp.copilot.insertHandle",
-                    "group": "1_handle@1",
-                    "when": "editorTextFocus"
-                },
-                {
-                    "command": "chp.copilot.insertHandleFullPath",
-                    "group": "1_handle@2",
-                    "when": "editorTextFocus"
-                },
-                {
-                    "command": "chp.copilot.attachSelection",
-                    "group": "2_attach@1",
-                    "when": "editorTextFocus && editorHasSelection"
-                }
-            ]
-        },
-        "submenus": [
-            {
-                "id": "chp.copilot.submenu",
-                "label": "Copilot ++",
-                "icon": "$(copilot)"
-            }
-        ],
-        "chatParticipants": [
-            {
-                "id": "geminicli",
-                "name": "gemini",
-                "fullName": "Gemini CLI",
-                "description": "Interact with Gemini CLI using ACP (Agent Communication Protocol)",
-                "isSticky": true
-            }
-        ]
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run clean && npm run compile",
-        "compile": "node esbuild.config.js",
-        "compile:dev": "node esbuild.config.js --dev",
-        "clean": "rimraf dist",
-        "lint": "biome check",
-        "lint:fix": "biome check --apply",
-        "format": "biome format",
-        "format:check": "biome format --check",
-        "watch": "node esbuild.config.js --watch --dev",
-        "package": "vsce package",
-        "publish": "vsce publish --allow-proposed-apis chatProvider",
-        "pretest": "npm run compile:dev",
-        "release": "vsce package && \"${VSCODE_BIN:-/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code}\" --install-extension *.vsix --force",
-        "test": "echo \"No tests specified\" && exit 0"
-    },
-    "dependencies": {
-        "@agentclientprotocol/sdk": "^0.12.0",
-        "@anthropic-ai/sdk": "^0.67.0",
-        "@microsoft/tiktokenizer": "^1.0.10",
-        "@modelcontextprotocol/sdk": "^1.20.2",
-        "@vscode/chat-lib": "^0.2.0",
-        "openai": "^6.7.0"
-    },
-    "devDependencies": {
-        "@biomejs/biome": "^2.3.10",
-        "@types/json-schema": "^7.0.15",
-        "@types/node": "^20.0.0",
-        "@types/vscode": "^1.104.0",
-        "@vscode/vsce": "^3.6.2",
-        "esbuild": "^0.25.10",
-        "prettier": "^3.6.2",
-        "rimraf": "^6.0.1",
-        "tsx": "^4.21.0",
-        "typescript": "^5.9.2"
-    },
-    "volta": {
-        "node": "20.19.5"
-    }
+	"name": "better-copilot-chat",
+	"publisher": "OEvortex",
+	"displayName": "Copilot ++",
+	"description": "An extension that provides model support for GitHub Copilot Chat, including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Alibaba Cloud Bailian, and custom OpenAI/Anthropic compatible models.",
+	"version": "0.1.4",
+	"license": "MIT",
+	"keywords": [
+		"ai",
+		"chat",
+		"copilot",
+		"github-copilot",
+		"language-model",
+		"zhipu",
+		"kimi",
+		"minimax",
+		"moonshot",
+		"deepseek",
+		"OpenAI Compatible",
+		"Anthropic Compatible",
+		"ZhipuAI",
+		"MoonshotAI",
+		"DeepSeek",
+		"Alibaba Cloud Bailian",
+		"Coding Plan",
+		"Mistral AI"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/OEvortex/better-copilot-chat"
+	},
+	"engines": {
+		"vscode": ">=1.104.0",
+		"node": ">=20.0.0",
+		"npm": ">=9.0.0"
+	},
+	"extensionDependencies": [
+		"github.copilot-chat"
+	],
+	"categories": [
+		"AI",
+		"Chat"
+	],
+	"icon": "./logo_ai.png",
+	"main": "./dist/extension.js",
+	"enabledApiProposals": [
+		"chatProvider",
+		"chatParticipantAdditions"
+	],
+	"activationEvents": [
+		"onStartupFinished",
+		"onLanguageModelProvider:chp.zhipu",
+		"onLanguageModelProvider:chp.minimax",
+		"onLanguageModelProvider:chp.moonshot",
+		"onLanguageModelProvider:chp.deepseek",
+		"onLanguageModelProvider:chp.chutes",
+		"onLanguageModelProvider:chp.opencode",
+		"onLanguageModelProvider:chp.huggingface",
+		"onLanguageModelProvider:chp.kiloai",
+		"onLanguageModelProvider:chp.deepinfra",
+		"onLanguageModelProvider:chp.mistral",
+		"onLanguageModelProvider:chp.qwencli",
+		"onLanguageModelProvider:chp.geminicli",
+		"onLanguageModelProvider:chp.codex",
+		"onLanguageModelProvider:chp.compatible",
+		"onLanguageModelTool:chp_zhipuWebSearch",
+		"onLanguageModelTool:chp_minimaxWebSearch",
+		"onFileSystem:chp-settings"
+	],
+	"contributes": {
+		"commands": [
+			{
+				"command": "chp.zhipu.setApiKey",
+				"title": "Set ZhipuAI API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.zhipu.configWizard",
+				"title": "ZhipuAI Configuration Wizard (API Key & Search MCP Mode)",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.minimax.setApiKey",
+				"title": "Set MiniMax API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.minimax.setCodingPlanApiKey",
+				"title": "Set MiniMax Coding Plan Dedicated Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.minimax.setCodingPlanEndpoint",
+				"title": "Set MiniMax Coding Plan Endpoint (Domestic/International)",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.minimax.configWizard",
+				"title": "Start MiniMax Configuration Wizard",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.kimi.setApiKey",
+				"title": "Set Kimi API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.moonshot.setApiKey",
+				"title": "Set MoonshotAI API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.moonshot.configWizard",
+				"title": "Start MoonshotAI Configuration Wizard",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.deepseek.setApiKey",
+				"title": "Set DeepSeek API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.chutes.setApiKey",
+				"title": "Set Chutes API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.opencode.setApiKey",
+				"title": "Set OpenCode API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.huggingface.setApiKey",
+				"title": "Set Hugging Face API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.kiloai.setApiKey",
+				"title": "Set Kilo AI API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.deepinfra.setApiKey",
+				"title": "Set DeepInfra API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.mistral.setApiKey",
+				"title": "Set Mistral AI API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.mistral.refreshStatus",
+				"title": "Refresh Mistral AI Status",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.copilot.refreshStatus",
+				"title": "Refresh Copilot ++ Status",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.copilot.openOverview",
+				"title": "Open Copilot ++ Overview",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.qwencli.login",
+				"title": "Qwen CLI Login (OAuth)",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.geminicli.login",
+				"title": "Gemini CLI Login (OAuth)",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.geminicli.invoke",
+				"title": "Invoke Gemini CLI Chat",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.compatible.manageModels",
+				"title": "Compatible Provider Settings",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.antigravity.login",
+				"title": "Antigravity Login (Google Cloud Code)",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.antigravity.logout",
+				"title": "Antigravity Logout",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.showAntigravityQuota",
+				"title": "Show Antigravity Quota & Models",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.codex.login",
+				"title": "Codex Login (OpenAI OAuth)",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.codex.logout",
+				"title": "Codex Logout",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.codex.selectWorkspace",
+				"title": "Codex - Select Workspace (Business/Personal)",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.nesCompletion.toggleManual",
+				"title": "Toggle NES Manual Trigger Mode",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.copilot.attachSelection",
+				"title": "Attach Selection to Copilot Chat",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.copilot.insertHandle",
+				"title": "Insert Handle Reference (#handle:filename:L1-L100)",
+				"category": "Copilot ++",
+				"icon": "$(symbol-reference)"
+			},
+			{
+				"command": "chp.copilot.insertHandleFullPath",
+				"title": "Insert Handle Reference with Full Path",
+				"category": "Copilot ++",
+				"icon": "$(file-symlink-file)"
+			},
+			{
+				"command": "chp.accounts.manage",
+				"title": "Manage Accounts",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.accounts.openManager",
+				"title": "Open Account Manager",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.accounts.add",
+				"title": "Add Account",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.accounts.switch",
+				"title": "Switch Account",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.accounts.remove",
+				"title": "Remove Account",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.accounts.list",
+				"title": "View All Accounts",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.accounts.quickSwitch",
+				"title": "Quick Switch Account",
+				"category": "Copilot ++",
+				"icon": "$(arrow-swap)"
+			},
+			{
+				"command": "chp.accounts.quickSwitchProvider",
+				"title": "Quick Switch Account for Provider",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.openSettings",
+				"title": "Open Copilot ++ Settings",
+				"category": "Copilot ++",
+				"icon": "$(settings-gear)"
+			}
+		],
+		"configuration": {
+			"title": "Copilot ++ - AI Chat Models",
+			"properties": {
+				"chp.temperature": {
+					"type": "number",
+					"default": 0.1,
+					"minimum": 0,
+					"maximum": 2,
+					"description": "Controls the randomness of AI model output. Lower values (like 0.1) produce more deterministic output, while higher values (like 1.0) produce more creative output.",
+					"scope": "application"
+				},
+				"chp.topP": {
+					"type": "number",
+					"default": 1,
+					"minimum": 0,
+					"maximum": 1,
+					"description": "Controls the diversity of AI model output. Using smaller values (like 0.9) reduces output randomness.",
+					"scope": "application"
+				},
+				"chp.maxTokens": {
+					"type": "number",
+					"default": 8192,
+					"minimum": 32,
+					"maximum": 256000,
+					"description": "Controls the maximum number of tokens in AI model output. Larger values allow longer responses.",
+					"scope": "application"
+				},
+				"chp.editToolMode": {
+					"type": "string",
+					"enum": [
+						"claude",
+						"gpt-5",
+						"none"
+					],
+					"enumDescriptions": [
+						"Use Claude-style editing tool (ReplaceString) - efficient and precise single replacement",
+						"Use GPT-5-style editing tool (ApplyPatch) - batch difference application, supports complex refactoring",
+						"Do not use specific optimization tools, direct file editing - lower efficiency, suitable for handling edit exceptions"
+					],
+					"default": "claude",
+					"description": "Select editing tool mode. Claude uses efficient ReplaceString, GPT-5 uses ApplyPatch for batch editing, None uses basic file editing directly.",
+					"scope": "application"
+				},
+				"chp.rememberLastModel": {
+					"type": "boolean",
+					"default": true,
+					"description": "When enabled, records and automatically restores the last used extension-provided model. (VSCode 1.106.0 will reset to default optimal model [e.g., Claude Sonnet 4.5])",
+					"scope": "application"
+				},
+				"chp.zhipu.search.enableMCP": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable ZhipuAI search MCP SDK mode. Uses standard MCP protocol and official SDK for search functionality, providing more stable connections and better error handling. Non-subscription plans should disable this switch to use standard billing interface (per-request billing). Requires valid ZhipuAI API key.",
+					"scope": "application"
+				},
+				"chp.zhipu.endpoint": {
+					"type": "string",
+					"enum": [
+						"open.bigmodel.cn",
+						"api.z.ai"
+					],
+					"default": "open.bigmodel.cn",
+					"description": "ZhipuAI access site. open.bigmodel.cn is domestic site (recommended), api.z.ai is international site.",
+					"scope": "application"
+				},
+				"chp.minimax.endpoint": {
+					"type": "string",
+					"enum": [
+						"minimaxi.com",
+						"minimax.io"
+					],
+					"default": "minimaxi.com",
+					"description": "MiniMax Coding Plan access site. minimaxi.com is domestic site (recommended), minimax.io is international site.",
+					"scope": "application"
+				},
+				"chp.fimCompletion.enabled": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable FIM (Fill In the Middle) suggestion feature.",
+					"scope": "application"
+				},
+				"chp.fimCompletion.debounceMs": {
+					"type": "number",
+					"default": 500,
+					"minimum": 50,
+					"maximum": 1000,
+					"description": "Debounce delay for FIM completion (milliseconds).",
+					"scope": "application"
+				},
+				"chp.fimCompletion.timeoutMs": {
+					"type": "number",
+					"default": 5000,
+					"minimum": 1000,
+					"maximum": 30000,
+					"description": "Request timeout for FIM completion (milliseconds).",
+					"scope": "application"
+				},
+				"chp.fimCompletion.modelConfig": {
+					"type": "object",
+					"default": {
+						"provider": "",
+						"baseUrl": "",
+						"model": ""
+					},
+					"description": "Model configuration for FIM completion.",
+					"scope": "application",
+					"properties": {
+						"provider": {
+							"type": "string",
+							"description": "Model provider identifier"
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "API base URL",
+							"format": "uri"
+						},
+						"model": {
+							"type": "string",
+							"description": "Model name used for FIM completion"
+						},
+						"maxTokens": {
+							"type": "number",
+							"description": "Maximum length returned by FIM completion",
+							"default": 200,
+							"minimum": 50,
+							"maximum": 16000
+						},
+						"extraBody": {
+							"type": "object",
+							"description": "Additional request body parameters, merged into the request body",
+							"additionalProperties": {
+								"description": "Additional request body parameter values"
+							}
+						}
+					},
+					"required": [
+						"provider",
+						"baseUrl",
+						"model"
+					]
+				},
+				"chp.nesCompletion.enabled": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable NES (Next Edit Suggestions) suggestion feature.",
+					"scope": "application"
+				},
+				"chp.nesCompletion.debounceMs": {
+					"type": "number",
+					"default": 500,
+					"minimum": 50,
+					"maximum": 1000,
+					"description": "Debounce delay for NES completion (milliseconds).",
+					"scope": "application"
+				},
+				"chp.nesCompletion.timeoutMs": {
+					"type": "number",
+					"default": 5000,
+					"minimum": 1000,
+					"maximum": 30000,
+					"description": "Request timeout for NES completion (milliseconds).",
+					"scope": "application"
+				},
+				"chp.nesCompletion.manualOnly": {
+					"type": "boolean",
+					"default": false,
+					"description": "When enabled, NES completion only responds to manual triggers (Alt+/), will not trigger automatically.",
+					"scope": "application"
+				},
+				"chp.nesCompletion.modelConfig": {
+					"type": "object",
+					"default": {
+						"provider": "",
+						"baseUrl": "",
+						"model": ""
+					},
+					"description": "Model configuration for NES completion.",
+					"scope": "application",
+					"properties": {
+						"provider": {
+							"type": "string",
+							"description": "Model provider identifier"
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "API base URL",
+							"format": "uri"
+						},
+						"model": {
+							"type": "string",
+							"description": "Model name used for NES completion"
+						},
+						"maxTokens": {
+							"type": "number",
+							"description": "Maximum length returned by NES completion",
+							"default": 200,
+							"minimum": 50,
+							"maximum": 16000
+						},
+						"extraBody": {
+							"type": "object",
+							"description": "Additional request body parameters, will be merged into request body in API requests",
+							"additionalProperties": {
+								"description": "Additional request body parameter value"
+							}
+						}
+					},
+					"required": [
+						"provider",
+						"baseUrl",
+						"model"
+					]
+				},
+				"chp.providerOverrides": {
+					"type": "object",
+					"default": {},
+					"description": "Provider configuration override. Allows overriding provider baseUrl and model configuration, supports adding new models or overriding existing model parameters.",
+					"scope": "application"
+				},
+				"chp.compatibleModels": {
+					"type": "array",
+					"default": [],
+					"description": "Custom model configuration for Compatible Provider. Completely user-configured OpenAI/Anthropic compatible model list.",
+					"scope": "application"
+				},
+				"antigravityQuotaWatcher.apiKey": {
+					"type": "string",
+					"default": "",
+					"description": "API key for Antigravity quota watcher.",
+					"scope": "application"
+				}
+			}
+		},
+		"jsonValidation": [
+			{
+				"fileMatch": "settings.json",
+				"url": "chp-settings://root/schema.json"
+			}
+		],
+		"languageModelChatProviders": [
+			{
+				"vendor": "chp.zhipu",
+				"displayName": "⦿ ZhipuAI (GLM Coding Plan)",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "ZhipuAI API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.minimax",
+				"displayName": "⦿ MiniMax (Coding Plan)",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "MiniMax API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.moonshot",
+				"displayName": "⦿ MoonshotAI (Kimi For Coding)",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "MoonshotAI API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.deepseek",
+				"displayName": "⦿ DeepSeek",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "DeepSeek API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.chutes",
+				"displayName": "⦿ Chutes",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "Chutes API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.opencode",
+				"displayName": "⦿ OpenCode",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "OpenCode API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.huggingface",
+				"displayName": "⦿ Hugging Face",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "Hugging Face API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.kiloai",
+				"displayName": "⦿ Kilo AI",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "Kilo AI API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.deepinfra",
+				"displayName": "⦿ DeepInfra",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "DeepInfra API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.mistral",
+				"displayName": "⦿ Mistral AI",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "Mistral AI API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.qwencli",
+				"displayName": "⦿ Qwen Code CLI",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "Qwen Code API key or token.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.geminicli",
+				"displayName": "⦿ Gemini CLI",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "Gemini CLI API key or token.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.compatible",
+				"displayName": "⦿ OpenAI / Anthropic Compatible",
+				"configuration": {
+					"properties": {
+						"models": {
+							"type": "array",
+							"description": "User-configured compatible models (edit in settings).",
+							"items": {
+								"type": "object"
+							}
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.antigravity",
+				"displayName": "⦿ Antigravity (Google Cloud Code)",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "Antigravity / Oauth.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.codex",
+				"displayName": "⦿ Codex (OpenAI)",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "OpenAI / OAuth.",
+							"secret": true
+						}
+					}
+				}
+			}
+		],
+		"languageModelTools": [
+			{
+				"name": "chp_zhipuWebSearch",
+				"displayName": "ZhipuAI Web Search",
+				"toolReferenceName": "zhipuWebSearch",
+				"modelDescription": "Uses ZhipuAI's web search functionality to get real-time information. Supports multiple search engines: search_std (standard search, ¥0.01), search_pro (advanced search, ¥0.03), search_pro_sogou (Sogou search, ¥0.05), search_pro_quark (Quark search, ¥0.05). Note: Pro+ plans can use MCP SSE calls, non-subscription plans use standard billing interface (per-request billing).",
+				"userDescription": "Get latest information through ZhipuAI web search",
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"search_query": {
+							"type": "string",
+							"description": "Search query string"
+						},
+						"search_engine": {
+							"type": "string",
+							"enum": [
+								"search_std",
+								"search_pro",
+								"search_pro_sogou",
+								"search_pro_quark"
+							],
+							"description": "Search engine type: search_std (standard, ¥0.01), search_pro (advanced, ¥0.03), search_pro_sogou (Sogou, ¥0.05), search_pro_quark (Quark, ¥0.05)",
+							"default": "search_std"
+						},
+						"search_intent": {
+							"type": "boolean",
+							"description": "Whether to perform search intent analysis",
+							"default": false
+						},
+						"count": {
+							"type": "integer",
+							"description": "Number of search results to return",
+							"minimum": 1,
+							"maximum": 20,
+							"default": 10
+						},
+						"search_domain_filter": {
+							"type": "string",
+							"description": "Domain filter, limits search to specific websites"
+						},
+						"search_recency_filter": {
+							"type": "string",
+							"enum": [
+								"noLimit",
+								"day",
+								"week",
+								"month",
+								"year"
+							],
+							"description": "Time filter: noLimit (no limit), day (within one day), week (within one week), month (within one month), year (within one year)",
+							"default": "noLimit"
+						},
+						"content_size": {
+							"type": "string",
+							"enum": [
+								"low",
+								"medium",
+								"high"
+							],
+							"description": "Content detail level: low (low), medium (medium), high (high)",
+							"default": "medium"
+						}
+					},
+					"required": [
+						"search_query"
+					]
+				},
+				"canBeReferencedInPrompt": true
+			},
+			{
+				"name": "chp_minimaxWebSearch",
+				"displayName": "MiniMax Web Search",
+				"toolReferenceName": "minimaxWebSearch",
+				"modelDescription": "Uses MiniMax Coding Plan's web search functionality to get real-time information. Requires subscribing to MiniMax Coding Plan and setting dedicated API key.",
+				"userDescription": "Get latest information through MiniMax web search",
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string",
+							"description": "Search query string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				},
+				"canBeReferencedInPrompt": true
+			}
+		],
+		"keybindings": [
+			{
+				"command": "editor.action.inlineSuggest.trigger",
+				"key": "alt+/",
+				"when": "editorHasCompletionItemProvider && textInputFocus && !editorReadonly && !suggestWidgetVisible"
+			},
+			{
+				"command": "chp.nesCompletion.toggleManual",
+				"key": "shift+alt+/"
+			},
+			{
+				"command": "chp.copilot.attachSelection",
+				"key": "ctrl+shift+a",
+				"mac": "cmd+shift+a",
+				"when": "editorTextFocus && editorHasSelection"
+			},
+			{
+				"command": "chp.copilot.insertHandle",
+				"key": "ctrl+shift+h",
+				"mac": "cmd+shift+h",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "chp.copilot.insertHandleFullPath",
+				"key": "ctrl+alt+shift+h",
+				"mac": "cmd+alt+shift+h",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "chp.accounts.quickSwitch",
+				"key": "ctrl+shift+q",
+				"mac": "cmd+shift+q"
+			}
+		],
+		"menus": {
+			"editor/context": [
+				{
+					"submenu": "chp.copilot.submenu",
+					"group": "1_copilot",
+					"when": "editorTextFocus"
+				}
+			],
+			"chp.copilot.submenu": [
+				{
+					"command": "chp.copilot.insertHandle",
+					"group": "1_handle@1",
+					"when": "editorTextFocus"
+				},
+				{
+					"command": "chp.copilot.insertHandleFullPath",
+					"group": "1_handle@2",
+					"when": "editorTextFocus"
+				},
+				{
+					"command": "chp.copilot.attachSelection",
+					"group": "2_attach@1",
+					"when": "editorTextFocus && editorHasSelection"
+				}
+			]
+		},
+		"submenus": [
+			{
+				"id": "chp.copilot.submenu",
+				"label": "Copilot ++",
+				"icon": "$(copilot)"
+			}
+		],
+		"chatParticipants": [
+			{
+				"id": "geminicli",
+				"name": "gemini",
+				"fullName": "Gemini CLI",
+				"description": "Interact with Gemini CLI using ACP (Agent Communication Protocol)",
+				"isSticky": true
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run clean && npm run compile",
+		"compile": "node esbuild.config.js",
+		"compile:dev": "node esbuild.config.js --dev",
+		"clean": "rimraf dist",
+		"lint": "biome check",
+		"lint:fix": "biome check --apply",
+		"format": "biome format",
+		"format:check": "biome format --check",
+		"watch": "node esbuild.config.js --watch --dev",
+		"package": "vsce package",
+		"publish": "vsce publish --allow-proposed-apis chatProvider",
+		"pretest": "npm run compile:dev",
+		"release": "vsce package && \"${VSCODE_BIN:-/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code}\" --install-extension *.vsix --force",
+		"test": "echo \"No tests specified\" && exit 0"
+	},
+	"dependencies": {
+		"@agentclientprotocol/sdk": "^0.12.0",
+		"@anthropic-ai/sdk": "^0.67.0",
+		"@microsoft/tiktokenizer": "^1.0.10",
+		"@modelcontextprotocol/sdk": "^1.20.2",
+		"@vscode/chat-lib": "^0.2.0",
+		"openai": "^6.7.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.10",
+		"@types/json-schema": "^7.0.15",
+		"@types/node": "^20.0.0",
+		"@types/vscode": "^1.104.0",
+		"@vscode/vsce": "^3.6.2",
+		"esbuild": "^0.25.10",
+		"prettier": "^3.6.2",
+		"rimraf": "^6.0.1",
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.2"
+	},
+	"volta": {
+		"node": "20.19.5"
+	}
 }

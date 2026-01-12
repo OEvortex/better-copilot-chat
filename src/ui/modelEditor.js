@@ -286,7 +286,9 @@ function createSection(title, formGroups) {
 	h3.textContent = title;
 	section.appendChild(h3);
 
-	formGroups.forEach((group) => section.appendChild(group));
+	for (const group of formGroups) {
+		section.appendChild(group);
+	}
 
 	return section;
 }
