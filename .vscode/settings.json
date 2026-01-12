@@ -1,67 +1,62 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    "files.exclude": {
-        "out": true, // hide the old "out" folder since we use esbuild now
-        "dist": false // show the "dist" folder with esbuild compiled JS files
-    },
-    "search.exclude": {
-        "out": true, // exclude old "out" folder from search
-        "dist": true, // exclude "dist" folder from search results
-        "node_modules": true
-    },
-    // Turn off tsc task auto detection since we use esbuild
-    "typescript.tsc.autoDetect": "off",
-    // Enable proposed APIs for extension development
-    "extensions.experimental.affinity": {
-        "vicanent.copilot-helper-pro": 1
-    },
-    // Editor configuration: use 4 spaces for indentation
-    "editor.tabSize": 4,
-    "editor.insertSpaces": true,
-    "editor.detectIndentation": false,
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
-    "[typescript]": {
-        "editor.tabSize": 4,
-        "editor.insertSpaces": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[javascript]": {
-        "editor.tabSize": 4,
-        "editor.insertSpaces": true,
-        "editor.defaultFormatter": "vscode.typescript-language-features"
-    },
-    "[json]": {
-        "editor.tabSize": 4,
-        "editor.insertSpaces": true
-    },
-    "[jsonc]": {
-        "editor.tabSize": 4,
-        "editor.insertSpaces": true
-    },
-    // Debug configuration optimization
-    "debug.javascript.usePreview": true,
-    "debug.openDebug": "openOnDebugBreak",
-    // esbuild related optimizations
-    "eslint.validate": [
-        "javascript",
-        "typescript"
-    ],
-    "typescript.preferences.includePackageJsonAutoImports": "auto",
-    // Provide JSON Schema validation and hints for provider configuration
-    "json.schemas": [
-        {
-            "fileMatch": [
-                "src/providers/config/*.json"
-            ],
-            "url": "./.vscode/providerConfig.schema.json"
-        }
-    ],
-    "chp.temperature": 0.1, // 0.0-2.0
-    "chp.topP": 1.0, // 0.0-1.0
-    "chp.maxTokens": 256000, // 32-256000
-    "chp.editToolMode": "claude", // claude/gpt-5/none
-    "chp.rememberLastModel": true, // Remember the last used model
-    "chp.zhipu.search.enableMCP": true,
-    "chatgpt.openOnStartup": false // Enable `Network Search MCP` (Coding Plan exclusive)
+	"files.exclude": {
+		"out": true, // hide the old "out" folder since we use esbuild now
+		"dist": false // show the "dist" folder with esbuild compiled JS files
+	},
+	"search.exclude": {
+		"out": true, // exclude old "out" folder from search
+		"dist": true, // exclude "dist" folder from search results
+		"node_modules": true
+	},
+	// Turn off tsc task auto detection since we use esbuild
+	"typescript.tsc.autoDetect": "off",
+	// Enable proposed APIs for extension development
+	"extensions.experimental.affinity": {
+		"vicanent.copilot-helper-pro": 1
+	},
+	// Editor configuration: use 4 spaces for indentation
+	"editor.tabSize": 4,
+	"editor.insertSpaces": true,
+	"editor.detectIndentation": false,
+	"editor.formatOnSave": true,
+	"editor.formatOnPaste": true,
+	"[typescript]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[javascript]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": true,
+		"editor.defaultFormatter": "vscode.typescript-language-features"
+	},
+	"[json]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": true
+	},
+	"[jsonc]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": true
+	},
+	// Debug configuration optimization
+	"debug.javascript.usePreview": true,
+	"debug.openDebug": "openOnDebugBreak",
+	// esbuild related optimizations
+	"eslint.validate": ["javascript", "typescript"],
+	"typescript.preferences.includePackageJsonAutoImports": "auto",
+	// Provide JSON Schema validation and hints for provider configuration
+	"json.schemas": [
+		{
+			"fileMatch": ["src/providers/config/*.json"],
+			"url": "./.vscode/providerConfig.schema.json"
+		}
+	],
+	"chp.temperature": 0.1, // 0.0-2.0
+	"chp.topP": 1.0, // 0.0-1.0
+	"chp.maxTokens": 256000, // 32-256000
+	"chp.editToolMode": "claude", // claude/gpt-5/none
+	"chp.rememberLastModel": true, // Remember the last used model
+	"chp.zhipu.search.enableMCP": true,
+	"chatgpt.openOnStartup": false // Enable `Network Search MCP` (Coding Plan exclusive)
 }

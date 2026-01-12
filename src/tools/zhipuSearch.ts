@@ -219,7 +219,10 @@ export class ZhipuSearchTool {
 	 * Tool invocation handler
 	 */
 	async invoke(
-		request: vscode.LanguageModelToolInvocationOptions<ZhipuSearchRequest, unknown>,
+		request: vscode.LanguageModelToolInvocationOptions<
+			ZhipuSearchRequest,
+			unknown
+		>,
 	): Promise<vscode.LanguageModelToolResult> {
 		try {
 			Logger.info(

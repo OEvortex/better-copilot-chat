@@ -1,137 +1,144 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://chp.dev/schemas/provider-config.schema.json",
-    "title": "Copilot Helper Pro Provider Configuration",
-    "type": "object",
-    "required": ["displayName", "baseUrl", "apiKeyTemplate", "models"],
-    "additionalProperties": false,
-    "properties": {
-        "displayName": {
-            "type": "string",
-            "minLength": 1,
-            "description": "User-friendly name displayed in the provider selector."
-        },
-        "baseUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "Base URL for OpenAI compatible requests."
-        },
-        "apiKeyTemplate": {
-            "type": "string",
-            "minLength": 16,
-            "description": "Placeholder pattern to guide users on the expected API key format."
-        },
-        "models": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "$ref": "#/$defs/model"
-            },
-            "description": "List of models exposed by the provider."
-        }
-    },
-    "$defs": {
-        "capabilities": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["toolCalling", "imageInput"],
-            "properties": {
-                "toolCalling": {
-                    "type": "boolean",
-                    "description": "Whether the model can perform tool/function calling."
-                },
-                "imageInput": {
-                    "type": "boolean",
-                    "description": "Whether the model accepts image input."
-                }
-            }
-        },
-        "model": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["id", "name", "tooltip", "maxInputTokens", "maxOutputTokens", "capabilities"],
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "Identifier sent to the provider API."
-                },
-                "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "Name displayed in the model selector."
-                },
-                "tooltip": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "Detailed description displayed as a hover tooltip."
-                },
-                "maxInputTokens": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "Maximum number of input tokens accepted by the provider."
-                },
-                "maxOutputTokens": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "Maximum number of tokens the provider can generate in a single response."
-                },
-                "version": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "Optional provider-specific version tag."
-                },
-                "capabilities": {
-                    "$ref": "#/$defs/capabilities"
-                },
-                "provider": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "Model-specific provider identifier. Used to specify the provider for API key lookup, allowing different models under the same provider to use different API keys."
-                },
-                "sdkMode": {
-                    "type": "string",
-                    "enum": ["openai", "anthropic"],
-                    "default": "openai",
-                    "description": "SDK mode selection: use OpenAI SDK or Anthropic SDK to handle requests."
-                },
-                "baseUrl": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "Optional model-specific base URL that overrides the provider default."
-                },
-                "model": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "Optional request model name when different from ID."
-                },
-                "outputThinking": {
-                    "type": "boolean",
-                    "description": "Whether to enable outputting the thinking process (if supported).",
-                    "default": true
-                },
-                "includeThinking": {
-                    "type": "boolean",
-                    "description": "Whether multi-turn conversation messages must include thinking content (optional).",
-                    "default": false
-                },
-                "customHeader": {
-                    "type": "object",
-                    "description": "Optional custom HTTP headers to be attached to API requests.",
-                    "additionalProperties": {
-                        "type": "string",
-                        "description": "HTTP header value",
-                        "minLength": 1
-                    }
-                },
-                "extraBody": {
-                    "type": "object",
-                    "description": "Extra request body parameters to be merged into the request body in API requests.",
-                    "additionalProperties": {
-                        "description": "Extra request body parameter values"
-                    }
-                }
-            }
-        }
-    }
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://chp.dev/schemas/provider-config.schema.json",
+	"title": "Copilot Helper Pro Provider Configuration",
+	"type": "object",
+	"required": ["displayName", "baseUrl", "apiKeyTemplate", "models"],
+	"additionalProperties": false,
+	"properties": {
+		"displayName": {
+			"type": "string",
+			"minLength": 1,
+			"description": "User-friendly name displayed in the provider selector."
+		},
+		"baseUrl": {
+			"type": "string",
+			"format": "uri",
+			"description": "Base URL for OpenAI compatible requests."
+		},
+		"apiKeyTemplate": {
+			"type": "string",
+			"minLength": 16,
+			"description": "Placeholder pattern to guide users on the expected API key format."
+		},
+		"models": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"$ref": "#/$defs/model"
+			},
+			"description": "List of models exposed by the provider."
+		}
+	},
+	"$defs": {
+		"capabilities": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["toolCalling", "imageInput"],
+			"properties": {
+				"toolCalling": {
+					"type": "boolean",
+					"description": "Whether the model can perform tool/function calling."
+				},
+				"imageInput": {
+					"type": "boolean",
+					"description": "Whether the model accepts image input."
+				}
+			}
+		},
+		"model": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"id",
+				"name",
+				"tooltip",
+				"maxInputTokens",
+				"maxOutputTokens",
+				"capabilities"
+			],
+			"properties": {
+				"id": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Identifier sent to the provider API."
+				},
+				"name": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Name displayed in the model selector."
+				},
+				"tooltip": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Detailed description displayed as a hover tooltip."
+				},
+				"maxInputTokens": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Maximum number of input tokens accepted by the provider."
+				},
+				"maxOutputTokens": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Maximum number of tokens the provider can generate in a single response."
+				},
+				"version": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Optional provider-specific version tag."
+				},
+				"capabilities": {
+					"$ref": "#/$defs/capabilities"
+				},
+				"provider": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Model-specific provider identifier. Used to specify the provider for API key lookup, allowing different models under the same provider to use different API keys."
+				},
+				"sdkMode": {
+					"type": "string",
+					"enum": ["openai", "anthropic"],
+					"default": "openai",
+					"description": "SDK mode selection: use OpenAI SDK or Anthropic SDK to handle requests."
+				},
+				"baseUrl": {
+					"type": "string",
+					"format": "uri",
+					"description": "Optional model-specific base URL that overrides the provider default."
+				},
+				"model": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Optional request model name when different from ID."
+				},
+				"outputThinking": {
+					"type": "boolean",
+					"description": "Whether to enable outputting the thinking process (if supported).",
+					"default": true
+				},
+				"includeThinking": {
+					"type": "boolean",
+					"description": "Whether multi-turn conversation messages must include thinking content (optional).",
+					"default": false
+				},
+				"customHeader": {
+					"type": "object",
+					"description": "Optional custom HTTP headers to be attached to API requests.",
+					"additionalProperties": {
+						"type": "string",
+						"description": "HTTP header value",
+						"minLength": 1
+					}
+				},
+				"extraBody": {
+					"type": "object",
+					"description": "Extra request body parameters to be merged into the request body in API requests.",
+					"additionalProperties": {
+						"description": "Extra request body parameter values"
+					}
+				}
+			}
+		}
+	}
 }

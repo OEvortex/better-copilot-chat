@@ -543,7 +543,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 							messages,
 							options,
 							progress,
-							token
+							token,
 						);
 					} else {
 						await this.openaiHandler.handleRequest(

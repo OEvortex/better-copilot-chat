@@ -13,6 +13,7 @@ import type { ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
+import { TokenCounter } from "../../utils/tokenCounter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import type { HFModelItem, HFModelsResponse } from "./types";
 import { validateRequest } from "./utils";
@@ -102,8 +103,15 @@ export class HuggingfaceProvider
 					contextLengths.length > 0
 						? Math.min(...contextLengths)
 						: DEFAULT_CONTEXT_LENGTH;
-				const maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
+				
+				// Accurate token logic: prefer DEFAULT_MAX_OUTPUT_TOKENS but cap at half context
+				let maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
+				if (maxOutput >= aggregateContextLen) {
+					maxOutput = Math.min(aggregateContextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
+				}
+				maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, aggregateContextLen - 1024)));
 				const maxInput = Math.max(1, aggregateContextLen - maxOutput);
+
 				const aggregateCapabilities = {
 					toolCalling: true,
 					imageInput: vision,
@@ -132,8 +140,14 @@ export class HuggingfaceProvider
 
 			for (const p of toolProviders) {
 				const contextLen = p?.context_length ?? DEFAULT_CONTEXT_LENGTH;
-				const maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
+				
+				let maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
+				if (maxOutput >= contextLen) {
+					maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
+				}
+				maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, contextLen - 1024)));
 				const maxInput = Math.max(1, contextLen - maxOutput);
+
 				entries.push({
 					id: `${m.id}:${p.provider}`,
 					name: `${m.id} via ${p.provider}`,
@@ -152,8 +166,14 @@ export class HuggingfaceProvider
 			if (toolProviders.length === 0 && providers.length > 0) {
 				const base = providers[0];
 				const contextLen = base?.context_length ?? DEFAULT_CONTEXT_LENGTH;
-				const maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
+				
+				let maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
+				if (maxOutput >= contextLen) {
+					maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
+				}
+				maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, contextLen - 1024)));
 				const maxInput = Math.max(1, contextLen - maxOutput);
+
 				entries.push({
 					id: m.id,
 					name: m.id,
@@ -504,21 +524,11 @@ export class HuggingfaceProvider
 	}
 
 	async provideTokenCount(
-		_model: LanguageModelChatInformation,
+		model: LanguageModelChatInformation,
 		text: string | LanguageModelChatMessage,
 		_token: CancellationToken,
 	): Promise<number> {
-		if (typeof text === "string") {
-			return Math.ceil(text.length / 4);
-		} else {
-			let totalTokens = 0;
-			for (const part of text.content) {
-				if (part instanceof vscode.LanguageModelTextPart) {
-					totalTokens += Math.ceil(part.value.length / 4);
-				}
-			}
-			return totalTokens;
-		}
+		return TokenCounter.getInstance().countTokens(model, text);
 	}
 
 	private async ensureApiKey(silent: boolean): Promise<string | undefined> {

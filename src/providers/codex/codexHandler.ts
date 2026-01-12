@@ -318,7 +318,7 @@ function formatResetTime(resetsAt: number): string {
 export class CodexHandler {
 	private currentModelId: string = "";
 	private lastRateLimitSnapshot: RateLimitSnapshot | null = null;
-    providerName: string;
+	providerName: string;
 	private quotaCache: AccountQuotaCache;
 
 	constructor(providerName: string) {

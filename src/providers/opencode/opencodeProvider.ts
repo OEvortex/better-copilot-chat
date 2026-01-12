@@ -13,7 +13,7 @@ import type {
 } from "vscode";
 import * as vscode from "vscode";
 import type { ProviderConfig } from "../../types/sharedTypes";
-import { ApiKeyManager, Logger } from "../../utils";
+import { ApiKeyManager, Logger, TokenCounter } from "../../utils";
 import { GenericModelProvider } from "../common/genericModelProvider";
 
 /**
@@ -90,5 +90,13 @@ export class OpenCodeProvider
 			);
 			throw error;
 		}
+	}
+
+	async provideTokenCount(
+		model: LanguageModelChatInformation,
+		text: string | LanguageModelChatMessage,
+		_token: CancellationToken,
+	): Promise<number> {
+		return TokenCounter.getInstance().countTokens(model, text);
 	}
 }

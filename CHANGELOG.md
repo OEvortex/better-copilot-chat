@@ -4,7 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.5] - 2026-01-12
 
+### Added
+- **Kilo AI Provider**: Integrated Kilo AI as a new model provider using their OpenRouter-compatible API.
+  - Dynamic model discovery from `https://api.kilo.ai/api/openrouter/models`.
+  - Support for streaming, reasoning/thinking content, and tool calling.
+  - Automatic capability detection (vision, tool calling) based on model metadata.
+  - Implemented required headers (`X-KiloCode-Version`, `User-Agent`) to support the latest Kilo Code API requirements.
+
 ### Changed
+- **Unified Token Counting**: Migrated all providers (HuggingFace, Chutes, Kilo AI, DeepInfra, MiniMax, Mistral, OpenCode) to use the centralized `@microsoft/tiktokenizer` via `TokenCounter` for more accurate token estimation.
+- **Improved Token Allocation Logic**: Implemented a smarter token limit calculation for Kilo AI, HuggingFace, and Chutes providers.
+  - Prevents "1 token input" issues by ensuring at least 1,024 tokens are always reserved for input.
+  - Automatically caps output tokens at half the context length if the reported limit is suspiciously large.
 - Replaced deprecated "managementCommand" entries in contributes.languageModelChatProviders with vendor-specific "configuration" schemas (for example, adding apiKey secret properties). This aligns the extension with the VS Code Language Model API and removes deprecation warnings.
 - Removed unsupported "canDelegate" property from chatParticipants (Gemini CLI participant) to resolve package.json schema validation errors.
 

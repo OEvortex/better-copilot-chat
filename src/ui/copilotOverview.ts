@@ -5,7 +5,7 @@ import copilotJs from "./copilotOverview.js?raw";
 
 export class CopilotOverview {
 	private static currentPanel?: vscode.WebviewPanel;
-    static context: vscode.ExtensionContext;
+	static context: vscode.ExtensionContext;
 
 	static async show(context: vscode.ExtensionContext) {
 		CopilotOverview.context = context;

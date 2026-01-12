@@ -1,27 +1,27 @@
 {
-  "files": {
-    "ignores": [
-      ".vscode-test",
-      "out",
-      "dist",
-      "node_modules",
-      "**/*.d.ts",
-      "extension.js",
-      "src/ui/*.js"
-    ]
-  },
-  "formatter": {
-    "indentStyle": "space",
-    "indentSize": 4,
-    "quoteStyle": "single",
-    "semi": true,
-    "trailingComma": "none"
-  },
-  "linter": {
-    "rules": {
-      "curly": "warn",
-      "no-empty-function": "off",
-      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
-    }
-  }
+	"files": {
+		"ignores": [
+			".vscode-test",
+			"out",
+			"dist",
+			"node_modules",
+			"**/*.d.ts",
+			"extension.js",
+			"src/ui/*.js"
+		]
+	},
+	"formatter": {
+		"indentStyle": "space",
+		"indentSize": 4,
+		"quoteStyle": "single",
+		"semi": true,
+		"trailingComma": "none"
+	},
+	"linter": {
+		"rules": {
+			"curly": "warn",
+			"no-empty-function": "off",
+			"no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+		}
+	}
 }

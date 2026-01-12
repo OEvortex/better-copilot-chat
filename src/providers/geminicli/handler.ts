@@ -771,20 +771,40 @@ class FromIRTranslator {
 	 * Attempt to automatically balance functionCall/functionResponse parts and reattach orphan thoughtSignatures.
 	 * This mutates the contents array in-place to fix common causes of the "function response parts" 400 error.
 	 */
-	private balanceFunctionCallResponses(contents: GeminiContent[], _modelName: string): void {
-		const callsById = new Map<string, { name?: string; contentIndex: number; partIndex: number }>();
-		const responsesById = new Map<string, Array<{ contentIndex: number; partIndex: number }>>();
+	private balanceFunctionCallResponses(
+		contents: GeminiContent[],
+		_modelName: string,
+	): void {
+		const callsById = new Map<
+			string,
+			{ name?: string; contentIndex: number; partIndex: number }
+		>();
+		const responsesById = new Map<
+			string,
+			Array<{ contentIndex: number; partIndex: number }>
+		>();
 
 		// Track orphan thoughtSignatures to try to reattach
-		const orphanThoughts: Array<{ signature: string; contentIndex: number; partIndex: number }> = [];
+		const orphanThoughts: Array<{
+			signature: string;
+			contentIndex: number;
+			partIndex: number;
+		}> = [];
 
 		for (let ci = 0; ci < contents.length; ci++) {
 			const content = contents[ci];
 			for (let pi = 0; pi < content.parts.length; pi++) {
 				const part = content.parts[pi] as any;
 				if (part.functionCall) {
-					const id = part.functionCall.id || part.functionCall.callId || `call_${ci}_${pi}`;
-					callsById.set(String(id), { name: part.functionCall.name, contentIndex: ci, partIndex: pi });
+					const id =
+						part.functionCall.id ||
+						part.functionCall.callId ||
+						`call_${ci}_${pi}`;
+					callsById.set(String(id), {
+						name: part.functionCall.name,
+						contentIndex: ci,
+						partIndex: pi,
+					});
 					// If thoughtSignature was on a separate part earlier, try to attach later
 					if (part.thoughtSignature) {
 						// normalize to string
@@ -798,7 +818,11 @@ class FromIRTranslator {
 					responsesById.set(key, arr);
 				}
 				if (part.thoughtSignature && !part.functionCall) {
-					orphanThoughts.push({ signature: String(part.thoughtSignature), contentIndex: ci, partIndex: pi });
+					orphanThoughts.push({
+						signature: String(part.thoughtSignature),
+						contentIndex: ci,
+						partIndex: pi,
+					});
 				}
 			}
 		}
@@ -807,8 +831,15 @@ class FromIRTranslator {
 		for (const [id, info] of callsById.entries()) {
 			const responseKey = id;
 			if (!responsesById.has(responseKey)) {
-				contents.push({ role: "user", parts: [{ functionResponse: { name: info.name || "", id, response: {} } }] });
-				console.log(`GeminiCLI: Added placeholder functionResponse for id=${id} name=${info.name || ""}`);
+				contents.push({
+					role: "user",
+					parts: [
+						{ functionResponse: { name: info.name || "", id, response: {} } },
+					],
+				});
+				console.log(
+					`GeminiCLI: Added placeholder functionResponse for id=${id} name=${info.name || ""}`,
+				);
 			}
 		}
 
@@ -829,7 +860,9 @@ class FromIRTranslator {
 						c.parts.splice(loc.partIndex, 1);
 					}
 				}
-				console.warn(`GeminiCLI: Converted/removed ${arr.length} orphan functionResponse(s) for key=${key}`);
+				console.warn(
+					`GeminiCLI: Converted/removed ${arr.length} orphan functionResponse(s) for key=${key}`,
+				);
 			}
 		}
 
@@ -851,29 +884,42 @@ class FromIRTranslator {
 			if (!attached) {
 				// search previous contents
 				for (let ci = contentIndex - 1; ci >= 0 && !attached; ci--) {
-					const idx = contents[ci].parts.findIndex((p) => (p as any).functionCall);
+					const idx = contents[ci].parts.findIndex(
+						(p) => (p as any).functionCall,
+					);
 					if (idx !== -1) {
 						(contents[ci].parts[idx] as any).thoughtSignature = signature;
-						delete (contents[contentIndex].parts[partIndex] as any).thoughtSignature;
+						delete (contents[contentIndex].parts[partIndex] as any)
+							.thoughtSignature;
 						attached = true;
 					}
 				}
 			}
 			if (!attached) {
 				// search next contents
-				for (let ci = contentIndex + 1; ci < contents.length && !attached; ci++) {
-					const idx = contents[ci].parts.findIndex((p) => (p as any).functionCall);
+				for (
+					let ci = contentIndex + 1;
+					ci < contents.length && !attached;
+					ci++
+				) {
+					const idx = contents[ci].parts.findIndex(
+						(p) => (p as any).functionCall,
+					);
 					if (idx !== -1) {
 						(contents[ci].parts[idx] as any).thoughtSignature = signature;
-						delete (contents[contentIndex].parts[partIndex] as any).thoughtSignature;
+						delete (contents[contentIndex].parts[partIndex] as any)
+							.thoughtSignature;
 						attached = true;
 					}
 				}
 			}
 			if (!attached) {
 				// Couldn't attach; just remove the orphan signature to avoid API errors
-				delete (contents[contentIndex].parts[partIndex] as any).thoughtSignature;
-				console.warn(`GeminiCLI: Removed orphan thoughtSignature at content=${contentIndex} part=${partIndex} - no functionCall found to attach to.`);
+				delete (contents[contentIndex].parts[partIndex] as any)
+					.thoughtSignature;
+				console.warn(
+					`GeminiCLI: Removed orphan thoughtSignature at content=${contentIndex} part=${partIndex} - no functionCall found to attach to.`,
+				);
 			}
 		}
 

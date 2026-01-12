@@ -12,8 +12,8 @@ import type {
 	ProvideLanguageModelChatResponseOptions,
 } from "vscode";
 import * as vscode from "vscode";
-import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
-import { ApiKeyManager, Logger, MistralHandler } from "../../utils";
+import type { ProviderConfig } from "../../types/sharedTypes";
+import { ApiKeyManager, Logger, MistralHandler, TokenCounter } from "../../utils";
 import { GenericModelProvider } from "../common/genericModelProvider";
 
 /**
@@ -106,5 +106,13 @@ export class MistralProvider
 			);
 			throw error;
 		}
+	}
+
+	async provideTokenCount(
+		model: LanguageModelChatInformation,
+		text: string | LanguageModelChatMessage,
+		_token: CancellationToken,
+	): Promise<number> {
+		return TokenCounter.getInstance().countTokens(model, text);
 	}
 }

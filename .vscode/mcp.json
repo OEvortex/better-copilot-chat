@@ -1,15 +1,9 @@
 {
-    "servers": {
-        "augmentcode": {
-            "type": "stdio",
-            "command": "auggie.cmd",
-            "args": [
-                "--mcp",
-                "-m",
-                "default",
-                "-w",
-                "${workspaceFolder}"
-            ]
-        }
-    }
+	"servers": {
+		"augmentcode": {
+			"type": "stdio",
+			"command": "auggie.cmd",
+			"args": ["--mcp", "-m", "default", "-w", "${workspaceFolder}"]
+		}
+	}
 }

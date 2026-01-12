@@ -18,6 +18,7 @@ import {
 	ConfigManager,
 	Logger,
 	MiniMaxWizard,
+	TokenCounter,
 } from "../../utils";
 import { GenericModelProvider } from "../common/genericModelProvider";
 
@@ -344,5 +345,13 @@ export class MiniMaxProvider
 				`${this.providerConfig.displayName}: ${model.name} Request completed`,
 			);
 		}
+	}
+
+	async provideTokenCount(
+		model: LanguageModelChatInformation,
+		text: string | LanguageModelChatMessage,
+		_token: CancellationToken,
+	): Promise<number> {
+		return TokenCounter.getInstance().countTokens(model, text);
 	}
 }

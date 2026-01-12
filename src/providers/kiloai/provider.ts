@@ -1,10 +1,3 @@
-/*---------------------------------------------------------------------------------------------
- *  Chutes Provider
- *  Dynamically fetches models from Chutes API and auto-updates config
- *--------------------------------------------------------------------------------------------*/
-
-import * as fs from "node:fs";
-import * as path from "node:path";
 import OpenAI from "openai";
 import type {
 	CancellationToken,
@@ -16,30 +9,25 @@ import type {
 	ProvideLanguageModelChatResponseOptions,
 } from "vscode";
 import * as vscode from "vscode";
-import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
+import type { ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
+import { OpenAIHandler } from "../../utils/openaiHandler";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { GenericModelProvider } from "../common/genericModelProvider";
-import type { ChutesModelItem, ChutesModelsResponse } from "./types";
+import type { KiloModelItem, KiloModelsResponse } from "./types";
 import { validateRequest } from "./utils";
 
-const BASE_URL = "https://llm.chutes.ai/v1";
+const BASE_URL = "https://api.kilo.ai/api/openrouter";
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 131072;
 
-/**
- * Chutes dedicated model provider class
- * Dynamically fetches models from API and auto-updates config file
- */
-export class ChutesProvider
+export class KiloAIProvider
 	extends GenericModelProvider
 	implements LanguageModelChatProvider
 {
 	private readonly userAgent: string;
-	private readonly extensionPath: string;
-	private readonly configFilePath: string;
 	private clientCache = new Map<string, { client: OpenAI; lastUsed: number }>();
 
 	constructor(
@@ -47,19 +35,9 @@ export class ChutesProvider
 		providerKey: string,
 		providerConfig: ProviderConfig,
 		userAgent: string,
-		extensionPath: string,
 	) {
 		super(context, providerKey, providerConfig);
 		this.userAgent = userAgent;
-		this.extensionPath = extensionPath;
-		// Path to chutes.json config file
-		this.configFilePath = path.join(
-			this.extensionPath,
-			"src",
-			"providers",
-			"config",
-			"chutes.json",
-		);
 	}
 
 	private estimateMessagesTokens(
@@ -106,35 +84,38 @@ export class ChutesProvider
 
 		const { models } = await this.fetchModels(apiKey);
 
-		// Auto-update config file in background (non-blocking)
-		this.updateConfigFileAsync(models);
-
 		const infos: LanguageModelChatInformation[] = models.map((m) => {
-			const modalities = m.input_modalities ?? [];
-			const vision = Array.isArray(modalities) && modalities.includes("image");
-			const supportsTools = m.supported_features?.includes("tools") ?? false;
-
-			const contextLen =
-				m.context_length ?? m.max_model_len ?? DEFAULT_CONTEXT_LENGTH;
+			// Accurate context length fetching: prefer model's context_length, then top_provider's, then default
+			const contextLen = m.context_length ?? m.top_provider?.context_length ?? DEFAULT_CONTEXT_LENGTH;
 			
-			// Accurate token logic: prefer DEFAULT_MAX_OUTPUT_TOKENS but cap at half context
-			let maxOutput = m.max_output_length ?? DEFAULT_MAX_OUTPUT_TOKENS;
+			// Prefer max_completion_tokens from API, fall back to DEFAULT_MAX_OUTPUT_TOKENS
+			let maxOutput = m.top_provider?.max_completion_tokens ?? DEFAULT_MAX_OUTPUT_TOKENS;
+
+			// Safety check: If maxOutput is suspiciously large (e.g. >= contextLen), use a safer default
+			// to ensure there's enough room for input tokens.
 			if (maxOutput >= contextLen) {
 				maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
 			}
+			
+			// Ensure maxOutput is at least 1 and leave at least some room for input
 			maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, contextLen - 1024)));
+			
+			// Input is the remaining context
 			const maxInput = Math.max(1, contextLen - maxOutput);
+
+			const modalities = m.architecture?.input_modalities ?? [];
+			const vision = Array.isArray(modalities) && modalities.includes("image");
 
 			return {
 				id: m.id,
-				name: m.id,
-				tooltip: `${m.id} by Chutes`,
-				family: "chutes",
+				name: m.name,
+				tooltip: m.description || "Kilo AI Model",
+				family: "kiloai",
 				version: "1.0.0",
 				maxInputTokens: maxInput,
 				maxOutputTokens: maxOutput,
 				capabilities: {
-					toolCalling: supportsTools,
+					toolCalling: m.supported_parameters?.includes("tools") ?? true,
 					imageInput: vision,
 				},
 			} as LanguageModelChatInformation;
@@ -160,13 +141,16 @@ export class ChutesProvider
 
 	private async fetchModels(
 		apiKey: string,
-	): Promise<{ models: ChutesModelItem[] }> {
-		const modelsList = (async () => {
+	): Promise<{ models: KiloModelItem[] }> {
+		try {
 			const resp = await fetch(`${BASE_URL}/models`, {
 				method: "GET",
 				headers: {
 					Authorization: `Bearer ${apiKey}`,
-					"User-Agent": this.userAgent,
+					"User-Agent": "Kilo-Code/4.140.2",
+					"X-KiloCode-Version": "4.140.2",
+					"HTTP-Referer": "https://kilocode.ai",
+					"X-Title": "Kilo Code",
 				},
 			});
 			if (!resp.ok) {
@@ -175,129 +159,28 @@ export class ChutesProvider
 					text = await resp.text();
 				} catch (error) {
 					Logger.error(
-						"[Chutes Model Provider] Failed to read response text",
+						"[Kilo AI Model Provider] Failed to read response text",
 						error,
 					);
 				}
 				const err = new Error(
-					`Failed to fetch Chutes models: ${resp.status} ${resp.statusText}${text ? `\n${text}` : ""}`,
+					`Failed to fetch Kilo AI models: ${resp.status} ${resp.statusText}${text ? `\n${text}` : ""}`,
 				);
 				Logger.error(
-					"[Chutes Model Provider] Failed to fetch Chutes models",
+					"[Kilo AI Model Provider] Failed to fetch Kilo AI models",
 					err,
 				);
 				throw err;
 			}
-			const parsed = (await resp.json()) as ChutesModelsResponse;
-			return parsed.data ?? [];
-		})();
-
-		try {
-			const models = await modelsList;
-			return { models };
+			const parsed = (await resp.json()) as KiloModelsResponse;
+			return { models: parsed.data ?? [] };
 		} catch (err) {
 			Logger.error(
-				"[Chutes Model Provider] Failed to fetch Chutes models",
+				"[Kilo AI Model Provider] Failed to fetch Kilo AI models",
 				err,
 			);
 			throw err;
 		}
-	}
-
-	/**
-	 * Update config file asynchronously in background
-	 */
-	private updateConfigFileAsync(models: ChutesModelItem[]): void {
-		// Execute in background, do not wait for result
-		(async () => {
-			try {
-				// Check if config file exists (might not exist in packaged extension)
-				if (!fs.existsSync(this.configFilePath)) {
-					Logger.debug(
-						`[Chutes] Config file not found at ${this.configFilePath}, skipping auto-update`,
-					);
-					return;
-				}
-
-				const modelConfigs: ModelConfig[] = models.map((m) => {
-					const modalities = m.input_modalities ?? [];
-					const vision =
-						Array.isArray(modalities) && modalities.includes("image");
-					const supportsTools =
-						m.supported_features?.includes("tools") ?? false;
-
-					const contextLen =
-						m.context_length ?? m.max_model_len ?? DEFAULT_CONTEXT_LENGTH;
-					const maxOutput = m.max_output_length ?? DEFAULT_MAX_OUTPUT_TOKENS;
-					const maxInput = Math.max(1, contextLen - maxOutput);
-
-					// Generate a clean ID from model ID (remove special characters, keep slashes as hyphens)
-					const cleanId = m.id
-						.replace(/[/]/g, "-")
-						.replace(/[^a-zA-Z0-9-]/g, "-")
-						.toLowerCase();
-
-					return {
-						id: cleanId,
-						name: m.id,
-						tooltip: `${m.id} by Chutes`,
-						maxInputTokens: maxInput,
-						maxOutputTokens: maxOutput,
-						model: m.id,
-						capabilities: {
-							toolCalling: supportsTools,
-							imageInput: vision,
-						},
-					} as ModelConfig;
-				});
-
-				// Read existing config to preserve baseUrl and apiKeyTemplate
-				let existingConfig: ProviderConfig;
-				try {
-					const configContent = fs.readFileSync(this.configFilePath, "utf8");
-					existingConfig = JSON.parse(configContent);
-				} catch (err) {
-					Logger.warn(
-						`[Chutes] Failed to read existing config, using defaults:`,
-						err instanceof Error ? err.message : String(err),
-					);
-					// If file doesn't exist or is invalid, use defaults
-					existingConfig = {
-						displayName: "Chutes",
-						baseUrl: BASE_URL,
-						apiKeyTemplate:
-							"cpk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-						models: [],
-					};
-				}
-
-				// Update config with new models
-				const updatedConfig: ProviderConfig = {
-					displayName: existingConfig.displayName || "Chutes",
-					baseUrl: existingConfig.baseUrl || BASE_URL,
-					apiKeyTemplate:
-						existingConfig.apiKeyTemplate ||
-						"cpk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-					models: modelConfigs,
-				};
-
-				// Write updated config to file
-				fs.writeFileSync(
-					this.configFilePath,
-					JSON.stringify(updatedConfig, null, 4),
-					"utf8",
-				);
-				Logger.info(
-					`[Chutes] Auto-updated config file with ${modelConfigs.length} models`,
-				);
-			} catch (err) {
-				// Background update failure should not affect extension operation
-				Logger.warn(
-					`[Chutes] Background config update failed:`,
-					err instanceof Error ? err.message : String(err),
-				);
-			}
-		})();
 	}
 
 	override async provideLanguageModelChatResponse(
@@ -310,7 +193,7 @@ export class ChutesProvider
 		try {
 			const apiKey = await this.ensureApiKey(true);
 			if (!apiKey) {
-				throw new Error("Chutes API key not found");
+				throw new Error("Kilo AI API key not found");
 			}
 
 			validateRequest(
@@ -340,7 +223,7 @@ export class ChutesProvider
 				: 0;
 			const tokenLimit = Math.max(1, model.maxInputTokens);
 			if (inputTokenCount + toolTokenCount > tokenLimit) {
-				Logger.error("[Chutes Model Provider] Message exceeds token limit", {
+				Logger.error("[Kilo AI Model Provider] Message exceeds token limit", {
 					total: inputTokenCount + toolTokenCount,
 					tokenLimit,
 				});
@@ -403,6 +286,14 @@ export class ChutesProvider
 				createParams.tool_choice = "auto";
 			}
 
+			// Merge extraBody parameters (if any)
+			if (modelConfig?.extraBody) {
+				const filteredExtraBody = OpenAIHandler.filterExtraBodyParams(
+					modelConfig.extraBody,
+				);
+				Object.assign(createParams, filteredExtraBody);
+			}
+
 			// Use OpenAI SDK streaming
 			const abortController = new AbortController();
 			token.onCancellationRequested(() => abortController.abort());
@@ -413,7 +304,6 @@ export class ChutesProvider
 
 			let currentThinkingId: string | null = null;
 			let thinkingContentBuffer = "";
-			let _hasReceivedContent = false;
 
 			// Handle chunks for reasoning_content
 			stream.on("chunk", (chunk: OpenAI.Chat.ChatCompletionChunk) => {
@@ -432,7 +322,7 @@ export class ChutesProvider
 
 						if (reasoningContent && typeof reasoningContent === "string") {
 							if (!currentThinkingId) {
-								currentThinkingId = `chutes_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+								currentThinkingId = `kilo_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 							}
 							thinkingContentBuffer += reasoningContent;
 							try {
@@ -445,7 +335,7 @@ export class ChutesProvider
 								thinkingContentBuffer = "";
 							} catch (e) {
 								Logger.warn(
-									"[Chutes] Failed to report thinking",
+									"[Kilo AI] Failed to report thinking",
 									e instanceof Error ? e.message : String(e),
 								);
 							}
@@ -479,10 +369,9 @@ export class ChutesProvider
 
 					try {
 						progress.report(new vscode.LanguageModelTextPart(delta));
-						_hasReceivedContent = true;
 					} catch (e) {
 						Logger.warn(
-							"[Chutes] Failed to report content",
+							"[Kilo AI] Failed to report content",
 							e instanceof Error ? e.message : String(e),
 						);
 					}
@@ -527,7 +416,7 @@ export class ChutesProvider
 				}
 			}
 		} catch (err) {
-			Logger.error("[Chutes Model Provider] Chat request failed", {
+			Logger.error("[Kilo AI Model Provider] Chat request failed", {
 				modelId: model.id,
 				messageCount: messages.length,
 				error:
@@ -536,17 +425,14 @@ export class ChutesProvider
 						: String(err),
 			});
 			throw err;
-		} finally {
-			// Track global request count
-			this.incrementRequestCount();
 		}
 	}
 
 	/**
-	 * Create OpenAI client for Chutes API
+	 * Create OpenAI client for Kilo AI API
 	 */
 	private async createOpenAIClient(apiKey: string): Promise<OpenAI> {
-		const cacheKey = `chutes:${BASE_URL}`;
+		const cacheKey = `kiloai:${BASE_URL}`;
 		const cached = this.clientCache.get(cacheKey);
 		if (cached) {
 			cached.lastUsed = Date.now();
@@ -557,7 +443,10 @@ export class ChutesProvider
 			apiKey: apiKey,
 			baseURL: BASE_URL,
 			defaultHeaders: {
-				"User-Agent": this.userAgent,
+				"User-Agent": "Kilo-Code/4.140.2",
+				"X-KiloCode-Version": "4.140.2",
+				"HTTP-Referer": "https://kilocode.ai",
+				"X-Title": "Kilo Code",
 			},
 			maxRetries: 2,
 			timeout: 60000,
@@ -576,59 +465,34 @@ export class ChutesProvider
 	}
 
 	private async ensureApiKey(silent: boolean): Promise<string | undefined> {
-		let apiKey = await ApiKeyManager.getApiKey("chutes");
+		let apiKey = await ApiKeyManager.getApiKey("kiloai");
 		if (!apiKey && !silent) {
 			await ApiKeyManager.promptAndSetApiKey(
-				"chutes",
-				"Chutes",
-				"cpk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+				"kiloai",
+				"Kilo AI",
+				"sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 			);
-			apiKey = await ApiKeyManager.getApiKey("chutes");
+			apiKey = await ApiKeyManager.getApiKey("kiloai");
 		}
 		return apiKey;
-	}
-
-	/**
-	 * Increment global request count and update status bar
-	 */
-	private incrementRequestCount(): void {
-		const today = new Date().toDateString();
-
-		let count =
-			this.context?.globalState.get<number>("chutes.requestCount") || 0;
-		const lastReset = this.context?.globalState.get<string>(
-			"chutes.lastResetDate",
-		);
-
-		if (lastReset !== today) {
-			count = 1;
-			this.context?.globalState.update("chutes.lastResetDate", today);
-		} else {
-			count++;
-		}
-
-		this.context?.globalState.update("chutes.requestCount", count);
-		Logger.debug(`[Chutes] Global request count: ${count}/5000`);
 	}
 
 	static createAndActivate(
 		context: vscode.ExtensionContext,
 		providerKey: string,
 		providerConfig: ProviderConfig,
-	): { provider: ChutesProvider; disposables: vscode.Disposable[] } {
+	): { provider: KiloAIProvider; disposables: vscode.Disposable[] } {
 		Logger.trace(`${providerConfig.displayName} provider activated!`);
 		const ext = vscode.extensions.getExtension("OEvortex.better-copilot-chat");
 		const extVersion = ext?.packageJSON?.version ?? "unknown";
 		const vscodeVersion = vscode.version;
 		const ua = `better-copilot-chat/${extVersion} VSCode/${vscodeVersion}`;
 
-		const extensionPath = context.extensionPath;
-		const provider = new ChutesProvider(
+		const provider = new KiloAIProvider(
 			context,
 			providerKey,
 			providerConfig,
 			ua,
-			extensionPath,
 		);
 		const providerDisposable = vscode.lm.registerLanguageModelChatProvider(
 			`chp.${providerKey}`,

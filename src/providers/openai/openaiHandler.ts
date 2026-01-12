@@ -911,7 +911,9 @@ export class OpenAIHandler {
 
 				// Record success if accountId provided
 				if (accountId) {
-					this.quotaCache.recordSuccess(accountId, this.provider).catch(() => {});
+					this.quotaCache
+						.recordSuccess(accountId, this.provider)
+						.catch(() => {});
 				}
 
 				Logger.debug(
@@ -1092,7 +1094,10 @@ export class OpenAIHandler {
 			if (msg.role === "assistant" && "tool_calls" in msg && msg.tool_calls) {
 				for (const toolCall of msg.tool_calls) {
 					if (toolCall.type === "function" && toolCall.id) {
-						toolCallsById.set(toolCall.id, { index: i, name: toolCall.function.name });
+						toolCallsById.set(toolCall.id, {
+							index: i,
+							name: toolCall.function.name,
+						});
 					}
 				}
 			} else if (msg.role === "tool" && "tool_call_id" in msg) {
@@ -1103,28 +1108,35 @@ export class OpenAIHandler {
 		// For every tool call without a response, add a placeholder tool message
 		for (const [id, info] of toolCallsById.entries()) {
 			if (!toolMessagesById.has(id)) {
-				const placeholderToolMessage: OpenAI.Chat.ChatCompletionToolMessageParam = {
-					role: "tool",
-					content: "Tool execution failed or was cancelled",
-					tool_call_id: id,
-				};
+				const placeholderToolMessage: OpenAI.Chat.ChatCompletionToolMessageParam =
+					{
+						role: "tool",
+						content: "Tool execution failed or was cancelled",
+						tool_call_id: id,
+					};
 				// Insert after the assistant message
 				messages.splice(info.index + 1, 0, placeholderToolMessage);
-				Logger.debug(`OpenAIHandler: Added placeholder tool message for call id=${id} name=${info.name || ""}`);
+				Logger.debug(
+					`OpenAIHandler: Added placeholder tool message for call id=${id} name=${info.name || ""}`,
+				);
 			}
 		}
 
 		// For every tool message without a call, remove it or convert to user message
 		for (const [id, index] of toolMessagesById.entries()) {
 			if (!toolCallsById.has(id)) {
-				const msg = messages[index] as OpenAI.Chat.ChatCompletionToolMessageParam;
+				const msg = messages[
+					index
+				] as OpenAI.Chat.ChatCompletionToolMessageParam;
 				// Convert to user message with the content
 				const userMessage: OpenAI.Chat.ChatCompletionUserMessageParam = {
 					role: "user",
 					content: `Tool result (orphaned): ${msg.content}`,
 				};
 				messages[index] = userMessage;
-				Logger.warn(`OpenAIHandler: Converted orphaned tool message for id=${id} to user message`);
+				Logger.warn(
+					`OpenAIHandler: Converted orphaned tool message for id=${id} to user message`,
+				);
 			}
 		}
 	}

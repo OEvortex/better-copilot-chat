@@ -141,7 +141,10 @@ export class MiniMaxSearchTool {
 	 * Tool invocation handler
 	 */
 	async invoke(
-		request: vscode.LanguageModelToolInvocationOptions<MiniMaxSearchRequest, unknown>,
+		request: vscode.LanguageModelToolInvocationOptions<
+			MiniMaxSearchRequest,
+			unknown
+		>,
 	): Promise<vscode.LanguageModelToolResult> {
 		try {
 			Logger.info(
