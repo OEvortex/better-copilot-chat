@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.5] - 2026-01-12
+
+### Changed
+- Replaced deprecated "managementCommand" entries in contributes.languageModelChatProviders with vendor-specific "configuration" schemas (for example, adding apiKey secret properties). This aligns the extension with the VS Code Language Model API and removes deprecation warnings.
+- Removed unsupported "canDelegate" property from chatParticipants (Gemini CLI participant) to resolve package.json schema validation errors.
+
+### Fixed
+- Fixed package.json JSON schema/lint error caused by the deprecated managementCommand usage and the unsupported canDelegate property. Lint was run to validate the change.
+
+### Chore
+- Updated package.json and created a commit: "chore: replace deprecated managementCommand with configuration schemas for languageModelChatProviders; remove unsupported canDelegate property".
+
 ## [0.1.4] - 2026-01-11
 
 ### Added
