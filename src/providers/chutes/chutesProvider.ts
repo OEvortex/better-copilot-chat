@@ -445,6 +445,7 @@ export class ChutesProvider
 									) as unknown as LanguageModelResponsePart,
 								);
 								thinkingContentBuffer = "";
+								_hasReceivedContent = true; // Treat thinking content as received content
 							} catch (e) {
 								Logger.warn(
 									"[Chutes] Failed to report thinking",

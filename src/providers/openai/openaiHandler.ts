@@ -820,6 +820,7 @@ export class OpenAIHandler {
 
 											// Mark thinking content received
 											hasThinkingContent = true;
+											hasReceivedContent = true; // CRITICAL: Treat thinking content as received content to avoid "no response" error
 										} catch (e) {
 											Logger.trace(
 												`${model.name} failed to report thinking: ${String(e)}`,
@@ -884,6 +885,7 @@ export class OpenAIHandler {
 						);
 						thinkingContentBuffer = ""; // Clear cache
 						hasThinkingContent = true; // Mark thinking content was output
+						hasReceivedContent = true; // Treat as received content
 					} catch (e) {
 						Logger.trace(
 							`${model.name} failed to report thinking at end: ${String(e)}`,

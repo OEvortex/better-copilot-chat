@@ -411,6 +411,7 @@ export class HuggingfaceProvider
 									) as unknown as LanguageModelResponsePart,
 								);
 								thinkingContentBuffer = "";
+								_hasReceivedContent = true; // Treat thinking content as received content
 							} catch (e) {
 								Logger.warn(
 									"[Hugging Face] Failed to report thinking",
