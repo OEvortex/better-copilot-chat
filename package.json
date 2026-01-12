@@ -517,72 +517,184 @@
             {
                 "vendor": "chp.zhipu",
                 "displayName": "⦿ ZhipuAI (GLM Coding Plan)",
-                "managementCommand": "chp.zhipu.configWizard"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "ZhipuAI API key.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.minimax",
                 "displayName": "⦿ MiniMax (Coding Plan)",
-                "managementCommand": "chp.minimax.configWizard"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "MiniMax API key.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.moonshot",
                 "displayName": "⦿ MoonshotAI (Kimi For Coding)",
-                "managementCommand": "chp.moonshot.configWizard"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "MoonshotAI API key.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.deepseek",
                 "displayName": "⦿ DeepSeek",
-                "managementCommand": "chp.deepseek.setApiKey"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "DeepSeek API key.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.chutes",
                 "displayName": "⦿ Chutes",
-                "managementCommand": "chp.chutes.setApiKey"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Chutes API key.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.opencode",
                 "displayName": "⦿ OpenCode",
-                "managementCommand": "chp.opencode.setApiKey"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "OpenCode API key.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.huggingface",
                 "displayName": "⦿ Hugging Face",
-                "managementCommand": "chp.huggingface.setApiKey"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Hugging Face API key.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.deepinfra",
                 "displayName": "⦿ DeepInfra",
-                "managementCommand": "chp.deepinfra.setApiKey"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "DeepInfra API key.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.mistral",
                 "displayName": "⦿ Mistral AI",
-                "managementCommand": "chp.mistral.setApiKey"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Mistral AI API key.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.qwencli",
                 "displayName": "⦿ Qwen Code CLI",
-                "managementCommand": "chp.qwencli.login"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Qwen Code API key or token.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.geminicli",
                 "displayName": "⦿ Gemini CLI",
-                "managementCommand": "chp.geminicli.login"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Gemini CLI API key or token.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.compatible",
                 "displayName": "⦿ OpenAI / Anthropic Compatible",
-                "managementCommand": "chp.compatible.manageModels"
+                "configuration": {
+                    "properties": {
+                        "models": {
+                            "type": "array",
+                            "description": "User-configured compatible models (edit in settings).",
+                            "items": { "type": "object" }
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.antigravity",
                 "displayName": "⦿ Antigravity (Google Cloud Code)",
-                "managementCommand": "chp.antigravity.login"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Antigravity / Oauth.",
+                            "secret": true
+                        }
+                    }
+                }
             },
             {
                 "vendor": "chp.codex",
                 "displayName": "⦿ Codex (OpenAI)",
-                "managementCommand": "chp.codex.login"
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "OpenAI / OAuth.",
+                            "secret": true
+                        }
+                    }
+                }
             }
         ],
         "languageModelTools": [
@@ -749,8 +861,7 @@
                 "name": "gemini",
                 "fullName": "Gemini CLI",
                 "description": "Interact with Gemini CLI using ACP (Agent Communication Protocol)",
-                "isSticky": true,
-                "canDelegate": true
+                "isSticky": true
             }
         ]
     },
