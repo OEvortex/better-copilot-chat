@@ -13,7 +13,6 @@ import type { ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
-import { OpenAIHandler } from "../../utils/openaiHandler";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import type { KiloModelItem, KiloModelsResponse } from "./types";
@@ -27,7 +26,6 @@ export class KiloAIProvider
 	extends GenericModelProvider
 	implements LanguageModelChatProvider
 {
-	private readonly userAgent: string;
 	private clientCache = new Map<string, { client: OpenAI; lastUsed: number }>();
 
 	constructor(
@@ -86,20 +84,26 @@ export class KiloAIProvider
 
 		const infos: LanguageModelChatInformation[] = models.map((m) => {
 			// Accurate context length fetching: prefer model's context_length, then top_provider's, then default
-			const contextLen = m.context_length ?? m.top_provider?.context_length ?? DEFAULT_CONTEXT_LENGTH;
-			
+			const contextLen =
+				m.context_length ??
+				m.top_provider?.context_length ??
+				DEFAULT_CONTEXT_LENGTH;
+
 			// Prefer max_completion_tokens from API, fall back to DEFAULT_MAX_OUTPUT_TOKENS
-			let maxOutput = m.top_provider?.max_completion_tokens ?? DEFAULT_MAX_OUTPUT_TOKENS;
+			let maxOutput =
+				m.top_provider?.max_completion_tokens ?? DEFAULT_MAX_OUTPUT_TOKENS;
 
 			// Safety check: If maxOutput is suspiciously large (e.g. >= contextLen), use a safer default
 			// to ensure there's enough room for input tokens.
 			if (maxOutput >= contextLen) {
 				maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
 			}
-			
+
 			// Ensure maxOutput is at least 1 and leave at least some room for input
-			maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, contextLen - 1024)));
-			
+			maxOutput = Math.floor(
+				Math.max(1, Math.min(maxOutput, contextLen - 1024)),
+			);
+
 			// Input is the remaining context
 			const maxInput = Math.max(1, contextLen - maxOutput);
 
@@ -284,14 +288,6 @@ export class KiloAIProvider
 					...options.tools,
 				]);
 				createParams.tool_choice = "auto";
-			}
-
-			// Merge extraBody parameters (if any)
-			if (modelConfig?.extraBody) {
-				const filteredExtraBody = OpenAIHandler.filterExtraBodyParams(
-					modelConfig.extraBody,
-				);
-				Object.assign(createParams, filteredExtraBody);
 			}
 
 			// Use OpenAI SDK streaming

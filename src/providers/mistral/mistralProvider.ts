@@ -13,7 +13,12 @@ import type {
 } from "vscode";
 import * as vscode from "vscode";
 import type { ProviderConfig } from "../../types/sharedTypes";
-import { ApiKeyManager, Logger, MistralHandler, TokenCounter } from "../../utils";
+import {
+	ApiKeyManager,
+	Logger,
+	MistralHandler,
+	TokenCounter,
+} from "../../utils";
 import { GenericModelProvider } from "../common/genericModelProvider";
 
 /**
@@ -23,8 +28,6 @@ export class MistralProvider
 	extends GenericModelProvider
 	implements LanguageModelChatProvider
 {
-	private mistralHandler: MistralHandler;
-
 	constructor(
 		context: vscode.ExtensionContext,
 		providerKey: string,

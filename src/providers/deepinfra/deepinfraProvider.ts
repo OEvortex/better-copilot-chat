@@ -10,7 +10,12 @@ import type {
 } from "vscode";
 import * as vscode from "vscode";
 import type { ProviderConfig } from "../../types/sharedTypes";
-import { ApiKeyManager, ConfigManager, Logger, TokenCounter } from "../../utils";
+import {
+	ApiKeyManager,
+	ConfigManager,
+	Logger,
+	TokenCounter,
+} from "../../utils";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import type { DeepInfraModelItem, DeepInfraModelsResponse } from "./types";
 

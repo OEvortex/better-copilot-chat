@@ -103,13 +103,18 @@ export class HuggingfaceProvider
 					contextLengths.length > 0
 						? Math.min(...contextLengths)
 						: DEFAULT_CONTEXT_LENGTH;
-				
+
 				// Accurate token logic: prefer DEFAULT_MAX_OUTPUT_TOKENS but cap at half context
 				let maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
 				if (maxOutput >= aggregateContextLen) {
-					maxOutput = Math.min(aggregateContextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
+					maxOutput = Math.min(
+						aggregateContextLen / 2,
+						DEFAULT_MAX_OUTPUT_TOKENS,
+					);
 				}
-				maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, aggregateContextLen - 1024)));
+				maxOutput = Math.floor(
+					Math.max(1, Math.min(maxOutput, aggregateContextLen - 1024)),
+				);
 				const maxInput = Math.max(1, aggregateContextLen - maxOutput);
 
 				const aggregateCapabilities = {
@@ -140,12 +145,14 @@ export class HuggingfaceProvider
 
 			for (const p of toolProviders) {
 				const contextLen = p?.context_length ?? DEFAULT_CONTEXT_LENGTH;
-				
+
 				let maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
 				if (maxOutput >= contextLen) {
 					maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
 				}
-				maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, contextLen - 1024)));
+				maxOutput = Math.floor(
+					Math.max(1, Math.min(maxOutput, contextLen - 1024)),
+				);
 				const maxInput = Math.max(1, contextLen - maxOutput);
 
 				entries.push({
@@ -166,12 +173,14 @@ export class HuggingfaceProvider
 			if (toolProviders.length === 0 && providers.length > 0) {
 				const base = providers[0];
 				const contextLen = base?.context_length ?? DEFAULT_CONTEXT_LENGTH;
-				
+
 				let maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
 				if (maxOutput >= contextLen) {
 					maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
 				}
-				maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, contextLen - 1024)));
+				maxOutput = Math.floor(
+					Math.max(1, Math.min(maxOutput, contextLen - 1024)),
+				);
 				const maxInput = Math.max(1, contextLen - maxOutput);
 
 				entries.push({

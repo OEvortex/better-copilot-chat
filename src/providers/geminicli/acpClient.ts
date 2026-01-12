@@ -343,21 +343,6 @@ export class AcpClient implements acp.Client {
 		}
 	}
 
-	private formatStatusText(status: string): string {
-		// Format status in Copilot's style - simple text, no emojis
-		const statusLower = status.toLowerCase();
-		if (
-			statusLower === "completed" ||
-			statusLower === "pending" ||
-			statusLower === "in_progress" ||
-			statusLower === "inprogress"
-		) {
-			return "";
-		}
-		// Only show status for non-standard states
-		return ` (_${status}_)`;
-	}
-
 	private extractContentSummary(content: any[]): string | undefined {
 		if (!content || content.length === 0) {
 			return undefined;
@@ -370,7 +355,7 @@ export class AcpClient implements acp.Client {
 				if (item.content.type === "text") {
 					const text = item.content.text || "";
 					if (text.length > 100) {
-						summaries.push(text.substring(0, 100) + "...");
+						summaries.push(`${text.substring(0, 100)}...`);
 					} else {
 						summaries.push(text);
 					}

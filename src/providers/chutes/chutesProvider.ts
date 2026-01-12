@@ -116,13 +116,15 @@ export class ChutesProvider
 
 			const contextLen =
 				m.context_length ?? m.max_model_len ?? DEFAULT_CONTEXT_LENGTH;
-			
+
 			// Accurate token logic: prefer DEFAULT_MAX_OUTPUT_TOKENS but cap at half context
 			let maxOutput = m.max_output_length ?? DEFAULT_MAX_OUTPUT_TOKENS;
 			if (maxOutput >= contextLen) {
 				maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
 			}
-			maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, contextLen - 1024)));
+			maxOutput = Math.floor(
+				Math.max(1, Math.min(maxOutput, contextLen - 1024)),
+			);
 			const maxInput = Math.max(1, contextLen - maxOutput);
 
 			return {

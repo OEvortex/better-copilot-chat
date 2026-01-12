@@ -10,7 +10,7 @@ export class GeminiCliChatParticipant {
 	private participant: vscode.ChatParticipant | null = null;
 	private acpClient: AcpClient | null = null;
 
-	constructor(private readonly context: vscode.ExtensionContext) {}
+	constructor(readonly _context: vscode.ExtensionContext) {}
 
 	async initialize(): Promise<void> {
 		try {
@@ -87,10 +87,14 @@ export class GeminiCliChatParticipant {
 		// First, try to find gemini using which/where
 		try {
 			const geminiPath = await new Promise<string | null>((resolve) => {
-				const proc = require("child_process").spawn(findCommand, ["gemini"], {
-					shell: true,
-					stdio: ["ignore", "pipe", "ignore"],
-				});
+				const proc = require("node:child_process").spawn(
+					findCommand,
+					["gemini"],
+					{
+						shell: true,
+						stdio: ["ignore", "pipe", "ignore"],
+					},
+				);
 				let output = "";
 				proc.stdout?.on("data", (data: Buffer) => {
 					output += data.toString();
@@ -118,10 +122,14 @@ export class GeminiCliChatParticipant {
 		// If not found with which/where, try running gemini directly
 		try {
 			const result = await new Promise<string>((resolve, reject) => {
-				const proc = require("child_process").spawn("gemini", ["--version"], {
-					shell: true,
-					stdio: ["ignore", "pipe", "ignore"],
-				});
+				const proc = require("node:child_process").spawn(
+					"gemini",
+					["--version"],
+					{
+						shell: true,
+						stdio: ["ignore", "pipe", "ignore"],
+					},
+				);
 				let output = "";
 				proc.stdout?.on("data", (data: Buffer) => {
 					output += data.toString();
@@ -136,7 +144,7 @@ export class GeminiCliChatParticipant {
 				proc.on("error", reject);
 			});
 
-			if (result && result.includes("gemini")) {
+			if (result?.includes("gemini")) {
 				Logger.debug("[Gemini CLI] Found via direct execution");
 				return "gemini";
 			}
@@ -147,7 +155,7 @@ export class GeminiCliChatParticipant {
 		// Finally, try npx as fallback
 		try {
 			const result = await new Promise<string>((resolve, reject) => {
-				const proc = require("child_process").spawn(
+				const proc = require("node:child_process").spawn(
 					"npx",
 					["@google/gemini-cli", "--version"],
 					{
@@ -185,7 +193,7 @@ export class GeminiCliChatParticipant {
 		request: vscode.ChatRequest,
 		_context: vscode.ChatContext,
 		response: vscode.ChatResponseStream,
-		token: vscode.CancellationToken,
+		_token: vscode.CancellationToken,
 	): Promise<vscode.ChatResult | undefined> {
 		if (!this.acpClient) {
 			response.markdown(
