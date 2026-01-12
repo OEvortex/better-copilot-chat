@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2026-01-12
+
+### Added
+- **Gemini CLI Multi-Invocation Support**: Enhanced Gemini CLI integration with multiple ways to invoke and interact with the agent.
+  - **Programmatic API**: Exported `invokeViaCommand` and `invokeDirect` functions allowing other extensions or internal modules to trigger Gemini CLI actions programmatically.
+  - **New Command**: Added `chp.geminicli.invoke` command to quickly start a Gemini CLI chat session with a pre-filled prompt.
+  - **Subagent Delegation**: Implemented support for the `delegate_to_agent` tool. Gemini CLI can now delegate tasks to other VS Code chat participants (like GitHub Copilot) and receive their responses back into its context.
+  - **Comprehensive Documentation**: Added a detailed `USAGE.md` for Gemini CLI covering all invocation methods and delegation workflows.
+  - **Automated Testing**: Added a full suite of tests for the new invocation flows and delegation logic.
+
 ## [0.1.5] - 2026-01-12
 
 ### Added
