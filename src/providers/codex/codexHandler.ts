@@ -17,6 +17,7 @@ import {
 import type { RateLimitSnapshot } from "../../types/rateLimitTypes";
 import type { ModelConfig } from "../../types/sharedTypes";
 import { Logger } from "../../utils/logger";
+import { RateLimiter } from "../../utils/rateLimiter";
 import {
 	formatRateLimitSummary,
 	parseRateLimitFromHeaders,
@@ -536,6 +537,11 @@ export class CodexHandler {
 		organizationId?: string,
 		projectId?: string,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance("codex", 2, 1000).throttle(
+			this.providerName,
+		);
+
 		// Store current model ID for instruction selection
 		this.currentModelId = config.model || model.id;
 

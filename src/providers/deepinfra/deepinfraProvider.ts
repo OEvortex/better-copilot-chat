@@ -14,6 +14,7 @@ import {
 	ApiKeyManager,
 	ConfigManager,
 	Logger,
+	RateLimiter,
 	TokenCounter,
 } from "../../utils";
 import { GenericModelProvider } from "../common/genericModelProvider";
@@ -265,6 +266,11 @@ export class DeepInfraProvider
 		progress: Progress<LanguageModelResponsePart>,
 		token: CancellationToken,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance(this.providerKey, 2, 1000).throttle(
+			this.providerConfig.displayName,
+		);
+
 		try {
 			Logger.info(`[DeepInfra] Starting request for model: ${model.name}`);
 

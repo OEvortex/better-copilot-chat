@@ -13,7 +13,7 @@ import type {
 } from "vscode";
 import * as vscode from "vscode";
 import type { ProviderConfig } from "../../types/sharedTypes";
-import { ApiKeyManager, Logger, TokenCounter } from "../../utils";
+import { ApiKeyManager, Logger, RateLimiter, TokenCounter } from "../../utils";
 import { GenericModelProvider } from "../common/genericModelProvider";
 
 /**
@@ -75,6 +75,11 @@ export class OpenCodeProvider
 		progress: Progress<vscode.LanguageModelResponsePart>,
 		token: CancellationToken,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance(this.providerKey, 2, 1000).throttle(
+			this.providerConfig.displayName,
+		);
+
 		try {
 			Logger.info(`[OpenCode] Starting request for model: ${model.name}`);
 			await super.provideLanguageModelChatResponse(

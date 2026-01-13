@@ -9,6 +9,7 @@ import type { ModelConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
+import { RateLimiter } from "../../utils/rateLimiter";
 import { VersionManager } from "../../utils/versionManager";
 
 /**
@@ -139,6 +140,11 @@ export class MistralHandler {
 		token: vscode.CancellationToken,
 		accountId?: string,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance(this.provider, 2, 1000).throttle(
+			this.displayName,
+		);
+
 		this.clearToolCallIdMappings();
 		Logger.debug(
 			`${model.name} starting to process Mistral request${accountId ? ` (Account ID: ${accountId})` : ""}`,
@@ -281,6 +287,21 @@ export class MistralHandler {
 
 					try {
 						const chunk: MistralStreamChunk = JSON.parse(data);
+
+						// Fix: Ensure tool_calls have 'type: function' to avoid OpenAI SDK error
+						if (chunk.choices && chunk.choices.length > 0) {
+							for (const choice of chunk.choices) {
+								const delta = choice.delta;
+								if (delta?.tool_calls) {
+									for (const toolCall of delta.tool_calls) {
+										if (!toolCall.type) {
+											toolCall.type = "function";
+										}
+									}
+								}
+							}
+						}
+
 						if (chunk.choices && chunk.choices.length > 0) {
 							const choice = chunk.choices[0];
 							const delta = choice.delta;

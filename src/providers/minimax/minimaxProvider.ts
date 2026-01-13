@@ -18,6 +18,7 @@ import {
 	ConfigManager,
 	Logger,
 	MiniMaxWizard,
+	RateLimiter,
 	TokenCounter,
 } from "../../utils";
 import { GenericModelProvider } from "../common/genericModelProvider";
@@ -267,6 +268,11 @@ export class MiniMaxProvider
 		progress: Progress<vscode.LanguageModelResponsePart>,
 		_token: CancellationToken,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance(this.providerKey, 2, 1000).throttle(
+			this.providerConfig.displayName,
+		);
+
 		// Save user's selected model and its provider (only when memory function is enabled)
 		const rememberLastModel = ConfigManager.getRememberLastModel();
 		if (rememberLastModel) {

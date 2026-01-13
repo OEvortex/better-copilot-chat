@@ -15,6 +15,7 @@ import type { ModelConfig } from "../types/sharedTypes";
 import { ApiKeyManager } from "./apiKeyManager";
 import { ConfigManager } from "./configManager";
 import { Logger } from "./logger";
+import { RateLimiter } from "./rateLimiter";
 import { VersionManager } from "./versionManager";
 
 /**
@@ -112,6 +113,11 @@ export class AnthropicHandler {
 		token: vscode.CancellationToken,
 		accountId?: string,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance(this.provider, 2, 1000).throttle(
+			this.displayName,
+		);
+
 		try {
 			const client = await this.createAnthropicClient(modelConfig, accountId);
 			const { messages: anthropicMessages, system } =

@@ -4,6 +4,7 @@ import { AccountQuotaCache } from "../../accounts/accountQuotaCache";
 import type { ModelConfig } from "../../types/sharedTypes";
 import { ConfigManager } from "../../utils/configManager";
 import { QuotaNotificationManager } from "../../utils/quotaNotificationManager";
+import { RateLimiter } from "../../utils/rateLimiter";
 import { OpenAIStreamProcessor } from "../openai/openaiStreamProcessor";
 import { AntigravityAuth } from "./auth";
 import { AntigravityStreamProcessor } from "./streamProcessor";
@@ -738,6 +739,11 @@ export class AntigravityHandler {
 		accountId?: string,
 		loadBalanceEnabled?: boolean,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance("antigravity", 2, 1000).throttle(
+			this.displayName,
+		);
+
 		const authToken = accessToken || (await AntigravityAuth.getAccessToken());
 		if (!authToken) {
 			throw new Error("Not logged in to Antigravity. Please login first.");

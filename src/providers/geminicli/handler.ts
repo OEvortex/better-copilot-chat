@@ -4,6 +4,7 @@ import { AccountQuotaCache } from "../../accounts/accountQuotaCache";
 import type { ModelConfig } from "../../types/sharedTypes";
 import { ConfigManager } from "../../utils/configManager";
 import { QuotaNotificationManager } from "../../utils/quotaNotificationManager";
+import { RateLimiter } from "../../utils/rateLimiter";
 import { OpenAIStreamProcessor } from "../openai/openaiStreamProcessor";
 import { GeminiOAuthManager } from "./auth";
 import { GeminiStreamProcessor } from "./streamProcessor";
@@ -955,6 +956,11 @@ export class GeminiHandler {
 		accountId?: string,
 		loadBalanceEnabled?: boolean,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance("geminicli", 2, 1000).throttle(
+			this.displayName,
+		);
+
 		const authToken =
 			accessToken || (await GeminiOAuthManager.getInstance().getAccessToken());
 		if (!authToken) {

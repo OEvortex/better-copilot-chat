@@ -13,6 +13,7 @@ import type { ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
+import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import type { HFModelItem, HFModelsResponse } from "./types";
@@ -272,6 +273,11 @@ export class HuggingfaceProvider
 		progress: Progress<LanguageModelResponsePart>,
 		token: CancellationToken,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance(this.providerKey, 2, 1000).throttle(
+			this.providerConfig.displayName,
+		);
+
 		try {
 			const apiKey = await this.ensureApiKey(true);
 			if (!apiKey) {

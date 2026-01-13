@@ -20,6 +20,7 @@ import {
 } from "../../accounts";
 import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import { Logger } from "../../utils/logger";
+import { RateLimiter } from "../../utils/rateLimiter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { QwenOAuthManager } from "./auth";
 
@@ -172,6 +173,11 @@ export class QwenCliProvider
 		progress: Progress<vscode.LanguageModelResponsePart2>,
 		token: CancellationToken,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance(this.providerKey, 2, 1000).throttle(
+			this.providerConfig.displayName,
+		);
+
 		const modelConfig = this.providerConfig.models.find(
 			(m: ModelConfig) => m.id === model.id,
 		);

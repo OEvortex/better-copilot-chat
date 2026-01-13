@@ -15,6 +15,7 @@ import * as vscode from "vscode";
 import type { ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { Logger } from "../../utils/logger";
+import { RateLimiter } from "../../utils/rateLimiter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { ZhipuWizard } from "./zhipuWizard";
 
@@ -95,6 +96,11 @@ export class ZhipuProvider
 		progress: Progress<vscode.LanguageModelResponsePart>,
 		token: CancellationToken,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance(this.providerKey, 2, 1000).throttle(
+			this.providerConfig.displayName,
+		);
+
 		// Call parent class implementation
 		await super.provideLanguageModelChatResponse(
 			model,

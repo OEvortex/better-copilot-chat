@@ -36,6 +36,7 @@ export { KnownProviderConfig, KnownProviders } from "./knownProviders";
 export { Logger } from "./logger";
 export { MCPWebSearchClient } from "./mcpWebSearchClient";
 export { ModelInfoCache } from "./modelInfoCache";
+export { RateLimiter } from "./rateLimiter";
 export {
 	formatRateLimitDisplay,
 	formatRateLimitSummary,

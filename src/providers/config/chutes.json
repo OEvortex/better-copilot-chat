@@ -184,18 +184,6 @@
             }
         },
         {
-            "id": "unsloth-gemma-3-27b-it",
-            "name": "unsloth/gemma-3-27b-it",
-            "tooltip": "unsloth/gemma-3-27b-it by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 96000,
-            "model": "unsloth/gemma-3-27b-it",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "deepseek-ai-deepseek-v3",
             "name": "deepseek-ai/DeepSeek-V3",
             "tooltip": "deepseek-ai/DeepSeek-V3 by Chutes",
@@ -205,6 +193,18 @@
             "capabilities": {
                 "toolCalling": false,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "unsloth-gemma-3-27b-it",
+            "name": "unsloth/gemma-3-27b-it",
+            "tooltip": "unsloth/gemma-3-27b-it by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 96000,
+            "model": "unsloth/gemma-3-27b-it",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         },
         {

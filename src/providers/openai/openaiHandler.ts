@@ -10,6 +10,7 @@ import type { ModelConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
+import { RateLimiter } from "../../utils/rateLimiter";
 import { VersionManager } from "../../utils/versionManager";
 import type {
 	ExtendedAssistantMessageParam,
@@ -191,10 +192,33 @@ export class OpenAIHandler {
 		const encoder = new TextEncoder();
 		const transformedStream = new ReadableStream({
 			async start(controller) {
+				const seenFinishReason = new Map<number, boolean>();
+				let lastChunkId = "";
+				let lastModel = "";
 				try {
 					while (true) {
 						const { done, value } = await reader.read();
 						if (done) {
+							// Ensure at least choice 0 has a finish_reason to avoid OpenAI SDK error
+							// "Error: missing finish_reason for choice 0"
+							if (!seenFinishReason.get(0)) {
+								const finalChunk = {
+									id: lastChunkId || `chatcmpl-${Date.now()}`,
+									object: "chat.completion.chunk",
+									created: Math.floor(Date.now() / 1000),
+									model: lastModel || "unknown",
+									choices: [
+										{
+											index: 0,
+											delta: {},
+											finish_reason: "stop",
+										},
+									],
+								};
+								controller.enqueue(
+									encoder.encode(`data: ${JSON.stringify(finalChunk)}\n\n`),
+								);
+							}
 							controller.close();
 							break;
 						}
@@ -217,6 +241,12 @@ export class OpenAIHandler {
 								}
 								try {
 									const obj = JSON.parse(jsonStr);
+									if (obj.id) {
+										lastChunkId = obj.id;
+									}
+									if (obj.model) {
+										lastModel = obj.model;
+									}
 									let objModified = false;
 
 									// Convert old format: if choice contains message but no delta, convert message to delta
@@ -243,6 +273,9 @@ export class OpenAIHandler {
 										) {
 											const choice = obj.choices[choiceIndex];
 											if (choice?.finish_reason) {
+												if (typeof choice.index === "number") {
+													seenFinishReason.set(choice.index, true);
+												}
 												if (
 													!choice.delta ||
 													Object.keys(choice.delta).length === 0
@@ -296,6 +329,15 @@ export class OpenAIHandler {
 													}
 												}
 											}
+											// Also check message.tool_calls for some providers
+											if (choice.message?.tool_calls) {
+												for (const toolCall of choice.message.tool_calls) {
+													if (!toolCall.type) {
+														toolCall.type = "function";
+														objModified = true;
+													}
+												}
+											}
 										}
 									}
 
@@ -342,6 +384,11 @@ export class OpenAIHandler {
 		token: vscode.CancellationToken,
 		accountId?: string,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance(this.provider, 2, 1000).throttle(
+			this.displayName,
+		);
+
 		Logger.debug(
 			`${model.name} starting to process ${this.displayName} request${accountId ? ` (Account ID: ${accountId})` : ""}`,
 		);
