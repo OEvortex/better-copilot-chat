@@ -849,7 +849,6 @@ export class CompatibleProvider extends GenericModelProvider {
 															);
 															thinkingContentBuffer = ""; // Clear buffer
 															hasThinkingContent = true;
-															hasContent = true; // Treat thinking content as received content
 														} catch (e) {
 															Logger.trace(
 																`[${model.name}] Failed to report remaining thinking content: ${String(e)}`,
@@ -994,7 +993,6 @@ export class CompatibleProvider extends GenericModelProvider {
 													);
 													thinkingContentBuffer = ""; // Clear buffer
 													hasThinkingContent = true; // Mark thinking content was output
-													hasContent = true; // Treat thinking content as received content
 												} catch (e) {
 													Logger.trace(
 														`[${model.name}] Failed to report remaining thinking content: ${String(e)}`,

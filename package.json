@@ -3,7 +3,7 @@
 	"publisher": "OEvortex",
 	"displayName": "Copilot ++",
 	"description": "An extension that provides model support for GitHub Copilot Chat, including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Alibaba Cloud Bailian, and custom OpenAI/Anthropic compatible models.",
-	"version": "0.1.6",
+	"version": "0.1.5",
 	"license": "MIT",
 	"keywords": [
 		"ai",
@@ -45,7 +45,8 @@
 	"main": "./dist/extension.js",
 	"enabledApiProposals": [
 		"chatProvider",
-		"chatParticipantAdditions"
+		"chatParticipantAdditions",
+		"defaultChatParticipant"
 	],
 	"activationEvents": [
 		"onStartupFinished",

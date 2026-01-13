@@ -318,6 +318,11 @@ export class DeepInfraProvider
 
 			let currentThinkingId: string | null = null;
 			let thinkingContentBuffer = "";
+			let hasReceivedContent = false;
+			let hasThinkingContent = false;
+
+			// Store tool call IDs by index
+			const toolCallIds = new Map<number, string>();
 
 			stream.on("chunk", (chunk: OpenAI.Chat.ChatCompletionChunk) => {
 				if (token.isCancellationRequested) {
@@ -326,6 +331,14 @@ export class DeepInfraProvider
 
 				if (chunk.choices && chunk.choices.length > 0) {
 					for (const choice of chunk.choices) {
+						if (choice.delta?.tool_calls) {
+							for (const toolCall of choice.delta.tool_calls) {
+								if (toolCall.id && toolCall.index !== undefined) {
+									toolCallIds.set(toolCall.index, toolCall.id);
+								}
+							}
+						}
+
 						const delta = choice.delta as
 							| { reasoning_content?: string }
 							| undefined;
@@ -341,6 +354,7 @@ export class DeepInfraProvider
 								) as unknown as vscode.LanguageModelResponsePart,
 							);
 							thinkingContentBuffer = "";
+							hasThinkingContent = true;
 						}
 					}
 				}
@@ -361,6 +375,65 @@ export class DeepInfraProvider
 						currentThinkingId = null;
 					}
 					progress.report(new vscode.LanguageModelTextPart(delta));
+					if (delta.trim().length > 0) {
+						hasReceivedContent = true;
+					}
+				}
+			});
+
+			// Handle tool calls
+			stream.on("tool_calls.function.arguments.done", (event) => {
+				if (token.isCancellationRequested) {
+					return;
+				}
+				// Finalize thinking before tool calls
+				if (currentThinkingId) {
+					try {
+						progress.report(
+							new vscode.LanguageModelThinkingPart(
+								"",
+								currentThinkingId,
+							) as unknown as vscode.LanguageModelResponsePart,
+						);
+					} catch {
+						// ignore
+					}
+					currentThinkingId = null;
+				}
+
+				// Report tool call to VS Code
+				const toolCallId =
+					toolCallIds.get(event.index) ||
+					`tool_call_${event.index}_${Date.now()}`;
+
+				// Use parameters parsed by SDK (priority) or manually parse arguments string
+				let parsedArgs: object = {};
+				if (event.parsed_arguments) {
+					const result = event.parsed_arguments;
+					parsedArgs =
+						typeof result === "object" && result !== null ? result : {};
+				} else {
+					try {
+						parsedArgs = JSON.parse(event.arguments || "{}");
+					} catch {
+						parsedArgs = { value: event.arguments };
+					}
+				}
+
+				try {
+					progress.report(
+						new vscode.LanguageModelToolCallPart(
+							toolCallId,
+							event.name,
+							parsedArgs,
+						),
+					);
+					hasReceivedContent = true;
+				} catch (e) {
+					Logger.warn(
+						"[DeepInfra] Failed to report tool call",
+						e instanceof Error ? e.message : String(e),
+					);
 				}
 			});
 
@@ -372,6 +445,14 @@ export class DeepInfraProvider
 						"",
 						currentThinkingId,
 					) as unknown as vscode.LanguageModelResponsePart,
+				);
+			}
+
+			// Only add <think/> placeholder if thinking content was output but no content was output
+			if (hasThinkingContent && !hasReceivedContent) {
+				progress.report(new vscode.LanguageModelTextPart("<think/>"));
+				Logger.warn(
+					"[DeepInfra] End of message stream has only thinking content and no text content, added <think/> placeholder as output",
 				);
 			}
 		} catch (error) {

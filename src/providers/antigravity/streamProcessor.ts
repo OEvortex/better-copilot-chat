@@ -24,6 +24,8 @@ export class AntigravityStreamProcessor {
 	private chunkCounter = 0;
 	private lastChunkTime = 0;
 	private streamVelocity = 0;
+	private hasReceivedContent = false;
+	private hasThinkingContent = false;
 
 	// Activity tracking để giữ UI "sống" khi đang xử lý tool calls
 	private lastActivityReportTime = 0;
@@ -97,6 +99,11 @@ export class AntigravityStreamProcessor {
 			this.flushTextBuffer(progress, true);
 			this.flushPendingToolCallsImmediate(progress); // Flush tất cả tool calls còn lại
 			this.finalizeThinkingPart(progress);
+
+			// Only add <think/> placeholder if thinking content was output but no content was output
+			if (this.hasThinkingContent && !this.hasReceivedContent) {
+				progress.report(new vscode.LanguageModelTextPart("<think/>"));
+			}
 		}
 	}
 
@@ -324,6 +331,7 @@ export class AntigravityStreamProcessor {
 					this.currentThinkingId = createCallId();
 				}
 				this.thinkingBuffer += part.text;
+				this.hasThinkingContent = true;
 				this.flushThinkingBufferIfNeeded(progress);
 			}
 			return;
@@ -339,6 +347,9 @@ export class AntigravityStreamProcessor {
 				this.finalizeThinkingPart(progress);
 				if (processedText.length > 0) {
 					this.textBuffer += processedText;
+					if (processedText.trim().length > 0) {
+						this.hasReceivedContent = true;
+					}
 					this.flushTextBufferIfNeeded(progress);
 				}
 			}
@@ -385,6 +396,7 @@ export class AntigravityStreamProcessor {
 					name: toolCallInfo.name,
 					args: normalizedArgs,
 				});
+				this.hasReceivedContent = true;
 				this.markActivity();
 			}
 		}
@@ -412,6 +424,7 @@ export class AntigravityStreamProcessor {
 							this.currentThinkingId = this.generateThinkingId();
 						}
 						this.thinkingBuffer += thinkingContent;
+						this.hasThinkingContent = true;
 					}
 					this.isInsideThinkingTag = false;
 					remaining = remaining.slice(closeIdx + this.CLOSING_TAG.length);
@@ -422,6 +435,7 @@ export class AntigravityStreamProcessor {
 							this.currentThinkingId = this.generateThinkingId();
 						}
 						this.thinkingBuffer += remaining.slice(0, safeLen);
+						this.hasThinkingContent = true;
 					}
 					this.thinkingTagBuffer = remaining.slice(safeLen);
 					remaining = "";

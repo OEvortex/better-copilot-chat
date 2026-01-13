@@ -99,3 +99,16 @@ npm run publish          # Publish to VS Code marketplace
 - Ensure compatibility with VS Code API version 1.80.0
 - Maintain modular structure for providers and utilities
 - Use batch eddits for large refactors
+
+## ⚠️ CRITICAL: Context Window Management
+
+Your context window is limited - especially the output size. To avoid truncation and ensure reliable execution:
+
+- **ALWAYS work in discrete, focused steps**
+- **ALWAYS use `runSubagent` for complex multi-step tasks** - delegate research, analysis, or multi-file operations to subagents
+- **You can use `runSubagent` unlimited times within a single agent task**
+- **Break large tasks into smaller chunks** - process files in batches, not all at once
+- **Avoid reading large files entirely** - use search code tools to find specific code first
+- **Never batch too many operations** - if you need to modify 10+ files, use a subagent or work in groups of 3-5
+
+When in doubt, delegate to a subagent rather than risk output truncation.

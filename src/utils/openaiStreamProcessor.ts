@@ -96,6 +96,8 @@ export class OpenAIStreamProcessor {
 	>();
 	private seenToolCalls = new Set<string>();
 	private toolCallCounter = 0;
+	private hasReceivedContent = false;
+	private hasThinkingContent = false;
 
 	// Claude <thinking></thinking> tag detection state
 	private isInsideThinkingTag = false;
@@ -191,6 +193,11 @@ export class OpenAIStreamProcessor {
 			this.flushTextBuffer(progress);
 			this.finalizeThinkingPart(progress);
 			this.finalizeToolCalls(progress);
+
+			// Only add <think/> placeholder if thinking content was output but no content was output
+			if (this.hasThinkingContent && !this.hasReceivedContent) {
+				progress.report(new vscode.LanguageModelTextPart("<think/>"));
+			}
 		}
 	}
 
@@ -286,6 +293,9 @@ export class OpenAIStreamProcessor {
 			// Handle text content
 			if (delta.content !== undefined && delta.content !== null) {
 				this.handleTextContent(delta.content, modelConfig, progress);
+				if (delta.content.trim().length > 0) {
+					this.hasReceivedContent = true;
+				}
 			}
 
 			// Handle tool calls
@@ -350,6 +360,7 @@ export class OpenAIStreamProcessor {
 							this.currentThinkingId = this.generateThinkingId();
 						}
 						this.thinkingBuffer += part.text;
+						this.hasThinkingContent = true;
 						this.flushThinkingBuffer(progress);
 					}
 					continue;
@@ -358,6 +369,9 @@ export class OpenAIStreamProcessor {
 				// Handle text content - IMMEDIATELY flush to UI for realtime streaming
 				if (part.text !== undefined) {
 					this.processTextWithThinkingTags(part.text, modelConfig, progress);
+					if (part.text.trim().length > 0) {
+						this.hasReceivedContent = true;
+					}
 
 					// Force immediate flush - no buffering for realtime feel
 					this.flushTextBuffer(progress);
@@ -442,6 +456,7 @@ export class OpenAIStreamProcessor {
 				args,
 			);
 			progress.report(toolCallPart);
+			this.hasReceivedContent = true;
 
 			// Report activity after tool call to keep UI responsive
 			this.lastActivityReportTime = Date.now();
@@ -473,6 +488,7 @@ export class OpenAIStreamProcessor {
 							this.currentThinkingId = this.generateThinkingId();
 						}
 						this.thinkingBuffer += thinkingChunk;
+						this.hasThinkingContent = true;
 						this.flushThinkingBuffer(progress);
 					}
 					this.isInsideGcliThinkTag = false;
@@ -485,6 +501,7 @@ export class OpenAIStreamProcessor {
 							this.currentThinkingId = this.generateThinkingId();
 						}
 						this.thinkingBuffer += thinkingChunk;
+						this.hasThinkingContent = true;
 						this.flushThinkingBuffer(progress);
 					}
 					return; // wait for next chunk
@@ -526,6 +543,7 @@ export class OpenAIStreamProcessor {
 							this.currentThinkingId = this.generateThinkingId();
 						}
 						this.thinkingBuffer += rest;
+						this.hasThinkingContent = true;
 						this.flushThinkingBuffer(progress);
 					}
 					return; // wait for more chunks
@@ -576,6 +594,7 @@ export class OpenAIStreamProcessor {
 							this.currentThinkingId = this.generateThinkingId();
 						}
 						this.thinkingBuffer += thinkingContent;
+						this.hasThinkingContent = true;
 						this.flushThinkingBuffer(progress);
 					}
 
@@ -594,6 +613,7 @@ export class OpenAIStreamProcessor {
 							this.currentThinkingId = this.generateThinkingId();
 						}
 						this.thinkingBuffer += toStream;
+						this.hasThinkingContent = true;
 					}
 				}
 				i++;
@@ -797,6 +817,7 @@ export class OpenAIStreamProcessor {
 					args,
 				);
 				progress.report(toolCallPart);
+				this.hasReceivedContent = true;
 			} catch (_error) {
 				// Ignore error
 			}

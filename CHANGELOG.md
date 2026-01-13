@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.6] - 2026-01-12
+## [0.1.5] - 2026-01-13
 
 ### Added
 - **Gemini CLI Multi-Invocation Support**: Enhanced Gemini CLI integration with multiple ways to invoke and interact with the agent.
@@ -12,9 +12,6 @@ All notable changes to this project will be documented in this file.
   - **Comprehensive Documentation**: Added a detailed `USAGE.md` for Gemini CLI covering all invocation methods and delegation workflows.
   - **Automated Testing**: Added a full suite of tests for the new invocation flows and delegation logic.
 
-## [0.1.5] - 2026-01-12
-
-### Added
 - **Kilo AI Provider**: Integrated Kilo AI as a new model provider using their OpenRouter-compatible API.
   - Dynamic model discovery from `https://api.kilo.ai/api/openrouter/models`.
   - Support for streaming, reasoning/thinking content, and tool calling.

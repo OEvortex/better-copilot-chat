@@ -382,6 +382,10 @@ export class HuggingfaceProvider
 			let currentThinkingId: string | null = null;
 			let thinkingContentBuffer = "";
 			let _hasReceivedContent = false;
+			let hasThinkingContent = false;
+
+			// Store tool call IDs by index
+			const toolCallIds = new Map<number, string>();
 
 			// Handle chunks for reasoning_content
 			stream.on("chunk", (chunk: OpenAI.Chat.ChatCompletionChunk) => {
@@ -389,9 +393,17 @@ export class HuggingfaceProvider
 					return;
 				}
 
-				// Process reasoning/reasoning_content from chunk choices
+				// Capture tool call IDs
 				if (chunk.choices && chunk.choices.length > 0) {
 					for (const choice of chunk.choices) {
+						if (choice.delta?.tool_calls) {
+							for (const toolCall of choice.delta.tool_calls) {
+								if (toolCall.id && toolCall.index !== undefined) {
+									toolCallIds.set(toolCall.index, toolCall.id);
+								}
+							}
+						}
+
 						const delta = choice.delta as
 							| { reasoning?: string; reasoning_content?: string }
 							| undefined;
@@ -411,7 +423,7 @@ export class HuggingfaceProvider
 									) as unknown as LanguageModelResponsePart,
 								);
 								thinkingContentBuffer = "";
-								_hasReceivedContent = true; // Treat thinking content as received content
+								hasThinkingContent = true;
 							} catch (e) {
 								Logger.warn(
 									"[Hugging Face] Failed to report thinking",
@@ -459,7 +471,7 @@ export class HuggingfaceProvider
 			});
 
 			// Handle tool calls
-			stream.on("tool_calls.function.arguments.done", () => {
+			stream.on("tool_calls.function.arguments.done", (event) => {
 				if (token.isCancellationRequested) {
 					return;
 				}
@@ -476,6 +488,41 @@ export class HuggingfaceProvider
 						// ignore
 					}
 					currentThinkingId = null;
+				}
+
+				// Report tool call to VS Code
+				const toolCallId =
+					toolCallIds.get(event.index) ||
+					`tool_call_${event.index}_${Date.now()}`;
+
+				// Use parameters parsed by SDK (priority) or manually parse arguments string
+				let parsedArgs: object = {};
+				if (event.parsed_arguments) {
+					const result = event.parsed_arguments;
+					parsedArgs =
+						typeof result === "object" && result !== null ? result : {};
+				} else {
+					try {
+						parsedArgs = JSON.parse(event.arguments || "{}");
+					} catch {
+						parsedArgs = { value: event.arguments };
+					}
+				}
+
+				try {
+					progress.report(
+						new vscode.LanguageModelToolCallPart(
+							toolCallId,
+							event.name,
+							parsedArgs,
+						),
+					);
+					_hasReceivedContent = true;
+				} catch (e) {
+					Logger.warn(
+						"[Hugging Face] Failed to report tool call",
+						e instanceof Error ? e.message : String(e),
+					);
 				}
 			});
 
@@ -494,6 +541,14 @@ export class HuggingfaceProvider
 				} catch {
 					// ignore
 				}
+			}
+
+			// Only add <think/> placeholder if thinking content was output but no content was output
+			if (hasThinkingContent && !_hasReceivedContent) {
+				progress.report(new vscode.LanguageModelTextPart("<think/>"));
+				Logger.warn(
+					"[Hugging Face] End of message stream has only thinking content and no text content, added <think/> placeholder as output",
+				);
 			}
 		} catch (err) {
 			Logger.error("[Hugging Face Model Provider] Chat request failed", {

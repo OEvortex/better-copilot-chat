@@ -254,6 +254,8 @@ export class MistralHandler {
 			{ name?: string; argsText: string }
 		>();
 		const emittedToolCalls = new Set<string>();
+		let hasReceivedContent = false;
+		let hasThinkingContent = false;
 
 		try {
 			while (true) {
@@ -288,6 +290,9 @@ export class MistralHandler {
 								progress.report(
 									new vscode.LanguageModelTextPart(delta.content),
 								);
+								if (delta.content.trim().length > 0) {
+									hasReceivedContent = true;
+								}
 							}
 
 							// Handle tool calls
@@ -326,6 +331,7 @@ export class MistralHandler {
 												),
 											);
 											emittedToolCalls.add(vsCodeId);
+											hasReceivedContent = true;
 										} catch {
 											// Buffer more
 										}
@@ -354,6 +360,7 @@ export class MistralHandler {
 											),
 										);
 										emittedToolCalls.add(vsCodeId);
+										hasReceivedContent = true;
 									}
 								}
 							}
@@ -371,6 +378,14 @@ export class MistralHandler {
 			}
 		} finally {
 			reader.releaseLock();
+		}
+
+		// Only add <think/> placeholder if thinking content was output but no content was output
+		if (hasThinkingContent && !hasReceivedContent) {
+			progress.report(new vscode.LanguageModelTextPart("<think/>"));
+			Logger.warn(
+				`${modelName} end of message stream has only thinking content and no text content, added <think/> placeholder as output`,
+			);
 		}
 	}
 

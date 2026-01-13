@@ -463,8 +463,6 @@ export class AnthropicHandler {
 											);
 											// Clear pendingThinking content to avoid duplicate reporting
 											pendingThinking.thinking = "";
-											// Mark existing output content
-											hasOutputContent = true; // Treat thinking content as output content
 										} catch (e) {
 											Logger.trace(
 												`Failed to report thinking content: ${String(e)}`,
@@ -564,7 +562,6 @@ export class AnthropicHandler {
 									new vscode.LanguageModelThinkingPart("", currentThinkingId),
 								);
 								hasReportedContent = true;
-								hasOutputContent = true; // Treat thinking content as output content
 							}
 
 							// If only signature but no thinking content, create an empty thinking part with signature metadata

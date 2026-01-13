@@ -347,6 +347,9 @@ export class OpenAIHandler {
 		);
 		// Clear event deduplication tracker for current request
 		this.currentRequestProcessedEvents.clear();
+		// Dictionary to store original tool call IDs by index
+		const toolCallIds = new Map<number, string>();
+
 		try {
 			const client = await this.createOpenAIClient(modelConfig, accountId);
 			Logger.debug(
@@ -476,6 +479,9 @@ export class OpenAIHandler {
 			// Thinking content cache, used to accumulate thinking content
 			let thinkingContentBuffer: string = "";
 
+			// Dictionary to store tool call IDs by index
+			const toolCallIds = new Map<number, string>();
+
 			// Activity indicator - report empty text periodically to keep UI responsive
 			let lastActivityReportTime = Date.now();
 			const ACTIVITY_REPORT_INTERVAL_MS = 300; // Report every 300ms to show activity (reduced from 500ms)
@@ -580,8 +586,13 @@ export class OpenAIHandler {
 						}
 
 						// Directly output regular content
-						progress.report(new vscode.LanguageModelTextPart(delta));
-						hasReceivedContent = true;
+						if (delta && delta.length > 0) {
+							progress.report(new vscode.LanguageModelTextPart(delta));
+							// Only mark as received content if it's not just whitespace
+							if (delta.trim().length > 0) {
+								hasReceivedContent = true;
+							}
+						}
 					})
 					.on("tool_calls.function.arguments.done", (event) => {
 						// Complete tool call event triggered after SDK auto-accumulation completion
@@ -712,8 +723,17 @@ export class OpenAIHandler {
 							}
 						}
 
-						// SDK automatically generates unique tool call ID, using simple index identifier here
-						const toolCallId = `tool_call_${event.index}_${Date.now()}`;
+						// Use captured original tool ID if available to ensure model compatibility
+						const originalId = toolCallIds.get(event.index);
+						const toolCallId =
+							originalId || `tool_call_${event.index}_${Date.now()}`;
+
+						if (!originalId) {
+							Logger.warn(
+								`${model.name} used generated ID for tool call (original ID not found in chunks)`,
+							);
+						}
+
 						progress.report(
 							new vscode.LanguageModelToolCallPart(
 								toolCallId,
@@ -739,7 +759,7 @@ export class OpenAIHandler {
 							finalUsage = chunk.usage;
 						}
 
-						// Process thinking content (reasoning/reasoning_content) and compatible with old format
+						// Process reasoning and tool call IDs from delta
 						if (chunk.choices && chunk.choices.length > 0) {
 							// Traverse all choices, handle each choice's reasoning_content and message.content
 							for (
@@ -754,6 +774,18 @@ export class OpenAIHandler {
 								// Check if there is a tool call start (tool_calls delta exists but no arguments yet)
 								if (delta?.tool_calls && delta.tool_calls.length > 0) {
 									for (const toolCall of delta.tool_calls) {
+										// Capturing the original ID from the provider is CRITICAL
+										// Some models require the exact ID to be sent back in the tool result
+										if (
+											toolCall.id &&
+											toolCall.index !== undefined
+										) {
+											toolCallIds.set(toolCall.index, toolCall.id);
+											Logger.trace(
+												`${model.name} captured tool call ID: ${toolCall.id} at index ${toolCall.index}`,
+											);
+										}
+
 										// If there is a tool call but no arguments, it means tool call just started
 										if (
 											toolCall.index !== undefined &&
@@ -820,7 +852,6 @@ export class OpenAIHandler {
 
 											// Mark thinking content received
 											hasThinkingContent = true;
-											hasReceivedContent = true; // CRITICAL: Treat thinking content as received content to avoid "no response" error
 										} catch (e) {
 											Logger.trace(
 												`${model.name} failed to report thinking: ${String(e)}`,
@@ -885,7 +916,6 @@ export class OpenAIHandler {
 						);
 						thinkingContentBuffer = ""; // Clear cache
 						hasThinkingContent = true; // Mark thinking content was output
-						hasReceivedContent = true; // Treat as received content
 					} catch (e) {
 						Logger.trace(
 							`${model.name} failed to report thinking at end: ${String(e)}`,
