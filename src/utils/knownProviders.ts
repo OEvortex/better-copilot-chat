@@ -59,6 +59,5 @@ export const KnownProviders: Record<string, KnownProviderConfig> = {
 			baseUrl: "https://api.mistral.ai/v1",
 		},
 	},
-	kiloai: { displayName: "Kilo AI" },
 	qwencli: { displayName: "Qwen Code CLI" },
 };

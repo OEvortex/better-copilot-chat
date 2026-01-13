@@ -1,6 +1,0 @@
-{
-	"displayName": "Kilo AI",
-	"baseUrl": "https://api.kilo.ai/api/openrouter",
-	"apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-	"models": []
-}

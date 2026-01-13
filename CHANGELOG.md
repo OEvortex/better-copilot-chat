@@ -15,11 +15,11 @@ All notable changes to this project will be documented in this file.
 - **Global Rate Limiting**: Implemented a consistent rate limiting mechanism across all AI providers.
   - Standardized limit of **2 requests per 1 second** per provider to prevent API flooding.
   - New `RateLimiter` utility with fixed-window throttling and automatic wait logic.
-  - Integrated into OpenAI, Anthropic, Mistral, Codex, Antigravity, Gemini CLI, and all dedicated providers (Kilo AI, Chutes, HuggingFace, etc.).
+  - Integrated into OpenAI, Anthropic, Mistral, Codex, Antigravity, Gemini CLI, and all dedicated providers (Chutes, HuggingFace, etc.).
 
 ### Changed
-- **Unified Token Counting**: Migrated all providers (HuggingFace, Chutes, Kilo AI, DeepInfra, MiniMax, Mistral, OpenCode) to use the centralized `@microsoft/tiktokenizer` via `TokenCounter` for more accurate token estimation.
-- **Improved Token Allocation Logic**: Implemented a smarter token limit calculation for Kilo AI, HuggingFace, and Chutes providers.
+- **Unified Token Counting**: Migrated all providers (HuggingFace, Chutes, DeepInfra, MiniMax, Mistral, OpenCode) to use the centralized `@microsoft/tiktokenizer` via `TokenCounter` for more accurate token estimation.
+- **Improved Token Allocation Logic**: Implemented a smarter token limit calculation for HuggingFace and Chutes providers.
   - Prevents "1 token input" issues by ensuring at least 1,024 tokens are always reserved for input.
   - Automatically caps output tokens at half the context length if the reported limit is suspiciously large.
 - **Enhanced Mistral & OpenAI SDK Robustness**:
@@ -31,7 +31,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - **Tool Call ID Consistency**: Fixed a critical issue where tool calling would fail in multi-turn conversations due to ID mismatches.
   - `OpenAIHandler` now captures and preserves the original `tool_call_id` from the provider instead of generating random ones.
-  - Fixed missing tool call reporting in **Chutes**, **HuggingFace**, **Kilo AI**, and **DeepInfra** providers.
+  - Fixed missing tool call reporting in **Chutes**, **HuggingFace**, and **DeepInfra** providers.
 - **Stream Finalization**: Fixed "missing finish_reason for choice 0" error by automatically injecting a final chunk with `finish_reason: "stop"` if the stream ends prematurely.
 - Fixed package.json JSON schema/lint error caused by the deprecated managementCommand usage and the unsupported canDelegate property. Lint was run to validate the change.
 

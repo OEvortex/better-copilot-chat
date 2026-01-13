@@ -15,7 +15,6 @@ import { DeepInfraProvider } from "./providers/deepinfra/deepinfraProvider";
 import { GeminiCliChatParticipant } from "./providers/geminicli/chatParticipant";
 import { GeminiCliProvider } from "./providers/geminicli/provider";
 import { HuggingfaceProvider } from "./providers/huggingface/provider";
-import { KiloAIProvider } from "./providers/kiloai/provider";
 import { MiniMaxProvider } from "./providers/minimax/minimaxProvider";
 import { MistralProvider } from "./providers/mistral/mistralProvider";
 import { OpenCodeProvider } from "./providers/opencode/opencodeProvider";
@@ -51,7 +50,6 @@ const registeredProviders: Record<
 	| QwenCliProvider
 	| GeminiCliProvider
 	| HuggingfaceProvider
-	| KiloAIProvider
 	| CompatibleProvider
 	| AntigravityProvider
 	| CodexProvider
@@ -178,15 +176,6 @@ async function activateProviders(
 				} else if (providerKey === "huggingface") {
 					// Use specialized provider for huggingface (dedicated Hugging Face Router integration)
 					const result = HuggingfaceProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider as unknown as GenericModelProvider;
-					disposables = result.disposables as unknown as vscode.Disposable[];
-				} else if (providerKey === "kiloai") {
-					// Use specialized provider for Kilo AI
-					const result = KiloAIProvider.createAndActivate(
 						context,
 						providerKey,
 						providerConfig,

@@ -57,7 +57,6 @@
 		"onLanguageModelProvider:chp.chutes",
 		"onLanguageModelProvider:chp.opencode",
 		"onLanguageModelProvider:chp.huggingface",
-		"onLanguageModelProvider:chp.kiloai",
 		"onLanguageModelProvider:chp.deepinfra",
 		"onLanguageModelProvider:chp.mistral",
 		"onLanguageModelProvider:chp.qwencli",
@@ -133,11 +132,6 @@
 			{
 				"command": "chp.huggingface.setApiKey",
 				"title": "Set Hugging Face API Key",
-				"category": "Copilot ++"
-			},
-			{
-				"command": "chp.kiloai.setApiKey",
-				"title": "Set Kilo AI API Key",
 				"category": "Copilot ++"
 			},
 			{
@@ -611,19 +605,6 @@
 						"apiKey": {
 							"type": "string",
 							"description": "Hugging Face API key.",
-							"secret": true
-						}
-					}
-				}
-			},
-			{
-				"vendor": "chp.kiloai",
-				"displayName": "⦿ Kilo AI",
-				"configuration": {
-					"properties": {
-						"apiKey": {
-							"type": "string",
-							"description": "Kilo AI API key.",
 							"secret": true
 						}
 					}

@@ -6,7 +6,6 @@ import deepinfra from "./deepinfra.json";
 import deepseek from "./deepseek.json";
 import geminicli from "./geminicli.json";
 import huggingface from "./huggingface.json";
-import kiloai from "./kiloai.json";
 import minimax from "./minimax.json";
 import mistral from "./mistral.json";
 import moonshot from "./moonshot.json";
@@ -27,7 +26,6 @@ const providers = {
 	qwencli,
 	geminicli,
 	huggingface,
-	kiloai,
 	deepinfra,
 	mistral,
 };
