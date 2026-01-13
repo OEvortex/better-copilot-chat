@@ -43,6 +43,22 @@ export interface MistralStreamDelta {
 	tool_calls?: Array<{
 		index?: number;
 		id?: string;
+		// Some OpenAI-compatible providers omit this field even when tool_calls are present.
+		// Keep optional and patch at runtime.
+		type?: "function";
+		function?: {
+			name?: string;
+			arguments?: string;
+		};
+	}>;
+}
+
+export interface MistralStreamMessage {
+	role?: MistralRole;
+	content?: string | null;
+	tool_calls?: Array<{
+		index?: number;
+		id?: string;
 		type?: "function";
 		function?: {
 			name?: string;
@@ -53,7 +69,10 @@ export interface MistralStreamDelta {
 
 export interface MistralStreamChoice {
 	index: number;
-	delta: MistralStreamDelta;
+	// Mistral typically streams deltas, but some gateways/providers send a final
+	// chunk with `message` (OpenAI-compatible shape) instead of `delta`.
+	delta?: MistralStreamDelta;
+	message?: MistralStreamMessage;
 	finish_reason: string | null;
 }
 
@@ -288,15 +307,19 @@ export class MistralHandler {
 					try {
 						const chunk: MistralStreamChunk = JSON.parse(data);
 
-						// Fix: Ensure tool_calls have 'type: function' to avoid OpenAI SDK error
+						// Fix: Ensure tool_calls have `type: "function"`.
+						// Some OpenAI-compatible providers omit this field, which can crash
+						// downstream tooling (and we also rely on this being present for consistency).
 						if (chunk.choices && chunk.choices.length > 0) {
 							for (const choice of chunk.choices) {
-								const delta = choice.delta;
-								if (delta?.tool_calls) {
-									for (const toolCall of delta.tool_calls) {
-										if (!toolCall.type) {
-											toolCall.type = "function";
-										}
+								const toolCalls =
+									choice.delta?.tool_calls ?? choice.message?.tool_calls;
+								if (!toolCalls) {
+									continue;
+								}
+								for (const toolCall of toolCalls) {
+									if (!toolCall.type) {
+										toolCall.type = "function";
 									}
 								}
 							}
@@ -305,20 +328,23 @@ export class MistralHandler {
 						if (chunk.choices && chunk.choices.length > 0) {
 							const choice = chunk.choices[0];
 							const delta = choice.delta;
+							const message = choice.message;
+							const content = delta?.content ?? message?.content;
+							const toolCalls = delta?.tool_calls ?? message?.tool_calls;
 
 							// Handle text content
-							if (delta.content) {
+							if (content) {
 								progress.report(
-									new vscode.LanguageModelTextPart(delta.content),
+									new vscode.LanguageModelTextPart(content),
 								);
-								if (delta.content.trim().length > 0) {
+								if (content.trim().length > 0) {
 									hasReceivedContent = true;
 								}
 							}
 
 							// Handle tool calls
-							if (delta.tool_calls) {
-								for (const toolCall of delta.tool_calls) {
+							if (toolCalls) {
+								for (const toolCall of toolCalls) {
 									const mistralId = toolCall.id;
 									if (!mistralId) {
 										continue;
