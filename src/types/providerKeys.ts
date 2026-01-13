@@ -14,6 +14,7 @@ export enum ProviderKey {
 	OpenCode = "opencode",
 	OpenAI = "openai",
 	QwenCli = "qwencli",
+	Zenmux = "zenmux",
 	Zhipu = "zhipu",
 	Compatible = "compatible",
 }

@@ -43,7 +43,7 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 |     **Chutes**     |      Chutes AI       | `Global Request Limit`             |
 |    **OpenCode**    |     OpenCode AI      | `Claude 4.5` `GPT-5`               |
 |   **DeepInfra**    |     DeepInfra        | `OpenAI-compatible` `LLM & Image`  |
-
+|     **Zenmux**     |      Zenmux AI       | `Dynamic Model Fetching` `OpenAI-compatible` |
 |   **Compatible**   | OpenAI/Anthropic API | `Custom Models Support`            |
 
 </div>

@@ -11,6 +11,7 @@ import mistral from "./mistral.json";
 import moonshot from "./moonshot.json";
 import opencode from "./opencode.json";
 import qwencli from "./qwencli.json";
+import zenmux from "./zenmux.json";
 // Export all model configurations uniformly for easy import
 import zhipu from "./zhipu.json";
 
@@ -28,6 +29,7 @@ const providers = {
 	huggingface,
 	deepinfra,
 	mistral,
+	zenmux,
 };
 
 export type ProviderName = keyof typeof providers;

@@ -55,6 +55,7 @@
 		"onLanguageModelProvider:chp.moonshot",
 		"onLanguageModelProvider:chp.deepseek",
 		"onLanguageModelProvider:chp.chutes",
+		"onLanguageModelProvider:chp.zenmux",
 		"onLanguageModelProvider:chp.opencode",
 		"onLanguageModelProvider:chp.huggingface",
 		"onLanguageModelProvider:chp.deepinfra",
@@ -122,6 +123,11 @@
 			{
 				"command": "chp.chutes.setApiKey",
 				"title": "Set Chutes API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.zenmux.setApiKey",
+				"title": "Set Zenmux API Key",
 				"category": "Copilot ++"
 			},
 			{
@@ -579,6 +585,19 @@
 						"apiKey": {
 							"type": "string",
 							"description": "Chutes API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.zenmux",
+				"displayName": "⦿ Zenmux",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "Zenmux API key.",
 							"secret": true
 						}
 					}

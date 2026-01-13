@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 ## [0.1.5] - 2026-01-13
 
 ### Added
+- **Zenmux Provider**: Added dynamic Zenmux provider (`https://zenmux.ai/api/v1`) with automatic model fetching and configuration.
+  - Supports all Zenmux models with real-time context length, reasoning, and tool calling capabilities.
+  - Auto-updates local config file (`src/providers/config/zenmux.json`) with latest models and metadata.
+  - Fully integrated with OpenAI SDK for robust streaming, reasoning content, and tool calls.
+  - Provider is registered in extension, config, knownProviders, and UI overview.
+  - API key can be set via `Copilot ++: Set Zenmux API Key` command.
+
 - **Gemini CLI Multi-Invocation Support**: Enhanced Gemini CLI integration with multiple ways to invoke and interact with the agent.
   - **Programmatic API**: Exported `invokeViaCommand` and `invokeDirect` functions allowing other extensions or internal modules to trigger Gemini CLI actions programmatically.
   - **New Command**: Added `chp.geminicli.invoke` command to quickly start a Gemini CLI chat session with a pre-filled prompt.

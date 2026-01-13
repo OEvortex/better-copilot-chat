@@ -88,24 +88,24 @@
             }
         },
         {
-            "id": "qwen-qwen3-coder-480b-a35b-instruct-fp8-tee",
-            "name": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8-TEE",
-            "tooltip": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8-TEE by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 262144,
-            "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "openai-gpt-oss-120b-tee",
             "name": "openai/gpt-oss-120b-TEE",
             "tooltip": "openai/gpt-oss-120b-TEE by Chutes",
             "maxInputTokens": 65536,
             "maxOutputTokens": 65536,
             "model": "openai/gpt-oss-120b-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen3-coder-480b-a35b-instruct-fp8-tee",
+            "name": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8-TEE",
+            "tooltip": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8-TEE by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 262144,
+            "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -148,18 +148,6 @@
             }
         },
         {
-            "id": "zai-org-glm-4-6-tee",
-            "name": "zai-org/GLM-4.6-TEE",
-            "tooltip": "zai-org/GLM-4.6-TEE by Chutes",
-            "maxInputTokens": 137216,
-            "maxOutputTokens": 65536,
-            "model": "zai-org/GLM-4.6-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "nousresearch-hermes-4-405b-fp8-tee",
             "name": "NousResearch/Hermes-4-405B-FP8-TEE",
             "tooltip": "NousResearch/Hermes-4-405B-FP8-TEE by Chutes",
@@ -184,14 +172,14 @@
             }
         },
         {
-            "id": "deepseek-ai-deepseek-v3",
-            "name": "deepseek-ai/DeepSeek-V3",
-            "tooltip": "deepseek-ai/DeepSeek-V3 by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 163840,
-            "model": "deepseek-ai/DeepSeek-V3",
+            "id": "zai-org-glm-4-6-tee",
+            "name": "zai-org/GLM-4.6-TEE",
+            "tooltip": "zai-org/GLM-4.6-TEE by Chutes",
+            "maxInputTokens": 137216,
+            "maxOutputTokens": 65536,
+            "model": "zai-org/GLM-4.6-TEE",
             "capabilities": {
-                "toolCalling": false,
+                "toolCalling": true,
                 "imageInput": false
             }
         },
@@ -205,6 +193,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
+            }
+        },
+        {
+            "id": "deepseek-ai-deepseek-v3",
+            "name": "deepseek-ai/DeepSeek-V3",
+            "tooltip": "deepseek-ai/DeepSeek-V3 by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 163840,
+            "model": "deepseek-ai/DeepSeek-V3",
+            "capabilities": {
+                "toolCalling": false,
+                "imageInput": false
             }
         },
         {
@@ -304,12 +304,12 @@
             }
         },
         {
-            "id": "deepseek-ai-deepseek-r1-distill-llama-70b",
-            "name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-            "tooltip": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 131072,
-            "model": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+            "id": "moonshotai-kimi-k2-thinking-tee",
+            "name": "moonshotai/Kimi-K2-Thinking-TEE",
+            "tooltip": "moonshotai/Kimi-K2-Thinking-TEE by Chutes",
+            "maxInputTokens": 196609,
+            "maxOutputTokens": 65535,
+            "model": "moonshotai/Kimi-K2-Thinking-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -324,18 +324,6 @@
             "model": "unsloth/Mistral-Nemo-Instruct-2407",
             "capabilities": {
                 "toolCalling": false,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "moonshotai-kimi-k2-thinking-tee",
-            "name": "moonshotai/Kimi-K2-Thinking-TEE",
-            "tooltip": "moonshotai/Kimi-K2-Thinking-TEE by Chutes",
-            "maxInputTokens": 196609,
-            "maxOutputTokens": 65535,
-            "model": "moonshotai/Kimi-K2-Thinking-TEE",
-            "capabilities": {
-                "toolCalling": true,
                 "imageInput": false
             }
         },
@@ -385,6 +373,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
+            }
+        },
+        {
+            "id": "deepseek-ai-deepseek-r1-distill-llama-70b",
+            "name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+            "tooltip": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 131072,
+            "model": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
             }
         },
         {
@@ -484,24 +484,24 @@
             }
         },
         {
-            "id": "qwen-qwen3-30b-a3b",
-            "name": "Qwen/Qwen3-30B-A3B",
-            "tooltip": "Qwen/Qwen3-30B-A3B by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 40960,
-            "model": "Qwen/Qwen3-30B-A3B",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "zai-org-glm-4-5-air",
             "name": "zai-org/GLM-4.5-Air",
             "tooltip": "zai-org/GLM-4.5-Air by Chutes",
             "maxInputTokens": 1,
             "maxOutputTokens": 131072,
             "model": "zai-org/GLM-4.5-Air",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen3-30b-a3b",
+            "name": "Qwen/Qwen3-30B-A3B",
+            "tooltip": "Qwen/Qwen3-30B-A3B by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 40960,
+            "model": "Qwen/Qwen3-30B-A3B",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -616,18 +616,6 @@
             }
         },
         {
-            "id": "nousresearch-hermes-4-14b",
-            "name": "NousResearch/Hermes-4-14B",
-            "tooltip": "NousResearch/Hermes-4-14B by Chutes",
-            "maxInputTokens": 1,
-            "maxOutputTokens": 40960,
-            "model": "NousResearch/Hermes-4-14B",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "miromind-ai-mirothinker-v1-5-235b",
             "name": "miromind-ai/MiroThinker-v1.5-235B",
             "tooltip": "miromind-ai/MiroThinker-v1.5-235B by Chutes",
@@ -636,6 +624,18 @@
             "model": "miromind-ai/MiroThinker-v1.5-235B",
             "capabilities": {
                 "toolCalling": false,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "nousresearch-hermes-4-14b",
+            "name": "NousResearch/Hermes-4-14B",
+            "tooltip": "NousResearch/Hermes-4-14B by Chutes",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 40960,
+            "model": "NousResearch/Hermes-4-14B",
+            "capabilities": {
+                "toolCalling": true,
                 "imageInput": false
             }
         },

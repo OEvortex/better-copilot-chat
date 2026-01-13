@@ -19,6 +19,7 @@ import { MiniMaxProvider } from "./providers/minimax/minimaxProvider";
 import { MistralProvider } from "./providers/mistral/mistralProvider";
 import { OpenCodeProvider } from "./providers/opencode/opencodeProvider";
 import { QwenCliProvider } from "./providers/qwencli/provider";
+import { ZenmuxProvider } from "./providers/zenmux/provider";
 import { ZhipuProvider } from "./providers/zhipu/zhipuProvider";
 import { registerAllTools } from "./tools";
 import { ProviderKey } from "./types/providerKeys";
@@ -46,6 +47,7 @@ const registeredProviders: Record<
 	| ZhipuProvider
 	| MiniMaxProvider
 	| ChutesProvider
+	| ZenmuxProvider
 	| OpenCodeProvider
 	| QwenCliProvider
 	| GeminiCliProvider
@@ -103,6 +105,7 @@ async function activateProviders(
 					| ZhipuProvider
 					| MiniMaxProvider
 					| ChutesProvider
+					| ZenmuxProvider
 					| OpenCodeProvider;
 				let disposables: vscode.Disposable[];
 
@@ -127,6 +130,15 @@ async function activateProviders(
 				} else if (providerKey === "chutes") {
 					// Use specialized provider for chutes (global request limit tracking)
 					const result = ChutesProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider;
+					disposables = result.disposables;
+				} else if (providerKey === "zenmux") {
+					// Use specialized provider for zenmux (dynamic model fetching)
+					const result = ZenmuxProvider.createAndActivate(
 						context,
 						providerKey,
 						providerConfig,
