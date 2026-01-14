@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2026-01-14
+
+### Added
+- **Chat Participants Module**: Introduced a new extensible architecture for CLI-based chat participants (`@gemini` and `@claude`).
+  - **Gemini CLI Support**: Integrated `@gemini` participant for direct interaction with Google's Gemini AI via CLI.
+  - **Claude CLI Support**: Integrated `@claude` participant for direct interaction with Anthropic's Claude AI via CLI.
+  - **Session Management**: Implemented invisible session ID tracking in chat history to maintain continuity across multiple chat turns.
+  - **Native Icons**: Added custom SVG icons for both participants in the chat interface.
+
+### Improved
+- **Windows CLI Detection**: Fixed a critical issue on Windows where CLI tools (like `gemini` or `claude`) installed via npm weren't detectable. Now uses `shell: true` for robust command resolution.
+- **Tool Progress UI**: Cleaned up the chat interface by removing emojis and improving tool invocation messages (e.g., "Using: Search File Content" instead of raw tool names).
+- **Tool Result Display**: Optimized how tool results are shown in the chat, including truncation for very long outputs to keep the UI responsive.
+
+### Changed
+- **Simplified Command Set**: Removed the `/doctor` command in favor of automatic error reporting and guidance during standard interactions.
+- User-facing messages and progress indicators are now cleaner and more professional.
+
 ## [0.1.5] - 2026-01-14
 
 ### Added

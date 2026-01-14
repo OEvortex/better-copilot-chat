@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- Claude/Anthropic Circle Symbol -->
+  <circle cx="12" cy="12" r="10" fill="#D97757"/>
+  <!-- Inner design - stylized "A" or abstract mark -->
+  <path d="M12 6C8.686 6 6 8.686 6 12C6 15.314 8.686 18 12 18C15.314 18 18 15.314 18 12C18 8.686 15.314 6 12 6Z" fill="#E8A088" opacity="0.3"/>
+  <circle cx="12" cy="12" r="3" fill="white"/>
+</svg>

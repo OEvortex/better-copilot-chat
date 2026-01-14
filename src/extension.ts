@@ -20,6 +20,7 @@ import { OpenCodeProvider } from "./providers/opencode/opencodeProvider";
 import { QwenCliProvider } from "./providers/qwencli/provider";
 import { ZenmuxProvider } from "./providers/zenmux/provider";
 import { ZhipuProvider } from "./providers/zhipu/zhipuProvider";
+import { registerAllParticipants } from "./participants";
 import { registerAllTools } from "./tools";
 import { ProviderKey } from "./types/providerKeys";
 import {
@@ -452,6 +453,13 @@ export async function activate(context: vscode.ExtensionContext) {
 		stepStartTime = Date.now();
 		registerAllTools(context);
 		Logger.trace(`⏱️ Tools registered (time: ${Date.now() - stepStartTime}ms)`);
+
+		// Step 4.0.1: Register Chat Participants
+		stepStartTime = Date.now();
+		registerAllParticipants(context);
+		Logger.trace(
+			`⏱️ Chat Participants registered (time: ${Date.now() - stepStartTime}ms)`,
+		);
 
 		// Step 4.1: Activate Antigravity Provider
 		stepStartTime = Date.now();
