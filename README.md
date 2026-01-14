@@ -90,12 +90,11 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 
 ### Gemini CLI Integration
 
-> **Interact with Gemini models via Gemini CLI and ACP**
+> **Interact with Gemini models via Gemini CLI**
 
-- **Chat Participant**: Invoke via `@gemini` in VS Code Chat.
-- **Programmatic API**: Stable API for direct invocation or via VS Code commands. See [Gemini CLI Usage Guide](src/providers/geminicli/USAGE.md) for details.
-- **Subagent Delegation**: Support for `delegate_to_agent` tool allowing other models to delegate tasks to Gemini.
-- **Full ACP Support**: Real-time streaming, thinking blocks, and tool-calling capabilities.
+- **Language Model Provider**: Seamlessly use Gemini models in GitHub Copilot Chat by authenticating via Gemini CLI.
+- **Managed Accounts**: Support for multi-account management and load balancing.
+- **Streaming Responses**: High-performance real-time output.
 
 ---
 

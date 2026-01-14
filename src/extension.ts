@@ -12,7 +12,6 @@ import { CodexProvider } from "./providers/codex/codexProvider";
 import { GenericModelProvider } from "./providers/common/genericModelProvider";
 import { CompatibleProvider } from "./providers/compatible/compatibleProvider";
 import { DeepInfraProvider } from "./providers/deepinfra/deepinfraProvider";
-import { GeminiCliChatParticipant } from "./providers/geminicli/chatParticipant";
 import { GeminiCliProvider } from "./providers/geminicli/provider";
 import { HuggingfaceProvider } from "./providers/huggingface/provider";
 import { MiniMaxProvider } from "./providers/minimax/minimaxProvider";
@@ -172,19 +171,6 @@ async function activateProviders(
 					);
 					provider = result.provider;
 					disposables = result.disposables;
-
-					// Register chat participant for Gemini CLI using ACP
-					try {
-						const chatParticipantResult =
-							await GeminiCliChatParticipant.createAndActivate(context);
-						disposables.push(...chatParticipantResult.disposables);
-						Logger.trace("Gemini CLI chat participant registered with ACP");
-					} catch (error) {
-						Logger.warn(
-							"Failed to register Gemini CLI chat participant:",
-							error,
-						);
-					}
 				} else if (providerKey === "huggingface") {
 					// Use specialized provider for huggingface (dedicated Hugging Face Router integration)
 					const result = HuggingfaceProvider.createAndActivate(
@@ -648,82 +634,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		Logger.info(
 			`Copilot ++extension activation completed (total time: ${totalActivationTime}ms)`,
 		);
-
-		// Command: Invoke Gemini CLI chat programmatically (inserts @gemini <prompt> and submits)
-		const geminiInvoke = vscode.commands.registerCommand(
-			"chp.geminicli.invoke",
-			async (prompt?: string) => {
-				try {
-					let promptText: string | undefined;
-					if (typeof prompt === "string" && prompt.trim().length > 0) {
-						promptText = prompt.trim();
-					} else {
-						promptText = await vscode.window.showInputBox({
-							prompt: "Enter prompt to send to Gemini CLI",
-						});
-						if (!promptText) return; // user cancelled
-					}
-
-					const message = `@gemini ${promptText}`;
-
-					// Prefer focusing Copilot Chat panel if available
-					try {
-						await vscode.commands.executeCommand(
-							"workbench.panel.chat.view.copilot.focus",
-						);
-					} catch {
-						// ignore
-					}
-
-					// Insert into chat input (if supported)
-					try {
-						await vscode.commands.executeCommand(
-							"workbench.action.chat.insertIntoInput",
-							message,
-						);
-					} catch {
-						// ignore
-					}
-
-					// Try known chat send commands; fallback to typing Enter
-					const sendCommands = [
-						"workbench.action.chat.sendMessage",
-						"workbench.action.chat.accept",
-						"workbench.action.chat.submit",
-					];
-					let sent = false;
-					for (const cmd of sendCommands) {
-						try {
-							await vscode.commands.executeCommand(cmd);
-							sent = true;
-							break;
-						} catch {
-							// ignore
-						}
-					}
-
-					if (!sent) {
-						// Fallback: simulate Enter key in active input
-						try {
-							await vscode.commands.executeCommand("type", { text: "\n" });
-						} catch {
-							// ignore
-						}
-					}
-
-					Logger.trace("chp.geminicli.invoke: prompt sent to chat");
-				} catch (err) {
-					Logger.warn(
-						"[chp.geminicli.invoke] Failed to invoke Gemini CLI via chat:",
-						err,
-					);
-					vscode.window.showWarningMessage(
-						"Failed to invoke Gemini CLI chat. Make sure GitHub Copilot Chat or VS Code Chat is available.",
-					);
-				}
-			},
-		);
-		context.subscriptions.push(geminiInvoke);
 	} catch (error) {
 		const errorMessage = `Copilot ++extension activation failed: ${error instanceof Error ? error.message : "Unknown error"}`;
 		Logger.error(errorMessage, error instanceof Error ? error : undefined);
