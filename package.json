@@ -903,7 +903,7 @@
 		"format:check": "biome format --check",
 		"watch": "node esbuild.config.js --watch --dev",
 		"package": "vsce package",
-		"publish": "vsce publish --allow-proposed-apis chatProvider",
+		"publish": "vsce publish --allow-proposed-apis chatProvider chatParticipantAdditions defaultChatParticipant",
 		"pretest": "npm run compile:dev",
 		"release": "vsce package && \"${VSCODE_BIN:-/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code}\" --install-extension *.vsix --force",
 		"test": "echo \"No tests specified\" && exit 0"
