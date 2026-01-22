@@ -6,6 +6,7 @@ export enum ProviderKey {
 	DeepSeek = "deepseek",
 	GeminiCli = "geminicli",
 	Huggingface = "huggingface",
+	LightningAI = "lightningai",
 	Kimi = "kimi",
 	Mistral = "mistral",
 	MiniMax = "minimax",

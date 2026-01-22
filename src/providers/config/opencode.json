@@ -4,6 +4,18 @@
     "apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "models": [
         {
+            "id": "internal-opus",
+            "name": "internal-opus",
+            "tooltip": "internal-opus by OpenCode",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "internal-opus",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
             "id": "claude-opus-4-5",
             "name": "claude-opus-4-5",
             "tooltip": "claude-opus-4-5 by OpenCode",
@@ -106,6 +118,18 @@
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
             "model": "gpt-5.2",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "gpt-5.2-codex",
+            "name": "gpt-5.2-codex",
+            "tooltip": "gpt-5.2-codex by OpenCode",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "gpt-5.2-codex",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false

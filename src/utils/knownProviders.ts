@@ -47,6 +47,12 @@ export const KnownProviders: Record<string, KnownProviderConfig> = {
 	chutes: { displayName: "Chutes" },
 	opencode: { displayName: "OpenCode" },
 	huggingface: { displayName: "Hugging Face" },
+	lightningai: {
+		displayName: "Lightning AI",
+		openai: {
+			baseUrl: "https://lightning.ai/api/v1",
+		},
+	},
 	zenmux: {
 		displayName: "Zenmux",
 		openai: {

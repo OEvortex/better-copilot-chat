@@ -1,0 +1,379 @@
+{
+    "displayName": "Lightning AI",
+    "baseUrl": "https://lightning.ai/api/v1",
+    "apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "models": [
+        {
+            "id": "openai/o3",
+            "name": "o3",
+            "tooltip": "o3 is a versatile, high-performing model across many domains. It raises the bar in math, science, coding, and visual reasoning, and it’s excellent at technical writing and following instructions. Use it to tackle multi-step problems that combine text, code, and images.",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "openai/o3",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "openai/gpt-4o",
+            "name": "GPT 4o",
+            "tooltip": "GPT-4o is OpenAI’s multimodal model, handling both text and image inputs with text outputs. It matches the intelligence of GPT-4 Turbo but runs twice as fast at half the cost. The model also brings stronger non-English language support and improved visual understanding.",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-4o",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "openai/gpt-4",
+            "name": "GPT 4",
+            "tooltip": "The default GPT-4 model with an 8,192-token context window.",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-4",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "google/gemini-2.5-flash-lite-preview-06-17",
+            "name": "Gemini 2.5 Flash Lite",
+            "tooltip": "Gemini 2.5 Flash-Lite is a model developed by Google DeepMind, designed to handle various tasks including reasoning, science, mathematics, code generation, and more. It features advanced capabilities in multilingual performance and long context understanding. It is optimized for low latency use cases, supporting multimodal input with a 1 million-token context length.\n\n",
+            "maxInputTokens": 1032576,
+            "maxOutputTokens": 16000,
+            "model": "google/gemini-2.5-flash-lite-preview-06-17",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "lightning-ai/llama-3.3-70b",
+            "name": "llama-3.3-70b",
+            "tooltip": "Llama 3.3 is a text-only 70B instruction-tuned model that provides enhanced performance relative to Llama 3.1 70B–and relative to Llama 3.2 90B when used for text-only applications. Moreover, for some applications, Llama 3.3 70B approaches the performance of Llama 3.1 405B.",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "lightning-ai/llama-3.3-70b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "lightning-ai/DeepSeek-V3.1",
+            "name": "DeepSeek-V3.1",
+            "tooltip": "DeepSeek-V3.1 is a hybrid model that supports both thinking mode and non-thinking mode, switching between them with a simple chat template. It brings smarter tool calling, with much better performance in tool usage and agent tasks thanks to post-training optimization. The model also delivers higher thinking efficiency, reaching answer quality similar to DeepSeek-R1-0528 but with faster responses.",
+            "maxInputTokens": 147840,
+            "maxOutputTokens": 16000,
+            "model": "lightning-ai/DeepSeek-V3.1",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "openai/o3-mini",
+            "name": "o3-mini",
+            "tooltip": "OpenAI o3-mini is a lightweight, cost-efficient model built for STEM reasoning tasks like math, science, and coding. It lets you adjust its reasoning effort to balance speed and depth.The model delivers strong accuracy, matching the larger o1 on tough benchmarks while running faster and cheaper.",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "openai/o3-mini",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "anthropic/claude-haiku-4-5-20251001",
+            "name": "Claude Haiku 4.5",
+            "tooltip": "Claude Haiku 4.5 delivers near-frontier performance with exceptional speed and cost-efficiency. It excels at real-time tasks like chat assistants, coding, and multi-agent workflows. Use it alone or alongside Sonnet 4.5 for fast, scalable execution.",
+            "maxInputTokens": 136000,
+            "maxOutputTokens": 64000,
+            "model": "anthropic/claude-haiku-4-5-20251001",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "anthropic/claude-sonnet-4-5-20250929",
+            "name": "Claude Sonnet 4.5",
+            "tooltip": "Claude Sonnet 4.5 is a frontier AI model that excels at coding, creating complex agents, and using computers for real-world tasks. It also features significant improvements in reasoning, math, and alignment, making it the most powerful model in its series.",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "anthropic/claude-sonnet-4-5-20250929",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "google/gemini-3-pro-preview",
+            "name": "Gemini 3 pro preview",
+            "tooltip": "The best model in the world for multimodal understanding, and our most powerful agentic and vibe-coding model yet",
+            "maxInputTokens": 1032576,
+            "maxOutputTokens": 16000,
+            "model": "google/gemini-3-pro-preview",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "anthropic/claude-opus-4-5-20251101",
+            "name": "Claude Opus 4.5",
+            "tooltip": "Anthropic's Premium model combining maximum intelligence with practical performance",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "anthropic/claude-opus-4-5-20251101",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "anthropic/claude-sonnet-4-20250514",
+            "name": "Claude Sonnet 4",
+            "tooltip": "Claude Sonnet 4 improves on Sonnet 3.7 with stronger coding and reasoning skills, better precision, and greater reliability. It scores 72.7% on SWE-bench while staying efficient, making it ideal for both everyday coding and complex software projects.\n",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "anthropic/claude-sonnet-4-20250514",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "openai/gpt-5",
+            "name": "GPT-5",
+            "tooltip": "GPT-5 is OpenAI model that is built for complex, step-by-step tasks that demand precise instruction following and high-stakes accuracy. It supports test-time routing plus prompts like “think hard about this.” It also reduces hallucinations and sycophancy while improving performance in coding, writing, and health-related tasks.\n",
+            "maxInputTokens": 384000,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "lightning-ai/gpt-oss-120b",
+            "name": "gpt-oss-120b",
+            "tooltip": "gpt-oss-120B is a 117 billion parameter language model, using a mixture-of-experts approach but activating only 5.1 billion per token for efficiency. It supports long contexts of up to 128k tokens, enabling it to handle extended conversations or documents smoothly. The model performs nearly at the level of o4-mini on reasoning tasks and surpasses many other open models in quality.",
+            "maxInputTokens": 1,
+            "maxOutputTokens": 131072,
+            "model": "lightning-ai/gpt-oss-120b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "openai/gpt-5-mini",
+            "name": "GPT-5 mini",
+            "tooltip": "GPT-5 Mini is a smaller, more efficient variant of GPT-5 built for lighter reasoning tasks. It maintains the strong instruction-following and safety features of GPT-5 while offering faster responses and lower costs.",
+            "maxInputTokens": 384000,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-5-mini",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "lightning-ai/gpt-oss-20b",
+            "name": "gpt-oss-20b",
+            "tooltip": "gpt-oss-20B is a 21-billion parameter language model built with a mixture-of-experts design that activates only about 3.6 billion parameters per token. This efficiency allows it to run on devices with as little as 16 GB of memory, making it well-suited for local setups or edge devices.",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "lightning-ai/gpt-oss-20b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "openai/gpt-5-nano",
+            "name": "GPT-5 nano",
+            "tooltip": "GPT-5-Nano is the smallest and fastest variant in the GPT-5 system, built as a unified system that can decide when to respond quickly or dig deeper depending on what you ask it. It gets much better across a wide range of skills — writing, coding, math, health, and visual tasks — and is more reliable and accurate in real-world scenarios. Compared to earlier models, it hallucinates less, follows instructions more faithfully, and understands the context better.",
+            "maxInputTokens": 384000,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-5-nano",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "anthropic/claude-opus-4-20250514",
+            "name": "claude-opus-4-20250514",
+            "tooltip": "Claude Opus 4 is Anthropic’s coding model, built for complex, long-running tasks and agent workflows. It leads in software engineering benchmarks with 72.5% on SWE-bench and 43.2% on Terminal-bench. The model is designed for extended use, sustaining thousands of task steps over hours without performance drop.",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "anthropic/claude-opus-4-20250514",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "anthropic/claude-opus-4-1-20250805",
+            "name": "Claude Opus 4.1",
+            "tooltip": "Claude Opus 4.1 is an enhanced version of Anthropic’s flagship model, with stronger coding, reasoning, and agentic capabilities. It scores 74.5% on SWE-bench Verified and improves at multi-file refactoring, debugging, and detailed reasoning. With support for extended thinking up to 64K tokens, it’s well-suited for research, data analysis, and tool-assisted problem solving.",
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
+            "model": "anthropic/claude-opus-4-1-20250805",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "google/gemini-2.5-pro",
+            "name": "Gemini 2.5 Pro",
+            "tooltip": "Gemini 2.5 Pro is Google’s AI model built for advanced reasoning, coding, math, and scientific work. With integrated “thinking” capabilities, it delivers more accurate answers and handles context with greater nuance. It ranks at the top of multiple benchmarks, including first place on the LMArena leaderboard, showcasing strong human-preference alignment and exceptional problem-solving skills.",
+            "maxInputTokens": 1032576,
+            "maxOutputTokens": 16000,
+            "model": "google/gemini-2.5-pro",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "google/gemini-2.5-flash",
+            "name": "Gemini 2.5 Flash",
+            "tooltip": "Gemini 2.5 Flash is Google’s powerful model built for complex reasoning, coding, math, and scientific challenges. With integrated “thinking” capabilities, it delivers more accurate answers and handles context with greater nuance.",
+            "maxInputTokens": 1032576,
+            "maxOutputTokens": 16000,
+            "model": "google/gemini-2.5-flash",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "openai/gpt-5.2-2025-12-11",
+            "name": "GPT 5.2",
+            "tooltip": "GPT-5.2 is OpenAI's  flagship model for coding and agentic tasks across industries. ",
+            "maxInputTokens": 384000,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-5.2-2025-12-11",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "openai/gpt-4.1",
+            "name": "GPT 4.1",
+            "tooltip": "OpenAI’s fast and capable model for reasoning, coding, and chat. It responds quickly, supports long context (128k tokens), and runs efficiently at scale—ideal for advanced API applications.",
+            "maxInputTokens": 1031576,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-4.1",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "anthropic/claude-3-5-sonnet-20240620",
+            "name": "litServe helper",
+            "tooltip": "Claude 3.5 Sonnet offers stronger performance than Opus, faster speeds than Sonnet, and the same affordable pricing. It stands out in coding (~49% on SWE-Bench Verified), data science with unstructured data, visual processing of charts and images, and agentic tasks that require complex multi-step problem solving with tools and systems.",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "anthropic/claude-3-5-sonnet-20240620",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "openai/gpt-4-turbo-preview",
+            "name": "Lightning SDK expert",
+            "tooltip": "openai/gpt-4-turbo-preview by Lightning AI",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-4-turbo-preview",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "openai/gpt-4-turbo-preview",
+            "name": "LitLogger helper",
+            "tooltip": "openai/gpt-4-turbo-preview by Lightning AI",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-4-turbo-preview",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "google/gemini-3-flash-preview",
+            "name": "Gemini Flash 3",
+            "tooltip": "Gemini 3 Flash Preview is designed to deliver strong agentic capabilities (near-Pro level) at substantial speed and value.",
+            "maxInputTokens": 1032576,
+            "maxOutputTokens": 16000,
+            "model": "google/gemini-3-flash-preview",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "openai/gpt-3.5-turbo",
+            "name": "GPT-3.5-turbo",
+            "tooltip": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.",
+            "maxInputTokens": 385,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-3.5-turbo",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "openai/gpt-4-turbo",
+            "name": "GPT-4-turbo",
+            "tooltip": "GPT-4 Turbo is an upgraded version of GPT-4, designed to deliver the same high intelligence while being faster and more cost-effective.",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-4-turbo",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "openai/o1-preview",
+            "name": "o1",
+            "tooltip": "OpenAI o1-preview is a model built to “think more” before answering, letting it tackle tougher tasks in science, math, and coding than many earlier models. In benchmark tests, it performs at a level comparable to PhD students in disciplines like physics, chemistry, and biology. It is part of a reasoning-focused series from OpenAI.",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "openai/o1-preview",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "openai/o1-mini",
+            "name": "o1-mini",
+            "tooltip": "o1 is built to spend more time thinking before it answers. It’s optimized for math, science, programming, and other STEM tasks, consistently reaching PhD-level accuracy on benchmarks in physics, chemistry, and biology.",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "openai/o1-mini",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        }
+    ]
+}

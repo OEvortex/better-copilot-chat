@@ -3,7 +3,7 @@
 	"publisher": "OEvortex",
 	"displayName": "Copilot ++",
 	"description": "An extension that provides model support for GitHub Copilot Chat, including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Alibaba Cloud Bailian, and custom OpenAI/Anthropic compatible models.",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"license": "MIT",
 	"keywords": [
 		"ai",
@@ -57,6 +57,7 @@
 		"onLanguageModelProvider:chp.zenmux",
 		"onLanguageModelProvider:chp.opencode",
 		"onLanguageModelProvider:chp.huggingface",
+		"onLanguageModelProvider:chp.lightningai",
 		"onLanguageModelProvider:chp.deepinfra",
 		"onLanguageModelProvider:chp.mistral",
 		"onLanguageModelProvider:chp.qwencli",
@@ -137,6 +138,16 @@
 			{
 				"command": "chp.huggingface.setApiKey",
 				"title": "Set Hugging Face API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.lightningai.setApiKey",
+				"title": "Set Lightning AI API Key",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.lightningai.configWizard",
+				"title": "Start Lightning AI Configuration Wizard",
 				"category": "Copilot ++"
 			},
 			{
@@ -618,6 +629,19 @@
 						"apiKey": {
 							"type": "string",
 							"description": "Hugging Face API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.lightningai",
+				"displayName": "⦿ Lightning AI",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "Lightning AI API key.",
 							"secret": true
 						}
 					}

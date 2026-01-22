@@ -14,6 +14,7 @@ import { CompatibleProvider } from "./providers/compatible/compatibleProvider";
 import { DeepInfraProvider } from "./providers/deepinfra/deepinfraProvider";
 import { GeminiCliProvider } from "./providers/geminicli/provider";
 import { HuggingfaceProvider } from "./providers/huggingface/provider";
+import { LightningAIProvider } from "./providers/lightningai/provider";
 import { MiniMaxProvider } from "./providers/minimax/minimaxProvider";
 import { MistralProvider } from "./providers/mistral/mistralProvider";
 import { OpenCodeProvider } from "./providers/opencode/opencodeProvider";
@@ -49,6 +50,7 @@ const registeredProviders: Record<
 	| ChutesProvider
 	| ZenmuxProvider
 	| OpenCodeProvider
+	| LightningAIProvider
 	| QwenCliProvider
 	| GeminiCliProvider
 	| HuggingfaceProvider
@@ -144,8 +146,15 @@ async function activateProviders(
 						providerConfig,
 					);
 					provider = result.provider;
-					disposables = result.disposables;
-				} else if (providerKey === "opencode") {
+					disposables = result.disposables;				} else if (providerKey === "lightningai") {
+					// Use specialized provider for lightningai (dynamic model fetching)
+					const result = LightningAIProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider as unknown as GenericModelProvider;
+					disposables = result.disposables;				} else if (providerKey === "opencode") {
 					// Use specialized provider for opencode (dedicated error handling and status)
 					const result = OpenCodeProvider.createAndActivate(
 						context,

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] - 2026-01-22
+
+### Added
+- **Lightning AI Provider**: Integrated a dedicated provider for Lightning AI (`https://lightning.ai/api/v1`).
+  - **Dynamic Model Fetching**: Automatically retrieves available models from the Lightning AI endpoint with real-time metadata (context length, vision support, etc.).
+  - **Configuration Wizard**: Added an interactive setup wizard to guide users through the required API key format (`APIKey/Username/StudioName`).
+  - **Robust Tool Calling**: Implemented advanced tool calling support with schema sanitization and parameter-aware conversion, optimized for Lightning AI's model backends.
+  - **Enhanced Error Handling**: Added specific handling for `401 Unauthorized` (auth/format issues) and `402 Payment Required` (quota/balance issues) with user-friendly guidance.
+  - **Parameter Optimization**: Automatically handles Lightning AI's restriction on specifying both `temperature` and `top_p` in a single request.
+
+### Improved
+- **Provider Registration**: Refactored extension activation logic to include Lightning AI in parallel registration and UI overview.
+- **Type Safety**: Improved internal type casting for specialized providers during extension startup.
+
 ## [0.1.6] - 2026-01-14
 
 ### Added

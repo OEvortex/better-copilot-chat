@@ -1036,6 +1036,18 @@
             }
         },
         {
+            "id": "openai-gpt-5-2-codex",
+            "name": "OpenAI: GPT-5.2-Codex",
+            "tooltip": "OpenAI: GPT-5.2-Codex by Zenmux",
+            "maxInputTokens": 384000,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-5.2-codex",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
             "id": "xiaomi-mimo-v2-flash",
             "name": "Xiaomi: MiMo-V2-Flash",
             "tooltip": "Xiaomi: MiMo-V2-Flash by Zenmux",
@@ -1078,6 +1090,30 @@
             "maxInputTokens": 184000,
             "maxOutputTokens": 16000,
             "model": "z-ai/glm-4.7",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "z-ai-glm-4-7-flash-free",
+            "name": "Z.AI: GLM 4.7 Flash (Free)",
+            "tooltip": "Z.AI: GLM 4.7 Flash (Free) by Zenmux",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "z-ai/glm-4.7-flash-free",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "z-ai-glm-4-7-flashx",
+            "name": "Z.AI: GLM 4.7 FlashX",
+            "tooltip": "Z.AI: GLM 4.7 FlashX by Zenmux",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "z-ai/glm-4.7-flashx",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
