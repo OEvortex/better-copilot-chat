@@ -20,6 +20,7 @@ import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
+import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
 
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
@@ -436,11 +437,13 @@ export class OllamaProvider
 		const setApiKeyCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.setApiKey`,
 			async () => {
-				await ApiKeyManager.promptAndSetApiKey(
+				await ProviderWizard.startWizard({
 					providerKey,
-					providerConfig.displayName,
-					providerConfig.apiKeyTemplate,
-				);
+					displayName: providerConfig.displayName,
+					apiKeyTemplate: providerConfig.apiKeyTemplate,
+					supportsApiKey: true,
+					supportsBaseUrl: true
+				});
 				await provider.modelInfoCache?.invalidateCache(providerKey);
 				provider._onDidChangeLanguageModelChatInformation.fire(undefined);
 			},

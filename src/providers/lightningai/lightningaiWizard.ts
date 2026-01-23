@@ -6,6 +6,7 @@
 import * as vscode from "vscode";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { Logger } from "../../utils/logger";
+import { ProviderWizard } from "../../utils/providerWizard";
 
 export class LightningAIWizard {
 	private static readonly PROVIDER_KEY = "lightningai";
@@ -18,14 +19,19 @@ export class LightningAIWizard {
 		apiKeyTemplate: string,
 	): Promise<void> {
 		try {
-			const choice = await vscode.window.showQuickPick(
-				[
-					{
-						label: `$(key) Set ${displayName} API Key`,
-						detail: `Format: APIKey/Username/StudioName (e.g., 26e4d40e.../abhay/vision-model)`,
-						action: "updateApiKey",
-					},
-				],
+				const choice = await vscode.window.showQuickPick(
+					[
+						{
+							label: `$(key) Configure ${displayName} API Key`,
+							detail: `Format: APIKey/Username/StudioName (e.g., 26e4d40e.../abhay/vision-model)`,
+							action: "updateApiKey",
+						},
+						{
+							label: "$(globe) Configure Base URL (Proxy)",
+							detail: `Override ${displayName} endpoint (optional)`,
+							action: "baseUrl",
+						},
+					],
 				{
 					title: `${displayName} Configuration Menu`,
 					placeHolder: "Select action to perform",
@@ -37,9 +43,12 @@ export class LightningAIWizard {
 				return;
 			}
 
-			if (choice.action === "updateApiKey") {
-				await LightningAIWizard.showSetApiKeyStep(displayName, apiKeyTemplate);
-			}
+				if (choice.action === "updateApiKey") {
+					await LightningAIWizard.showSetApiKeyStep(displayName, apiKeyTemplate);
+				}
+				if (choice.action === "baseUrl") {
+					await ProviderWizard.configureBaseUrl("lightningai", displayName);
+				}
 		} catch (error) {
 			Logger.error(
 				`Lightning AI configuration wizard error: ${error instanceof Error ? error.message : "Unknown error"}`,

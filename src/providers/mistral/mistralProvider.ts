@@ -21,6 +21,7 @@ import {
 	MistralHandler,
 	TokenCounter,
 } from "../../utils";
+import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
 
 /**
@@ -64,16 +65,18 @@ export class MistralProvider
 			provider,
 		);
 
-		// Register command to set API key
+		// Register configuration command
 		const setApiKeyCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.setApiKey`,
 			async () => {
-				await ApiKeyManager.promptAndSetApiKey(
+				await ProviderWizard.startWizard({
 					providerKey,
-					providerConfig.displayName,
-					providerConfig.apiKeyTemplate,
-				);
-				// Clear cache after API key change
+					displayName: providerConfig.displayName,
+					apiKeyTemplate: providerConfig.apiKeyTemplate,
+					supportsApiKey: true,
+					supportsBaseUrl: true
+				});
+				// Clear cache after configuration change
 				await provider.modelInfoCache?.invalidateCache(providerKey);
 				// Trigger model information change event
 				provider._onDidChangeLanguageModelChatInformation.fire();
@@ -119,7 +122,6 @@ export class MistralProvider
 			throw new Error(errorMessage);
 		}
 
-		// Determine actual provider based on provider field in model configuration
 		const effectiveProviderKey = modelConfig.provider || this.providerKey;
 
 		try {

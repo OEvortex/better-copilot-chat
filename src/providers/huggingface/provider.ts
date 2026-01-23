@@ -15,6 +15,7 @@ import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
+import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import type { HFModelItem, HFModelsResponse } from "./types";
 import { validateRequest } from "./utils";
@@ -202,12 +203,14 @@ export class HuggingfaceProvider
 			return entries;
 		});
 
-		this._chatEndpoints = infos.map((info) => ({
+		const dedupedInfos = this.dedupeModelInfos(infos);
+
+		this._chatEndpoints = dedupedInfos.map((info) => ({
 			model: info.id,
 			modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens,
 		}));
 
-		return infos;
+		return dedupedInfos;
 	}
 
 	async provideLanguageModelChatInformation(
@@ -224,7 +227,8 @@ export class HuggingfaceProvider
 		apiKey: string,
 	): Promise<{ models: HFModelItem[] }> {
 		const modelsList = (async () => {
-			const resp = await fetch(`${BASE_URL}/models`, {
+			const baseUrl = this.providerConfig.baseUrl || BASE_URL;
+			const resp = await fetch(`${baseUrl}/models`, {
 				method: "GET",
 				headers: {
 					Authorization: `Bearer ${apiKey}`,
@@ -573,7 +577,8 @@ export class HuggingfaceProvider
 	 * Create OpenAI client for HuggingFace API
 	 */
 	private async createOpenAIClient(apiKey: string): Promise<OpenAI> {
-		const cacheKey = `huggingface:${BASE_URL}`;
+		const baseUrl = this.providerConfig.baseUrl || BASE_URL;
+		const cacheKey = `huggingface:${baseUrl}`;
 		const cached = this.clientCache.get(cacheKey);
 		if (cached) {
 			cached.lastUsed = Date.now();
@@ -582,7 +587,7 @@ export class HuggingfaceProvider
 
 		const client = new OpenAI({
 			apiKey: apiKey,
-			baseURL: BASE_URL,
+			baseURL: baseUrl,
 			defaultHeaders: {
 				"User-Agent": this.userAgent,
 			},
@@ -640,11 +645,13 @@ export class HuggingfaceProvider
 		const setApiKeyCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.setApiKey`,
 			async () => {
-				await ApiKeyManager.promptAndSetApiKey(
+				await ProviderWizard.startWizard({
 					providerKey,
-					providerConfig.displayName,
-					providerConfig.apiKeyTemplate,
-				);
+					displayName: providerConfig.displayName,
+					apiKeyTemplate: providerConfig.apiKeyTemplate,
+					supportsApiKey: true,
+					supportsBaseUrl: true
+				});
 				// Clear cached models and notify VS Code the available models may have changed
 				await provider.modelInfoCache?.invalidateCache(providerKey);
 				provider._onDidChangeLanguageModelChatInformation.fire(undefined);

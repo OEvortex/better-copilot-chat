@@ -22,6 +22,7 @@ import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
+import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import type { ChutesModelItem, ChutesModelsResponse } from "./types";
 import { validateRequest } from "./utils";
@@ -148,7 +149,9 @@ export class ChutesProvider
 			modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens,
 		}));
 
-		return infos;
+		const dedupedInfos = this.dedupeModelInfos(infos);
+
+		return dedupedInfos;
 	}
 
 	async provideLanguageModelChatInformation(
@@ -165,7 +168,8 @@ export class ChutesProvider
 		apiKey: string,
 	): Promise<{ models: ChutesModelItem[] }> {
 		const modelsList = (async () => {
-			const resp = await fetch(`${BASE_URL}/models`, {
+			const baseUrl = this.providerConfig.baseUrl || BASE_URL;
+			const resp = await fetch(`${baseUrl}/models`, {
 				method: "GET",
 				headers: {
 					Authorization: `Bearer ${apiKey}`,
@@ -610,7 +614,8 @@ export class ChutesProvider
 	 * Create OpenAI client for Chutes API
 	 */
 	private async createOpenAIClient(apiKey: string): Promise<OpenAI> {
-		const cacheKey = `chutes:${BASE_URL}`;
+		const baseUrl = this.providerConfig.baseUrl || BASE_URL;
+		const cacheKey = `chutes:${baseUrl}`;
 		const cached = this.clientCache.get(cacheKey);
 		if (cached) {
 			cached.lastUsed = Date.now();
@@ -619,7 +624,7 @@ export class ChutesProvider
 
 		const client = new OpenAI({
 			apiKey: apiKey,
-			baseURL: BASE_URL,
+			baseURL: baseUrl,
 			defaultHeaders: {
 				"User-Agent": this.userAgent,
 			},
@@ -702,11 +707,13 @@ export class ChutesProvider
 		const setApiKeyCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.setApiKey`,
 			async () => {
-				await ApiKeyManager.promptAndSetApiKey(
+				await ProviderWizard.startWizard({
 					providerKey,
-					providerConfig.displayName,
-					providerConfig.apiKeyTemplate,
-				);
+					displayName: providerConfig.displayName,
+					apiKeyTemplate: providerConfig.apiKeyTemplate,
+					supportsApiKey: true,
+					supportsBaseUrl: true
+				});
 				// Clear cached models and notify VS Code the available models may have changed
 				await provider.modelInfoCache?.invalidateCache(providerKey);
 				provider._onDidChangeLanguageModelChatInformation.fire(undefined);

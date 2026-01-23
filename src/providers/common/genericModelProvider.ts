@@ -24,14 +24,16 @@ import {
 	OpenAIHandler,
 	TokenCounter,
 } from "../../utils";
+import { ProviderWizard } from "../../utils/providerWizard";
+import { MoonshotWizard } from "../moonshot/moonshotWizard";
 
 /**
  * Generic Model Provider Class
  * Dynamically create provider implementation based on configuration file
  */
 export class GenericModelProvider implements LanguageModelChatProvider {
-	protected readonly openaiHandler: OpenAIHandler;
-	protected readonly anthropicHandler: AnthropicHandler;
+	protected openaiHandler: OpenAIHandler;
+	protected anthropicHandler: AnthropicHandler;
 	protected readonly providerKey: string;
 	protected readonly context: vscode.ExtensionContext;
 	protected baseProviderConfig: ProviderConfig; // protected to support subclass access
@@ -80,6 +82,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 					this.providerKey,
 					this.baseProviderConfig,
 				);
+				this.refreshHandlers();
 				// Clear cache
 				this.modelInfoCache
 					?.invalidateCache(this.providerKey)
@@ -117,18 +120,46 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 			}
 		});
 
-		// Create OpenAI SDK handler
+		// Create SDK handlers (use overrides)
+		this.refreshHandlers();
+	}
+
+	/**
+	 * Refresh SDK handlers to apply baseUrl overrides
+	 */
+	protected refreshHandlers(): void {
+		this.openaiHandler?.dispose();
 		this.openaiHandler = new OpenAIHandler(
-			providerKey,
-			providerConfig.displayName,
-			providerConfig.baseUrl,
+			this.providerKey,
+			this.baseProviderConfig.displayName,
+			this.cachedProviderConfig.baseUrl,
 		);
-		// Create Anthropic SDK handler
 		this.anthropicHandler = new AnthropicHandler(
-			providerKey,
-			providerConfig.displayName,
-			providerConfig.baseUrl,
+			this.providerKey,
+			this.baseProviderConfig.displayName,
+			this.cachedProviderConfig.baseUrl,
 		);
+	}
+
+	/**
+	 * Deduplicate model info by id
+	 */
+	protected dedupeModelInfos(
+		models: LanguageModelChatInformation[],
+	): LanguageModelChatInformation[] {
+		const seen = new Set<string>();
+		const deduped: LanguageModelChatInformation[] = [];
+		for (const model of models) {
+			if (seen.has(model.id)) {
+				Logger.warn(
+					`[${this.providerKey}] Duplicate model id detected, skipping: ${model.id}`,
+				);
+				continue;
+			}
+			seen.add(model.id);
+			deduped.push(model);
+		}
+		return deduped;
 	}
 
 	/**
@@ -172,16 +203,25 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 			`chp.${providerKey}`,
 			provider,
 		);
-		// Register command to set API key
+		// Register command to configure provider
 		const setApiKeyCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.setApiKey`,
 			async () => {
-				await ApiKeyManager.promptAndSetApiKey(
-					providerKey,
-					providerConfig.displayName,
-					providerConfig.apiKeyTemplate,
-				);
-				// Clear cache after API key change
+				if (providerKey === "moonshot") {
+					await MoonshotWizard.startWizard(
+						providerConfig.displayName,
+						providerConfig.apiKeyTemplate,
+					);
+				} else {
+					await ProviderWizard.startWizard({
+						providerKey,
+						displayName: providerConfig.displayName,
+						apiKeyTemplate: providerConfig.apiKeyTemplate,
+						supportsApiKey: true,
+						supportsBaseUrl: true
+					});
+				}
+				// Clear cache after configuration change
 				await provider.modelInfoCache?.invalidateCache(providerKey);
 				// Trigger model information change event
 				provider._onDidChangeLanguageModelChatInformation.fire();
@@ -267,7 +307,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 				// Background asynchronous cache update (non-blocking, do not await)
 				this.updateModelCacheAsync(apiKeyHash);
 
-				return cachedModels;
+				return this.dedupeModelInfos(cachedModels);
 			}
 		} catch (err) {
 			Logger.warn(
@@ -321,7 +361,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 			Logger.warn(`[${this.providerKey}] Cache saving failed:`, err);
 		}
 
-		return models;
+		return this.dedupeModelInfos(models);
 	}
 
 	/**
@@ -331,9 +371,10 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 		// Use Promise to execute in background, do not wait for result
 		(async () => {
 			try {
-				const models = this.providerConfig.models.map((model) =>
+				let models = this.providerConfig.models.map((model) =>
 					this.modelConfigToInfo(model),
 				);
+				models = this.dedupeModelInfos(models);
 
 				await this.modelInfoCache?.cacheModels(
 					this.providerKey,

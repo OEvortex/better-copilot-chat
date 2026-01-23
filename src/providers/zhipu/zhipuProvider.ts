@@ -13,7 +13,6 @@ import type {
 } from "vscode";
 import * as vscode from "vscode";
 import type { ProviderConfig } from "../../types/sharedTypes";
-import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { GenericModelProvider } from "../common/genericModelProvider";
@@ -45,16 +44,15 @@ export class ZhipuProvider
 			`chp.${providerKey}`,
 			provider,
 		);
-		// Register set API key command
+		// Register configuration command
 		const setApiKeyCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.setApiKey`,
 			async () => {
-				await ApiKeyManager.promptAndSetApiKey(
-					providerKey,
+				await ZhipuWizard.startWizard(
 					providerConfig.displayName,
 					providerConfig.apiKeyTemplate,
 				);
-				// Clear cache after API key change
+				// Clear cache after configuration change
 				await provider.modelInfoCache?.invalidateCache(providerKey);
 				// Trigger model information change event
 				provider._onDidChangeLanguageModelChatInformation.fire();

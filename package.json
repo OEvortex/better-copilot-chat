@@ -63,6 +63,7 @@
 		"onLanguageModelProvider:chp.ollama",
 		"onLanguageModelProvider:chp.qwencli",
 		"onLanguageModelProvider:chp.geminicli",
+		"onLanguageModelProvider:chp.antigravity",
 		"onLanguageModelProvider:chp.codex",
 		"onLanguageModelTool:chp_zhipuWebSearch",
 		"onLanguageModelTool:chp_minimaxWebSearch",
@@ -72,7 +73,7 @@
 		"commands": [
 			{
 				"command": "chp.zhipu.setApiKey",
-				"title": "Set ZhipuAI API Key",
+				"title": "Configure ZhipuAI",
 				"category": "Copilot ++"
 			},
 			{
@@ -82,82 +83,82 @@
 			},
 			{
 				"command": "chp.minimax.setApiKey",
-				"title": "Set MiniMax API Key",
+				"title": "Configure MiniMax",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.minimax.setCodingPlanApiKey",
-				"title": "Set MiniMax Coding Plan Dedicated Key",
+				"title": "Configure MiniMax Coding Plan Dedicated Key",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.minimax.setCodingPlanEndpoint",
-				"title": "Set MiniMax Coding Plan Endpoint (Domestic/International)",
+				"title": "Configure MiniMax Coding Plan Endpoint (Domestic/International)",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.minimax.configWizard",
-				"title": "Start MiniMax Configuration Wizard",
+				"title": "MiniMax Configuration Wizard",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.kimi.setApiKey",
-				"title": "Set Kimi API Key",
+				"title": "Configure Kimi For Coding Key",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.moonshot.setApiKey",
-				"title": "Set MoonshotAI API Key",
+				"title": "Configure MoonshotAI",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.moonshot.configWizard",
-				"title": "Start MoonshotAI Configuration Wizard",
+				"title": "MoonshotAI Configuration Wizard",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.deepseek.setApiKey",
-				"title": "Set DeepSeek API Key",
+				"title": "Configure DeepSeek",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.chutes.setApiKey",
-				"title": "Set Chutes API Key",
+				"title": "Configure Chutes",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.zenmux.setApiKey",
-				"title": "Set Zenmux API Key",
+				"title": "Configure Zenmux",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.opencode.setApiKey",
-				"title": "Set OpenCode API Key",
+				"title": "Configure OpenCode",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.huggingface.setApiKey",
-				"title": "Set Hugging Face API Key",
+				"title": "Configure Hugging Face",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.lightningai.setApiKey",
-				"title": "Set Lightning AI API Key",
+				"title": "Configure Lightning AI",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.lightningai.configWizard",
-				"title": "Start Lightning AI Configuration Wizard",
+				"title": "Lightning AI Configuration Wizard",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.deepinfra.setApiKey",
-				"title": "Set DeepInfra API Key",
+				"title": "Configure DeepInfra",
 				"category": "Copilot ++"
 			},
 			{
 				"command": "chp.mistral.setApiKey",
-				"title": "Set Mistral AI API Key",
+				"title": "Configure Mistral AI",
 				"category": "Copilot ++"
 			},
 			{
@@ -167,7 +168,7 @@
 			},
 			{
 				"command": "chp.ollama.setApiKey",
-				"title": "Set Ollama Cloud API Key",
+				"title": "Configure Ollama Cloud",
 				"category": "Copilot ++"
 			},
 			{

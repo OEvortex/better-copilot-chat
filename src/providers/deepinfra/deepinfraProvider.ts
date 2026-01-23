@@ -17,6 +17,7 @@ import {
 	RateLimiter,
 	TokenCounter,
 } from "../../utils";
+import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import type { DeepInfraModelItem, DeepInfraModelsResponse } from "./types";
 
@@ -56,7 +57,10 @@ export class DeepInfraProvider
 
 	private async fetchModels(apiKey: string): Promise<DeepInfraModelItem[]> {
 		try {
-			const resp = await fetch("https://api.deepinfra.com/v1/openai/models", {
+			const baseUrl =
+				this.providerConfig.baseUrl ||
+				"https://api.deepinfra.com/v1/openai";
+			const resp = await fetch(`${baseUrl}/models`, {
 				method: "GET",
 				headers: {
 					Authorization: `Bearer ${apiKey}`,
@@ -123,12 +127,14 @@ export class DeepInfraProvider
 			} as LanguageModelChatInformation;
 		});
 
-		this._chatEndpoints = infos.map((info) => ({
+		const dedupedInfos = this.dedupeModelInfos(infos);
+
+		this._chatEndpoints = dedupedInfos.map((info) => ({
 			model: info.id,
 			modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens,
 		}));
 
-		return infos;
+		return dedupedInfos;
 	}
 
 	override async provideLanguageModelChatInformation(
@@ -196,33 +202,20 @@ export class DeepInfraProvider
 			provider,
 		);
 
-		// Register set ApiKey command
+		// Register configuration command
 		const setApiKeyCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.setApiKey`,
 			async () => {
-				try {
-					const apiKey = await vscode.window.showInputBox({
-						prompt: `Enter API key for ${providerConfig.displayName}`,
-						placeHolder:
-							providerConfig.apiKeyTemplate ||
-							"sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-						ignoreFocusOut: true,
-					});
-					if (apiKey !== undefined) {
-						await ApiKeyManager.setApiKey(providerKey, apiKey || "");
-						vscode.window.showInformationMessage(
-							`${providerConfig.displayName} API key saved.`,
-						);
-						// Invalidate cache and trigger update
-						await provider.modelInfoCache?.invalidateCache(providerKey);
-						provider._onDidChangeLanguageModelChatInformation.fire();
-					}
-				} catch (err) {
-					Logger.error(`Failed to set API key for ${providerKey}:`, err);
-					vscode.window.showErrorMessage(
-						`Failed to set API key: ${err instanceof Error ? err.message : String(err)}`,
-					);
-				}
+				await ProviderWizard.startWizard({
+					providerKey,
+					displayName: providerConfig.displayName,
+					apiKeyTemplate: providerConfig.apiKeyTemplate,
+					supportsApiKey: true,
+					supportsBaseUrl: true
+				});
+				// Invalidate cache and trigger update
+				await provider.modelInfoCache?.invalidateCache(providerKey);
+				provider._onDidChangeLanguageModelChatInformation.fire();
 			},
 		);
 
@@ -237,7 +230,9 @@ export class DeepInfraProvider
 	}
 
 	private async createOpenAIClient(apiKey: string): Promise<OpenAI> {
-		const baseURL = "https://api.deepinfra.com/v1/openai";
+		const baseURL =
+			this.providerConfig.baseUrl ||
+			"https://api.deepinfra.com/v1/openai";
 		const cacheKey = `deepinfra:${baseURL}`;
 		const cached = this.clientCache.get(cacheKey);
 		if (cached) {

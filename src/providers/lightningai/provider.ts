@@ -169,12 +169,14 @@ export class LightningAIProvider
 			} as LanguageModelChatInformation;
 		});
 
-		this._chatEndpoints = infos.map((info) => ({
+		const dedupedInfos = this.dedupeModelInfos(infos);
+
+		this._chatEndpoints = dedupedInfos.map((info) => ({
 			model: info.id,
 			modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens,
 		}));
 
-		return infos;
+		return dedupedInfos;
 	}
 
 	async provideLanguageModelChatInformation(
@@ -190,7 +192,8 @@ export class LightningAIProvider
 	private async fetchModels(
 		apiKey: string,
 	): Promise<LightningAIModelItem[]> {
-		const resp = await fetch(`${BASE_URL}/models`, {
+		const baseUrl = this.providerConfig.baseUrl || BASE_URL;
+		const resp = await fetch(`${baseUrl}/models`, {
 			method: "GET",
 			headers: {
 				Authorization: `Bearer ${apiKey}`,
@@ -644,7 +647,8 @@ export class LightningAIProvider
 	}
 
 	private async createOpenAIClient(apiKey: string): Promise<OpenAI> {
-		const cacheKey = `lightningai:${BASE_URL}`;
+		const baseUrl = this.providerConfig.baseUrl || BASE_URL;
+		const cacheKey = `lightningai:${baseUrl}`;
 		const cached = this.clientCache.get(cacheKey);
 		if (cached) {
 			cached.lastUsed = Date.now();
@@ -653,7 +657,7 @@ export class LightningAIProvider
 
 		const client = new OpenAI({
 			apiKey: apiKey,
-			baseURL: BASE_URL,
+			baseURL: baseUrl,
 			defaultHeaders: { "User-Agent": this.userAgent },
 			maxRetries: 2,
 			timeout: 60000,

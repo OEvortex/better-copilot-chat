@@ -33,6 +33,16 @@ All notable changes to this project will be documented in this file.
   - Users can still manage compatible providers through the settings UI but activation is no longer automatic.
 
 ### Fixed
+- **Model Deduplication**: Fixed duplicate model registration issue in chatLanguageModels.json by adding deduplication logic to all providers.
+  - Added `dedupeModelInfos()` utility function to remove duplicate models based on model ID and vendor.
+  - Applied deduplication in `GenericModelProvider` and all dedicated providers (Chutes, DeepInfra, OpenCode, LightningAI, HuggingFace, Zenmux, Ollama).
+  - Deduplication ensures that model lists are cleaned before registration with VS Code's language model API.
+- **Custom BaseUrl Support**: Fixed custom baseUrl overrides not being respected in provider implementations.
+  - Updated all providers to use the effective (overridden) baseUrl from ConfigManager when instantiating API clients and making HTTP requests.
+  - Fixed API endpoint resolution in Chutes, DeepInfra, OpenCode, LightningAI, HuggingFace, and Zenmux providers.
+  - Ensured that `_chatEndpoints` and OpenAI client initialization respect custom baseUrl configuration.
+- **Handler Refresh on Config Changes**: Added handler refresh logic to ensure SDK handlers are updated when provider configuration changes.
+  - `GenericModelProvider` now refreshes handlers when configuration is updated to reflect new baseUrl or other settings.
 - **Extension Activation**: Fixed formatting/branching in provider registration to avoid malformed control flow.
 - **Ollama Tool Calling**: Fixed tool calling in Ollama provider to properly handle `tool_calls.function.arguments.done` events with accurate tool ID tracking.
 - **Authentication Flow**: Simplified Gemini CLI and Qwen CLI authentication by removing unnecessary API key requirements in native VS Code settings.

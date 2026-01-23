@@ -7,6 +7,7 @@
 import * as vscode from "vscode";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { Logger } from "../../utils/logger";
+import { ProviderWizard } from "../../utils/providerWizard";
 
 export class MoonshotWizard {
 	private static readonly PROVIDER_KEY = "moonshot";
@@ -24,22 +25,27 @@ export class MoonshotWizard {
 			const choice = await vscode.window.showQuickPick(
 				[
 					{
-						label: "$(key) Set Moonshot API Key",
+						label: "$(key) Configure Moonshot API Key",
 						detail:
 							"API key for calling Kimi-K2 series and other models on Moonshot AI Open Platform",
 						value: "moonshot",
 					},
 					{
-						label: "$(key) Set Kimi For Coding Dedicated Key",
+						label: "$(key) Configure Kimi For Coding Dedicated Key",
 						detail:
 							"Dedicated key for code development scenarios provided as a premium benefit in Kimi membership plan",
 						value: "kimi",
 					},
 					{
-						label: "$(check-all) Set Both Keys",
+						label: "$(check-all) Configure Both Keys",
 						detail:
 							"Configure Moonshot API key and Kimi For Coding dedicated key in sequence",
 						value: "both",
+					},
+					{
+						label: "$(globe) Configure Base URL (Proxy)",
+						detail: "Override MoonshotAI endpoint (optional)",
+						value: "baseUrl",
 					},
 				],
 				{
@@ -59,6 +65,10 @@ export class MoonshotWizard {
 
 			if (choice.value === "kimi" || choice.value === "both") {
 				await MoonshotWizard.setKimiApiKey(displayName);
+			}
+
+			if (choice.value === "baseUrl") {
+				await ProviderWizard.configureBaseUrl("moonshot", displayName);
 			}
 		} catch (error) {
 			Logger.error(

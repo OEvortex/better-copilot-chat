@@ -7,6 +7,7 @@ import * as vscode from "vscode";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager, type MiniMaxConfig } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
+import { ProviderWizard } from "../../utils/providerWizard";
 
 export class MiniMaxWizard {
 	private static readonly PROVIDER_KEY = "minimax";
@@ -31,17 +32,17 @@ export class MiniMaxWizard {
 			const choice = await vscode.window.showQuickPick(
 				[
 					{
-						label: "$(key) Set Regular API Key",
+						label: "$(key) Configure Regular API Key",
 						detail: "For standard pay-as-you-go models like MiniMax-M2",
 						value: "normal",
 					},
 					{
-						label: "$(key) Set Coding Plan Dedicated Key",
+						label: "$(key) Configure Coding Plan Dedicated Key",
 						detail: "For MiniMax-M2 (Coding Plan) model",
 						value: "coding",
 					},
 					{
-						label: "$(check-all) Set Both Keys",
+						label: "$(check-all) Configure Both Keys",
 						detail: "Configure regular key and Coding Plan key in sequence",
 						value: "both",
 					},
@@ -51,6 +52,11 @@ export class MiniMaxWizard {
 						detail:
 							"Set the endpoint site for Coding Plan: China (minimaxi.com) or International (minimax.io)",
 						value: "endpoint",
+					},
+					{
+						label: "$(globe) Configure Base URL (Proxy)",
+						detail: "Override MiniMax endpoint (optional)",
+						value: "baseUrl",
 					},
 				],
 				{
@@ -74,6 +80,10 @@ export class MiniMaxWizard {
 
 			if (choice.value === "endpoint") {
 				await MiniMaxWizard.setCodingPlanEndpoint(displayName);
+			}
+
+			if (choice.value === "baseUrl") {
+				await ProviderWizard.configureBaseUrl("minimax", displayName);
 			}
 		} catch (error) {
 			Logger.error(

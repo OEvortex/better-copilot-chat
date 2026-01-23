@@ -7,6 +7,7 @@ import * as vscode from "vscode";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
+import { ProviderWizard } from "../../utils/providerWizard";
 
 export class ZhipuWizard {
 	private static readonly PROVIDER_KEY = "zhipu";
@@ -34,7 +35,7 @@ export class ZhipuWizard {
 			const choice = await vscode.window.showQuickPick(
 				[
 					{
-						label: `$(key) Modify ${displayName} API Key`,
+						label: `$(key) Configure ${displayName} API Key`,
 						detail: `Set or delete ${displayName} API Key`,
 						action: "updateApiKey",
 					},
@@ -51,6 +52,11 @@ export class ZhipuWizard {
 						detail:
 							"Set ZhipuAI endpoint: Domestic (open.bigmodel.cn) or International (api.z.ai)",
 						action: "endpoint",
+					},
+					{
+						label: "$(globe) Configure Base URL (Proxy)",
+						detail: "Override ZhipuAI endpoint (optional)",
+						action: "baseUrl",
 					},
 				],
 				{
@@ -101,6 +107,8 @@ export class ZhipuWizard {
 				await ZhipuWizard.showMCPConfigStep(displayName);
 			} else if (choice.action === "endpoint") {
 				await ZhipuWizard.setEndpoint(displayName);
+			} else if (choice.action === "baseUrl") {
+				await ProviderWizard.configureBaseUrl("zhipu", displayName);
 			}
 		} catch (error) {
 			Logger.error(

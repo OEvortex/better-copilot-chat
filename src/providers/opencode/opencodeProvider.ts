@@ -22,6 +22,7 @@ import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
+import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { validateRequest } from "./utils";
 
@@ -168,12 +169,14 @@ export class OpenCodeProvider
 			} as LanguageModelChatInformation;
 		});
 
-		this._chatEndpoints = infos.map((info) => ({
+		const dedupedInfos = this.dedupeModelInfos(infos);
+
+		this._chatEndpoints = dedupedInfos.map((info) => ({
 			model: info.id,
 			modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens,
 		}));
 
-		return infos;
+		return dedupedInfos;
 	}
 
 	async provideLanguageModelChatInformation(
@@ -189,7 +192,8 @@ export class OpenCodeProvider
 	private async fetchModels(
 		apiKey: string,
 	): Promise<OpenCodeModelItem[]> {
-		const resp = await fetch(`${BASE_URL}/models`, {
+		const baseUrl = this.providerConfig.baseUrl || BASE_URL;
+		const resp = await fetch(`${baseUrl}/models`, {
 			method: "GET",
 			headers: {
 				Authorization: `Bearer ${apiKey}`,
@@ -617,7 +621,8 @@ export class OpenCodeProvider
 	}
 
 	private async createOpenAIClient(apiKey: string): Promise<OpenAI> {
-		const cacheKey = `opencode:${BASE_URL}`;
+		const baseUrl = this.providerConfig.baseUrl || BASE_URL;
+		const cacheKey = `opencode:${baseUrl}`;
 		const cached = this.clientCache.get(cacheKey);
 		if (cached) {
 			cached.lastUsed = Date.now();
@@ -626,7 +631,7 @@ export class OpenCodeProvider
 
 		const client = new OpenAI({
 			apiKey: apiKey,
-			baseURL: BASE_URL,
+			baseURL: baseUrl,
 			defaultHeaders: { "User-Agent": this.userAgent },
 			maxRetries: 2,
 			timeout: 60000,
@@ -683,11 +688,13 @@ export class OpenCodeProvider
 		const setApiKeyCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.setApiKey`,
 			async () => {
-				await ApiKeyManager.promptAndSetApiKey(
+				await ProviderWizard.startWizard({
 					providerKey,
-					providerConfig.displayName,
-					providerConfig.apiKeyTemplate,
-				);
+					displayName: providerConfig.displayName,
+					apiKeyTemplate: providerConfig.apiKeyTemplate,
+					supportsApiKey: true,
+					supportsBaseUrl: true
+				});
 				await provider.modelInfoCache?.invalidateCache(providerKey);
 				provider._onDidChangeLanguageModelChatInformation.fire(undefined);
 			},

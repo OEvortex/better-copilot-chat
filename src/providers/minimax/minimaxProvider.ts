@@ -50,15 +50,15 @@ export class MiniMaxProvider
 			provider,
 		);
 
-		// Register command to set normal API key
+		// Register configuration command
 		const setApiKeyCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.setApiKey`,
 			async () => {
-				await MiniMaxWizard.setNormalApiKey(
+				await MiniMaxWizard.startWizard(
 					providerConfig.displayName,
 					providerConfig.apiKeyTemplate,
 				);
-				// Clear cache after API key change
+				// Clear cache after configuration change
 				await provider.modelInfoCache?.invalidateCache(providerKey);
 				// Trigger model information change event
 				provider._onDidChangeLanguageModelChatInformation.fire();
