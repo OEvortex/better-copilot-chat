@@ -115,6 +115,7 @@ export class AntigravityProvider
 			const overrides = ConfigManager.getProviderOverrides();
 			const antigravityOverride = overrides[AntigravityProvider.PROVIDER_KEY];
 			const modelOverrides = antigravityOverride?.models || [];
+			const baseUrlOverride = antigravityOverride?.baseUrl;
 
 			this.cachedModels = models.map((m) => {
 				// Find override for this model
@@ -130,6 +131,10 @@ export class AntigravityProvider
 					sdkMode: "openai" as const,
 					capabilities: { toolCalling: true, imageInput: true },
 				};
+
+				if (baseUrlOverride) {
+					baseConfig.baseUrl = baseUrlOverride;
+				}
 
 				// Apply extraBody from override if present
 				if (override?.extraBody) {

@@ -72,10 +72,11 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 
 		// Listen for configuration changes
 		this.configListener = vscode.workspace.onDidChangeConfiguration((e) => {
-			// Check if it is a change in providerOverrides
+			// Check if it is a change in providerOverrides or baseUrl settings
 			if (
-				e.affectsConfiguration("chp.providerOverrides") &&
-				providerKey !== "compatible"
+				providerKey !== "compatible" &&
+				(e.affectsConfiguration("chp.providerOverrides") ||
+					e.affectsConfiguration(`chp.${providerKey}.baseUrl`))
 			) {
 				// Recalculate configuration
 				this.cachedProviderConfig = ConfigManager.applyProviderOverrides(

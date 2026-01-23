@@ -9,6 +9,7 @@ import type {
 	ConfigProvider,
 	ModelConfig,
 	ProviderConfig,
+	ProviderOverride,
 	UserConfigOverrides,
 } from "../types/sharedTypes";
 import { Logger } from "./logger";
@@ -127,6 +128,8 @@ export class ConfigManager {
 			ConfigManager.CONFIG_SECTION,
 		);
 
+		const providerOverrides = ConfigManager.buildProviderOverrides(config);
+
 		ConfigManager.cache = {
 			temperature: ConfigManager.validateTemperature(
 				config.get<number>("temperature", 0.1),
@@ -194,10 +197,7 @@ export class ConfigManager {
 					extraBody: config.get("nesCompletion.modelConfig.extraBody"),
 				},
 			},
-			providerOverrides: config.get<UserConfigOverrides>(
-				"providerOverrides",
-				{},
-			),
+			providerOverrides,
 		};
 
 		Logger.debug("Configuration loaded", ConfigManager.cache);
@@ -376,6 +376,44 @@ export class ConfigManager {
 	}
 
 	/**
+	 * Build provider overrides by merging baseUrl settings and providerOverrides config
+	 */
+	private static buildProviderOverrides(
+		config: vscode.WorkspaceConfiguration,
+	): UserConfigOverrides {
+		const configuredOverrides = config.get<UserConfigOverrides>(
+			"providerOverrides",
+			{},
+		);
+		const baseUrlOverrides: UserConfigOverrides = {};
+
+		for (const providerKey of Object.keys(configProviders)) {
+			const baseUrl = config
+				.get<string>(`${providerKey}.baseUrl`, "")
+				.trim();
+			if (baseUrl) {
+				baseUrlOverrides[providerKey] = { baseUrl };
+			}
+		}
+
+		const merged: UserConfigOverrides = { ...baseUrlOverrides };
+		for (const [key, override] of Object.entries(configuredOverrides)) {
+			const current = merged[key] ? { ...merged[key] } : {};
+			const normalizedBaseUrl = override.baseUrl?.trim();
+			const nextOverride: ProviderOverride = {
+				...current,
+				...override
+			};
+			if (!normalizedBaseUrl && current.baseUrl) {
+				nextOverride.baseUrl = current.baseUrl;
+			}
+			merged[key] = nextOverride;
+		}
+
+		return merged;
+	}
+
+	/**
 	 * Apply configuration override to original provider configuration
 	 */
 	static applyProviderOverrides(
@@ -398,6 +436,18 @@ export class ConfigManager {
 		if (override.baseUrl) {
 			config.baseUrl = override.baseUrl;
 			Logger.debug(`  Override baseUrl: ${override.baseUrl}`);
+			for (const model of config.models) {
+				model.baseUrl = override.baseUrl;
+			}
+		}
+
+		if (override.customHeader) {
+			for (const model of config.models) {
+				model.customHeader = {
+					...override.customHeader,
+					...model.customHeader,
+				};
+			}
 		}
 
 		// Apply model-level override
@@ -494,8 +544,14 @@ export class ConfigManager {
 						...(modelOverride.model && { model: modelOverride.model }),
 						...(modelOverride.sdkMode && { sdkMode: modelOverride.sdkMode }),
 						...(modelOverride.baseUrl && { baseUrl: modelOverride.baseUrl }),
+						...(override.baseUrl && !modelOverride.baseUrl && {
+							baseUrl: override.baseUrl,
+						}),
 						...(modelOverride.customHeader && {
 							customHeader: modelOverride.customHeader,
+						}),
+						...(override.customHeader && !modelOverride.customHeader && {
+							customHeader: override.customHeader,
 						}),
 						...(modelOverride.extraBody && {
 							extraBody: modelOverride.extraBody,

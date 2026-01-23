@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import type { ProviderOverride } from '../types/sharedTypes';
 import { ApiKeyManager } from './apiKeyManager';
 import { ConfigManager } from './configManager';
 import { Logger } from './logger';
@@ -93,17 +92,11 @@ export class ProviderWizard {
 			return;
 		}
 
-		const updatedOverrides = ProviderWizard.buildUpdatedOverrides(
-			providerKey,
-			baseUrlInfo.overrides,
-			result.trim()
-		);
-
 		try {
 			const config = vscode.workspace.getConfiguration('chp');
 			await config.update(
-				'providerOverrides',
-				updatedOverrides,
+				`${providerKey}.baseUrl`,
+				result.trim(),
 				vscode.ConfigurationTarget.Global
 			);
 			const message = result.trim()
@@ -120,39 +113,12 @@ export class ProviderWizard {
 	private static getBaseUrlInfo(providerKey: string): {
 		defaultBaseUrl?: string;
 		override?: string;
-		overrides: Record<string, ProviderOverride>;
 	} {
 		const providerConfigs = ConfigManager.getConfigProvider();
 		const overrides = ConfigManager.getProviderOverrides();
 		return {
 			defaultBaseUrl: providerConfigs[providerKey]?.baseUrl,
-			override: overrides[providerKey]?.baseUrl,
-			overrides
+			override: overrides[providerKey]?.baseUrl
 		};
-	}
-
-	private static buildUpdatedOverrides(
-		providerKey: string,
-		overrides: Record<string, ProviderOverride>,
-		baseUrl: string
-	): Record<string, ProviderOverride> {
-		const updated = { ...overrides };
-		const trimmed = baseUrl.trim();
-		const current = updated[providerKey] ? { ...updated[providerKey] } : {};
-
-		if (trimmed) {
-			current.baseUrl = trimmed;
-			updated[providerKey] = current;
-			return updated;
-		}
-
-		delete current.baseUrl;
-		if (Object.keys(current).length === 0) {
-			delete updated[providerKey];
-		} else {
-			updated[providerKey] = current;
-		}
-
-		return updated;
 	}
 }

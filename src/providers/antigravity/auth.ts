@@ -3,6 +3,7 @@ import { URL, URLSearchParams } from "node:url";
 import * as vscode from "vscode";
 import { ProviderKey } from "../../types/providerKeys";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
+import { ConfigManager } from "../../utils/configManager";
 import { configProviders } from "../config";
 import type {
 	AntigravityAuthResult,
@@ -285,6 +286,9 @@ async function addAllAntigravityModelsToCompatible(
 	const { CompatibleModelManager } = await import(
 		"../../utils/compatibleModelManager.js"
 	);
+		const baseUrlOverride =
+			ConfigManager.getProviderOverrides().antigravity?.baseUrl ||
+			"https://cloudcode-pa.googleapis.com/v1internal";
 	let addedCount = 0;
 	for (const model of models) {
 		try {
@@ -293,7 +297,7 @@ async function addAllAntigravityModelsToCompatible(
 				name: `${model.displayName} (Antigravity)`,
 				provider: PROVIDER_KEY,
 				sdkMode: "openai" as const,
-				baseUrl: "https://cloudcode-pa.googleapis.com/v1internal",
+				baseUrl: baseUrlOverride,
 				model: model.id,
 				maxInputTokens: model.maxTokens || 1000000,
 				maxOutputTokens: model.maxOutputTokens || 65536,
@@ -341,6 +345,9 @@ async function _showAntigravityModelsQuickPick(
 		const { CompatibleModelManager } = await import(
 			"../../utils/compatibleModelManager.js"
 		);
+		const baseUrlOverride =
+			ConfigManager.getProviderOverrides().antigravity?.baseUrl ||
+			"https://cloudcode-pa.googleapis.com/v1internal";
 		let addedCount = 0;
 		for (const item of selected) {
 			try {
@@ -349,7 +356,7 @@ async function _showAntigravityModelsQuickPick(
 					name: item.model.displayName,
 					provider: PROVIDER_KEY,
 					sdkMode: "openai" as const,
-					baseUrl: "https://cloudcode-pa.googleapis.com/v1internal",
+					baseUrl: baseUrlOverride,
 					model: item.model.id,
 					maxInputTokens: item.model.maxTokens || 1000000,
 					maxOutputTokens: item.model.maxOutputTokens || 65536,
