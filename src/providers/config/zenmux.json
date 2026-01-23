@@ -701,8 +701,8 @@
         },
         {
             "id": "baidu-ernie-5-0-thinking-preview",
-            "name": "Baidu: ERNIE-5.0-Thinking-Preview",
-            "tooltip": "Baidu: ERNIE-5.0-Thinking-Preview by Zenmux",
+            "name": "Baidu: ERNIE 5.0",
+            "tooltip": "Baidu: ERNIE 5.0 by Zenmux",
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
             "model": "baidu/ernie-5.0-thinking-preview",

@@ -11,6 +11,7 @@ import minimax from "./minimax.json";
 import mistral from "./mistral.json";
 import moonshot from "./moonshot.json";
 import opencode from "./opencode.json";
+import ollama from "./ollama.json";
 import qwencli from "./qwencli.json";
 import zenmux from "./zenmux.json";
 // Export all model configurations uniformly for easy import
@@ -25,6 +26,7 @@ const providers = {
 	antigravity,
 	chutes,
 	opencode,
+	ollama,
 	qwencli,
 	geminicli,
 	huggingface,

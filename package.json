@@ -60,6 +60,7 @@
 		"onLanguageModelProvider:chp.lightningai",
 		"onLanguageModelProvider:chp.deepinfra",
 		"onLanguageModelProvider:chp.mistral",
+		"onLanguageModelProvider:chp.ollama",
 		"onLanguageModelProvider:chp.qwencli",
 		"onLanguageModelProvider:chp.geminicli",
 		"onLanguageModelProvider:chp.codex",
@@ -163,6 +164,11 @@
 			{
 				"command": "chp.mistral.refreshStatus",
 				"title": "Refresh Mistral AI Status",
+				"category": "Copilot ++"
+			},
+			{
+				"command": "chp.ollama.setApiKey",
+				"title": "Set Ollama Cloud API Key",
 				"category": "Copilot ++"
 			},
 			{
@@ -668,6 +674,19 @@
 						"apiKey": {
 							"type": "string",
 							"description": "Mistral AI API key.",
+							"secret": true
+						}
+					}
+				}
+			},
+			{
+				"vendor": "chp.ollama",
+				"displayName": "⦿ Ollama Cloud",
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "Ollama Cloud API key.",
 							"secret": true
 						}
 					}

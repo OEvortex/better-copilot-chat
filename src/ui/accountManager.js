@@ -726,18 +726,12 @@ function showApiKeyForm(providerId, providerName) {
                                    placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx" required>
                             <div class="form-hint">Your ${escapeHtml(providerName)} API key</div>
                         </div>
-                        ${
-													providerId === "compatible"
-														? `
-                            <div class="form-group">
-                                <label class="form-label">Custom Endpoint (Optional)</label>
-                                <input type="url" class="form-input" id="endpoint" 
-                                       placeholder="https://api.example.com/v1">
-                                <div class="form-hint">Custom API endpoint URL</div>
-                            </div>
-                        `
-														: ""
-												}
+                        <div class="form-group">
+                            <label class="form-label">Base URL (Optional)</label>
+                            <input type="url" class="form-input" id="endpoint" 
+                                   placeholder="http://154.53.47.9:8000/v1">
+                            <div class="form-hint">Override the provider API base URL (e.g., proxy URL).</div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -1359,3 +1353,16 @@ function getCountdownUpdateInterval(remainingMs) {
 	}
 	return 1000;
 }
+
+// Expose handlers used by inline HTML and host initialization.
+window.initializeAccountManager = _initializeAccountManager;
+window.openGCMPSettings = _openGCMPSettings;
+window.showAddAccountModal = _showAddAccountModal;
+window.selectProviderForAdd = _selectProviderForAdd;
+window.submitAddAccount = _submitAddAccount;
+window.addAccountForProvider = _addAccountForProvider;
+window.handleAccountCardClick = _handleAccountCardClick;
+window.showAccountDetails = _showAccountDetails;
+window.confirmDeleteAccount = _confirmDeleteAccount;
+window.deleteAccount = _deleteAccount;
+window.refreshAccounts = _refreshAccounts;

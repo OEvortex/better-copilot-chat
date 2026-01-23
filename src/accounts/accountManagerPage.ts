@@ -54,8 +54,6 @@ export class AccountManagerPage {
 		{ id: "openai", name: "OpenAI", authType: "apiKey" },
 		{ id: "kimi", name: "Kimi (Moonshot)", authType: "apiKey" },
 		{ id: "minimax-coding", name: "MiniMax Coding", authType: "apiKey" },
-		{ id: "qwencli", name: "Qwen CLI", authType: "oauth" },
-		{ id: "geminicli", name: "Gemini CLI", authType: "oauth" },
 		{ id: "compatible", name: "Compatible (Custom)", authType: "apiKey" },
 	];
 

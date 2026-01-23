@@ -1,0 +1,343 @@
+{
+  "displayName": "Ollama Cloud",
+  "baseUrl": "https://ollama.com/v1",
+  "apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "models": [
+    {
+      "id": "cogito-2.1:671b",
+      "name": "cogito-2.1:671b",
+      "tooltip": "128K context window",
+      "maxInputTokens": 128000,
+      "maxOutputTokens": 128000,
+      "model": "cogito-2.1:671b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "glm-4.6",
+      "name": "glm-4.6",
+      "tooltip": "Context expanded from 128K to 200K tokens",
+      "maxInputTokens": 200000,
+      "maxOutputTokens": 131072,
+      "model": "glm-4.6",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "glm-4.7",
+      "name": "glm-4.7",
+      "tooltip": "200K+ token context window",
+      "maxInputTokens": 204800,
+      "maxOutputTokens": 131072,
+      "model": "glm-4.7",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "kimi-k2:1t",
+      "name": "kimi-k2:1t",
+      "tooltip": "Instruct variant, 128K context",
+      "maxInputTokens": 128000,
+      "maxOutputTokens": 16384,
+      "model": "kimi-k2:1t",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "kimi-k2-thinking",
+      "name": "kimi-k2-thinking",
+      "tooltip": "256K context window with reasoning capabilities",
+      "maxInputTokens": 256000,
+      "maxOutputTokens": 262144,
+      "model": "kimi-k2-thinking",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "qwen3-coder:480b",
+      "name": "qwen3-coder:480b",
+      "tooltip": "Native 256K, extensible to 1M with Yarn",
+      "maxInputTokens": 262144,
+      "maxOutputTokens": 131072,
+      "model": "qwen3-coder:480b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "qwen3-next:80b",
+      "name": "qwen3-next:80b",
+      "tooltip": "Native 262K tokens, extensible to 1M",
+      "maxInputTokens": 262144,
+      "maxOutputTokens": 65536,
+      "model": "qwen3-next:80b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "deepseek-v3.2",
+      "name": "deepseek-v3.2",
+      "tooltip": "128K context, default max output 4K, maximum 8K",
+      "maxInputTokens": 131072,
+      "maxOutputTokens": 8192,
+      "model": "deepseek-v3.2",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "deepseek-v3.1:671b",
+      "name": "deepseek-v3.1:671b",
+      "tooltip": "128K context window, 671B total parameters, 37B active",
+      "maxInputTokens": 131072,
+      "maxOutputTokens": 8192,
+      "model": "deepseek-v3.1:671b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "gpt-oss:120b",
+      "name": "gpt-oss:120b",
+      "tooltip": "128K context using RoPE, extended to 131K with YaRN",
+      "maxInputTokens": 131072,
+      "maxOutputTokens": 131072,
+      "model": "gpt-oss:120b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "nemotron-3-nano:30b",
+      "name": "nemotron-3-nano:30b",
+      "tooltip": "1M token context window, output limit not specified",
+      "maxInputTokens": 1000000,
+      "maxOutputTokens": 131072,
+      "model": "nemotron-3-nano:30b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "gpt-oss:20b",
+      "name": "gpt-oss:20b",
+      "tooltip": "Same 128K context as 120B variant",
+      "maxInputTokens": 131072,
+      "maxOutputTokens": 131072,
+      "model": "gpt-oss:20b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "qwen3-vl:235b-instruct",
+      "name": "qwen3-vl:235b-instruct",
+      "tooltip": "256K context (262,144), vision-language model",
+      "maxInputTokens": 262144,
+      "maxOutputTokens": 32768,
+      "model": "qwen3-vl:235b-instruct",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": true
+      }
+    },
+    {
+      "id": "qwen3-vl:235b",
+      "name": "qwen3-vl:235b",
+      "tooltip": "256K context, base model variant",
+      "maxInputTokens": 262144,
+      "maxOutputTokens": 262144,
+      "model": "qwen3-vl:235b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": true
+      }
+    },
+    {
+      "id": "minimax-m2",
+      "name": "minimax-m2",
+      "tooltip": "197K context length, 128K max output",
+      "maxInputTokens": 196608,
+      "maxOutputTokens": 131072,
+      "model": "minimax-m2",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "minimax-m2.1",
+      "name": "minimax-m2.1",
+      "tooltip": "204.8K context, enhanced from M2",
+      "maxInputTokens": 204800,
+      "maxOutputTokens": 131072,
+      "model": "minimax-m2.1",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "ministral-3:3b",
+      "name": "ministral-3:3b",
+      "tooltip": "256K context window",
+      "maxInputTokens": 262144,
+      "maxOutputTokens": 8192,
+      "model": "ministral-3:3b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "ministral-3:8b",
+      "name": "ministral-3:8b",
+      "tooltip": "256K context window",
+      "maxInputTokens": 262144,
+      "maxOutputTokens": 8192,
+      "model": "ministral-3:8b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "ministral-3:14b",
+      "name": "ministral-3:14b",
+      "tooltip": "256K context window",
+      "maxInputTokens": 262144,
+      "maxOutputTokens": 8192,
+      "model": "ministral-3:14b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "mistral-large-3:675b",
+      "name": "mistral-large-3:675b",
+      "tooltip": "128K context, 262K max output capacity",
+      "maxInputTokens": 131072,
+      "maxOutputTokens": 262144,
+      "model": "mistral-large-3:675b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "devstral-2:123b",
+      "name": "devstral-2:123b",
+      "tooltip": "256K context window, coding-focused",
+      "maxInputTokens": 262144,
+      "maxOutputTokens": 4096,
+      "model": "devstral-2:123b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "devstral-small-2:24b",
+      "name": "devstral-small-2:24b",
+      "tooltip": "256K context window",
+      "maxInputTokens": 262144,
+      "maxOutputTokens": 4096,
+      "model": "devstral-small-2:24b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": true
+      }
+    },
+    {
+      "id": "gemini-3-pro-preview",
+      "name": "gemini-3-pro-preview",
+      "tooltip": "1M input tokens, 64K output limit",
+      "maxInputTokens": 1048576,
+      "maxOutputTokens": 65536,
+      "model": "gemini-3-pro-preview",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": true
+      }
+    },
+    {
+      "id": "gemini-3-flash-preview",
+      "name": "gemini-3-flash-preview",
+      "tooltip": "1M input tokens, 64K output limit",
+      "maxInputTokens": 1048576,
+      "maxOutputTokens": 65536,
+      "model": "gemini-3-flash-preview",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": true
+      }
+    },
+    {
+      "id": "gemma3:4b",
+      "name": "gemma3:4b",
+      "tooltip": "128K context window",
+      "maxInputTokens": 131072,
+      "maxOutputTokens": 8192,
+      "model": "gemma3:4b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "gemma3:12b",
+      "name": "gemma3:12b",
+      "tooltip": "128K context window",
+      "maxInputTokens": 131072,
+      "maxOutputTokens": 8192,
+      "model": "gemma3:12b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "gemma3:27b",
+      "name": "gemma3:27b",
+      "tooltip": "128K context window",
+      "maxInputTokens": 131072,
+      "maxOutputTokens": 8192,
+      "model": "gemma3:27b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    },
+    {
+      "id": "rnj-1:8b",
+      "name": "rnj-1:8b",
+      "tooltip": "32K context with YaRN extension, max output not specified",
+      "maxInputTokens": 32768,
+      "maxOutputTokens": 16000,
+      "model": "rnj-1:8b",
+      "capabilities": {
+        "toolCalling": true,
+        "imageInput": false
+      }
+    }
+  ]
+}

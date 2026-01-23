@@ -12,6 +12,7 @@ export enum ProviderKey {
 	MiniMax = "minimax",
 	MiniMaxCoding = "minimax-coding",
 	Moonshot = "moonshot",
+	Ollama = "ollama",
 	OpenCode = "opencode",
 	OpenAI = "openai",
 	QwenCli = "qwencli",

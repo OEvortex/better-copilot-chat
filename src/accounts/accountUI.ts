@@ -134,8 +134,6 @@ export class AccountUI {
 				value: ProviderKey.Codex,
 				authType: "oauth" as const,
 			},
-			{ label: "Qwen Code CLI", value: "qwencli", authType: "oauth" as const },
-			{ label: "Gemini CLI", value: "geminicli", authType: "oauth" as const },
 			{
 				label: "ZhipuAI",
 				value: ProviderKey.Zhipu,
@@ -228,15 +226,12 @@ export class AccountUI {
 			return;
 		}
 
-		// Ask for custom endpoint (for compatible provider)
-		let endpoint: string | undefined;
-		if (provider === "compatible") {
-			endpoint = await vscode.window.showInputBox({
-				title: `Add ${providerLabel} Account`,
-				prompt: "Enter custom endpoint URL (optional)",
-				placeHolder: "https://api.example.com/v1",
-			});
-		}
+		// Ask for custom endpoint (optional)
+		const endpoint = await vscode.window.showInputBox({
+			title: `Add ${providerLabel} Account`,
+			prompt: "Enter custom base URL (optional)",
+			placeHolder: "http://154.53.47.9:8000/v1",
+		});
 
 		// Add account
 		const result = await this.accountManager.addApiKeyAccount(

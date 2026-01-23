@@ -11,10 +11,14 @@ All notable changes to this project will be documented in this file.
   - **Robust Tool Calling**: Implemented advanced tool calling support with schema sanitization and parameter-aware conversion, optimized for Lightning AI's model backends.
   - **Enhanced Error Handling**: Added specific handling for `401 Unauthorized` (auth/format issues) and `402 Payment Required` (quota/balance issues) with user-friendly guidance.
   - **Parameter Optimization**: Automatically handles Lightning AI's restriction on specifying both `temperature` and `top_p` in a single request.
+- **Ollama Cloud Provider**: Added a dedicated provider that reads static model definitions from `src/providers/config/ollama.json`, matching the OpenCode/Chutes/HuggingFace model list flow.
 
 ### Improved
 - **Provider Registration**: Refactored extension activation logic to include Lightning AI in parallel registration and UI overview.
 - **Type Safety**: Improved internal type casting for specialized providers during extension startup.
+
+### Fixed
+- **Extension Activation**: Fixed formatting/branching in provider registration to avoid malformed control flow.
 
 ## [0.1.6] - 2026-01-14
 
