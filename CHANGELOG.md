@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.7] - 2026-01-22
+## [0.1.7] - 2026-01-23
 
 ### Added
 - **Lightning AI Provider**: Integrated a dedicated provider for Lightning AI (`https://lightning.ai/api/v1`).
@@ -11,14 +11,31 @@ All notable changes to this project will be documented in this file.
   - **Robust Tool Calling**: Implemented advanced tool calling support with schema sanitization and parameter-aware conversion, optimized for Lightning AI's model backends.
   - **Enhanced Error Handling**: Added specific handling for `401 Unauthorized` (auth/format issues) and `402 Payment Required` (quota/balance issues) with user-friendly guidance.
   - **Parameter Optimization**: Automatically handles Lightning AI's restriction on specifying both `temperature` and `top_p` in a single request.
-- **Ollama Cloud Provider**: Added a dedicated provider that reads static model definitions from `src/providers/config/ollama.json`, matching the OpenCode/Chutes/HuggingFace model list flow.
+- **Ollama Cloud Provider**: Added a dedicated provider with static model definitions from `src/providers/config/ollama.json`.
+  - **Proper Tool Calling Support**: Implemented full tool calling with OpenAI SDK streaming, matching HuggingFace pattern exactly.
+  - **Handles Thinking Content**: Supports reasoning/thinking content similar to other advanced providers.
+  - **Client Caching**: Efficient connection reuse with client caching per base URL.
+  - **Default Base URL**: `https://ollama.com/v1` with proxy endpoint override support.
+- **Proxy Endpoint Support**: Added universal proxy endpoint configuration (`baseUrl`) for all providers.
+  - Users can now override API endpoints for all providers via VS Code's native "Manage Language Models" UI.
+  - Fully integrated into package.json languageModelChatProviders configuration.
+  - Supports per-model and provider-wide overrides.
 
 ### Improved
-- **Provider Registration**: Refactored extension activation logic to include Lightning AI in parallel registration and UI overview.
+- **Provider Registration**: Refactored extension activation logic to include Lightning AI and Ollama in parallel registration and UI overview.
+- **Account Manager UI**: Restricted custom account manager to only Antigravity and ZhipuAI for focused credential management.
+- **Ollama Integration**: Fully linked Ollama provider alongside HuggingFace and LightningAI in all infrastructure (imports, type unions, registration patterns, config loading).
 - **Type Safety**: Improved internal type casting for specialized providers during extension startup.
+- **CLI Authentication**: Gemini CLI and Qwen CLI now use OAuth-only authentication without requiring manual API key entry in package.json.
+
+### Changed
+- **Provider Configuration**: Removed Compatible Provider from activation events (`onLanguageModelProvider:chp.compatible`).
+  - Users can still manage compatible providers through the settings UI but activation is no longer automatic.
 
 ### Fixed
 - **Extension Activation**: Fixed formatting/branching in provider registration to avoid malformed control flow.
+- **Ollama Tool Calling**: Fixed tool calling in Ollama provider to properly handle `tool_calls.function.arguments.done` events with accurate tool ID tracking.
+- **Authentication Flow**: Simplified Gemini CLI and Qwen CLI authentication by removing unnecessary API key requirements in native VS Code settings.
 
 ## [0.1.6] - 2026-01-14
 

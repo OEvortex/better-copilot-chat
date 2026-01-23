@@ -64,7 +64,6 @@
 		"onLanguageModelProvider:chp.qwencli",
 		"onLanguageModelProvider:chp.geminicli",
 		"onLanguageModelProvider:chp.codex",
-		"onLanguageModelProvider:chp.compatible",
 		"onLanguageModelTool:chp_zhipuWebSearch",
 		"onLanguageModelTool:chp_minimaxWebSearch",
 		"onFileSystem:chp-settings"
@@ -545,6 +544,11 @@
 							"type": "string",
 							"description": "ZhipuAI API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -558,6 +562,11 @@
 							"type": "string",
 							"description": "MiniMax API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -571,6 +580,11 @@
 							"type": "string",
 							"description": "MoonshotAI API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -584,6 +598,11 @@
 							"type": "string",
 							"description": "DeepSeek API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -597,6 +616,11 @@
 							"type": "string",
 							"description": "Chutes API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -610,6 +634,11 @@
 							"type": "string",
 							"description": "Zenmux API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -623,6 +652,11 @@
 							"type": "string",
 							"description": "OpenCode API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -636,6 +670,11 @@
 							"type": "string",
 							"description": "Hugging Face API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -649,6 +688,11 @@
 							"type": "string",
 							"description": "Lightning AI API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -662,6 +706,11 @@
 							"type": "string",
 							"description": "DeepInfra API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -675,6 +724,11 @@
 							"type": "string",
 							"description": "Mistral AI API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -688,6 +742,11 @@
 							"type": "string",
 							"description": "Ollama Cloud API key.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -696,41 +755,14 @@
 				"vendor": "chp.qwencli",
 				"displayName": "⦿ Qwen Code CLI",
 				"configuration": {
-					"properties": {
-						"apiKey": {
-							"type": "string",
-							"description": "Qwen Code API key or token.",
-							"secret": true
-						}
-					}
+					"properties": {}
 				}
 			},
 			{
 				"vendor": "chp.geminicli",
 				"displayName": "⦿ Gemini CLI",
 				"configuration": {
-					"properties": {
-						"apiKey": {
-							"type": "string",
-							"description": "Gemini CLI API key or token.",
-							"secret": true
-						}
-					}
-				}
-			},
-			{
-				"vendor": "chp.compatible",
-				"displayName": "⦿ OpenAI / Anthropic Compatible",
-				"configuration": {
-					"properties": {
-						"models": {
-							"type": "array",
-							"description": "User-configured compatible models (edit in settings).",
-							"items": {
-								"type": "object"
-							}
-						}
-					}
+					"properties": {}
 				}
 			},
 			{
@@ -742,6 +774,11 @@
 							"type": "string",
 							"description": "Antigravity / Oauth.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}
@@ -755,6 +792,11 @@
 							"type": "string",
 							"description": "OpenAI / OAuth.",
 							"secret": true
+						},
+						"baseUrl": {
+							"type": "string",
+							"description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+							"default": ""
 						}
 					}
 				}

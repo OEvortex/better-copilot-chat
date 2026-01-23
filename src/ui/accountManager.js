@@ -20,46 +20,46 @@ let _providerImageUris = {};
  * Initialize the Account Manager
  */
 function _initializeAccountManager(
-	initialAccounts,
-	initialProviders,
-	initialAntigravityQuota,
-	initialCodexRateLimits,
-	initialAccountQuotaStates,
-	initialProviderImageUris,
+    initialAccounts,
+    initialProviders,
+    initialAntigravityQuota,
+    initialCodexRateLimits,
+    initialAccountQuotaStates,
+    initialProviderImageUris,
 ) {
-	accounts = initialAccounts || [];
-	providers = initialProviders || [];
-	antigravityQuota = normalizeAntigravityQuota(initialAntigravityQuota);
-	codexRateLimits = initialCodexRateLimits || [];
-	accountQuotaStates = initialAccountQuotaStates || [];
-	_providerImageUris = initialProviderImageUris || {};
+    accounts = initialAccounts || [];
+    providers = initialProviders || [];
+    antigravityQuota = normalizeAntigravityQuota(initialAntigravityQuota);
+    codexRateLimits = initialCodexRateLimits || [];
+    accountQuotaStates = initialAccountQuotaStates || [];
+    _providerImageUris = initialProviderImageUris || {};
 
-	// Restore selected provider from persisted state if possible
-	try {
-		const state = vscode.getState() || {};
-		if (typeof state.selectedProvider === "string") {
-			selectedProvider = state.selectedProvider;
-		}
-	} catch {
-		// Ignore state restore failures
-	}
-	ensureSelectedProvider();
+    // Restore selected provider from persisted state if possible
+    try {
+        const state = vscode.getState() || {};
+        if (typeof state.selectedProvider === "string") {
+            selectedProvider = state.selectedProvider;
+        }
+    } catch {
+        // Ignore state restore failures
+    }
+    ensureSelectedProvider();
 
-	renderPage();
-	setupEventListeners();
+    renderPage();
+    setupEventListeners();
 }
 
 /**
  * Render the entire page
  */
 function renderPage() {
-	const app = document.getElementById("app");
-	if (!app) {
-		console.error("Account Manager: app element not found");
-		return;
-	}
-	ensureSelectedProvider();
-	app.innerHTML = `
+    const app = document.getElementById("app");
+    if (!app) {
+        console.error("Account Manager: app element not found");
+        return;
+    }
+    ensureSelectedProvider();
+    app.innerHTML = `
         <div class="shell">
             ${renderHeader()}
             ${renderQuotaBanner()}
@@ -68,18 +68,18 @@ function renderPage() {
             <div class="toast-container" id="toast-container"></div>
         </div>
     `;
-	startQuotaCountdown();
+    startQuotaCountdown();
 }
 
 /**
  * Render header section
  */
 function renderHeader() {
-	const totalAccounts = accounts.length;
-	const providersWithAccounts = [...new Set(accounts.map((a) => a.provider))]
-		.length;
-	const subtitle = `${totalAccounts} account${totalAccounts !== 1 ? "s" : ""} · ${providersWithAccounts} provider${providersWithAccounts !== 1 ? "s" : ""}`;
-	return `
+    const totalAccounts = accounts.length;
+    const providersWithAccounts = [...new Set(accounts.map((a) => a.provider))]
+        .length;
+    const subtitle = `${totalAccounts} account${totalAccounts !== 1 ? "s" : ""} · ${providersWithAccounts} provider${providersWithAccounts !== 1 ? "s" : ""}`;
+    return `
         <div class="topbar">
             <div class="topbar-title">
                 <div class="topbar-title-text">Account Manager</div>
@@ -101,32 +101,32 @@ function renderHeader() {
  * Open GCMP Settings page
  */
 function _openGCMPSettings() {
-	vscode.postMessage({
-		command: "openSettings",
-	});
+    vscode.postMessage({
+        command: "openSettings",
+    });
 }
 
 /**
  * Render Antigravity quota banner
  */
 function renderQuotaBanner() {
-	if (!antigravityQuota) {
-		return "";
-	}
+    if (!antigravityQuota) {
+        return "";
+    }
 
-	const remaining = antigravityQuota.resetAt - Date.now();
-	if (remaining <= 0) {
-		return "";
-	}
+    const remaining = antigravityQuota.resetAt - Date.now();
+    if (remaining <= 0) {
+        return "";
+    }
 
-	const modelLabel = antigravityQuota.modelName
-		? escapeHtml(antigravityQuota.modelName)
-		: "Unknown model";
-	const accountLabel = antigravityQuota.accountName
-		? escapeHtml(antigravityQuota.accountName)
-		: "";
+    const modelLabel = antigravityQuota.modelName
+        ? escapeHtml(antigravityQuota.modelName)
+        : "Unknown model";
+    const accountLabel = antigravityQuota.accountName
+        ? escapeHtml(antigravityQuota.accountName)
+        : "";
 
-	return `
+    return `
         <div class="notice notice-warning" id="quota-banner">
             <div class="notice-title">Quota exceeded</div>
             <div class="notice-body">
@@ -138,9 +138,9 @@ function renderQuotaBanner() {
 }
 
 function renderMainLayout() {
-	const providerSummary = getProviderSummary();
-	if (providerSummary.length === 0) {
-		return `
+    const providerSummary = getProviderSummary();
+    if (providerSummary.length === 0) {
+        return `
             <div class="layout">
                 <div class="surface sidebar">
                     <div class="sidebar-header">
@@ -153,21 +153,21 @@ function renderMainLayout() {
                 </div>
             </div>
         `;
-	}
+    }
 
-	// Ensure selected provider exists
-	const selected =
-		providerSummary.find((p) => p.id === selectedProvider) ||
-		providerSummary[0];
-	if (selected && selected.id !== selectedProvider) {
-		setSelectedProvider(selected.id);
-	}
+    // Ensure selected provider exists
+    const selected =
+        providerSummary.find((p) => p.id === selectedProvider) ||
+        providerSummary[0];
+    if (selected && selected.id !== selectedProvider) {
+        setSelectedProvider(selected.id);
+    }
 
-	const providerAccounts = accounts.filter(
-		(a) => a.provider === selectedProvider,
-	);
+    const providerAccounts = accounts.filter(
+        (a) => a.provider === selectedProvider,
+    );
 
-	return `
+    return `
         <div class="layout">
             ${renderSidebar(providerSummary)}
             ${renderContent(selected, providerAccounts)}
@@ -176,24 +176,24 @@ function renderMainLayout() {
 }
 
 function renderSidebar(providerSummary) {
-	return `
+    return `
         <div class="surface sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-title">Providers</div>
             </div>
             <div class="provider-list">
                 ${providerSummary
-									.map((p) => {
-										const isActive = p.id === selectedProvider;
-										return `
+            .map((p) => {
+                const isActive = p.id === selectedProvider;
+                return `
                         <button class="provider-item ${isActive ? "active" : ""}" onclick="setSelectedProvider('${p.id}')" title="${escapeHtml(p.name)}">
                             <span class="provider-item-icon">${getProviderIcon(p.id)}</span>
                             <span class="provider-item-name">${escapeHtml(p.name)}</span>
                             <span class="provider-item-count">${p.count}</span>
                         </button>
                     `;
-									})
-									.join("")}
+            })
+            .join("")}
             </div>
             <div class="sidebar-footer">
                 <button class="btn btn-ghost btn-block" onclick="showAddAccountModal()">Add account</button>
@@ -203,14 +203,14 @@ function renderSidebar(providerSummary) {
 }
 
 function renderContent(selectedProviderInfo, providerAccounts) {
-	if (!selectedProviderInfo) {
-		return `<div class="surface content">${renderEmptyState()}</div>`;
-	}
+    if (!selectedProviderInfo) {
+        return `<div class="surface content">${renderEmptyState()}</div>`;
+    }
 
-	const title = escapeHtml(selectedProviderInfo.name);
-	const countLabel = `${providerAccounts.length} account${providerAccounts.length !== 1 ? "s" : ""}`;
+    const title = escapeHtml(selectedProviderInfo.name);
+    const countLabel = `${providerAccounts.length} account${providerAccounts.length !== 1 ? "s" : ""}`;
 
-	return `
+    return `
         <div class="surface content">
             <div class="content-header">
                 <div>
@@ -222,11 +222,10 @@ function renderContent(selectedProviderInfo, providerAccounts) {
                 </div>
             </div>
 
-            ${
-							providerAccounts.length > 0
-								? `<div class="account-cards">${providerAccounts.map((account) => renderAccountCard(account)).join("")}</div>`
-								: renderProviderEmptyState(selectedProviderInfo.id)
-						}
+            ${providerAccounts.length > 0
+            ? `<div class="account-cards">${providerAccounts.map((account) => renderAccountCard(account)).join("")}</div>`
+            : renderProviderEmptyState(selectedProviderInfo.id)
+        }
         </div>
     `;
 }
@@ -235,93 +234,91 @@ function renderContent(selectedProviderInfo, providerAccounts) {
  * Get quota state for a specific account
  */
 function getAccountQuotaState(accountId) {
-	console.log("[DEBUG] getAccountQuotaState called with accountId:", accountId);
-	console.log(
-		"[DEBUG] Available accountQuotaStates:",
-		accountQuotaStates.map((qs) => ({
-			accountId: qs.accountId,
-			provider: qs.provider,
-			successCount: qs.successCount,
-		})),
-	);
-	const state = accountQuotaStates.find((qs) => qs.accountId === accountId);
-	console.log(
-		"[DEBUG] Found state for accountId",
-		accountId,
-		":",
-		state
-			? { successCount: state.successCount, failureCount: state.failureCount }
-			: null,
-	);
-	return state || null;
+    console.log("[DEBUG] getAccountQuotaState called with accountId:", accountId);
+    console.log(
+        "[DEBUG] Available accountQuotaStates:",
+        accountQuotaStates.map((qs) => ({
+            accountId: qs.accountId,
+            provider: qs.provider,
+            successCount: qs.successCount,
+        })),
+    );
+    const state = accountQuotaStates.find((qs) => qs.accountId === accountId);
+    console.log(
+        "[DEBUG] Found state for accountId",
+        accountId,
+        ":",
+        state
+            ? { successCount: state.successCount, failureCount: state.failureCount }
+            : null,
+    );
+    return state || null;
 }
 
 /**
  * Check if account is in quota cooldown
  */
 function isAccountInQuotaCooldown(accountId) {
-	const state = getAccountQuotaState(accountId);
-	if (!state || !state.quotaExceeded || !state.quotaResetAt) {
-		return false;
-	}
-	return Date.now() < state.quotaResetAt;
+    const state = getAccountQuotaState(accountId);
+    if (!state || !state.quotaExceeded || !state.quotaResetAt) {
+        return false;
+    }
+    return Date.now() < state.quotaResetAt;
 }
 
 /**
  * Render quota state info for an account
  */
 function _renderAccountQuotaState(accountId) {
-	const state = getAccountQuotaState(accountId);
-	if (!state) {
-		return "";
-	}
+    const state = getAccountQuotaState(accountId);
+    if (!state) {
+        return "";
+    }
 
-	const isInCooldown = isAccountInQuotaCooldown(accountId);
-	const remaining = isInCooldown ? state.quotaResetAt - Date.now() : 0;
+    const isInCooldown = isAccountInQuotaCooldown(accountId);
+    const remaining = isInCooldown ? state.quotaResetAt - Date.now() : 0;
 
-	// Calculate success rate
-	const totalRequests = state.successCount + state.failureCount;
-	const successRate =
-		totalRequests > 0
-			? Math.round((state.successCount / totalRequests) * 100)
-			: 100;
+    // Calculate success rate
+    const totalRequests = state.successCount + state.failureCount;
+    const successRate =
+        totalRequests > 0
+            ? Math.round((state.successCount / totalRequests) * 100)
+            : 100;
 
-	let statusClass = "success";
-	if (isInCooldown) {
-		statusClass = "warning";
-	} else if (successRate < 50) {
-		statusClass = "error";
-	} else if (successRate < 80) {
-		statusClass = "warning";
-	}
+    let statusClass = "success";
+    if (isInCooldown) {
+        statusClass = "warning";
+    } else if (successRate < 50) {
+        statusClass = "error";
+    } else if (successRate < 80) {
+        statusClass = "warning";
+    }
 
-	return `
+    return `
         <div class="account-quota-state ${statusClass}">
             <div class="quota-state-header">
                 <span class="quota-state-icon">${isInCooldown ? "WAIT" : "STATS"}</span>
                 <span class="quota-state-title">Quota Status</span>
             </div>
             <div class="quota-state-content">
-                ${
-									isInCooldown
-										? `
+                ${isInCooldown
+            ? `
                     <div class="quota-state-row warning">
                         <span class="quota-state-label">Cooldown:</span>
                         <span class="quota-state-value account-quota-countdown" data-reset-at="${state.quotaResetAt}">${formatCountdown(remaining)}</span>
                     </div>
-                    ${
-											state.affectedModel
-												? `
+                    ${state.affectedModel
+                ? `
                         <div class="quota-state-row">
                             <span class="quota-state-label">Model:</span>
                             <span class="quota-state-value">${escapeHtml(state.affectedModel)}</span>
                         </div>
                     `
-												: ""
-										}
+                : ""
+            }
                 `
-										: ""
-								}
+            : ""
+        }
                 <div class="quota-state-row">
                     <span class="quota-state-label">Success:</span>
                     <span class="quota-state-value">${state.successCount} requests</span>
@@ -334,26 +331,24 @@ function _renderAccountQuotaState(accountId) {
                     <span class="quota-state-label">Rate:</span>
                     <span class="quota-state-value ${statusClass}">${successRate}%</span>
                 </div>
-                ${
-									state.lastSuccessAt
-										? `
+                ${state.lastSuccessAt
+            ? `
                     <div class="quota-state-row">
                         <span class="quota-state-label">Last success:</span>
                         <span class="quota-state-value">${formatTimeAgo(state.lastSuccessAt)}</span>
                     </div>
                 `
-										: ""
-								}
-                ${
-									state.lastError
-										? `
+            : ""
+        }
+                ${state.lastError
+            ? `
                     <div class="quota-state-row error">
                         <span class="quota-state-label">Last error:</span>
                         <span class="quota-state-value">${escapeHtml(state.lastError)}</span>
                     </div>
                 `
-										: ""
-								}
+            : ""
+        }
             </div>
         </div>
     `;
@@ -363,88 +358,88 @@ function _renderAccountQuotaState(accountId) {
  * Format time ago
  */
 function formatTimeAgo(timestamp) {
-	const seconds = Math.floor((Date.now() - timestamp) / 1000);
-	if (seconds < 60) return "just now";
-	const minutes = Math.floor(seconds / 60);
-	if (minutes < 60) return `${minutes}m ago`;
-	const hours = Math.floor(minutes / 60);
-	if (hours < 24) return `${hours}h ago`;
-	const days = Math.floor(hours / 24);
-	return `${days}d ago`;
+    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+    if (seconds < 60) return "just now";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
 }
 
 /**
  * Get rate limit for a specific account
  */
 function getCodexRateLimitForAccount(accountId) {
-	return codexRateLimits.find((rl) => rl.accountId === accountId) || null;
+    return codexRateLimits.find((rl) => rl.accountId === accountId) || null;
 }
 
 /**
  * Render rate limit info for a Codex account
  */
 function _renderAccountRateLimit(accountId) {
-	const rateLimit = getCodexRateLimitForAccount(accountId);
-	if (!rateLimit) {
-		return "";
-	}
+    const rateLimit = getCodexRateLimitForAccount(accountId);
+    if (!rateLimit) {
+        return "";
+    }
 
-	const primaryRemaining = rateLimit.primary
-		? 100 - rateLimit.primary.usedPercent
-		: null;
-	const secondaryRemaining = rateLimit.secondary
-		? 100 - rateLimit.secondary.usedPercent
-		: null;
-	const minRemaining = Math.min(
-		primaryRemaining ?? 100,
-		secondaryRemaining ?? 100,
-	);
-	const isWarning = minRemaining < 30;
+    const primaryRemaining = rateLimit.primary
+        ? 100 - rateLimit.primary.usedPercent
+        : null;
+    const secondaryRemaining = rateLimit.secondary
+        ? 100 - rateLimit.secondary.usedPercent
+        : null;
+    const minRemaining = Math.min(
+        primaryRemaining ?? 100,
+        secondaryRemaining ?? 100,
+    );
+    const isWarning = minRemaining < 30;
 
-	const formatWindowLabel = (minutes) => {
-		if (!minutes) {
-			return "5h";
-		}
-		if (minutes < 60) {
-			return `${minutes}m`;
-		}
-		const hours = Math.floor(minutes / 60);
-		if (hours < 24) {
-			return `${hours}h`;
-		}
-		const days = Math.floor(hours / 24);
-		if (days === 7) {
-			return "Weekly";
-		}
-		return `${days}d`;
-	};
+    const formatWindowLabel = (minutes) => {
+        if (!minutes) {
+            return "5h";
+        }
+        if (minutes < 60) {
+            return `${minutes}m`;
+        }
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) {
+            return `${hours}h`;
+        }
+        const days = Math.floor(hours / 24);
+        if (days === 7) {
+            return "Weekly";
+        }
+        return `${days}d`;
+    };
 
-	const renderProgressBar = (percent) => {
-		const filled = Math.round((percent / 100) * 10);
-		const empty = 10 - filled;
-		return "█".repeat(filled) + "░".repeat(empty);
-	};
+    const renderProgressBar = (percent) => {
+        const filled = Math.round((percent / 100) * 10);
+        const empty = 10 - filled;
+        return "█".repeat(filled) + "░".repeat(empty);
+    };
 
-	let content = "";
-	if (rateLimit.primary) {
-		const label = formatWindowLabel(rateLimit.primary.windowMinutes);
-		const remaining = (100 - rateLimit.primary.usedPercent).toFixed(0);
-		const bar = renderProgressBar(100 - rateLimit.primary.usedPercent);
-		content += `<div class="rate-limit-row"><span class="rate-limit-label">${label}:</span><span class="rate-limit-bar">[${bar}]</span><span class="rate-limit-value ${isWarning && remaining < 30 ? "warning" : ""}">${remaining}%</span></div>`;
-	}
-	if (rateLimit.secondary) {
-		const label = formatWindowLabel(rateLimit.secondary.windowMinutes);
-		const remaining = (100 - rateLimit.secondary.usedPercent).toFixed(0);
-		const bar = renderProgressBar(100 - rateLimit.secondary.usedPercent);
-		const rowWarning = remaining < 30;
-		content += `<div class="rate-limit-row"><span class="rate-limit-label">${label}:</span><span class="rate-limit-bar">[${bar}]</span><span class="rate-limit-value ${rowWarning ? "warning" : ""}">${remaining}%</span></div>`;
-	}
+    let content = "";
+    if (rateLimit.primary) {
+        const label = formatWindowLabel(rateLimit.primary.windowMinutes);
+        const remaining = (100 - rateLimit.primary.usedPercent).toFixed(0);
+        const bar = renderProgressBar(100 - rateLimit.primary.usedPercent);
+        content += `<div class="rate-limit-row"><span class="rate-limit-label">${label}:</span><span class="rate-limit-bar">[${bar}]</span><span class="rate-limit-value ${isWarning && remaining < 30 ? "warning" : ""}">${remaining}%</span></div>`;
+    }
+    if (rateLimit.secondary) {
+        const label = formatWindowLabel(rateLimit.secondary.windowMinutes);
+        const remaining = (100 - rateLimit.secondary.usedPercent).toFixed(0);
+        const bar = renderProgressBar(100 - rateLimit.secondary.usedPercent);
+        const rowWarning = remaining < 30;
+        content += `<div class="rate-limit-row"><span class="rate-limit-label">${label}:</span><span class="rate-limit-bar">[${bar}]</span><span class="rate-limit-value ${rowWarning ? "warning" : ""}">${remaining}%</span></div>`;
+    }
 
-	const updatedAt = rateLimit.capturedAt
-		? new Date(rateLimit.capturedAt).toLocaleTimeString()
-		: "";
+    const updatedAt = rateLimit.capturedAt
+        ? new Date(rateLimit.capturedAt).toLocaleTimeString()
+        : "";
 
-	return `
+    return `
         <div class="account-rate-limit ${isWarning ? "warning" : ""}">
             <div class="rate-limit-header-inline">
                 <span class="rate-limit-icon"></span>
@@ -462,37 +457,37 @@ function _renderAccountRateLimit(accountId) {
  * Render provider sections
  */
 function _renderProviderSections() {
-	// Group accounts by provider
-	const accountsByProvider = {};
-	for (const account of accounts) {
-		if (!accountsByProvider[account.provider]) {
-			accountsByProvider[account.provider] = [];
-		}
-		accountsByProvider[account.provider].push(account);
-	}
+    // Group accounts by provider
+    const accountsByProvider = {};
+    for (const account of accounts) {
+        if (!accountsByProvider[account.provider]) {
+            accountsByProvider[account.provider] = [];
+        }
+        accountsByProvider[account.provider].push(account);
+    }
 
-	// Get all providers (including those without accounts)
-	const allProviders = [
-		...new Set([
-			...providers.map((p) => p.id),
-			...Object.keys(accountsByProvider),
-		]),
-	];
+    // Get all providers (including those without accounts)
+    const allProviders = [
+        ...new Set([
+            ...providers.map((p) => p.id),
+            ...Object.keys(accountsByProvider),
+        ]),
+    ];
 
-	if (allProviders.length === 0) {
-		return renderEmptyState();
-	}
+    if (allProviders.length === 0) {
+        return renderEmptyState();
+    }
 
-	return allProviders
-		.map((providerId) => {
-			const providerInfo = providers.find((p) => p.id === providerId) || {
-				id: providerId,
-				name: providerId,
-			};
-			const providerAccounts = accountsByProvider[providerId] || [];
-			const isCollapsed = collapsedProviders[providerId];
+    return allProviders
+        .map((providerId) => {
+            const providerInfo = providers.find((p) => p.id === providerId) || {
+                id: providerId,
+                name: providerId,
+            };
+            const providerAccounts = accountsByProvider[providerId] || [];
+            const isCollapsed = collapsedProviders[providerId];
 
-			return `
+            return `
             <div class="provider-section" data-provider="${providerId}">
                 <div class="provider-header" onclick="toggleProvider('${providerId}')">
                     <div class="provider-title">
@@ -508,23 +503,22 @@ function _renderProviderSections() {
                     </div>
                 </div>
                 <div class="provider-content ${isCollapsed ? "collapsed" : ""}">
-                    ${
-											providerAccounts.length > 0
-												? renderAccountList(providerAccounts)
-												: renderProviderEmptyState(providerId)
-										}
+                    ${providerAccounts.length > 0
+                    ? renderAccountList(providerAccounts)
+                    : renderProviderEmptyState(providerId)
+                }
                 </div>
             </div>
         `;
-		})
-		.join("");
+        })
+        .join("");
 }
 
 /**
  * Render account list for a provider
  */
 function renderAccountList(providerAccounts) {
-	return `
+    return `
         <div class="account-list">
             ${renderAccountListHeader()}
             ${providerAccounts.map((account) => renderAccountCard(account)).join("")}
@@ -536,7 +530,7 @@ function renderAccountList(providerAccounts) {
  * Render account list header
  */
 function renderAccountListHeader() {
-	return `
+    return `
         <div class="account-list-header">
             <div class="account-col account-col-name">👤 Account</div>
             <div class="account-col account-col-status">Status</div>
@@ -551,34 +545,34 @@ function renderAccountListHeader() {
  * Render a single account card - Simplified UI
  */
 function renderAccountCard(account) {
-	const initials = getInitials(account.displayName);
-	const isDefault = account.isDefault;
-	const isQuotaLimited =
-		antigravityQuota &&
-		account.provider === "antigravity" &&
-		antigravityQuota.accountId === account.id;
-	const isCodexAccount = account.provider === "codex";
-	const _codexRateLimit = isCodexAccount
-		? getCodexRateLimitForAccount(account.id)
-		: null;
+    const initials = getInitials(account.displayName);
+    const isDefault = account.isDefault;
+    const isQuotaLimited =
+        antigravityQuota &&
+        account.provider === "antigravity" &&
+        antigravityQuota.accountId === account.id;
+    const isCodexAccount = account.provider === "codex";
+    const _codexRateLimit = isCodexAccount
+        ? getCodexRateLimitForAccount(account.id)
+        : null;
 
-	// Check account quota state from cache
-	const quotaState = getAccountQuotaState(account.id);
-	const isInQuotaCooldown = isAccountInQuotaCooldown(account.id);
+    // Check account quota state from cache
+    const quotaState = getAccountQuotaState(account.id);
+    const isInQuotaCooldown = isAccountInQuotaCooldown(account.id);
 
-	const statusClass = escapeHtml(account.status);
-	const authLabel = account.authType === "oauth" ? "OAuth" : "API Key";
+    const statusClass = escapeHtml(account.status);
+    const authLabel = account.authType === "oauth" ? "OAuth" : "API Key";
 
-	// Calculate success rate for compact display
-	let statsText = "";
-	if (quotaState) {
-		const total = quotaState.successCount + quotaState.failureCount;
-		const _rate =
-			total > 0 ? Math.round((quotaState.successCount / total) * 100) : 100;
-		statsText = `${quotaState.successCount}/${quotaState.failureCount}`;
-	}
+    // Calculate success rate for compact display
+    let statsText = "";
+    if (quotaState) {
+        const total = quotaState.successCount + quotaState.failureCount;
+        const _rate =
+            total > 0 ? Math.round((quotaState.successCount / total) * 100) : 100;
+        statsText = `${quotaState.successCount}/${quotaState.failureCount}`;
+    }
 
-	return `
+    return `
         <div class="account-card-simple ${isDefault ? "active" : ""} ${isQuotaLimited || isInQuotaCooldown ? "quota-limited" : ""}" data-account-id="${account.id}">
             <div class="account-card-left" onclick="handleAccountCardClick(event, '${account.id}', ${isDefault})">
                 <div class="account-avatar">${initials}</div>
@@ -596,15 +590,14 @@ function renderAccountCard(account) {
                     </div>
                 </div>
             </div>
-            ${
-							isQuotaLimited || isInQuotaCooldown
-								? `
+            ${isQuotaLimited || isInQuotaCooldown
+            ? `
                 <div class="quota-badge-compact">
                     <span class="quota-countdown-compact account-quota-countdown" data-reset-at="${isQuotaLimited ? antigravityQuota.resetAt : quotaState.quotaResetAt}">${formatCountdown((isQuotaLimited ? antigravityQuota.resetAt : quotaState.quotaResetAt) - Date.now())}</span>
                 </div>
             `
-								: ""
-						}
+            : ""
+        }
             <div class="account-actions-compact">
                 ${!isDefault ? `<button class="btn-action btn-use" onclick="event.stopPropagation(); setDefaultAccount('${account.id}')" title="Use this account">Use</button>` : ""}
                 <button class="btn-action btn-info" onclick="event.stopPropagation(); showAccountDetails('${account.id}')" title="View details">ℹ</button>
@@ -618,7 +611,7 @@ function renderAccountCard(account) {
  * Render empty state when no accounts
  */
 function renderEmptyState() {
-	return `
+    return `
         <div class="empty-state">
             <div class="empty-state-title">No Accounts Configured</div>
             <div class="empty-state-description">
@@ -635,7 +628,7 @@ function renderEmptyState() {
  * Render empty state for a specific provider
  */
 function renderProviderEmptyState(providerId) {
-	return `
+    return `
         <div class="empty-state" style="padding: 24px;">
             <div class="empty-state-description">No accounts for this provider yet.</div>
             <button class="btn btn-ghost" onclick="addAccountForProvider('${providerId}')">Add</button>
@@ -647,8 +640,8 @@ function renderProviderEmptyState(providerId) {
  * Show add account modal
  */
 function _showAddAccountModal() {
-	const modalContainer = document.getElementById("modal-container");
-	modalContainer.innerHTML = `
+    const modalContainer = document.getElementById("modal-container");
+    modalContainer.innerHTML = `
         <div class="modal-overlay" onclick="closeModal(event)">
             <div class="modal" onclick="event.stopPropagation()">
                 <div class="modal-header">
@@ -662,8 +655,8 @@ function _showAddAccountModal() {
                    
                     <div class="provider-select-grid">
                         ${providers
-													.map(
-														(p) => `
+            .map(
+                (p) => `
                             <div class="provider-select-item" onclick="selectProviderForAdd('${p.id}')" data-provider="${p.id}">
                                 <div class="provider-select-icon">${getProviderIcon(p.id)}</div>
                                 <div class="provider-select-info">
@@ -672,8 +665,8 @@ function _showAddAccountModal() {
                                 </div>
                             </div>
                         `,
-													)
-													.join("")}
+            )
+            .join("")}
                     </div>
                 </div>
             </div>
@@ -685,27 +678,27 @@ function _showAddAccountModal() {
  * Select provider and show appropriate form
  */
 function _selectProviderForAdd(providerId) {
-	const provider = providers.find((p) => p.id === providerId);
-	if (!provider) return;
+    const provider = providers.find((p) => p.id === providerId);
+    if (!provider) return;
 
-	if (provider.authType === "oauth") {
-		// Trigger OAuth login
-		vscode.postMessage({
-			command: "addOAuthAccount",
-			provider: providerId,
-		});
-		closeModal();
-	} else {
-		showApiKeyForm(providerId, provider.name);
-	}
+    if (provider.authType === "oauth") {
+        // Trigger OAuth login
+        vscode.postMessage({
+            command: "addOAuthAccount",
+            provider: providerId,
+        });
+        closeModal();
+    } else {
+        showApiKeyForm(providerId, provider.name);
+    }
 }
 
 /**
  * Show API Key form
  */
 function showApiKeyForm(providerId, providerName) {
-	const modalContainer = document.getElementById("modal-container");
-	modalContainer.innerHTML = `
+    const modalContainer = document.getElementById("modal-container");
+    modalContainer.innerHTML = `
         <div class="modal-overlay" onclick="closeModal(event)">
             <div class="modal" onclick="event.stopPropagation()">
                 <div class="modal-header">
@@ -749,165 +742,169 @@ function showApiKeyForm(providerId, providerName) {
  * Submit add account form
  */
 function _submitAddAccount(event, providerId) {
-	event.preventDefault();
+    event.preventDefault();
 
-	const displayName = document.getElementById("displayName").value.trim();
-	const apiKey = document.getElementById("apiKey").value.trim();
-	const endpointEl = document.getElementById("endpoint");
-	const endpoint = endpointEl ? endpointEl.value.trim() : undefined;
+    const displayName = document.getElementById("displayName").value.trim();
+    const apiKey = document.getElementById("apiKey").value.trim();
+    const endpointEl = document.getElementById("endpoint");
+    const endpoint = endpointEl ? endpointEl.value.trim() : undefined;
 
-	if (!displayName || !apiKey) {
-		showToast("Please fill in all required fields", "error");
-		return;
-	}
+    if (!displayName || !apiKey) {
+        showToast("Please fill in all required fields", "error");
+        return;
+    }
 
-	vscode.postMessage({
-		command: "addApiKeyAccount",
-		provider: providerId,
-		displayName: displayName,
-		apiKey: apiKey,
-		endpoint: endpoint,
-	});
+    vscode.postMessage({
+        command: "addApiKeyAccount",
+        provider: providerId,
+        displayName: displayName,
+        apiKey: apiKey,
+        endpoint: endpoint,
+    });
 
-	closeModal();
+    closeModal();
 }
 
 /**
  * Add account for specific provider
  */
 function _addAccountForProvider(providerId) {
-	const provider = providers.find((p) => p.id === providerId);
-	if (!provider) {
-		// If provider not in list, assume API key
-		showApiKeyForm(providerId, capitalizeFirst(providerId));
-		return;
-	}
+    const provider = providers.find((p) => p.id === providerId);
+    if (!provider) {
+        // If provider not in list, assume API key
+        showApiKeyForm(providerId, capitalizeFirst(providerId));
+        return;
+    }
 
-	if (provider.authType === "oauth") {
-		vscode.postMessage({
-			command: "addOAuthAccount",
-			provider: providerId,
-		});
-	} else {
-		showApiKeyForm(providerId, provider.name);
-	}
+    if (provider.authType === "oauth") {
+        vscode.postMessage({
+            command: "addOAuthAccount",
+            provider: providerId,
+        });
+    } else {
+        showApiKeyForm(providerId, provider.name);
+    }
 }
 
 /**
  * Set account as default
  */
 function setDefaultAccount(accountId) {
-	const account = accounts.find((a) => a.id === accountId);
+    const account = accounts.find((a) => a.id === accountId);
 
-	// Check quota for Antigravity accounts before switching
-	if (account && account.provider === "antigravity") {
-		checkQuotaBeforeSwitch(accountId);
-	} else {
-		// For non-Antigravity accounts, switch immediately
-		vscode.postMessage({
-			command: "setDefaultAccount",
-			accountId: accountId,
-		});
-	}
+    // Check quota for Antigravity accounts before switching
+    if (account && account.provider === "antigravity") {
+        checkQuotaBeforeSwitch(accountId);
+    } else {
+        // For non-Antigravity accounts, switch immediately
+        vscode.postMessage({
+            command: "setDefaultAccount",
+            accountId: accountId,
+        });
+    }
 }
 
 /**
  * Check quota before switching to Antigravity account
  */
 function checkQuotaBeforeSwitch(accountId) {
-	const account = accounts.find((a) => a.id === accountId);
-	if (!account) return;
+    const account = accounts.find((a) => a.id === accountId);
+    if (!account) return;
 
-	// Show loading state on the Use button
-	const useButton = document.querySelector(
-		`[data-account-id="${accountId}"] .btn-use`,
-	);
-	if (useButton) {
-		useButton.disabled = true;
-		useButton.textContent = "Checking...";
-	}
+    // Show loading state on the Use button
+    const useButton = document.querySelector(
+        `[data-account-id="${accountId}"] .btn-use`,
+    );
+    if (useButton) {
+        useButton.disabled = true;
+        useButton.textContent = "Checking...";
+    }
 
-	// Request quota check from backend
-	vscode.postMessage({
-		command: "checkQuota",
-		accountId: accountId,
-	});
+    // Request quota check from backend
+    vscode.postMessage({
+        command: "checkQuota",
+        accountId: accountId,
+    });
 }
 
 /**
  * Handle quota check result from backend
  */
 function handleQuotaCheckResult(message) {
-	const {
-		accountId,
-		success,
-		quotaData,
-		error,
-		message: resultMessage,
-	} = message;
-	const _account = accounts.find((a) => a.id === accountId);
+    const {
+        accountId,
+        success,
+        quotaData,
+        error,
+        message: resultMessage,
+    } = message;
+    const _account = accounts.find((a) => a.id === accountId);
 
-	// Restore button state
-	const useButton = document.querySelector(
-		`[data-account-id="${accountId}"] .btn-use`,
-	);
-	if (useButton) {
-		useButton.disabled = false;
-		useButton.textContent = "Use";
-	}
+    // Restore button state
+    const useButton = document.querySelector(
+        `[data-account-id="${accountId}"] .btn-use`,
+    );
+    if (useButton) {
+        useButton.disabled = false;
+        useButton.textContent = "Use";
+    }
 
-	if (success) {
-		if (quotaData) {
-			// Show quota info in toast with color coding
-			const minQuota = quotaData.minQuota;
-			let toastType = "success";
-			let icon = "OK";
+    if (success) {
+        if (quotaData) {
+            // Show quota info in toast with color coding
+            const minQuota = quotaData.minQuota;
+            let toastType = "success";
+            let icon = "OK";
 
-			if (minQuota < 10) {
-				toastType = "error";
-				icon = "WARN";
-			} else if (minQuota < 30) {
-				toastType = "warning";
-				icon = "WARN";
-			}
-			const quotaMsg = `${icon} Quota refreshed - Gemini: ${quotaData.geminiQuota}%, Claude: ${quotaData.claudeQuota}%`;
-			showToast(quotaMsg, toastType);
-		} else if (resultMessage) {
-			showToast(resultMessage, "info");
-		}
+            if (minQuota < 10) {
+                toastType = "error";
+                icon = "WARN";
+            } else if (minQuota < 30) {
+                toastType = "warning";
+                icon = "WARN";
+            }
+            const quotaMsg = `${icon} Quota refreshed - Gemini: ${quotaData.geminiQuota}%, Claude: ${quotaData.claudeQuota}%`;
+            showToast(quotaMsg, toastType);
+        } else if (resultMessage) {
+            showToast(resultMessage, "info");
+        }
 
-		// Proceed with account switch
-		vscode.postMessage({
-			command: "setDefaultAccount",
-			accountId: accountId,
-		});
-	} else {
-		// Show error
-		showToast(error || "Failed to check quota", "error");
-	}
+        // Proceed with account switch
+        vscode.postMessage({
+            command: "setDefaultAccount",
+            accountId: accountId,
+        });
+    } else {
+        // Show error
+        showToast(error || "Failed to check quota", "error");
+    }
 }
 
 function _handleAccountCardClick(_event, accountId, isDefault) {
-	if (isDefault) {
-		return;
-	}
-	setDefaultAccount(accountId);
+    if (isDefault) {
+        return;
+    }
+    setDefaultAccount(accountId);
 }
 
 /**
  * Show account details
  */
 function _showAccountDetails(accountId) {
-	const account = accounts.find((a) => a.id === accountId);
-	if (!account) return;
+    const account = accounts.find((a) => a.id === accountId);
+    if (!account) return;
 
-	const isQuotaLimited =
-		antigravityQuota &&
-		account.provider === "antigravity" &&
-		antigravityQuota.accountId === account.id;
+    // Find the endpoint for this account
+    const accountEndpoint = window._accountEndpoints && window._accountEndpoints.find((ae) => ae.id === accountId);
+    const endpoint = accountEndpoint?.endpoint;
 
-	const quotaSection = isQuotaLimited
-		? `
+    const isQuotaLimited =
+        antigravityQuota &&
+        account.provider === "antigravity" &&
+        antigravityQuota.accountId === account.id;
+
+    const quotaSection = isQuotaLimited
+        ? `
         <div style="margin-top: 16px; padding: 12px; background: rgba(255, 196, 0, 0.1); border-radius: 8px; border: 1px solid rgba(255, 196, 0, 0.3);">
             <div style="font-weight: 600; color: var(--vscode-notificationsWarningForeground, #ffc400); margin-bottom: 8px;">
                 Quota Exceeded
@@ -925,10 +922,10 @@ function _showAccountDetails(accountId) {
             </div>
         </div>
     `
-		: "";
+        : "";
 
-	const modalContainer = document.getElementById("modal-container");
-	modalContainer.innerHTML = `
+    const modalContainer = document.getElementById("modal-container");
+    modalContainer.innerHTML = `
         <div class="modal-overlay" onclick="closeModal(event)">
             <div class="modal" onclick="event.stopPropagation()">
                 <div class="modal-header">
@@ -966,15 +963,25 @@ function _showAccountDetails(accountId) {
                         <div>
                             <strong>Last Updated:</strong> ${formatDateTime(account.updatedAt)}
                         </div>
-                        ${
-													account.expiresAt
-														? `
+                        ${account.expiresAt
+            ? `
                             <div>
                                 <strong>Expires:</strong> ${formatDateTime(account.expiresAt)}
                             </div>
                         `
-														: ""
-												}
+            : ""
+        }
+                        ${endpoint
+            ? `
+                            <div>
+                                <strong>Proxy/Base URL:</strong> 
+                                <div style="font-family: monospace; font-size: 12px; margin-top: 4px; word-break: break-all; color: var(--vscode-descriptionForeground);">
+                                    ${escapeHtml(endpoint)}
+                                </div>
+                            </div>
+                        `
+            : ""
+        }
                         <div>
                             <strong>Default:</strong> ${account.isDefault ? "Yes ⭐" : "No"}
                         </div>
@@ -992,8 +999,8 @@ function _showAccountDetails(accountId) {
  * Confirm delete account
  */
 function _confirmDeleteAccount(accountId, displayName) {
-	const modalContainer = document.getElementById("modal-container");
-	modalContainer.innerHTML = `
+    const modalContainer = document.getElementById("modal-container");
+    modalContainer.innerHTML = `
         <div class="modal-overlay" onclick="closeModal(event)">
             <div class="modal" onclick="event.stopPropagation()">
                 <div class="modal-header">
@@ -1021,337 +1028,341 @@ function _confirmDeleteAccount(accountId, displayName) {
  * Delete account
  */
 function _deleteAccount(accountId) {
-	vscode.postMessage({
-		command: "deleteAccount",
-		accountId: accountId,
-	});
-	closeModal();
+    vscode.postMessage({
+        command: "deleteAccount",
+        accountId: accountId,
+    });
+    closeModal();
 }
 
 function ensureSelectedProvider() {
-	const providerSummary = getProviderSummary();
-	if (providerSummary.length === 0) {
-		selectedProvider = null;
-		return;
-	}
-	// If selected provider not present anymore, fall back
-	const exists =
-		selectedProvider && providerSummary.some((p) => p.id === selectedProvider);
-	if (!exists) {
-		selectedProvider = providerSummary[0].id;
-		try {
-			vscode.setState({ ...(vscode.getState() || {}), selectedProvider });
-		} catch {
-			// Ignore
-		}
-	}
+    const providerSummary = getProviderSummary();
+    if (providerSummary.length === 0) {
+        selectedProvider = null;
+        return;
+    }
+    // If selected provider not present anymore, fall back
+    const exists =
+        selectedProvider && providerSummary.some((p) => p.id === selectedProvider);
+    if (!exists) {
+        selectedProvider = providerSummary[0].id;
+        try {
+            vscode.setState({ ...(vscode.getState() || {}), selectedProvider });
+        } catch {
+            // Ignore
+        }
+    }
 }
 
 function setSelectedProvider(providerId) {
-	selectedProvider = providerId;
-	try {
-		vscode.setState({ ...(vscode.getState() || {}), selectedProvider });
-	} catch {
-		// Ignore
-	}
-	renderPage();
+    selectedProvider = providerId;
+    try {
+        vscode.setState({ ...(vscode.getState() || {}), selectedProvider });
+    } catch {
+        // Ignore
+    }
+    renderPage();
 }
 
 /**
  * Refresh accounts
  */
 function _refreshAccounts() {
-	vscode.postMessage({
-		command: "refresh",
-	});
+    vscode.postMessage({
+        command: "refresh",
+    });
 }
 
 /**
  * Close modal
  */
 function closeModal(event) {
-	if (event && event.target !== event.currentTarget) return;
-	document.getElementById("modal-container").innerHTML = "";
+    if (event && event.target !== event.currentTarget) return;
+    document.getElementById("modal-container").innerHTML = "";
 }
 
 /**
  * Show toast notification
  */
 function showToast(message, type = "info") {
-	const container = document.getElementById("toast-container");
-	const toast = document.createElement("div");
-	toast.className = `toast ${type}`;
-	toast.innerHTML = `
+    const container = document.getElementById("toast-container");
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
         <span>${type === "success" ? "OK" : type === "error" ? "ERR" : "INFO"}</span>
         <span>${escapeHtml(message)}</span>
     `;
-	container.appendChild(toast);
+    container.appendChild(toast);
 
-	setTimeout(() => {
-		toast.remove();
-	}, 3000);
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
 }
 
 /**
  * Update accounts data
  */
 function updateAccounts(newAccounts) {
-	accounts = newAccounts || [];
-	ensureSelectedProvider();
-	renderPage();
+    accounts = newAccounts || [];
+    ensureSelectedProvider();
+    renderPage();
 }
 
 /**
  * Update Antigravity quota notice
  */
 function updateAntigravityQuota(notice) {
-	antigravityQuota = normalizeAntigravityQuota(notice);
-	renderPage();
+    antigravityQuota = normalizeAntigravityQuota(notice);
+    renderPage();
 }
 
 /**
  * Setup event listeners
  */
 function setupEventListeners() {
-	// Listen for messages from extension
-	window.addEventListener("message", (event) => {
-		const message = event.data;
-		switch (message.command) {
-			case "updateAccounts":
-				updateAccounts(message.accounts);
-				break;
-			case "showToast":
-				showToast(message.message, message.type);
-				break;
-			case "updateAntigravityQuota":
-				updateAntigravityQuota(message.notice);
-				break;
-			case "updateAccountQuotaState":
-				updateAccountQuotaState(message.accountId, message.state);
-				break;
-			case "quotaCheckResult":
-				handleQuotaCheckResult(message);
-				break;
-		}
-	});
+    // Listen for messages from extension
+    window.addEventListener("message", (event) => {
+        const message = event.data;
+        switch (message.command) {
+            case "updateAccounts":
+                updateAccounts(message.accounts);
+                // Store account endpoints for displaying in details modal
+                if (message.accountEndpoints) {
+                    window._accountEndpoints = message.accountEndpoints;
+                }
+                break;
+            case "showToast":
+                showToast(message.message, message.type);
+                break;
+            case "updateAntigravityQuota":
+                updateAntigravityQuota(message.notice);
+                break;
+            case "updateAccountQuotaState":
+                updateAccountQuotaState(message.accountId, message.state);
+                break;
+            case "quotaCheckResult":
+                handleQuotaCheckResult(message);
+                break;
+        }
+    });
 }
 
 /**
  * Update account quota state from extension
  */
 function updateAccountQuotaState(accountId, state) {
-	if (!state) {
-		// Remove state
-		accountQuotaStates = accountQuotaStates.filter(
-			(s) => s.accountId !== accountId,
-		);
-	} else {
-		// Update or add state
-		const existingIndex = accountQuotaStates.findIndex(
-			(s) => s.accountId === accountId,
-		);
-		if (existingIndex >= 0) {
-			accountQuotaStates[existingIndex] = state;
-		} else {
-			accountQuotaStates.push(state);
-		}
-	}
+    if (!state) {
+        // Remove state
+        accountQuotaStates = accountQuotaStates.filter(
+            (s) => s.accountId !== accountId,
+        );
+    } else {
+        // Update or add state
+        const existingIndex = accountQuotaStates.findIndex(
+            (s) => s.accountId === accountId,
+        );
+        if (existingIndex >= 0) {
+            accountQuotaStates[existingIndex] = state;
+        } else {
+            accountQuotaStates.push(state);
+        }
+    }
 
-	// Re-render the affected account card
-	const accountCard = document.querySelector(
-		`[data-account-id="${accountId}"]`,
-	);
-	if (accountCard) {
-		const account = accounts.find((a) => a.id === accountId);
-		if (account) {
-			accountCard.outerHTML = renderAccountCard(account);
-		}
-	}
+    // Re-render the affected account card
+    const accountCard = document.querySelector(
+        `[data-account-id="${accountId}"]`,
+    );
+    if (accountCard) {
+        const account = accounts.find((a) => a.id === accountId);
+        if (account) {
+            accountCard.outerHTML = renderAccountCard(account);
+        }
+    }
 }
 
 // Utility functions
 function getProviderIcon(providerId) {
-	// Use image if available, otherwise fallback to emoji
-	// if (providerImageUris[providerId]) {
-	//     return `<img src="${providerImageUris[providerId]}" alt="${providerId}" class="provider-icon-img" />`;
-	// }
+    // Use image if available, otherwise fallback to emoji
+    // if (providerImageUris[providerId]) {
+    //     return `<img src="${providerImageUris[providerId]}" alt="${providerId}" class="provider-icon-img" />`;
+    // }
 
-	// Fallback emoji icons
-	const icons = {
-		antigravity: "🌐",
-		codex: "✨",
-		zhipu: "🧠",
-		moonshot: "🌙",
-		minimax: "🔷",
-		deepseek: "🔍",
-		deepinfra: "🚀",
-		compatible: "⚙️",
-	};
-	return icons[providerId] || "🤖";
+    // Fallback emoji icons
+    const icons = {
+        antigravity: "🌐",
+        codex: "✨",
+        zhipu: "🧠",
+        moonshot: "🌙",
+        minimax: "🔷",
+        deepseek: "🔍",
+        deepinfra: "🚀",
+        compatible: "⚙️",
+    };
+    return icons[providerId] || "🤖";
 }
 
 function getProviderSummary() {
-	const accountsByProvider = {};
-	for (const account of accounts) {
-		accountsByProvider[account.provider] =
-			(accountsByProvider[account.provider] || 0) + 1;
-	}
+    const accountsByProvider = {};
+    for (const account of accounts) {
+        accountsByProvider[account.provider] =
+            (accountsByProvider[account.provider] || 0) + 1;
+    }
 
-	const allProviderIds = [
-		...new Set([
-			...providers.map((p) => p.id),
-			...Object.keys(accountsByProvider),
-		]),
-	];
-	const summary = allProviderIds.map((id) => {
-		const info = providers.find((p) => p.id === id);
-		return {
-			id,
-			name: info?.name ? info.name : capitalizeFirst(id),
-			authType: info?.authType ? info.authType : "apiKey",
-			count: accountsByProvider[id] || 0,
-		};
-	});
+    const allProviderIds = [
+        ...new Set([
+            ...providers.map((p) => p.id),
+            ...Object.keys(accountsByProvider),
+        ]),
+    ];
+    const summary = allProviderIds.map((id) => {
+        const info = providers.find((p) => p.id === id);
+        return {
+            id,
+            name: info?.name ? info.name : capitalizeFirst(id),
+            authType: info?.authType ? info.authType : "apiKey",
+            count: accountsByProvider[id] || 0,
+        };
+    });
 
-	// Sort: providers with accounts first, then by name
-	summary.sort((a, b) => {
-		if (a.count !== b.count) {
-			return b.count - a.count;
-		}
-		return a.name.localeCompare(b.name);
-	});
+    // Sort: providers with accounts first, then by name
+    summary.sort((a, b) => {
+        if (a.count !== b.count) {
+            return b.count - a.count;
+        }
+        return a.name.localeCompare(b.name);
+    });
 
-	return summary;
+    return summary;
 }
 
 function getInitials(name) {
-	if (!name) return "?";
-	const words = name.trim().split(/\s+/);
-	if (words.length >= 2) {
-		return (words[0][0] + words[1][0]).toUpperCase();
-	}
-	return name.substring(0, 2).toUpperCase();
+    if (!name) return "?";
+    const words = name.trim().split(/\s+/);
+    if (words.length >= 2) {
+        return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
 }
 
 function escapeHtml(text) {
-	if (!text) return "";
-	const div = document.createElement("div");
-	div.textContent = text;
-	return div.innerHTML;
+    if (!text) return "";
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function capitalizeFirst(str) {
-	if (!str) return "";
-	return str.charAt(0).toUpperCase() + str.slice(1);
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function formatDate(dateStr) {
-	if (!dateStr) return "N/A";
-	try {
-		return new Date(dateStr).toLocaleDateString();
-	} catch {
-		return "N/A";
-	}
+    if (!dateStr) return "N/A";
+    try {
+        return new Date(dateStr).toLocaleDateString();
+    } catch {
+        return "N/A";
+    }
 }
 
 function formatDateTime(dateStr) {
-	if (!dateStr) return "N/A";
-	try {
-		return new Date(dateStr).toLocaleString();
-	} catch {
-		return "N/A";
-	}
+    if (!dateStr) return "N/A";
+    try {
+        return new Date(dateStr).toLocaleString();
+    } catch {
+        return "N/A";
+    }
 }
 
 function normalizeAntigravityQuota(notice) {
-	if (!notice || typeof notice.resetAt !== "number") {
-		return null;
-	}
-	const modelName =
-		typeof notice.modelName === "string" ? notice.modelName : "";
-	const accountId =
-		typeof notice.accountId === "string" ? notice.accountId : "";
-	const accountName =
-		typeof notice.accountName === "string" ? notice.accountName : "";
-	return { resetAt: notice.resetAt, modelName, accountId, accountName };
+    if (!notice || typeof notice.resetAt !== "number") {
+        return null;
+    }
+    const modelName =
+        typeof notice.modelName === "string" ? notice.modelName : "";
+    const accountId =
+        typeof notice.accountId === "string" ? notice.accountId : "";
+    const accountName =
+        typeof notice.accountName === "string" ? notice.accountName : "";
+    return { resetAt: notice.resetAt, modelName, accountId, accountName };
 }
 
 function startQuotaCountdown() {
-	stopQuotaCountdown();
-	if (!antigravityQuota) {
-		return;
-	}
-	updateQuotaCountdown();
+    stopQuotaCountdown();
+    if (!antigravityQuota) {
+        return;
+    }
+    updateQuotaCountdown();
 }
 
 function stopQuotaCountdown() {
-	if (antigravityQuotaTimer) {
-		clearTimeout(antigravityQuotaTimer);
-		antigravityQuotaTimer = null;
-	}
+    if (antigravityQuotaTimer) {
+        clearTimeout(antigravityQuotaTimer);
+        antigravityQuotaTimer = null;
+    }
 }
 
 function updateQuotaCountdown() {
-	if (!antigravityQuota) {
-		return;
-	}
-	const remaining = antigravityQuota.resetAt - Date.now();
-	if (remaining <= 0) {
-		antigravityQuota = null;
-		renderPage();
-		return;
-	}
+    if (!antigravityQuota) {
+        return;
+    }
+    const remaining = antigravityQuota.resetAt - Date.now();
+    if (remaining <= 0) {
+        antigravityQuota = null;
+        renderPage();
+        return;
+    }
 
-	// Update main banner countdown
-	const countdownEl = document.getElementById("quota-countdown");
-	if (countdownEl) {
-		countdownEl.textContent = formatCountdown(remaining);
-	}
+    // Update main banner countdown
+    const countdownEl = document.getElementById("quota-countdown");
+    if (countdownEl) {
+        countdownEl.textContent = formatCountdown(remaining);
+    }
 
-	// Update account card countdown
-	const accountCountdowns = document.querySelectorAll(
-		".account-quota-countdown",
-	);
-	accountCountdowns.forEach((el) => {
-		const resetAt = parseInt(el.dataset.resetAt, 10);
-		if (resetAt) {
-			const accountRemaining = resetAt - Date.now();
-			if (accountRemaining > 0) {
-				el.textContent = formatCountdown(accountRemaining);
-			}
-		}
-	});
+    // Update account card countdown
+    const accountCountdowns = document.querySelectorAll(
+        ".account-quota-countdown",
+    );
+    accountCountdowns.forEach((el) => {
+        const resetAt = parseInt(el.dataset.resetAt, 10);
+        if (resetAt) {
+            const accountRemaining = resetAt - Date.now();
+            if (accountRemaining > 0) {
+                el.textContent = formatCountdown(accountRemaining);
+            }
+        }
+    });
 
-	antigravityQuotaTimer = setTimeout(
-		updateQuotaCountdown,
-		getCountdownUpdateInterval(remaining),
-	);
+    antigravityQuotaTimer = setTimeout(
+        updateQuotaCountdown,
+        getCountdownUpdateInterval(remaining),
+    );
 }
 
 function formatCountdown(ms) {
-	const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-	const seconds = totalSeconds % 60;
-	const minutes = Math.floor(totalSeconds / 60) % 60;
-	const hours = Math.floor(totalSeconds / 3600) % 24;
-	const days = Math.floor(totalSeconds / 86400);
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 60) % 60;
+    const hours = Math.floor(totalSeconds / 3600) % 24;
+    const days = Math.floor(totalSeconds / 86400);
 
-	if (days > 0) {
-		return `${days}d ${hours}h ${minutes}m`;
-	}
-	if (hours > 0) {
-		return `${hours}h ${minutes}m ${seconds}s`;
-	}
-	if (minutes > 0) {
-		return `${minutes}m ${seconds}s`;
-	}
-	return `${seconds}s`;
+    if (days > 0) {
+        return `${days}d ${hours}h ${minutes}m`;
+    }
+    if (hours > 0) {
+        return `${hours}h ${minutes}m ${seconds}s`;
+    }
+    if (minutes > 0) {
+        return `${minutes}m ${seconds}s`;
+    }
+    return `${seconds}s`;
 }
 
 function getCountdownUpdateInterval(remainingMs) {
-	if (remainingMs >= 60 * 60 * 1000) {
-		return 60 * 1000;
-	}
-	return 1000;
+    if (remainingMs >= 60 * 60 * 1000) {
+        return 60 * 1000;
+    }
+    return 1000;
 }
 
 // Expose handlers used by inline HTML and host initialization.

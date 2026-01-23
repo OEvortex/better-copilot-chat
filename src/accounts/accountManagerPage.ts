@@ -41,20 +41,7 @@ export class AccountManagerPage {
 	/** Available providers */
 	private static readonly providers: ProviderInfo[] = [
 		{ id: "antigravity", name: "Antigravity (Google)", authType: "oauth" },
-		{ id: "codex", name: "Codex (OpenAI)", authType: "oauth" },
-		{ id: "zhipu", name: "ZhipuAI", authType: "apiKey" },
-		{ id: "moonshot", name: "MoonshotAI", authType: "apiKey" },
-		{ id: "minimax", name: "MiniMax", authType: "apiKey" },
-		{ id: "deepseek", name: "DeepSeek", authType: "apiKey" },
-		{ id: "deepinfra", name: "DeepInfra", authType: "apiKey" },
-		{ id: "chutes", name: "Chutes", authType: "apiKey" },
-		{ id: "opencode", name: "OpenCode", authType: "apiKey" },
-		{ id: "huggingface", name: "Huggingface", authType: "apiKey" },
-		{ id: "mistral", name: "Mistral", authType: "apiKey" },
-		{ id: "openai", name: "OpenAI", authType: "apiKey" },
-		{ id: "kimi", name: "Kimi (Moonshot)", authType: "apiKey" },
-		{ id: "minimax-coding", name: "MiniMax Coding", authType: "apiKey" },
-		{ id: "compatible", name: "Compatible (Custom)", authType: "apiKey" },
+		{ id: "zhipu", name: "ZhipuAI (GLM Coding Plan)", authType: "apiKey" },
 	];
 
 	private constructor() {
@@ -63,7 +50,9 @@ export class AccountManagerPage {
 		// Listen for account changes
 		this.disposables.push(
 			this.accountManager.onAccountChange(() => {
-				this.refreshWebview();
+				this.refreshWebview().catch((err) =>
+					Logger.warn("Failed to refresh account manager:", err),
+				);
 			}),
 		);
 
@@ -356,7 +345,7 @@ export class AccountManagerPage {
 				break;
 
 			case "refresh":
-				this.refreshWebview();
+				await this.refreshWebview();
 				break;
 
 			case "openSettings":
@@ -392,7 +381,7 @@ export class AccountManagerPage {
 					message: `Account "${displayName}" added successfully!`,
 					type: "success",
 				});
-				this.refreshWebview();
+				await this.refreshWebview();
 			} else {
 				this.sendToWebview({
 					command: "showToast",
@@ -421,14 +410,14 @@ export class AccountManagerPage {
 					"../providers/antigravity/auth.js"
 				);
 				await doAntigravityLoginForNewAccount();
-				this.refreshWebview();
+				await this.refreshWebview();
 			} else if (provider === ProviderKey.Codex) {
 				// Import and call the Codex login function
 				const { doCodexLoginForNewAccount } = await import(
 					"../providers/codex/codexAuth.js"
 				);
 				await doCodexLoginForNewAccount();
-				this.refreshWebview();
+				await this.refreshWebview();
 			}
 		} catch (error) {
 			Logger.error("OAuth login failed:", error);
@@ -461,7 +450,7 @@ export class AccountManagerPage {
 				message: `"${account.displayName}" is now the default account`,
 				type: "success",
 			});
-			this.refreshWebview();
+			await this.refreshWebview();
 		} catch (error) {
 			Logger.error("Failed to set default account:", error);
 			this.sendToWebview({
@@ -577,15 +566,33 @@ export class AccountManagerPage {
 	/**
 	 * Refresh webview with latest data
 	 */
-	private refreshWebview(): void {
+	private async refreshWebview(): Promise<void> {
 		if (!this.panel) {
 			return;
 		}
 
 		const accounts = this.accountManager.getAllAccounts();
+		
+		// Fetch credentials for all accounts to send to webview
+		const accountsWithEndpoints: Array<{
+			id: string;
+			endpoint?: string;
+		}> = [];
+		
+		for (const account of accounts) {
+			const creds = await this.accountManager.getCredentials(account.id);
+			if (creds && "endpoint" in creds && creds.endpoint) {
+				accountsWithEndpoints.push({
+					id: account.id,
+					endpoint: creds.endpoint,
+				});
+			}
+		}
+		
 		this.sendToWebview({
 			command: "updateAccounts",
 			accounts: accounts,
+			accountEndpoints: accountsWithEndpoints,
 		});
 	}
 

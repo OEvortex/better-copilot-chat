@@ -226,11 +226,19 @@ export class AccountUI {
 			return;
 		}
 
-		// Ask for custom endpoint (optional)
+		// Ask for custom endpoint/proxy URL (optional)
 		const endpoint = await vscode.window.showInputBox({
 			title: `Add ${providerLabel} Account`,
-			prompt: "Enter custom base URL (optional)",
-			placeHolder: "http://154.53.47.9:8000/v1",
+			prompt: "Enter custom base URL or proxy endpoint (optional)",
+			placeHolder: "http://154.53.47.9:8000/v1 or https://proxy.example.com/v1",
+			validateInput: (value) => {
+				if (value && value.trim().length > 0) {
+					if (!value.startsWith('http://') && !value.startsWith('https://')) {
+						return "Base URL must start with http:// or https://";
+					}
+				}
+				return undefined;
+			},
 		});
 
 		// Add account
@@ -239,7 +247,7 @@ export class AccountUI {
 			displayName.trim(),
 			apiKey.trim(),
 			{
-				endpoint,
+				endpoint: endpoint ? endpoint.trim() : undefined,
 			},
 		);
 

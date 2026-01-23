@@ -57,7 +57,7 @@ export interface OAuthCredentials {
  */
 export interface ApiKeyCredentials {
 	apiKey: string;
-	/** Custom endpoint (if any) */
+	/** Custom endpoint/proxy base URL (if any) - overrides provider default baseUrl */
 	endpoint?: string;
 	/** Custom headers */
 	customHeaders?: Record<string, string>;

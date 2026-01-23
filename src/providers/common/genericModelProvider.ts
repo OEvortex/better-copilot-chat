@@ -522,6 +522,11 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 							: undefined,
 				};
 
+				// Override baseUrl with language model configuration baseUrl if available (lower priority than account endpoint)
+				if (!configWithAuth.baseUrl && (options.selectionsMetadata as any)?.baseUrl) {
+					configWithAuth.baseUrl = (options.selectionsMetadata as any).baseUrl;
+				}
+
 				// Handle OAuth tokens if needed
 				if ("accessToken" in credentials) {
 					// For OAuth accounts, we might need to refresh or pass the token differently

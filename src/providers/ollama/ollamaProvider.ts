@@ -3,6 +3,7 @@
  *  Uses static model configuration from src/providers/config/ollama.json
  *--------------------------------------------------------------------------------------------*/
 
+import OpenAI from "openai";
 import type {
 	CancellationToken,
 	LanguageModelChatInformation,
@@ -21,10 +22,26 @@ import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 
+const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
+const DEFAULT_CONTEXT_LENGTH = 128000;
+
 export class OllamaProvider
 	extends GenericModelProvider
 	implements LanguageModelChatProvider
 {
+	private readonly userAgent: string;
+	private clientCache = new Map<string, { client: OpenAI; lastUsed: number }>();
+
+	constructor(
+		context: vscode.ExtensionContext,
+		providerKey: string,
+		providerConfig: ProviderConfig,
+		userAgent: string,
+	) {
+		super(context, providerKey, providerConfig);
+		this.userAgent = userAgent;
+	}
+
 	async prepareLanguageModelChatInformation(
 		options: { silent: boolean },
 		_token: CancellationToken,
@@ -34,9 +51,24 @@ export class OllamaProvider
 			return [];
 		}
 
-		const infos = this.providerConfig.models.map((model) =>
-			this.modelConfigToInfo(model),
-		);
+		const infos = this.providerConfig.models.map((model) => {
+			const capabilities = {
+				toolCalling: model.capabilities?.toolCalling ?? false,
+				imageInput: model.capabilities?.imageInput ?? false,
+			};
+
+			return {
+				id: model.id,
+				name: model.name,
+				tooltip: model.name || "Ollama",
+				family: "ollama",
+				version: "1.0.0",
+				maxInputTokens: model.maxInputTokens || DEFAULT_CONTEXT_LENGTH,
+				maxOutputTokens: model.maxOutputTokens || DEFAULT_MAX_OUTPUT_TOKENS,
+				capabilities,
+			} as LanguageModelChatInformation;
+		});
+
 		this._chatEndpoints = infos.map((info) => ({
 			model: info.id,
 			modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens,
@@ -56,7 +88,7 @@ export class OllamaProvider
 
 	override async provideLanguageModelChatResponse(
 		model: LanguageModelChatInformation,
-		messages: Array<LanguageModelChatMessage>,
+		messages: readonly LanguageModelChatMessage[],
 		options: ProvideLanguageModelChatResponseOptions,
 		progress: Progress<LanguageModelResponsePart>,
 		token: CancellationToken,
@@ -78,14 +110,250 @@ export class OllamaProvider
 					);
 			}
 
-			await this.ensureApiKey(false);
-			await super.provideLanguageModelChatResponse(
-				model,
-				messages,
-				options,
-				progress as unknown as vscode.Progress<vscode.LanguageModelResponsePart2>,
-				token,
+			const apiKey = await this.ensureApiKey(false);
+			if (!apiKey) {
+				throw new Error("Ollama API key not found");
+			}
+
+			if (options.tools && options.tools.length > 128) {
+				throw new Error("Cannot have more than 128 tools per request.");
+			}
+
+			// Get model config
+			const modelConfig = this.providerConfig.models.find(
+				(m) => m.id === model.id,
 			);
+
+			// Create OpenAI client
+			const client = await this.createOpenAIClient(apiKey, modelConfig);
+
+			// Convert messages using OpenAIHandler
+			const openaiMessages = this.openaiHandler.convertMessagesToOpenAI(
+				messages as any,
+				model.capabilities || undefined,
+				modelConfig,
+			);
+
+			// Create stream parameters
+			const createParams: OpenAI.Chat.ChatCompletionCreateParamsStreaming = {
+				model: model.id,
+				messages: openaiMessages,
+				stream: true,
+				stream_options: { include_usage: true },
+				max_tokens: Math.min(
+					options.modelOptions?.max_tokens || 4096,
+					model.maxOutputTokens,
+				),
+				temperature:
+					options.modelOptions?.temperature ?? ConfigManager.getTemperature(),
+				top_p: ConfigManager.getTopP(),
+			};
+
+			// Add model options
+			if (options.modelOptions) {
+				const mo = options.modelOptions as Record<string, unknown>;
+				if (typeof mo.stop === "string" || Array.isArray(mo.stop)) {
+					createParams.stop = mo.stop;
+				}
+				if (typeof mo.frequency_penalty === "number") {
+					createParams.frequency_penalty = mo.frequency_penalty;
+				}
+				if (typeof mo.presence_penalty === "number") {
+					createParams.presence_penalty = mo.presence_penalty;
+				}
+			}
+
+			// Add tools if supported
+			if (
+				options.tools &&
+				options.tools.length > 0 &&
+				model.capabilities?.toolCalling
+			) {
+				createParams.tools = this.openaiHandler.convertToolsToOpenAI([
+					...options.tools,
+				]);
+				createParams.tool_choice = "auto";
+			}
+
+			// Use OpenAI SDK streaming
+			const abortController = new AbortController();
+			token.onCancellationRequested(() => abortController.abort());
+
+			const stream = client.chat.completions.stream(createParams, {
+				signal: abortController.signal,
+			});
+
+			let currentThinkingId: string | null = null;
+			let thinkingContentBuffer = "";
+			let _hasReceivedContent = false;
+			let hasThinkingContent = false;
+
+			// Store tool call IDs by index
+			const toolCallIds = new Map<number, string>();
+
+			// Handle chunks for reasoning_content
+			stream.on("chunk", (chunk: OpenAI.Chat.ChatCompletionChunk) => {
+				if (token.isCancellationRequested) {
+					return;
+				}
+
+				// Capture tool call IDs
+				if (chunk.choices && chunk.choices.length > 0) {
+					for (const choice of chunk.choices) {
+						if (choice.delta?.tool_calls) {
+							for (const toolCall of choice.delta.tool_calls) {
+								if (toolCall.id && toolCall.index !== undefined) {
+									toolCallIds.set(toolCall.index, toolCall.id);
+								}
+							}
+						}
+
+						const delta = choice.delta as
+							| { reasoning?: string; reasoning_content?: string }
+							| undefined;
+						const reasoningContent =
+							delta?.reasoning ?? delta?.reasoning_content;
+
+						if (reasoningContent && typeof reasoningContent === "string") {
+							if (!currentThinkingId) {
+								currentThinkingId = `ollama_thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+							}
+							thinkingContentBuffer += reasoningContent;
+							try {
+								progress.report(
+									new vscode.LanguageModelThinkingPart(
+										thinkingContentBuffer,
+										currentThinkingId,
+									) as unknown as LanguageModelResponsePart,
+								);
+								thinkingContentBuffer = "";
+								hasThinkingContent = true;
+							} catch (e) {
+								Logger.warn(
+									"[Ollama] Failed to report thinking",
+									e instanceof Error ? e.message : String(e),
+								);
+							}
+						}
+					}
+				}
+			});
+
+			// Handle content stream
+			stream.on("content", (delta: string) => {
+				if (token.isCancellationRequested) {
+					return;
+				}
+
+				// Handle regular content
+				if (delta && typeof delta === "string" && delta.trim().length > 0) {
+					// End thinking if we're starting to output regular content
+					if (currentThinkingId) {
+						try {
+							progress.report(
+								new vscode.LanguageModelThinkingPart(
+									"",
+									currentThinkingId,
+								) as unknown as LanguageModelResponsePart,
+							);
+						} catch {
+							// ignore
+						}
+						currentThinkingId = null;
+					}
+
+					try {
+						progress.report(new vscode.LanguageModelTextPart(delta));
+						_hasReceivedContent = true;
+					} catch (e) {
+						Logger.warn(
+							"[Ollama] Failed to report content",
+							e instanceof Error ? e.message : String(e),
+						);
+					}
+				}
+			});
+
+			// Handle tool calls
+			stream.on("tool_calls.function.arguments.done", (event) => {
+				if (token.isCancellationRequested) {
+					return;
+				}
+				// Finalize thinking before tool calls
+				if (currentThinkingId) {
+					try {
+						progress.report(
+							new vscode.LanguageModelThinkingPart(
+								"",
+								currentThinkingId,
+							) as unknown as LanguageModelResponsePart,
+						);
+					} catch {
+						// ignore
+					}
+					currentThinkingId = null;
+				}
+
+				// Report tool call to VS Code
+				const toolCallId =
+					toolCallIds.get(event.index) ||
+					`tool_call_${event.index}_${Date.now()}`;
+
+				// Use parameters parsed by SDK (priority) or manually parse arguments string
+				let parsedArgs: object = {};
+				if (event.parsed_arguments) {
+					const result = event.parsed_arguments;
+					parsedArgs =
+						typeof result === "object" && result !== null ? result : {};
+				} else {
+					try {
+						parsedArgs = JSON.parse(event.arguments || "{}");
+					} catch {
+						parsedArgs = { value: event.arguments };
+					}
+				}
+
+				try {
+					progress.report(
+						new vscode.LanguageModelToolCallPart(
+							toolCallId,
+							event.name,
+							parsedArgs,
+						),
+					);
+					_hasReceivedContent = true;
+				} catch (e) {
+					Logger.warn(
+						"[Ollama] Failed to report tool call",
+						e instanceof Error ? e.message : String(e),
+					);
+				}
+			});
+
+			// Wait for stream to complete
+			await stream.finalChatCompletion();
+
+			// Finalize thinking if still active
+			if (currentThinkingId) {
+				try {
+					progress.report(
+						new vscode.LanguageModelThinkingPart(
+							"",
+							currentThinkingId,
+						) as unknown as LanguageModelResponsePart,
+					);
+				} catch {
+					// ignore
+				}
+			}
+
+			// Only add <think/> placeholder if thinking content was output but no content was output
+			if (hasThinkingContent && !_hasReceivedContent) {
+				progress.report(new vscode.LanguageModelTextPart("<think/>"));
+				Logger.warn(
+					"[Ollama] End of message stream has only thinking content and no text content, added <think/> placeholder as output",
+				);
+			}
 		} catch (error) {
 			Logger.error(
 				"[Ollama] Chat request failed",
@@ -93,6 +361,38 @@ export class OllamaProvider
 			);
 			throw error;
 		}
+	}
+
+	/**
+	 * Create OpenAI client for Ollama API
+	 */
+	private async createOpenAIClient(
+		apiKey: string,
+		modelConfig: any,
+	): Promise<OpenAI> {
+		const baseUrl =
+			modelConfig?.baseUrl ||
+			this.providerConfig.baseUrl ||
+			"http://localhost:11434/v1";
+		const cacheKey = `ollama:${baseUrl}`;
+		const cached = this.clientCache.get(cacheKey);
+		if (cached) {
+			cached.lastUsed = Date.now();
+			return cached.client;
+		}
+
+		const client = new OpenAI({
+			apiKey: apiKey,
+			baseURL: baseUrl,
+			defaultHeaders: {
+				"User-Agent": this.userAgent,
+			},
+			maxRetries: 2,
+			timeout: 60000,
+		});
+
+		this.clientCache.set(cacheKey, { client, lastUsed: Date.now() });
+		return client;
 	}
 
 	async provideTokenCount(
@@ -122,7 +422,12 @@ export class OllamaProvider
 		providerConfig: ProviderConfig,
 	): { provider: OllamaProvider; disposables: vscode.Disposable[] } {
 		Logger.trace(`${providerConfig.displayName} provider activated!`);
-		const provider = new OllamaProvider(context, providerKey, providerConfig);
+		const ext = vscode.extensions.getExtension("OEvortex.better-copilot-chat");
+		const extVersion = ext?.packageJSON?.version ?? "unknown";
+		const vscodeVersion = vscode.version;
+		const ua = `better-copilot-chat/${extVersion} VSCode/${vscodeVersion}`;
+
+		const provider = new OllamaProvider(context, providerKey, providerConfig, ua);
 		const providerDisposable = vscode.lm.registerLanguageModelChatProvider(
 			`chp.${providerKey}`,
 			provider,
