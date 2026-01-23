@@ -42,6 +42,21 @@ export class DeepInfraProvider
 		this.userAgent = userAgent;
 	}
 
+	/**
+	 * Override refreshHandlers to also clear the OpenAI client cache
+	 * This ensures that when baseUrl changes, new clients are created with the correct URL
+	 */
+	protected override refreshHandlers(): void {
+		// Clear our client cache first - baseUrl may have changed
+		// Only clear if the cache has already been initialized (might not be if called from constructor)
+		if (this.clientCache && this.clientCache.size > 0) {
+			Logger.debug(`[DeepInfra] Clearing ${this.clientCache.size} cached OpenAI clients due to config change`);
+			this.clientCache.clear();
+		}
+		// Then call parent to refresh openaiHandler and anthropicHandler
+		super.refreshHandlers();
+	}
+
 	private async ensureApiKey(silent: boolean): Promise<string | undefined> {
 		let apiKey = await ApiKeyManager.getApiKey(this.providerKey);
 		if (!apiKey && !silent) {
@@ -60,26 +75,63 @@ export class DeepInfraProvider
 			const baseUrl =
 				this.providerConfig.baseUrl ||
 				"https://api.deepinfra.com/v1/openai";
-			const resp = await fetch(`${baseUrl}/models`, {
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${apiKey}`,
-					"User-Agent": this.userAgent,
-				},
-			});
+			const modelsUrl = `${baseUrl}/models`;
+			Logger.debug(`[DeepInfra] Fetching models from: ${modelsUrl}`);
 
-			if (!resp.ok) {
-				const text = await resp.text();
-				throw new Error(
-					`Failed to fetch DeepInfra models: ${resp.status} ${resp.statusText}\n${text}`,
-				);
+			const abortController = new AbortController();
+			const timeoutId = setTimeout(() => abortController.abort(), 10000); // 10 second timeout
+
+			try {
+				const resp = await fetch(modelsUrl, {
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${apiKey}`,
+						"User-Agent": this.userAgent,
+					},
+					signal: abortController.signal,
+				});
+
+				clearTimeout(timeoutId);
+
+				if (!resp.ok) {
+					const text = await resp.text();
+					Logger.warn(
+						`[DeepInfra] Failed to fetch models: ${resp.status} ${resp.statusText}`,
+					);
+					if (resp.status === 429) {
+						Logger.warn(
+							"[DeepInfra] Rate limited (429). Will retry with pre-configured models.",
+						);
+					}
+					return [];
+				}
+
+				const parsed = (await resp.json()) as DeepInfraModelsResponse;
+				const models = parsed.data || [];
+				Logger.info(`[DeepInfra] Successfully fetched ${models.length} models`);
+				return models;
+			} catch (fetchError) {
+				clearTimeout(timeoutId);
+				if (
+					fetchError instanceof Error &&
+					fetchError.name === "AbortError"
+				) {
+					Logger.warn(
+						"[DeepInfra] Model fetch timeout (10s). Using pre-configured models.",
+					);
+				} else {
+					Logger.warn(
+						`[DeepInfra] Model fetch failed: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}. Using pre-configured models.`,
+					);
+				}
+				return [];
 			}
-
-			const parsed = (await resp.json()) as DeepInfraModelsResponse;
-			return parsed.data || [];
 		} catch (err) {
-			Logger.error("[DeepInfra Model Provider] Failed to fetch models", err);
-			throw err;
+			Logger.warn(
+				"[DeepInfra] Error in fetchModels:",
+				err instanceof Error ? err.message : String(err),
+			);
+			return [];
 		}
 	}
 
@@ -92,7 +144,30 @@ export class DeepInfraProvider
 			return [];
 		}
 
-		const models = await this.fetchModels(apiKey);
+		let models = await this.fetchModels(apiKey);
+
+		// If API fetch fails or returns no models, fall back to pre-configured models
+		if (!models || models.length === 0) {
+			Logger.info(
+				"[DeepInfra] No models from API, using pre-configured models from config",
+			);
+			// Convert pre-configured models to the same format
+			const preConfiguredModels = this.providerConfig.models.map(
+				(m) =>
+					({
+						id: m.id,
+						object: "model",
+						created: 0,
+						owned_by: "deepinfra",
+						metadata: {
+							description: m.tooltip || "",
+							context_length: m.maxInputTokens || 128000,
+							max_tokens: m.maxOutputTokens || 16000,
+						},
+					}) as DeepInfraModelItem,
+			);
+			models = preConfiguredModels;
+		}
 
 		// Filter models: must have metadata, max_tokens, and context_length
 		const filteredModels = models.filter(
@@ -117,7 +192,7 @@ export class DeepInfraProvider
 
 			return {
 				id: m.id,
-				name: m.id.split("/").pop() || m.id,
+				name: m.id,
 				tooltip: metadata.description || `DeepInfra model: ${m.id}`,
 				family: "deepinfra",
 				version: "1.0.0",
@@ -230,13 +305,17 @@ export class DeepInfraProvider
 	}
 
 	private async createOpenAIClient(apiKey: string): Promise<OpenAI> {
+		// IMPORTANT: this.providerConfig uses the getter which returns cachedProviderConfig (with overrides applied)
 		const baseURL =
 			this.providerConfig.baseUrl ||
 			"https://api.deepinfra.com/v1/openai";
-		const cacheKey = `deepinfra:${baseURL}`;
+		Logger.info(`[DeepInfra] Creating OpenAI client with baseURL: ${baseURL}`);
+		// Include apiKey in cache key to differentiate clients for different accounts
+		const cacheKey = `deepinfra:${apiKey}:${baseURL}`;
 		const cached = this.clientCache.get(cacheKey);
 		if (cached) {
 			cached.lastUsed = Date.now();
+			Logger.debug(`[DeepInfra] Using cached client for baseURL: ${baseURL}`);
 			return cached.client;
 		}
 
@@ -251,6 +330,7 @@ export class DeepInfraProvider
 		});
 
 		this.clientCache.set(cacheKey, { client, lastUsed: Date.now() });
+		Logger.info(`[DeepInfra] Created new OpenAI client for baseURL: ${baseURL}`);
 		return client;
 	}
 

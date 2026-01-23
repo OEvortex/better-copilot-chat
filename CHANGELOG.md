@@ -43,6 +43,10 @@ All notable changes to this project will be documented in this file.
   - Ensured that `_chatEndpoints` and OpenAI client initialization respect custom baseUrl configuration.
 - **Handler Refresh on Config Changes**: Added handler refresh logic to ensure SDK handlers are updated when provider configuration changes.
   - `GenericModelProvider` now refreshes handlers when configuration is updated to reflect new baseUrl or other settings.
+- **OpenAI Client Cache Clearing**: Fixed issue where OpenAI client caches were not cleared when configuration changed.
+  - Added `refreshHandlers()` override in all providers (DeepInfra, Zenmux, OpenCode, Ollama, LightningAI, HuggingFace, Chutes) to clear provider-specific `clientCache` on config updates.
+  - Ensures that new clients are created with the updated baseUrl after settings changes.
+  - Added null checks for `clientCache` initialization to handle constructor timing issues.
 - **Extension Activation**: Fixed formatting/branching in provider registration to avoid malformed control flow.
 - **Ollama Tool Calling**: Fixed tool calling in Ollama provider to properly handle `tool_calls.function.arguments.done` events with accurate tool ID tracking.
 - **Authentication Flow**: Simplified Gemini CLI and Qwen CLI authentication by removing unnecessary API key requirements in native VS Code settings.

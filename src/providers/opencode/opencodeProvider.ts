@@ -78,6 +78,21 @@ export class OpenCodeProvider
 		);
 	}
 
+	/**
+	 * Override refreshHandlers to also clear the OpenAI client cache
+	 * This ensures that when baseUrl changes, new clients are created with the correct URL
+	 */
+	protected override refreshHandlers(): void {
+		// Clear our client cache first - baseUrl may have changed
+		// Only clear if the cache has already been initialized (might not be if called from constructor)
+		if (this.clientCache && this.clientCache.size > 0) {
+			Logger.debug(`[OpenCode] Clearing ${this.clientCache.size} cached OpenAI clients due to config change`);
+			this.clientCache.clear();
+		}
+		// Then call parent to refresh openaiHandler and anthropicHandler
+		super.refreshHandlers();
+	}
+
 	private estimateMessagesTokens(
 		msgs: readonly vscode.LanguageModelChatMessage[],
 	): number {

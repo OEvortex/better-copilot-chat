@@ -176,7 +176,11 @@ export class OpenAIStreamProcessor {
 			const parsed = JSON.parse(data);
 
 			// Detect format: OpenAI has 'choices', Gemini/Antigravity has 'response' or 'candidates'
-			if (parsed.choices) {
+			// CRITICAL: Ensure choices is an array before processing to avoid "chunk.choices is not iterable" error
+			if (
+				Array.isArray(parsed.choices) &&
+				parsed.choices.length > 0
+			) {
 				// OpenAI format
 				this.processOpenAIFormat(
 					parsed as OpenAIStreamChunk,
