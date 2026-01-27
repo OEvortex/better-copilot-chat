@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] - 2026-01-27
+
+### Fixed
+- **Ollama Provider Stream Finalization**: Fixed "missing finish_reason for choice 0" error that occurred when Ollama's stream ended without sending a final chunk with `finish_reason`.
+  - Wrapped `stream.finalChatCompletion()` call in try-catch block to gracefully handle streams that complete without the expected final chunk.
+  - Added specific error handling for "missing finish_reason" errors with debug logging.
+  - Ensures Ollama provider works correctly with local LLM servers that don't send the final `finish_reason` chunk.
+
 ## [0.1.7] - 2026-01-23
 
 ### Added

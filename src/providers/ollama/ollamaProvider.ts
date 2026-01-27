@@ -347,7 +347,22 @@ export class OllamaProvider
 			});
 
 			// Wait for stream to complete
-			await stream.finalChatCompletion();
+			try {
+				await stream.finalChatCompletion();
+			} catch (err) {
+				// Handle case where stream ends without finish_reason
+				// Some providers (like Ollama) don't send a final chunk with finish_reason
+				if (
+					err instanceof Error &&
+					err.message.includes("missing finish_reason")
+				) {
+					Logger.debug(
+						"[Ollama] Stream completed without finish_reason, ignoring error",
+					);
+				} else {
+					throw err;
+				}
+			}
 
 			// Finalize thinking if still active
 			if (currentThinkingId) {

@@ -136,7 +136,7 @@ export interface GeminiContent {
 
 export interface GeminiRequest {
 	contents: GeminiContent[];
-	systemInstruction?: { parts: { text: string }[] };
+	systemInstruction?: { role?: string; parts: { text: string }[] };
 	generationConfig?: {
 		maxOutputTokens?: number;
 		temperature?: number;
@@ -160,6 +160,7 @@ export interface AntigravityPayload {
 	model: string;
 	userAgent: string;
 	requestId: string;
+	requestType?: string;
 	request: GeminiRequest & { sessionId: string };
 }
 

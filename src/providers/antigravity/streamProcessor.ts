@@ -1,10 +1,7 @@
 import * as vscode from "vscode";
 import type { ModelConfig } from "../../types/sharedTypes";
-import type { ProcessStreamOptions } from "../common/commonTypes";
-import {
-	extractToolCallFromGeminiResponse,
-	storeThoughtSignature,
-} from "./handler";
+import { ProcessStreamOptions } from "../common/commonTypes";
+import { storeThoughtSignature, extractToolCallFromGeminiResponse } from "./handler";
 
 export class AntigravityStreamProcessor {
 	private textBuffer = "";

@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import type { ModelConfig } from "../../types/sharedTypes";
-import type { ProcessStreamOptions } from "../common/commonTypes";
+import { ProcessStreamOptions } from "../common/commonTypes";
 import {
 	cacheSignature,
-	FALLBACK_SIGNATURE,
 	storeToolCallSignature,
+	FALLBACK_SIGNATURE,
 } from "./signatureCache";
 
 export interface TransformContext {
