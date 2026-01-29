@@ -333,6 +333,14 @@ function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
 		if (!s) {
 			return;
 		}
+		if (Array.isArray(s.properties)) {
+			s.properties = {};
+		}
+		if (Array.isArray(s.items)) {
+			const firstItem = s.items[0];
+			s.items =
+				firstItem && typeof firstItem === "object" ? firstItem : undefined;
+		}
 		if (typeof s.type === "string") {
 			s.type = s.type.toLowerCase();
 		}
