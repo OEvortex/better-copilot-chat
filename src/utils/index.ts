@@ -46,4 +46,10 @@ export {
 export { RetryManager } from "./retryManager";
 export { StatusLogger } from "./statusLogger";
 export { TokenCounter } from "./tokenCounter";
+export {
+	TokenTelemetryTracker,
+	type TokenTelemetryEvent,
+	type TokenResponseMetrics,
+	type TokenUsageSummary
+} from "./tokenTelemetryTracker";
 export { VersionManager } from "./versionManager";

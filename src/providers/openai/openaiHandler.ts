@@ -11,6 +11,8 @@ import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
+import { TokenCounter } from "../../utils/tokenCounter";
+import { TokenTelemetryTracker } from "../../utils/tokenTelemetryTracker";
 import { VersionManager } from "../../utils/versionManager";
 import type {
 	ExtendedAssistantMessageParam,
@@ -986,6 +988,47 @@ export class OpenAIHandler {
 							`${model.name} failed to print finalUsage: ${String(e)}`,
 						);
 					}
+				}
+
+				let promptTokens: number | undefined;
+				let completionTokens: number | undefined;
+				let totalTokens: number | undefined;
+				let estimatedPromptTokens = false;
+				if (finalUsage) {
+					const usage = finalUsage as OpenAI.Completions.CompletionUsage;
+					promptTokens = usage.prompt_tokens ?? 0;
+					completionTokens = usage.completion_tokens ?? 0;
+					totalTokens = usage.total_tokens;
+				}
+				if (promptTokens === undefined) {
+					try {
+						promptTokens = await TokenCounter.getInstance().countMessagesTokens(
+							model,
+							[...messages],
+							{ sdkMode: modelConfig.sdkMode },
+							options,
+						);
+						completionTokens = 0;
+						totalTokens = promptTokens;
+						estimatedPromptTokens = true;
+					} catch (e) {
+						Logger.trace(
+							`${model.name} failed to estimate prompt tokens: ${String(e)}`,
+						);
+					}
+				}
+				if (promptTokens !== undefined && completionTokens !== undefined) {
+					TokenTelemetryTracker.getInstance().recordSuccess({
+						modelId: model.id,
+						modelName: model.name,
+						providerId: this.provider,
+						promptTokens,
+						completionTokens,
+						totalTokens,
+						maxInputTokens: model.maxInputTokens,
+						maxOutputTokens: model.maxOutputTokens,
+						estimatedPromptTokens
+					});
 				}
 
 				// Record success if accountId provided

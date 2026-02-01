@@ -3,8 +3,11 @@ import * as vscode from "vscode";
 import { AccountQuotaCache } from "../../accounts/accountQuotaCache";
 import type { ModelConfig } from "../../types/sharedTypes";
 import { ConfigManager } from "../../utils/configManager";
+import { Logger } from "../../utils/logger";
 import { QuotaNotificationManager } from "../../utils/quotaNotificationManager";
 import { RateLimiter } from "../../utils/rateLimiter";
+import { TokenCounter } from "../../utils/tokenCounter";
+import { TokenTelemetryTracker } from "../../utils/tokenTelemetryTracker";
 import { OpenAIStreamProcessor } from "../openai/openaiStreamProcessor";
 import { AntigravityAuth } from "./auth";
 import { AntigravityStreamProcessor } from "./streamProcessor";
@@ -854,6 +857,30 @@ export class AntigravityHandler {
 								),
 							50,
 						);
+						try {
+							const promptTokens =
+								await TokenCounter.getInstance().countMessagesTokens(
+									model,
+									[...messages],
+									{ sdkMode: modelConfig.sdkMode || "openai" },
+									options,
+								);
+							TokenTelemetryTracker.getInstance().recordSuccess({
+								modelId: model.id,
+								modelName: model.name,
+								providerId: "antigravity",
+								promptTokens,
+								completionTokens: 0,
+								totalTokens: promptTokens,
+								maxInputTokens: model.maxInputTokens,
+								maxOutputTokens: model.maxOutputTokens,
+								estimatedPromptTokens: true
+							});
+						} catch (e) {
+							Logger.trace(
+								`[Antigravity] Failed to estimate prompt tokens: ${String(e)}`,
+							);
+						}
 						return;
 					}
 					if (isPermissionDeniedError(result.status, result.body)) {

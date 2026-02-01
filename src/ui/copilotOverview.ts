@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { ApiKeyManager } from "../utils/apiKeyManager";
+import { TokenTelemetryTracker } from "../utils/tokenTelemetryTracker";
 import copilotCss from "./copilotOverview.css?raw";
 import copilotJs from "./copilotOverview.js?raw";
 
@@ -109,7 +110,7 @@ export class CopilotOverview {
 				command: "updateState",
 				data: {
 					providers: providerStatuses,
-					tokenUsage: null,
+					tokenUsage: TokenTelemetryTracker.getInstance().getLastUsageSummary(),
 					inlineEnabled,
 					fimEnabled,
 					nesEnabled,
@@ -121,8 +122,23 @@ export class CopilotOverview {
 	}
 
 	private static tokenListener?: vscode.Disposable;
-	private static attachTokenListener(_webview: vscode.Webview) {
-		// Token usage status bar removed
+	private static attachTokenListener(webview: vscode.Webview) {
+		const tracker = TokenTelemetryTracker.getInstance();
+		const handleEvent = () => {
+			const summary = tracker.getLastUsageSummary();
+			if (summary) {
+				webview.postMessage({
+					command: "tokenUpdate",
+					data: summary,
+				});
+			}
+		};
+		CopilotOverview.tokenListener = tracker.onEvent((event) => {
+			if (event.status === "success" && event.responseMetrics) {
+				handleEvent();
+			}
+		});
+		handleEvent();
 	}
 
 	private static detachTokenListener() {

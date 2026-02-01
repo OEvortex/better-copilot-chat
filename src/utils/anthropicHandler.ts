@@ -16,6 +16,8 @@ import { ApiKeyManager } from "./apiKeyManager";
 import { ConfigManager } from "./configManager";
 import { Logger } from "./logger";
 import { RateLimiter } from "./rateLimiter";
+import { TokenCounter } from "./tokenCounter";
+import { TokenTelemetryTracker } from "./tokenTelemetryTracker";
 import { VersionManager } from "./versionManager";
 
 /**
@@ -177,6 +179,41 @@ export class AnthropicHandler {
 				token,
 				modelConfig,
 			);
+
+			let promptTokens: number | undefined = result.usage?.inputTokens;
+			let completionTokens: number | undefined = result.usage?.outputTokens;
+			let totalTokens: number | undefined = result.usage?.totalTokens;
+			let estimatedPromptTokens = false;
+			if (promptTokens === undefined) {
+				try {
+					promptTokens = await TokenCounter.getInstance().countMessagesTokens(
+						model,
+						[...messages],
+						{ sdkMode: "anthropic" },
+						options,
+					);
+					completionTokens = 0;
+					totalTokens = promptTokens;
+					estimatedPromptTokens = true;
+				} catch (e) {
+					Logger.trace(
+						`[${model.name}] Failed to estimate prompt tokens: ${String(e)}`,
+					);
+				}
+			}
+			if (promptTokens !== undefined && completionTokens !== undefined) {
+				TokenTelemetryTracker.getInstance().recordSuccess({
+					modelId: model.id,
+					modelName: model.name,
+					providerId: this.provider,
+					promptTokens,
+					completionTokens,
+					totalTokens,
+					maxInputTokens: model.maxInputTokens,
+					maxOutputTokens: model.maxOutputTokens,
+					estimatedPromptTokens
+				});
+			}
 
 			// Record success if accountId provided
 			if (accountId) {

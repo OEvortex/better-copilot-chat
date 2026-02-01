@@ -10,6 +10,8 @@ import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
+import { TokenCounter } from "../../utils/tokenCounter";
+import { TokenTelemetryTracker } from "../../utils/tokenTelemetryTracker";
 import { VersionManager } from "../../utils/versionManager";
 
 /**
@@ -226,7 +228,47 @@ export class MistralHandler {
 				throw new Error("Mistral response body is empty");
 			}
 
-			await this.processStream(response.body, progress, token, model.name);
+			const usage = await this.processStream(
+				response.body,
+				progress,
+				token,
+				model.name,
+			);
+
+			let promptTokens = usage.promptTokens;
+			let completionTokens = usage.completionTokens;
+			let totalTokens = usage.totalTokens;
+			let estimatedPromptTokens = false;
+			if (promptTokens === undefined) {
+				try {
+					promptTokens = await TokenCounter.getInstance().countMessagesTokens(
+						model,
+						[...messages],
+						{ sdkMode: modelConfig.sdkMode || "openai" },
+						options,
+					);
+					completionTokens = 0;
+					totalTokens = promptTokens;
+					estimatedPromptTokens = true;
+				} catch (e) {
+					Logger.trace(
+						`${model.name} failed to estimate prompt tokens: ${String(e)}`,
+					);
+				}
+			}
+			if (promptTokens !== undefined && completionTokens !== undefined) {
+				TokenTelemetryTracker.getInstance().recordSuccess({
+					modelId: model.id,
+					modelName: model.name,
+					providerId: this.provider,
+					promptTokens,
+					completionTokens,
+					totalTokens,
+					maxInputTokens: model.maxInputTokens,
+					maxOutputTokens: model.maxOutputTokens,
+					estimatedPromptTokens
+				});
+			}
 
 			// Record success if accountId provided
 			if (accountId) {
@@ -269,7 +311,11 @@ export class MistralHandler {
 		progress: vscode.Progress<vscode.LanguageModelResponsePart2>,
 		token: vscode.CancellationToken,
 		modelName: string,
-	): Promise<void> {
+	): Promise<{
+		promptTokens?: number;
+		completionTokens?: number;
+		totalTokens?: number;
+	}> {
 		const reader = body.getReader();
 		const decoder = new TextDecoder();
 		let buffer = "";
@@ -281,6 +327,9 @@ export class MistralHandler {
 		const emittedToolCalls = new Set<string>();
 		let hasReceivedContent = false;
 		let hasThinkingContent = false;
+		let finalUsage:
+			| { prompt_tokens: number; completion_tokens: number; total_tokens: number }
+			| undefined;
 
 		try {
 			while (true) {
@@ -414,6 +463,7 @@ export class MistralHandler {
 						}
 
 						if (chunk.usage) {
+							finalUsage = chunk.usage;
 							Logger.info(
 								`${modelName} Token usage: ${chunk.usage.prompt_tokens}+${chunk.usage.completion_tokens}=${chunk.usage.total_tokens}`,
 							);
@@ -434,6 +484,12 @@ export class MistralHandler {
 				`${modelName} end of message stream has only thinking content and no text content, added <think/> placeholder as output`,
 			);
 		}
+
+		return {
+			promptTokens: finalUsage?.prompt_tokens,
+			completionTokens: finalUsage?.completion_tokens,
+			totalTokens: finalUsage?.total_tokens,
+		};
 	}
 
 	private convertMessagesToMistral(
