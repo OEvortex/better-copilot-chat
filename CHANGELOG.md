@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9] - 2026-02-01
+
+### Added
+- **Token Telemetry Tracker**: Added a token telemetry tracker to capture token usage events and surface metrics for analytics and debugging (src/utils/tokenTelemetryTracker.ts).
+
+### Improved
+- **Gemini CLI**: Improved OAuth/session handling to reduce failures from stale tokens and improve reliability for CLI-driven participants.
+- **Handlers (OpenAI/Mistral/Antigravity)**: Increased streaming robustness and improved handler refresh logic so clients update correctly when configuration changes.
+- **UI**: Updated Copilot Overview to better reflect provider status and token telemetry indicators.
+- **Utilities**: Export improvements in anthopric-related handlers and central utils index for easier reuse.
+
+### Fixed
+- Miscellaneous bug fixes and stability improvements across providers and UI.
+
 ## [0.1.8] - 2026-01-27
 
 ### Fixed
