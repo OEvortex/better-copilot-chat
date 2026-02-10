@@ -336,15 +336,57 @@ function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
 		if (!s) {
 			return;
 		}
+		for (const composite of ['anyOf', 'oneOf', 'allOf']) {
+			const branch = s[composite] as unknown;
+			if (Array.isArray(branch) && branch.length > 0) {
+				let preferred: Record<string, unknown> | undefined;
+				for (const option of branch) {
+					if (option && typeof option === 'object') {
+						preferred = option as Record<string, unknown>;
+						if (preferred.type === 'string') {
+							break;
+						}
+					}
+				}
+				const selected = preferred ?? (branch[0] as Record<string, unknown>);
+				for (const key of Object.keys(s)) {
+					delete s[key];
+				}
+				Object.assign(s, selected);
+				break;
+			}
+		}
+		if (Array.isArray(s.type)) {
+			const typeCandidates = s.type.filter((t) => t !== 'null');
+			const preferredType = typeCandidates.find(
+				(t) => typeof t === 'string' && t.trim() !== '',
+			);
+			s.type = preferredType ?? 'object';
+		}
+		if (s.nullable === true) {
+			delete s.nullable;
+		}
 		if (Array.isArray(s.properties)) {
-			s.properties = {};
+			const mapped: Record<string, unknown> = {};
+			for (const item of s.properties) {
+				if (!item || typeof item !== 'object') {
+					continue;
+				}
+				const entry = item as Record<string, unknown>;
+				const name = entry.name ?? entry.key;
+				const value = entry.value ?? entry.schema ?? entry.property;
+				if (typeof name === 'string' && value && typeof value === 'object') {
+					mapped[name] = value;
+				}
+			}
+			s.properties = mapped;
 		}
 		if (Array.isArray(s.items)) {
 			const firstItem = s.items[0];
 			s.items =
 				firstItem && typeof firstItem === "object" ? firstItem : undefined;
 		}
-		if (typeof s.type === "string") {
+		if (typeof s.type === 'string') {
 			s.type = s.type.toLowerCase();
 		}
 		for (const key of Object.keys(s)) {
@@ -402,11 +444,22 @@ function convertToolCallsToGeminiParts(
 		if (!storedSignature) {
 			thoughtSignatureStore.set(toolCall.callId, signature);
 		}
+		let args: unknown = toolCall.input;
+		if (typeof args === 'string') {
+			try {
+				args = JSON.parse(args) as unknown;
+			} catch {
+				args = { value: args };
+			}
+		}
+		if (!args || typeof args !== 'object' || Array.isArray(args)) {
+			args = { value: args };
+		}
 		return {
 			functionCall: {
 				name: toolCall.name,
 				id: toolCall.callId,
-				args: toolCall.input,
+				args,
 			},
 			thoughtSignature: signature,
 		};

@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-02-10
+
+### Added
+- **New Qwen Code CLI Models**: Added three new Qwen models to the Qwen Code CLI provider:
+  - **Qwen Coder (CLI Default)**: General-purpose coding model with 1M input tokens and 65K output tokens
+  - **Qwen Vision**: Vision-capable model supporting image input with same token limits
+  - **Qwen3 Coder Plus**: Advanced coding model with enhanced capabilities
+
+### Fixed
+- **QwenCliProvider Rate Limiting**: Fixed rate limiting issues in QwenCliProvider that caused "Rate limited: please try again in a few seconds" errors.
+  - Added QwenRateLimitManager class with exponential backoff (1s, 2s, 4s, 8s, 16s, max 30s)
+  - Implemented per-model rate limit state tracking with automatic cooldown expiration
+  - Added early cooldown check that prevents immediate retries with meaningful error messages
+  - Integrated with account load balancing to try alternative accounts when rate limited
+  - Matches the robust pattern used by Antigravity provider for consistency
+- **Gemini CLI Tool Schema Validation**: Fixed invalid JSON payload errors when sending tool schemas to Gemini CLI.
+  - Normalized composite schemas (anyOf/oneOf/allOf) by collapsing branches into a single schema
+  - Normalized nullable/type arrays by selecting the first non-null type or defaulting to "object"
+  - Normalized array-style properties into an object map to avoid invalid schema payloads
+  - Ensured tool call args are always valid objects by parsing JSON strings and wrapping primitives
+  - Aligns with google-gemini/gemini-cli schema expectations for function declarations and parameters
+
 ## [0.1.9] - 2026-02-01
 
 ### Added

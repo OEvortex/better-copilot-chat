@@ -328,6 +328,30 @@
             }
         },
         {
+            "id": "anthropic/claude-opus-4-6",
+            "name": "Claude Opus 4.6",
+            "tooltip": "Claude Opus 4.6 is Anthropic’s most intelligent model for building agents and coding",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "anthropic/claude-opus-4-6",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "lightning-ai/kimi-k2.5",
+            "name": "kimi-k2.5",
+            "tooltip": "Kimi K2.5 is an open-source, native multimodal agentic model built through continual pretraining on approximately 15 trillion mixed visual and text tokens atop Kimi-K2-Base. It seamlessly integrates vision and language understanding with advanced agentic capabilities, instant and thinking modes, as well as conversational and agentic paradigms.",
+            "maxInputTokens": 240000,
+            "maxOutputTokens": 16000,
+            "model": "lightning-ai/kimi-k2.5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
             "id": "openai/gpt-3.5-turbo",
             "name": "GPT-3.5-turbo",
             "tooltip": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.",

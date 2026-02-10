@@ -4,12 +4,12 @@
     "apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "models": [
         {
-            "id": "internal-opus",
-            "name": "internal-opus",
-            "tooltip": "internal-opus by OpenCode",
+            "id": "claude-opus-4-6",
+            "name": "claude-opus-4-6",
+            "tooltip": "claude-opus-4-6 by OpenCode",
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
-            "model": "internal-opus",
+            "model": "claude-opus-4-6",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -148,18 +148,6 @@
             }
         },
         {
-            "id": "gpt-5",
-            "name": "gpt-5",
-            "tooltip": "gpt-5 by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
-            "model": "gpt-5",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "gpt-5.1-codex-max",
             "name": "gpt-5.1-codex-max",
             "tooltip": "gpt-5.1-codex-max by OpenCode",
@@ -184,24 +172,36 @@
             }
         },
         {
-            "id": "gpt-5-codex",
-            "name": "gpt-5-codex",
-            "tooltip": "gpt-5-codex by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
-            "model": "gpt-5-codex",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "gpt-5.1-codex-mini",
             "name": "gpt-5.1-codex-mini",
             "tooltip": "gpt-5.1-codex-mini by OpenCode",
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
             "model": "gpt-5.1-codex-mini",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "gpt-5",
+            "name": "gpt-5",
+            "tooltip": "gpt-5 by OpenCode",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "gpt-5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "gpt-5-codex",
+            "name": "gpt-5-codex",
+            "tooltip": "gpt-5-codex by OpenCode",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "gpt-5-codex",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -220,12 +220,12 @@
             }
         },
         {
-            "id": "qwen3-coder",
-            "name": "qwen3-coder",
-            "tooltip": "qwen3-coder by OpenCode",
+            "id": "glm-4.7",
+            "name": "glm-4.7",
+            "tooltip": "glm-4.7 by OpenCode",
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
-            "model": "qwen3-coder",
+            "model": "glm-4.7",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -244,12 +244,48 @@
             }
         },
         {
-            "id": "glm-4.7",
-            "name": "glm-4.7",
-            "tooltip": "glm-4.7 by OpenCode",
+            "id": "minimax-m2.1",
+            "name": "minimax-m2.1",
+            "tooltip": "minimax-m2.1 by OpenCode",
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
-            "model": "glm-4.7",
+            "model": "minimax-m2.1",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "minimax-m2.1-free",
+            "name": "minimax-m2.1-free",
+            "tooltip": "minimax-m2.1-free by OpenCode",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "minimax-m2.1-free",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "kimi-k2.5",
+            "name": "kimi-k2.5",
+            "tooltip": "kimi-k2.5 by OpenCode",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "kimi-k2.5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "kimi-k2.5-free",
+            "name": "kimi-k2.5-free",
+            "tooltip": "kimi-k2.5-free by OpenCode",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "kimi-k2.5-free",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -280,36 +316,24 @@
             }
         },
         {
-            "id": "grok-code",
-            "name": "grok-code",
-            "tooltip": "grok-code by OpenCode",
+            "id": "trinity-large-preview-free",
+            "name": "trinity-large-preview-free",
+            "tooltip": "trinity-large-preview-free by OpenCode",
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
-            "model": "grok-code",
+            "model": "trinity-large-preview-free",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
             }
         },
         {
-            "id": "alpha-glm-4.7",
-            "name": "alpha-glm-4.7",
-            "tooltip": "alpha-glm-4.7 by OpenCode",
+            "id": "glm-4.7-free",
+            "name": "glm-4.7-free",
+            "tooltip": "glm-4.7-free by OpenCode",
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
-            "model": "alpha-glm-4.7",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "alpha-gd4",
-            "name": "alpha-gd4",
-            "tooltip": "alpha-gd4 by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
-            "model": "alpha-gd4",
+            "model": "glm-4.7-free",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -322,6 +346,18 @@
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
             "model": "big-pickle",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "alpha-g5",
+            "name": "alpha-g5",
+            "tooltip": "alpha-g5 by OpenCode",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "alpha-g5",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false

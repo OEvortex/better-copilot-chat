@@ -136,18 +136,6 @@
             }
         },
         {
-            "id": "anthropic-claude-3-5-sonnet",
-            "name": "Anthropic: Claude 3.5 Sonnet (Retiring Soon)",
-            "tooltip": "Anthropic: Claude 3.5 Sonnet (Retiring Soon) by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
-            "model": "anthropic/claude-3.5-sonnet",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "anthropic-claude-3-5-haiku",
             "name": "Anthropic: Claude 3.5 Haiku",
             "tooltip": "Anthropic: Claude 3.5 Haiku by Zenmux",
@@ -533,8 +521,8 @@
         },
         {
             "id": "qwen-qwen3-max",
-            "name": "Qwen: Qwen3-Max",
-            "tooltip": "Qwen: Qwen3-Max by Zenmux",
+            "name": "Qwen: Qwen3-Max-Thinking",
+            "tooltip": "Qwen: Qwen3-Max-Thinking by Zenmux",
             "maxInputTokens": 240000,
             "maxOutputTokens": 16000,
             "model": "qwen/qwen3-max",
@@ -583,7 +571,7 @@
             "id": "anthropic-claude-sonnet-4-5",
             "name": "Anthropic: Claude Sonnet 4.5",
             "tooltip": "Anthropic: Claude Sonnet 4.5 by Zenmux",
-            "maxInputTokens": 184000,
+            "maxInputTokens": 984000,
             "maxOutputTokens": 16000,
             "model": "anthropic/claude-sonnet-4.5",
             "capabilities": {
@@ -893,8 +881,8 @@
         },
         {
             "id": "inclusionai-ming-flash-omni-preview",
-            "name": "inclusionAI: Ming-flash-omni Preview",
-            "tooltip": "inclusionAI: Ming-flash-omni Preview by Zenmux",
+            "name": "inclusionAI: Ming-flash-omni-Preview",
+            "tooltip": "inclusionAI: Ming-flash-omni-Preview by Zenmux",
             "maxInputTokens": 48000,
             "maxOutputTokens": 16000,
             "model": "inclusionai/ming-flash-omni-preview",
@@ -1114,6 +1102,78 @@
             "maxInputTokens": 184000,
             "maxOutputTokens": 16000,
             "model": "z-ai/glm-4.7-flashx",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "minimax-minimax-m2-her",
+            "name": "MiniMax: MiniMax M2-her",
+            "tooltip": "MiniMax: MiniMax M2-her by Zenmux",
+            "maxInputTokens": 48000,
+            "maxOutputTokens": 16000,
+            "model": "minimax/minimax-m2-her",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "moonshotai-kimi-k2-5",
+            "name": "MoonshotAI: Kimi K2.5",
+            "tooltip": "MoonshotAI: Kimi K2.5 by Zenmux",
+            "maxInputTokens": 246144,
+            "maxOutputTokens": 16000,
+            "model": "moonshotai/kimi-k2.5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "anthropic-claude-opus-4-6",
+            "name": "Anthropic: Claude Opus 4.6",
+            "tooltip": "Anthropic: Claude Opus 4.6 by Zenmux",
+            "maxInputTokens": 984000,
+            "maxOutputTokens": 16000,
+            "model": "anthropic/claude-opus-4.6",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "tencent-hunyuan-2-0-thinking",
+            "name": "Tencent: HY 2.0 Think",
+            "tooltip": "Tencent: HY 2.0 Think by Zenmux",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "tencent/hunyuan-2.0-thinking",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "stepfun-step-3-5-flash-free",
+            "name": "StepFun: Step 3.5 Flash (Free)",
+            "tooltip": "StepFun: Step 3.5 Flash (Free) by Zenmux",
+            "maxInputTokens": 240000,
+            "maxOutputTokens": 16000,
+            "model": "stepfun/step-3.5-flash-free",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "stepfun-step-3-5-flash",
+            "name": "StepFun: Step 3.5 Flash",
+            "tooltip": "StepFun: Step 3.5 Flash by Zenmux",
+            "maxInputTokens": 240000,
+            "maxOutputTokens": 16000,
+            "model": "stepfun/step-3.5-flash",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
