@@ -1,0 +1,11 @@
+{
+  "name": "vscode-capi-scripts",
+  "version": "1.0.0",
+  "main": "mixin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "../LICENSE",
+  "description": ""
+}
