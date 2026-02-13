@@ -256,6 +256,18 @@
             }
         },
         {
+            "id": "minimax-m2.5-free",
+            "name": "minimax-m2.5-free",
+            "tooltip": "minimax-m2.5-free by OpenCode",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "minimax-m2.5-free",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
             "id": "minimax-m2.1-free",
             "name": "minimax-m2.1-free",
             "tooltip": "minimax-m2.1-free by OpenCode",

@@ -21,8 +21,8 @@ import { RateLimiter } from "../../utils/rateLimiter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { ZhipuWizard } from "./zhipuWizard";
 
-const DEFAULT_MAX_OUTPUT_TOKENS = 128000;
-const DEFAULT_CONTEXT_LENGTH = 200000;
+const DEFAULT_MAX_OUTPUT_TOKENS = 16752;
+const DEFAULT_CONTEXT_LENGTH = 186000;
 
 // API endpoints based on plan
 const CODING_PLAN_BASE_URL = "https://api.z.ai/api/coding/paas/v4";
@@ -203,52 +203,50 @@ export class ZhipuProvider
 		const modelMetadata: Record<string, typeof defaultMeta> = {
 			"glm-5": {
 				name: "GLM-5 (Latest)",
-				maxInputTokens: 200000,
-				maxOutputTokens: 128000,
+				maxInputTokens: 186000,
+				maxOutputTokens: 16752,
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.7": {
 				name: "GLM-4.7",
-				maxInputTokens: 200000,
-				maxOutputTokens: 128000,
+				maxInputTokens: 186000,
+				maxOutputTokens: 16752,
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.6": {
 				name: "GLM-4.6",
-				maxInputTokens: 200000,
-				maxOutputTokens: 128000,
+				maxInputTokens: 186000,
+				maxOutputTokens: 16752,
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.5": {
 				name: "GLM-4.5",
-				maxInputTokens: 128000,
-				maxOutputTokens: 96000,
+				maxInputTokens: 100000,
+				maxOutputTokens: 28000,
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.5-air": {
 				name: "GLM-4.5-Air",
-				maxInputTokens: 128000,
-				maxOutputTokens: 96000,
+				maxInputTokens: 100000,
+				maxOutputTokens: 28000,
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.7-flash": {
 				name: "GLM-4.7-Flash (Free, 1 Concurrent)",
-				tooltip: "GLM-4.7-Flash - Free model with 200K context. Concurrent request limit is 1 request at a time.",
-				maxInputTokens: 200000,
-				maxOutputTokens: 128000,
+				maxInputTokens: 186000,
+				maxOutputTokens: 16752,
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.7-flashx": {
 				name: "GLM-4.7-FlashX (Paid)",
-				tooltip: "GLM-4.7-FlashX - Paid version of GLM-4.7-Flash with 200K context.",
-				maxInputTokens: 200000,
-				maxOutputTokens: 128000,
+				maxInputTokens: 186000,
+				maxOutputTokens: 16752,
 				toolCalling: true,
 				imageInput: false,
 			},

@@ -880,18 +880,6 @@
             }
         },
         {
-            "id": "inclusionai-ming-flash-omni-preview",
-            "name": "inclusionAI: Ming-flash-omni-Preview",
-            "tooltip": "inclusionAI: Ming-flash-omni-Preview by Zenmux",
-            "maxInputTokens": 48000,
-            "maxOutputTokens": 16000,
-            "model": "inclusionai/ming-flash-omni-preview",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "meta-llama-4-scout-17b-16e-instruct",
             "name": "Meta: Llama 4 Scout Instruct",
             "tooltip": "Meta: Llama 4 Scout Instruct by Zenmux",
@@ -1174,6 +1162,54 @@
             "maxInputTokens": 240000,
             "maxOutputTokens": 16000,
             "model": "stepfun/step-3.5-flash",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "z-ai-glm-5",
+            "name": "Z.AI: GLM 5",
+            "tooltip": "Z.AI: GLM 5 by Zenmux",
+            "maxInputTokens": 184000,
+            "maxOutputTokens": 16000,
+            "model": "z-ai/glm-5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "inclusionai-ming-flash-omni-2-0",
+            "name": "inclusionAI: Ming-flash-omni-2.0",
+            "tooltip": "inclusionAI: Ming-flash-omni-2.0 by Zenmux",
+            "maxInputTokens": 48000,
+            "maxOutputTokens": 16000,
+            "model": "inclusionai/ming-flash-omni-2.0",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "minimax-minimax-m2-5",
+            "name": "MiniMax: MiniMax M2.5",
+            "tooltip": "MiniMax: MiniMax M2.5 by Zenmux",
+            "maxInputTokens": 188800,
+            "maxOutputTokens": 16000,
+            "model": "minimax/minimax-m2.5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "minimax-minimax-m2-5-lightning",
+            "name": "MiniMax: MiniMax M2.5 highspeed",
+            "tooltip": "MiniMax: MiniMax M2.5 highspeed by Zenmux",
+            "maxInputTokens": 188800,
+            "maxOutputTokens": 16000,
+            "model": "minimax/minimax-m2.5-lightning",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
