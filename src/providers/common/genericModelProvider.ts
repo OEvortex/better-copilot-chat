@@ -32,8 +32,8 @@ import { MoonshotWizard } from "../moonshot/moonshotWizard";
  * Dynamically create provider implementation based on configuration file
  */
 export class GenericModelProvider implements LanguageModelChatProvider {
-	protected openaiHandler: OpenAIHandler;
-	protected anthropicHandler: AnthropicHandler;
+	protected openaiHandler!: OpenAIHandler;
+	protected anthropicHandler!: AnthropicHandler;
 	protected readonly providerKey: string;
 	protected readonly context: vscode.ExtensionContext;
 	protected baseProviderConfig: ProviderConfig; // protected to support subclass access
@@ -565,8 +565,9 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 				};
 
 				// Override baseUrl with language model configuration baseUrl if available (lower priority than account endpoint)
-				if (!configWithAuth.baseUrl && (options.selectionsMetadata as any)?.baseUrl) {
-					configWithAuth.baseUrl = (options.selectionsMetadata as any).baseUrl;
+				const selectionsMetadata = (options as any)?.selectionsMetadata;
+				if (!configWithAuth.baseUrl && selectionsMetadata?.baseUrl) {
+					configWithAuth.baseUrl = selectionsMetadata.baseUrl;
 				}
 
 				// Handle OAuth tokens if needed

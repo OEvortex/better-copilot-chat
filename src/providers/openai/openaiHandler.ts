@@ -806,6 +806,7 @@ export class OpenAIHandler {
 						// Process token usage statistics: only save to finalUsage, output uniformly at the end
 						if (chunk.usage) {
 							finalUsage = chunk.usage;
+							Logger.debug(`[${this.displayName}] Native usage from API: ${JSON.stringify(chunk.usage)}`);
 						}
 
 						// Process reasoning and tool call IDs from delta
