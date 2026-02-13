@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.1] - 2026-02-13
 
+### Removed
+
+- **CLI Participants**: Removed `@gemini` and `@claude` chat participants and the entire CLI spawner infrastructure (`src/cli/`).
+  - These CLI-based chat participants were deprecated in favor of direct API providers.
+
+---
+
 ### Added
 
 - **Zhipu Dynamic Model Discovery**: Zhipu provider now fetches model lists dynamically from Zhipu API endpoints and updates model metadata accordingly.
@@ -14,7 +21,7 @@ All notable changes to this project will be documented in this file.
     - `chp.zhipu.thinking`: `enabled` / `disabled` / `auto`
     - `chp.zhipu.clearThinking`: controls `clear_thinking` behavior for cross-turn reasoning context
 - **Hardcoded Zhipu Flash Models**: Added fallback hardcoded models to ensure availability even if omitted by API listing:
-    - `glm-4.7-flash` (free; 1 concurrent request)
+    - `glm-4.7-flash` (free)
     - `glm-4.7-flashx` (paid version of flash)
 
 ---

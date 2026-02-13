@@ -6,7 +6,6 @@ import {
 	registerAccountCommands,
 } from "./accounts";
 import { InlineCompletionShim } from "./copilot/inlineCompletionShim";
-import { registerAllParticipants } from "./participants";
 import { AntigravityProvider } from "./providers/antigravity/provider";
 import { ChutesProvider } from "./providers/chutes/chutesProvider";
 import { CodexProvider } from "./providers/codex/codexProvider";
@@ -482,13 +481,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		stepStartTime = Date.now();
 		registerAllTools(context);
 		Logger.trace(`⏱️ Tools registered (time: ${Date.now() - stepStartTime}ms)`);
-
-		// Step 4.0.1: Register Chat Participants
-		stepStartTime = Date.now();
-		registerAllParticipants(context);
-		Logger.trace(
-			`⏱️ Chat Participants registered (time: ${Date.now() - stepStartTime}ms)`,
-		);
 
 		// Step 4.1: Activate Antigravity Provider
 		stepStartTime = Date.now();
