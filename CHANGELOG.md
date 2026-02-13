@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2026-02-13
+
+### Removed
+
+- **CLI Participants**: Removed `@gemini` and `@claude` chat participants and the entire CLI spawner infrastructure (`src/cli/`).
+  - These CLI-based chat participants were deprecated in favor of direct API providers.
+- **Codex Provider**: Completely removed the Codex (OpenAI GPT-5) provider including:
+  - `src/providers/codex/` folder
+  - Codex-related commands: `chp.codex.login`, `chp.codex.logout`, `chp.codex.selectWorkspace`
+  - Codex language model provider registration
+  - Codex-related prompt files and loader functions
+  - Codex from ProviderKey enum and account manager capabilities
+
+---
+
 ## [0.2.1] - 2026-02-13
 
 ### Removed

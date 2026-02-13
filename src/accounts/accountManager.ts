@@ -50,10 +50,6 @@ export class AccountManager {
 			},
 		],
 		[
-			ProviderKey.Codex,
-			{ supportsMultiAccount: true, supportsOAuth: true, supportsApiKey: true },
-		],
-		[
 			ProviderKey.Zhipu,
 			{
 				supportsMultiAccount: true,
@@ -681,10 +677,8 @@ export class AccountManager {
 	 * Get load balance enabled state for provider
 	 */
 	getLoadBalanceEnabled(provider: string): boolean {
-		// Default to true for antigravity and codex to enable automatic account switching
-		const defaultValue = !!(
-			provider === ProviderKey.Antigravity || provider === ProviderKey.Codex
-		);
+		// Default to true for antigravity to enable automatic account switching
+		const defaultValue = provider === ProviderKey.Antigravity;
 		return this.routingConfig[provider]?.loadBalanceEnabled ?? defaultValue;
 	}
 

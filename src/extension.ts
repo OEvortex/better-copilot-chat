@@ -8,7 +8,6 @@ import {
 import { InlineCompletionShim } from "./copilot/inlineCompletionShim";
 import { AntigravityProvider } from "./providers/antigravity/provider";
 import { ChutesProvider } from "./providers/chutes/chutesProvider";
-import { CodexProvider } from "./providers/codex/codexProvider";
 import { GenericModelProvider } from "./providers/common/genericModelProvider";
 import { CompatibleProvider } from "./providers/compatible/compatibleProvider";
 import { DeepInfraProvider } from "./providers/deepinfra/deepinfraProvider";
@@ -57,7 +56,6 @@ const registeredProviders: Record<
 	| OllamaProvider
 	| CompatibleProvider
 	| AntigravityProvider
-	| CodexProvider
 	| DeepInfraProvider
 	| MistralProvider
 > = {};
@@ -82,13 +80,11 @@ async function activateProviders(
 		return;
 	}
 
-	// Skip Codex here because it is registered separately with a specialized provider (CodexProvider)
-	const providerEntries = Object.entries(configProvider).filter(
-		([providerKey]) => providerKey !== "codex",
-	);
-
 	// Set extension path (for tokenizer initialization)
 	TokenCounter.setExtensionPath(context.extensionPath);
+
+	// Get provider entries from config
+	const providerEntries = Object.entries(configProvider);
 
 	Logger.info(
 		`⏱️ Starting parallel registration of ${providerEntries.length} providers...`,
@@ -489,15 +485,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		registeredDisposables.push(...antigravityResult.disposables);
 		Logger.trace(
 			`⏱️ Antigravity Provider registered (time: ${Date.now() - stepStartTime}ms)`,
-		);
-
-		// Step 4.2: Activate Codex Provider (OpenAI GPT-5)
-		stepStartTime = Date.now();
-		const codexResult = CodexProvider.createAndActivate(context);
-		registeredProviders[ProviderKey.Codex] = codexResult.provider;
-		registeredDisposables.push(...codexResult.disposables);
-		Logger.trace(
-			`⏱️ Codex Provider registered (time: ${Date.now() - stepStartTime}ms)`,
 		);
 
 		// Step 5: Register inline completion provider (lightweight Shim, lazy load the actual completion engine)
