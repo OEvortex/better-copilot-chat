@@ -4,7 +4,6 @@
  *  Uses raw imports to bundle prompts directly into the extension.
  *--------------------------------------------------------------------------------------------*/
 
-// @ts-expect-error - raw imports are handled by esbuild plugin
 import gpt52Prompt from "./gpt_5_2_prompt.txt?raw";
 
 /**
