@@ -6,8 +6,8 @@
 		{
 			"id": "glm-4.7",
 			"name": "GLM-4.7 (Coding Plan)",
-			"sdkMode": "anthropic",
-		    "baseUrl": "https://api.z.ai/api/anthropic",
+			"sdkMode": "openai",
+		    "baseUrl": "https://api.z.ai/api/paas/v4",
 			"tooltip": "GLM-4.7 is Zhipu's latest flagship model. GLM-4.7 strengthens coding capabilities, long-range task planning, and tool collaboration for Agentic Coding scenarios, and achieves leading performance among open-source models in multiple public benchmark rankings. General capabilities are improved, responses are more concise and natural, and writing is more immersive. Instruction following is stronger during tool calls when executing complex agent tasks, and the frontend aesthetics and long-range task completion efficiency of Artifacts and Agentic Coding are further improved.",
 			"maxInputTokens": 200000,
 			"maxOutputTokens": 128000,
@@ -20,8 +20,8 @@
 			"id": "glm-4.7-thinking",
 			"name": "GLM-4.7-Thinking (Coding Plan)",
 			"model": "glm-4.7",
-			"sdkMode": "anthropic",
-			"baseUrl": "https://open.bigmodel.cn/api/anthropic",
+			"sdkMode": "openai",
+			"baseUrl": "https://api.z.ai/api/paas/v4",
 			"tooltip": "GLM-4.7 is Zhipu's latest flagship model. GLM-4.7 strengthens coding capabilities, long-range task planning, and tool collaboration for Agentic Coding scenarios, and achieves leading performance among open-source models in multiple public benchmark rankings. General capabilities are improved, responses are more concise and natural, and writing is more immersive. Instruction following is stronger during tool calls when executing complex agent tasks, and the frontend aesthetics and long-range task completion efficiency of Artifacts and Agentic Coding are further improved.",
 			"maxInputTokens": 200000,
 			"maxOutputTokens": 128000,
@@ -36,8 +36,8 @@
 		{
 			"id": "glm-4.6",
 			"name": "GLM-4.6 (Coding Plan)",
-			"sdkMode": "anthropic",
-		    "baseUrl": "https://api.z.ai/api/anthropic",
+			"sdkMode": "openai",
+		    "baseUrl": "https://api.z.ai/api/paas/v4",
 			"tooltip": "GLM-4.6 is Zhipu's language model with a total parameter count of 355B and 32B active parameters. GLM-4.6 has surpassed GLM-4.5 in all core capabilities.",
 			"maxInputTokens": 200000,
 			"maxOutputTokens": 128000,
@@ -65,8 +65,8 @@
 		{
 			"id": "glm-4.5-air",
 			"name": "GLM-4.5-Air (Coding Plan)",
-			"sdkMode": "anthropic",
-		    "baseUrl": "https://api.z.ai/api/anthropic",
+			"sdkMode": "openai",
+		    "baseUrl": "https://api.z.ai/api/paas/v4",
 			"tooltip": "ZHIPU GLM-4.5-Air - High cost-performance model, lightweight design, strong performance.",
 			"maxInputTokens": 128000,
 			"maxOutputTokens": 96000,
@@ -141,6 +141,32 @@
 			"tooltip": "GLM-4.5-Flash - New free model, 128K context, supports deep thinking, tool calling, and streaming output, with strong reasoning capabilities and stable code generation.",
 			"maxInputTokens": 128000,
 			"maxOutputTokens": 96000,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			}
+		},
+		{
+			"id": "glm-4.7-flash",
+			"name": "GLM-4.7-Flash (Free)",
+			"sdkMode": "openai",
+			"baseUrl": "https://api.z.ai/api/paas/v4",
+			"tooltip": "GLM-4.7-Flash - Free model with 200K context. Concurrent request limit is 1 request at a time.",
+			"maxInputTokens": 200000,
+			"maxOutputTokens": 128000,
+			"capabilities": {
+				"toolCalling": true,
+				"imageInput": false
+			}
+		},
+		{
+			"id": "glm-4.7-flashx",
+			"name": "GLM-4.7-FlashX (Paid)",
+			"sdkMode": "openai",
+			"baseUrl": "https://api.z.ai/api/paas/v4",
+			"tooltip": "GLM-4.7-FlashX - Paid version of GLM-4.7-Flash with 200K context.",
+			"maxInputTokens": 200000,
+			"maxOutputTokens": 128000,
 			"capabilities": {
 				"toolCalling": true,
 				"imageInput": false

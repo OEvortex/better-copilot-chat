@@ -2,6 +2,60 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2026-02-13
+
+### Added
+
+- **Zhipu Dynamic Model Discovery**: Zhipu provider now fetches model lists dynamically from Zhipu API endpoints and updates model metadata accordingly.
+- **Zhipu Plan Selection**: Added `chp.zhipu.plan` setting and wizard support to switch between:
+    - `coding` → `/api/coding/paas/v4`
+    - `normal` → `/api/paas/v4`
+- **Zhipu Thinking Controls**: Added configurable thinking controls for Zhipu chat completions:
+    - `chp.zhipu.thinking`: `enabled` / `disabled` / `auto`
+    - `chp.zhipu.clearThinking`: controls `clear_thinking` behavior for cross-turn reasoning context
+- **Hardcoded Zhipu Flash Models**: Added fallback hardcoded models to ensure availability even if omitted by API listing:
+    - `glm-4.7-flash` (free; 1 concurrent request)
+    - `glm-4.7-flashx` (paid version of flash)
+
+---
+
+### Changed
+
+- **Zhipu SDK Routing**: Switched Zhipu model request handling to OpenAI-compatible mode for chat completion requests.
+- **Zhipu Config Refresh Behavior**: Dynamic config synchronization now keeps OpenAI-compatible model definitions and applies thinking-related extra body parameters when appropriate.
+
+---
+
+### Added
+
+- **Improved token counting accuracy for VS Code chat message parts** (`LanguageModelTextPart`, `LanguageModelToolCallPart`, `LanguageModelToolResultPart`, `LanguageModelPromptTsxPart`)
+- **Robust fallbacks for tokenizer operations** to prevent undefined/zero token counts
+- **Token telemetry recording** for Compatible custom SSE handler to ensure proper usage meter updates
+- **Enhanced system message token counting** to support array-based content
+- **Safe optional chaining with null coalescing** for tokenizer operations
+
+---
+
+### Fixed
+
+- **Fixed context window meter showing 0% for providers** by implementing proper token counting for structured message parts
+- **Resolved token counting issues** in CompatibleProvider custom SSE flow
+- **Corrected potential undefined access** in tokenizer operations that could cause zero token counts
+
+---
+
+### Changed
+
+- **Refactored token counting logic** in `src/utils/tokenCounter.ts` to handle VS Code language model parts explicitly
+- **Updated `countMessagesTokens`** to properly handle array-based message content
+- **Modified CompatibleProvider** to capture and report final usage statistics from stream responses
+
+---
+
+### Security
+
+- **Added proper null-safety checks** in token counting operations
+
 ## [0.2.0] - 2026-02-10
 
 ### Added

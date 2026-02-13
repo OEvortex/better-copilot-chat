@@ -30,6 +30,12 @@ export interface ZhipuConfig {
 	search: ZhipuSearchConfig;
 	/** Access site */
 	endpoint: "open.bigmodel.cn" | "api.z.ai";
+	/** Plan type: coding (Coding Plan) or normal (standard billing) */
+	plan: "coding" | "normal";
+	/** Thinking mode: enabled, disabled, or auto */
+	thinking: "enabled" | "disabled" | "auto";
+	/** Whether to clear thinking content from response */
+	clearThinking: boolean;
 }
 
 /**
@@ -147,6 +153,18 @@ export class ConfigManager {
 					"zhipu.endpoint",
 					"open.bigmodel.cn",
 				),
+				plan: config.get<ZhipuConfig["plan"]>(
+					"zhipu.plan",
+					"coding",
+				),
+				thinking: config.get<ZhipuConfig["thinking"]>(
+					"zhipu.thinking",
+					"auto",
+				),
+				clearThinking: config.get<boolean>(
+					"zhipu.clearThinking",
+					true,
+				),
 			},
 			minimax: {
 				endpoint: config.get<MiniMaxConfig["endpoint"]>(
@@ -252,6 +270,30 @@ export class ConfigManager {
 	 */
 	static getZhipuEndpoint(): "open.bigmodel.cn" | "api.z.ai" {
 		return ConfigManager.getConfig().zhipu.endpoint;
+	}
+
+	/**
+	 * Get ZhipuAI plan type configuration
+	 * @returns 'coding' or 'normal', default 'coding'
+	 */
+	static getZhipuPlan(): "coding" | "normal" {
+		return ConfigManager.getConfig().zhipu.plan;
+	}
+
+	/**
+	 * Get ZhipuAI thinking mode configuration
+	 * @returns 'enabled', 'disabled', or 'auto', default 'auto'
+	 */
+	static getZhipuThinking(): "enabled" | "disabled" | "auto" {
+		return ConfigManager.getConfig().zhipu.thinking;
+	}
+
+	/**
+	 * Get ZhipuAI clear thinking configuration
+	 * @returns true to show thinking in response, false to hide, default true
+	 */
+	static getZhipuClearThinking(): boolean {
+		return ConfigManager.getConfig().zhipu.clearThinking;
 	}
 
 	/**

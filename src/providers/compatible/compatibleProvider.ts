@@ -23,6 +23,8 @@ import {
 	KnownProviders,
 	Logger,
 	RetryManager,
+	TokenCounter,
+	TokenTelemetryTracker,
 } from "../../utils";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { configProviders } from "../config";
@@ -665,6 +667,13 @@ export class CompatibleProvider extends GenericModelProvider {
 			const reader = response.body.getReader();
 			const decoder = new TextDecoder();
 			let buffer = "";
+			let finalUsage:
+				| {
+						prompt_tokens?: number;
+						completion_tokens?: number;
+						total_tokens?: number;
+				  }
+				| undefined;
 			let hasReceivedContent = false;
 			let hasThinkingContent = false; // Mark whether thinking content was output
 			let chunkCount = 0;
@@ -721,6 +730,11 @@ export class CompatibleProvider extends GenericModelProvider {
 									chunk.usage &&
 									(!chunk.choices || chunk.choices.length === 0)
 								) {
+									finalUsage = chunk.usage as {
+										prompt_tokens?: number;
+										completion_tokens?: number;
+										total_tokens?: number;
+									};
 									Logger.debug(
 										`[${model.name}] Received usage statistics: ${JSON.stringify(chunk.usage)}`,
 									);
@@ -1102,6 +1116,41 @@ export class CompatibleProvider extends GenericModelProvider {
 			);
 
 			Logger.debug(`[${model.name}] Stream processing complete`);
+
+			let promptTokens = finalUsage?.prompt_tokens;
+			let completionTokens = finalUsage?.completion_tokens;
+			let totalTokens = finalUsage?.total_tokens;
+			let estimatedPromptTokens = false;
+			if (promptTokens === undefined) {
+				try {
+					promptTokens = await TokenCounter.getInstance().countMessagesTokens(
+						model,
+						[...messages],
+						{ sdkMode: modelConfig.sdkMode || "openai" },
+						options,
+					);
+					completionTokens = 0;
+					totalTokens = promptTokens;
+					estimatedPromptTokens = true;
+				} catch (e) {
+					Logger.trace(
+						`[${model.name}] Failed to estimate prompt tokens in custom SSE mode: ${String(e)}`,
+					);
+				}
+			}
+			if (promptTokens !== undefined && completionTokens !== undefined) {
+				TokenTelemetryTracker.getInstance().recordSuccess({
+					modelId: model.id,
+					modelName: model.name,
+					providerId: this.providerKey,
+					promptTokens,
+					completionTokens,
+					totalTokens,
+					maxInputTokens: model.maxInputTokens,
+					maxOutputTokens: model.maxOutputTokens,
+					estimatedPromptTokens,
+				});
+			}
 
 			// Only add <think/> placeholder if thinking content was output but no content was output
 			if (hasThinkingContent && !hasReceivedContent) {

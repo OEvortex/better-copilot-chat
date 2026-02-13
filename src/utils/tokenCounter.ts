@@ -140,13 +140,87 @@ export class TokenCounter {
 		}
 
 		// Cache miss, calculate token count
-		const tokenCount = this.tokenizer?.encode(text).length;
+		const tokenCount = this.tokenizer?.encode(text)?.length ?? 0;
 
 		// Store in cache
 		this.tokenCache.put(text, tokenCount);
 		// Logger.trace(`[Cache Write] "${text.substring(0, 20)}..." -> ${tokenCount} tokens`);
 
 		return tokenCount;
+	}
+
+	private stringifyUnknown(value: unknown): string {
+		if (typeof value === "string") {
+			return value;
+		}
+		try {
+			return JSON.stringify(value) || "";
+		} catch {
+			return String(value);
+		}
+	}
+
+	private async countMessagePartTokens(part: unknown): Promise<number> {
+		if (!part) {
+			return 0;
+		}
+
+		if (part instanceof vscode.LanguageModelTextPart) {
+			return this.getTextTokenLength(part.value);
+		}
+
+		if (part instanceof vscode.LanguageModelToolCallPart) {
+			const payload = `${part.callId || ""} ${part.name || ""} ${this.stringifyUnknown(part.input)}`;
+			return this.getTextTokenLength(payload);
+		}
+
+		if (part instanceof vscode.LanguageModelToolResultPart) {
+			let combined = part.callId || "";
+			for (const resultPart of part.content || []) {
+				if (resultPart instanceof vscode.LanguageModelTextPart) {
+					combined += `\n${resultPart.value}`;
+				} else {
+					combined += `\n${this.stringifyUnknown(resultPart)}`;
+				}
+			}
+			return this.getTextTokenLength(combined);
+		}
+
+		if (part instanceof vscode.LanguageModelPromptTsxPart) {
+			return this.getTextTokenLength(this.stringifyUnknown(part.value));
+		}
+
+		if (typeof part === "string" || typeof part === "number" || typeof part === "boolean") {
+			return this.getTextTokenLength(String(part));
+		}
+
+		if (typeof part === "object") {
+			return this.countMessageObjectTokens(part as Record<string, unknown>, 1);
+		}
+
+		return 0;
+	}
+
+	private async countLanguageModelMessageTokens(
+		message: LanguageModelChatMessage,
+	): Promise<number> {
+		let numTokens = 3;
+		numTokens += this.getTextTokenLength(String(message.role));
+
+		if (typeof message.content === "string") {
+			numTokens += this.getTextTokenLength(message.content);
+			return numTokens;
+		}
+
+		if (Array.isArray(message.content)) {
+			for (const part of message.content) {
+				numTokens += await this.countMessagePartTokens(part);
+			}
+			return numTokens;
+		}
+
+		numTokens += this.getTextTokenLength(this.stringifyUnknown(message.content));
+		return numTokens;
 	}
 
 	/**
@@ -157,7 +231,7 @@ export class TokenCounter {
 		text: string | LanguageModelChatMessage,
 	): Promise<number> {
 		if (typeof text === "string") {
-			const stringTokens = this.tokenizer?.encode(text).length;
+			const stringTokens = this.tokenizer?.encode(text)?.length ?? 0;
 			Logger.trace(
 				`[Token Count] String: ${stringTokens} tokens (Length: ${text.length})`,
 			);
@@ -166,9 +240,7 @@ export class TokenCounter {
 
 		// Handle LanguageModelChatMessage object
 		try {
-			const objectTokens = await this.countMessageObjectTokens(
-				text as unknown as Record<string, unknown>,
-			);
+			const objectTokens = await this.countLanguageModelMessageTokens(text);
 			return objectTokens;
 		} catch (error) {
 			Logger.warn(
@@ -176,9 +248,8 @@ export class TokenCounter {
 				error,
 			);
 			// Fallback: convert message object to JSON string for calculation
-			const fallbackTokens = this.tokenizer?.encode(
-				JSON.stringify(text),
-			).length;
+			const fallbackTokens =
+				this.tokenizer?.encode(JSON.stringify(text))?.length ?? 0;
 			Logger.trace(
 				`[Token Count] Fallback calculation: ${fallbackTokens} tokens`,
 			);
@@ -329,6 +400,19 @@ export class TokenCounter {
 			if (message.role === LanguageModelChatMessageRole.System) {
 				if (typeof message.content === "string") {
 					systemText += message.content;
+				} else if (Array.isArray(message.content)) {
+					systemText += message.content
+						.map((part) => {
+							if (part instanceof vscode.LanguageModelTextPart) {
+								return part.value;
+							}
+							if (part instanceof vscode.LanguageModelPromptTsxPart) {
+								return this.stringifyUnknown(part.value);
+							}
+							return this.stringifyUnknown(part);
+						})
+						.filter(Boolean)
+						.join("\n");
 				}
 			}
 		}

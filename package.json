@@ -361,6 +361,33 @@
                     "description": "ZhipuAI access site. open.bigmodel.cn is domestic site (recommended), api.z.ai is international site.",
                     "scope": "application"
                 },
+                "chp.zhipu.plan": {
+                    "type": "string",
+                    "enum": [
+                        "coding",
+                        "normal"
+                    ],
+                    "default": "coding",
+                    "description": "ZhipuAI plan type. coding: use /api/coding/paas/v4 endpoint (GLM Coding Plan), normal: use /api/paas/v4 endpoint (standard billing).",
+                    "scope": "application"
+                },
+                "chp.zhipu.thinking": {
+                    "type": "string",
+                    "enum": [
+                        "enabled",
+                        "disabled",
+                        "auto"
+                    ],
+                    "default": "auto",
+                    "description": "ZhipuAI thinking mode (GLM-4.5+). enabled: always use thinking, disabled: never use thinking, auto: let model decide.",
+                    "scope": "application"
+                },
+                "chp.zhipu.clearThinking": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "ZhipuAI thinking context handling. true: clear prior reasoning_content from next-turn context (recommended). false: preserve prior reasoning_content in context.",
+                    "scope": "application"
+                },
                 "chp.minimax.endpoint": {
                     "type": "string",
                     "enum": [
