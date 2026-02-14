@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2026-02-13
+
+### Fixed
+- **Ollama fixed**: Updated the Ollama provider's model definitions to reflect the correct context length. This includes adjusting the `maxInputTokens` and `maxOutputTokens` for all models to ensure accurate token counting and proper functioning of the provider.
+  - Updated `src/providers/config/ollama.json` with the corrected token limits for all models, including `nemotron-3-nano:30b`, `nemotron-3:30b`, `nemotron-2:13b`, and `nemotron-1:6b`.
+  - This fix resolves issues with token counting and stream finalization that were caused by the previously incorrect token limits, ensuring that the Ollama provider operates correctly within its actual capabilities.
 ## [0.2.1] - 2026-02-13
 
 ### Removed

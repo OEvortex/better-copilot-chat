@@ -24,7 +24,7 @@ import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
 
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
-const DEFAULT_CONTEXT_LENGTH = 128000;
+const DEFAULT_CONTEXT_LENGTH = 262000;
 
 export class OllamaProvider
 	extends GenericModelProvider
@@ -76,7 +76,7 @@ export class OllamaProvider
 			return {
 				id: model.id,
 				name: model.name,
-				tooltip: model.name || "Ollama",
+				tooltip: `${model.name} by Ollama`,
 				family: "ollama",
 				version: "1.0.0",
 				maxInputTokens: model.maxInputTokens || DEFAULT_CONTEXT_LENGTH,
