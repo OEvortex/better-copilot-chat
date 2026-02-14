@@ -1,10 +1,24 @@
-out/
+# Ignore node_modules and dist folders
+node_modules/
 dist/
+
+# Ignore test folders
 test/
-node_modules
+
+# Ignore VSCode test folders
 .vscode-test/
+
+# Ignore VSIX files
 *.vsix
+
+# Ignore extension.js files
 extension.js*
+
+# Ignore .claude files
 /.claude
+
+# Ignore .zenflow files
 .zenflow
+
+# Ignore .zencoder files
 .zencoder
