@@ -175,8 +175,8 @@
             "id": "openai/gpt-5",
             "name": "GPT 5",
             "tooltip": "GPT-5 is OpenAI model that is built for complex, step-by-step tasks that demand precise instruction following and high-stakes accuracy. It supports test-time routing plus prompts like “think hard about this.” It also reduces hallucinations and sycophancy while improving performance in coding, writing, and health-related tasks.\n",
-            "maxInputTokens": 368000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 336000,
+            "maxOutputTokens": 64000,
             "model": "openai/gpt-5",
             "capabilities": {
                 "toolCalling": true,
@@ -187,8 +187,8 @@
             "id": "openai/gpt-5-mini",
             "name": "GPT 5 mini",
             "tooltip": "GPT-5 Mini is a smaller, more efficient variant of GPT-5 built for lighter reasoning tasks. It maintains the strong instruction-following and safety features of GPT-5 while offering faster responses and lower costs.",
-            "maxInputTokens": 368000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 336000,
+            "maxOutputTokens": 64000,
             "model": "openai/gpt-5-mini",
             "capabilities": {
                 "toolCalling": true,
@@ -199,8 +199,8 @@
             "id": "openai/gpt-5-nano",
             "name": "GPT 5 nano",
             "tooltip": "GPT-5-Nano is the smallest and fastest variant in the GPT-5 system, built as a unified system that can decide when to respond quickly or dig deeper depending on what you ask it. It gets much better across a wide range of skills — writing, coding, math, health, and visual tasks — and is more reliable and accurate in real-world scenarios. Compared to earlier models, it hallucinates less, follows instructions more faithfully, and understands the context better.",
-            "maxInputTokens": 368000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 336000,
+            "maxOutputTokens": 64000,
             "model": "openai/gpt-5-nano",
             "capabilities": {
                 "toolCalling": true,

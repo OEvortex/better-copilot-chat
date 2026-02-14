@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - **Standardised large-context models**: All MiniMax and Kimi models updated to 256K total context (maxInputTokens = 224000, maxOutputTokens = 32000). Only `kimi-k2.5` exposes vision input.
 - **Global output-size rule**: Models with reported context >= 200K now default to maxOutputTokens = 32K; otherwise maxOutputTokens = 16K. Applied consistently across static configs and dynamic model loaders.
 - **Runtime normalization**: Dynamic model fetchers (Chutes, DeepInfra, HuggingFace, LightningAI, Zenmux, OpenCode, Antigravity, Zhipu, etc.) now normalize token limits and capabilities at runtime to match static config rules.
+- **GPT‑5 family token limits**: GPT‑5 class models updated to a 400K total context budget — maxOutputTokens = 64K and maxInputTokens = 336K. This was applied across static configs (opencode, codex, zenmux, lightningai, etc.) and the runtime normalization (resolveTokenLimits) so GPT‑5 metadata is preserved during model discovery; UI/tooltips updated to reflect "400K context / 64K output".
 
 ### Fixed
 - **Ollama fixed**: Updated the Ollama provider's model definitions to reflect the correct context length (see `src/providers/config/ollama.json`). This resolves token-counting and stream-finalization issues.

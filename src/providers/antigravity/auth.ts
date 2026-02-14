@@ -39,10 +39,19 @@ function isKimiModel(modelId: string): boolean {
 	return /kimi/i.test(modelId);
 }
 
+function isGpt5Model(modelId: string): boolean {
+	return /gpt-5/i.test(modelId);
+}
+
 function resolveTokenLimits(
 	modelId: string,
 	contextLength: number,
 ): { maxInputTokens: number; maxOutputTokens: number } {
+	if (isGpt5Model(modelId)) {
+		// GPT-5 family: 400K total context => 64K output, 336K input
+		return { maxInputTokens: 336000, maxOutputTokens: 64000 };
+	}
+
 	if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
 		return {
 			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
@@ -65,7 +74,7 @@ function resolveTokenLimits(
 		maxInputTokens: Math.max(1, safeContextLength - maxOutput),
 		maxOutputTokens: maxOutput,
 	};
-}
+} 
 
 function generateRandomState(): string {
 	const array = new Uint8Array(32);

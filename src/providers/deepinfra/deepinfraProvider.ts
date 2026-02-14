@@ -40,10 +40,18 @@ function isKimiK25Model(modelId: string): boolean {
 	return /kimi[-_\/]?k2(?:\.|-)5/i.test(modelId);
 }
 
+function isGpt5Model(modelId: string): boolean {
+	return /gpt-5/i.test(modelId);
+}
+
 function resolveTokenLimits(
 	modelId: string,
 	contextLength: number,
 ): { maxInputTokens: number; maxOutputTokens: number } {
+	if (isGpt5Model(modelId)) {
+		return { maxInputTokens: 336000, maxOutputTokens: 64000 };
+	}
+
 	if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
 		return {
 			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
@@ -66,7 +74,7 @@ function resolveTokenLimits(
 		maxInputTokens: Math.max(1, safeContextLength - maxOutput),
 		maxOutputTokens: maxOutput,
 	};
-}
+} 
 
 /**
  * DeepInfra dedicated model provider class

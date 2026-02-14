@@ -91,8 +91,8 @@
             "id": "openai-gpt-5",
             "name": "OpenAI: GPT-5",
             "tooltip": "OpenAI: GPT-5 by Zenmux",
-            "maxInputTokens": 368000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 336000,
+            "maxOutputTokens": 64000,
             "model": "openai/gpt-5",
             "capabilities": {
                 "toolCalling": true,
@@ -115,8 +115,8 @@
             "id": "openai-gpt-5-nano",
             "name": "OpenAI: GPT-5 Nano",
             "tooltip": "OpenAI: GPT-5 Nano by Zenmux",
-            "maxInputTokens": 368000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 336000,
+            "maxOutputTokens": 64000,
             "model": "openai/gpt-5-nano",
             "capabilities": {
                 "toolCalling": true,
@@ -211,8 +211,8 @@
             "id": "openai-gpt-5-mini",
             "name": "OpenAI: GPT-5 Mini",
             "tooltip": "OpenAI: GPT-5 Mini by Zenmux",
-            "maxInputTokens": 368000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 336000,
+            "maxOutputTokens": 64000,
             "model": "openai/gpt-5-mini",
             "capabilities": {
                 "toolCalling": true,
@@ -223,8 +223,8 @@
             "id": "openai-gpt-5-chat",
             "name": "OpenAI: GPT-5 Chat",
             "tooltip": "OpenAI: GPT-5 Chat by Zenmux",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 336000,
+            "maxOutputTokens": 64000,
             "model": "openai/gpt-5-chat",
             "capabilities": {
                 "toolCalling": true,
