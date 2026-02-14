@@ -20,9 +20,9 @@ import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import {
+	getDefaultMaxOutputTokensForContext,
 	isKimiK25Model,
 	isKimiModel,
-	resolveGlobalTokenLimits,
 } from "../../utils/globalContextLengthManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
@@ -36,14 +36,38 @@ const BASE_URL = "https://llm.chutes.ai/v1";
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 131072;
 
+// Output token constants based on context length thresholds
+const HIGH_CONTEXT_OUTPUT_TOKENS = 32000;   // >= 200K context -> 32K output
+const MEDIUM_CONTEXT_OUTPUT_TOKENS = 16000;  // >= 128K context -> 16K output
+const LOW_CONTEXT_OUTPUT_TOKENS = 8000;       // < 128K context -> 8K output
+
+/**
+ * Calculate token limits based on the API's context_length
+ * - context_length >= 200K: output = 32K, input = context - 32K
+ * - context_length >= 128K: output = 16K, input = context - 16K
+ * - context_length < 128K: output = 8K, input = context - 8K
+ */
 function resolveTokenLimits(
 	modelId: string,
 	contextLength: number,
 ): { maxInputTokens: number; maxOutputTokens: number } {
-	return resolveGlobalTokenLimits(modelId, contextLength, {
-		defaultContextLength: DEFAULT_CONTEXT_LENGTH,
-		defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
-	});
+	// Determine output tokens based on context length thresholds
+	let maxOutputTokens: number;
+	if (contextLength >= 200000) {
+		maxOutputTokens = HIGH_CONTEXT_OUTPUT_TOKENS;
+	} else if (contextLength >= 128000) {
+		maxOutputTokens = MEDIUM_CONTEXT_OUTPUT_TOKENS;
+	} else {
+		maxOutputTokens = LOW_CONTEXT_OUTPUT_TOKENS;
+	}
+
+	// Calculate input tokens: context_length - output
+	const maxInputTokens = Math.max(1, contextLength - maxOutputTokens);
+
+	return {
+		maxInputTokens,
+		maxOutputTokens,
+	};
 }
 
 /**

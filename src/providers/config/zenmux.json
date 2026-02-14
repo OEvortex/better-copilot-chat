@@ -1123,8 +1123,8 @@
             "id": "anthropic-claude-opus-4-6",
             "name": "Anthropic: Claude Opus 4.6",
             "tooltip": "Anthropic: Claude Opus 4.6 by Zenmux",
-            "maxInputTokens": 968000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 936000,
+            "maxOutputTokens": 64000,
             "model": "anthropic/claude-opus-4.6",
             "capabilities": {
                 "toolCalling": true,

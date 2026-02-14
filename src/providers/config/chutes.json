@@ -100,24 +100,24 @@
             }
         },
         {
-            "id": "openai-gpt-oss-120b-tee",
-            "name": "openai/gpt-oss-120b-TEE",
-            "tooltip": "openai/gpt-oss-120b-TEE by Chutes",
-            "maxInputTokens": 115072,
-            "maxOutputTokens": 16000,
-            "model": "openai/gpt-oss-120b-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "zai-org-glm-4-6-tee",
             "name": "zai-org/GLM-4.6-TEE",
             "tooltip": "zai-org/GLM-4.6-TEE by Chutes",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "zai-org/GLM-4.6-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "openai-gpt-oss-120b-tee",
+            "name": "openai/gpt-oss-120b-TEE",
+            "tooltip": "openai/gpt-oss-120b-TEE by Chutes",
+            "maxInputTokens": 115072,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-oss-120b-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -220,18 +220,6 @@
             }
         },
         {
-            "id": "nousresearch-hermes-4-405b-fp8-tee",
-            "name": "NousResearch/Hermes-4-405B-FP8-TEE",
-            "tooltip": "NousResearch/Hermes-4-405B-FP8-TEE by Chutes",
-            "maxInputTokens": 115072,
-            "maxOutputTokens": 16000,
-            "model": "NousResearch/Hermes-4-405B-FP8-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "moonshotai-kimi-k2-5-tee",
             "name": "moonshotai/Kimi-K2.5-TEE",
             "tooltip": "moonshotai/Kimi-K2.5-TEE by Chutes",
@@ -241,6 +229,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
+            }
+        },
+        {
+            "id": "nousresearch-hermes-4-405b-fp8-tee",
+            "name": "NousResearch/Hermes-4-405B-FP8-TEE",
+            "tooltip": "NousResearch/Hermes-4-405B-FP8-TEE by Chutes",
+            "maxInputTokens": 115072,
+            "maxOutputTokens": 16000,
+            "model": "NousResearch/Hermes-4-405B-FP8-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
             }
         },
         {
@@ -340,18 +340,6 @@
             }
         },
         {
-            "id": "qwen-qwen2-5-coder-32b-instruct",
-            "name": "Qwen/Qwen2.5-Coder-32B-Instruct",
-            "tooltip": "Qwen/Qwen2.5-Coder-32B-Instruct by Chutes",
-            "maxInputTokens": 16768,
-            "maxOutputTokens": 16000,
-            "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
-            "capabilities": {
-                "toolCalling": false,
-                "imageInput": false
-            }
-        },
-        {
             "id": "deepseek-ai-deepseek-v3-1-terminus-tee",
             "name": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
             "tooltip": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE by Chutes",
@@ -360,6 +348,18 @@
             "model": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
             "capabilities": {
                 "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen2-5-coder-32b-instruct",
+            "name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+            "tooltip": "Qwen/Qwen2.5-Coder-32B-Instruct by Chutes",
+            "maxInputTokens": 16768,
+            "maxOutputTokens": 16000,
+            "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
+            "capabilities": {
+                "toolCalling": false,
                 "imageInput": false
             }
         },
@@ -436,12 +436,12 @@
             }
         },
         {
-            "id": "minimaxai-minimax-m2-1-tee",
-            "name": "MiniMaxAI/MiniMax-M2.1-TEE",
-            "tooltip": "MiniMaxAI/MiniMax-M2.1-TEE by Chutes",
+            "id": "zai-org-glm-5-tee",
+            "name": "zai-org/GLM-5-TEE",
+            "tooltip": "zai-org/GLM-5-TEE by Chutes",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
-            "model": "MiniMaxAI/MiniMax-M2.1-TEE",
+            "model": "zai-org/GLM-5-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -460,6 +460,18 @@
             }
         },
         {
+            "id": "minimaxai-minimax-m2-1-tee",
+            "name": "MiniMaxAI/MiniMax-M2.1-TEE",
+            "tooltip": "MiniMaxAI/MiniMax-M2.1-TEE by Chutes",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "MiniMaxAI/MiniMax-M2.1-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
             "id": "qwen-qwen3-vl-235b-a22b-instruct",
             "name": "Qwen/Qwen3-VL-235B-A22B-Instruct",
             "tooltip": "Qwen/Qwen3-VL-235B-A22B-Instruct by Chutes",
@@ -469,18 +481,6 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
-            }
-        },
-        {
-            "id": "zai-org-glm-5-tee",
-            "name": "zai-org/GLM-5-TEE",
-            "tooltip": "zai-org/GLM-5-TEE by Chutes",
-            "maxInputTokens": 224000,
-            "maxOutputTokens": 32000,
-            "model": "zai-org/GLM-5-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
             }
         },
         {
