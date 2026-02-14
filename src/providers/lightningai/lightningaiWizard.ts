@@ -17,21 +17,21 @@ export class LightningAIWizard {
 	static async startWizard(
 		displayName: string,
 		apiKeyTemplate: string,
-	): Promise<void> {
+	): Promise<boolean> {
 		try {
-				const choice = await vscode.window.showQuickPick(
-					[
-						{
-							label: `$(key) Configure ${displayName} API Key`,
-							detail: `Format: APIKey/Username/StudioName (e.g., 26e4d40e.../abhay/vision-model)`,
-							action: "updateApiKey",
-						},
-						{
-							label: "$(globe) Configure Base URL (Proxy)",
-							detail: `Override ${displayName} endpoint (optional)`,
-							action: "baseUrl",
-						},
-					],
+			const choice = await vscode.window.showQuickPick(
+				[
+					{
+						label: `$(key) Configure ${displayName} API Key`,
+						detail: `Format: APIKey/Username/StudioName (e.g., 26e4d40e.../abhay/vision-model)`,
+						action: "updateApiKey",
+					},
+					{
+						label: "$(globe) Configure Base URL (Proxy)",
+						detail: `Override ${displayName} endpoint (optional)`,
+						action: "baseUrl",
+					},
+				],
 				{
 					title: `${displayName} Configuration Menu`,
 					placeHolder: "Select action to perform",
@@ -40,19 +40,26 @@ export class LightningAIWizard {
 
 			if (!choice) {
 				Logger.debug("User cancelled Lightning AI configuration wizard");
-				return;
+				return false;
 			}
 
-				if (choice.action === "updateApiKey") {
-					await LightningAIWizard.showSetApiKeyStep(displayName, apiKeyTemplate);
-				}
-				if (choice.action === "baseUrl") {
-					await ProviderWizard.configureBaseUrl("lightningai", displayName);
-				}
+			if (choice.action === "updateApiKey") {
+				return await LightningAIWizard.showSetApiKeyStep(
+					displayName,
+					apiKeyTemplate,
+				);
+			}
+			if (choice.action === "baseUrl") {
+				await ProviderWizard.configureBaseUrl("lightningai", displayName);
+				return true;
+			}
+
+			return false;
 		} catch (error) {
 			Logger.error(
 				`Lightning AI configuration wizard error: ${error instanceof Error ? error.message : "Unknown error"}`,
 			);
+			return false;
 		}
 	}
 

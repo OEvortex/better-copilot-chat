@@ -21,6 +21,53 @@ import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import type { DeepInfraModelItem, DeepInfraModelsResponse } from "./types";
 
+const DEFAULT_CONTEXT_LENGTH = 128000;
+const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
+const HIGH_CONTEXT_THRESHOLD = 200000;
+const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32000;
+const FIXED_256K_MAX_INPUT_TOKENS = 224000;
+const FIXED_256K_MAX_OUTPUT_TOKENS = 32000;
+
+function isMinimaxModel(modelId: string): boolean {
+	return /minimax/i.test(modelId);
+}
+
+function isKimiModel(modelId: string): boolean {
+	return /kimi/i.test(modelId);
+}
+
+function isKimiK25Model(modelId: string): boolean {
+	return /kimi[-_\/]?k2(?:\.|-)5/i.test(modelId);
+}
+
+function resolveTokenLimits(
+	modelId: string,
+	contextLength: number,
+): { maxInputTokens: number; maxOutputTokens: number } {
+	if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
+		return {
+			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
+			maxOutputTokens: FIXED_256K_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	const safeContextLength =
+		typeof contextLength === "number" && contextLength > 1024
+			? contextLength
+			: DEFAULT_CONTEXT_LENGTH;
+
+	let maxOutput =
+		safeContextLength >= HIGH_CONTEXT_THRESHOLD
+			? HIGH_CONTEXT_MAX_OUTPUT_TOKENS
+			: DEFAULT_MAX_OUTPUT_TOKENS;
+	maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, safeContextLength - 1024)));
+
+	return {
+		maxInputTokens: Math.max(1, safeContextLength - maxOutput),
+		maxOutputTokens: maxOutput,
+	};
+}
+
 /**
  * DeepInfra dedicated model provider class
  * Uses OpenAI-compatible endpoints: https://api.deepinfra.com/v1/openai
@@ -161,7 +208,9 @@ export class DeepInfraProvider
 						owned_by: "deepinfra",
 						metadata: {
 							description: m.tooltip || "",
-							context_length: m.maxInputTokens || 128000,
+							context_length:
+								(m.maxInputTokens || DEFAULT_CONTEXT_LENGTH) +
+								(m.maxOutputTokens || DEFAULT_MAX_OUTPUT_TOKENS),
 							max_tokens: m.maxOutputTokens || 16000,
 						},
 					}) as DeepInfraModelItem,
@@ -179,7 +228,11 @@ export class DeepInfraProvider
 
 		const infos: LanguageModelChatInformation[] = filteredModels.map((m) => {
 			const metadata = m.metadata!;
-			const vision = metadata.tags?.includes("vision") ?? false;
+			const modelId = m.id;
+			const detectedVision = metadata.tags?.includes("vision") ?? false;
+			const vision = isKimiModel(modelId)
+				? isKimiK25Model(modelId)
+				: detectedVision;
 
 			// All models support tools as per user request
 			const capabilities = {
@@ -187,17 +240,20 @@ export class DeepInfraProvider
 				imageInput: vision,
 			};
 
-			const maxOutput = 16000;
-			const maxInput = metadata.max_tokens || 128000;
+			const contextLen = metadata.context_length ?? DEFAULT_CONTEXT_LENGTH;
+			const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+				modelId,
+				contextLen,
+			);
 
 			return {
-				id: m.id,
-				name: m.id,
-				tooltip: metadata.description || `DeepInfra model: ${m.id}`,
+				id: modelId,
+				name: modelId,
+				tooltip: metadata.description || `DeepInfra model: ${modelId}`,
 				family: "deepinfra",
 				version: "1.0.0",
-				maxInputTokens: maxInput,
-				maxOutputTokens: maxOutput,
+				maxInputTokens,
+				maxOutputTokens,
 				capabilities: capabilities,
 			} as LanguageModelChatInformation;
 		});

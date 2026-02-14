@@ -1,103 +1,103 @@
 {
-	"displayName": "Codex",
-	"baseUrl": "https://chatgpt.com/backend-api/codex",
-	"apiKeyTemplate": "",
-	"models": [
-		{
-			"id": "gpt-5.2-codex-low",
-			"name": "GPT-5.2 Codex (Low Reasoning)",
-			"model": "gpt-5.2-codex",
-			"tooltip": "GPT-5.2 Codex with low reasoning effort - faster responses",
-			"maxInputTokens": 400000,
-			"maxOutputTokens": 128000,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gpt-5.2-codex-medium",
-			"name": "GPT-5.2 Codex (Medium Reasoning)",
-			"model": "gpt-5.2-codex",
-			"tooltip": "GPT-5.2 Codex with medium reasoning effort - balanced",
-			"maxInputTokens": 400000,
-			"maxOutputTokens": 128000,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gpt-5.2-codex-high",
-			"name": "GPT-5.2 Codex (High Reasoning)",
-			"model": "gpt-5.2-codex",
-			"tooltip": "GPT-5.2 Codex with high reasoning effort - most thorough",
-			"maxInputTokens": 400000,
-			"maxOutputTokens": 128000,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gpt-5.2",
-			"name": "GPT-5.2",
-			"model": "gpt-5.2",
-			"tooltip": "GPT-5.2 - OpenAI's latest model",
-			"maxInputTokens": 400000,
-			"maxOutputTokens": 128000,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gpt-5.2-low",
-			"name": "GPT-5.2 (Low Reasoning)",
-			"model": "gpt-5.2",
-			"tooltip": "GPT-5.2 with low reasoning effort",
-			"maxInputTokens": 400000,
-			"maxOutputTokens": 128000,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gpt-5.2-medium",
-			"name": "GPT-5.2 (Medium Reasoning)",
-			"model": "gpt-5.2",
-			"tooltip": "GPT-5.2 with medium reasoning effort",
-			"maxInputTokens": 400000,
-			"maxOutputTokens": 128000,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gpt-5.2-high",
-			"name": "GPT-5.2 (High Reasoning)",
-			"model": "gpt-5.2",
-			"tooltip": "GPT-5.2 with high reasoning effort",
-			"maxInputTokens": 400000,
-			"maxOutputTokens": 128000,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gpt-5.1-codex-mini",
-			"name": "GPT-5.1 Codex Mini",
-			"model": "gpt-5.1-codex-mini",
-			"tooltip": "GPT-5.1 Codex Mini - OpenAI's optimized model",
-			"maxInputTokens": 128000,
-			"maxOutputTokens": 8192,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		}
-	]
+    "displayName": "Codex",
+    "baseUrl": "https://chatgpt.com/backend-api/codex",
+    "apiKeyTemplate": "",
+    "models": [
+        {
+            "id": "gpt-5.2-codex-low",
+            "name": "GPT-5.2 Codex (Low Reasoning)",
+            "model": "gpt-5.2-codex",
+            "tooltip": "GPT-5.2 Codex with low reasoning effort - faster responses",
+            "maxInputTokens": 400000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.2-codex-medium",
+            "name": "GPT-5.2 Codex (Medium Reasoning)",
+            "model": "gpt-5.2-codex",
+            "tooltip": "GPT-5.2 Codex with medium reasoning effort - balanced",
+            "maxInputTokens": 400000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.2-codex-high",
+            "name": "GPT-5.2 Codex (High Reasoning)",
+            "model": "gpt-5.2-codex",
+            "tooltip": "GPT-5.2 Codex with high reasoning effort - most thorough",
+            "maxInputTokens": 400000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.2",
+            "name": "GPT-5.2",
+            "model": "gpt-5.2",
+            "tooltip": "GPT-5.2 - OpenAI's latest model",
+            "maxInputTokens": 400000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.2-low",
+            "name": "GPT-5.2 (Low Reasoning)",
+            "model": "gpt-5.2",
+            "tooltip": "GPT-5.2 with low reasoning effort",
+            "maxInputTokens": 400000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.2-medium",
+            "name": "GPT-5.2 (Medium Reasoning)",
+            "model": "gpt-5.2",
+            "tooltip": "GPT-5.2 with medium reasoning effort",
+            "maxInputTokens": 400000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.2-high",
+            "name": "GPT-5.2 (High Reasoning)",
+            "model": "gpt-5.2",
+            "tooltip": "GPT-5.2 with high reasoning effort",
+            "maxInputTokens": 400000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.1-codex-mini",
+            "name": "GPT-5.1 Codex Mini",
+            "model": "gpt-5.1-codex-mini",
+            "tooltip": "GPT-5.1 Codex Mini - OpenAI's optimized model",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 16000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        }
+    ]
 }

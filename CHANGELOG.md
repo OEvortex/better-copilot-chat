@@ -2,12 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.2] - 2026-02-13
+## [0.2.2] - 2026-02-15
+
+### Added
+- **Blackbox provider**: New OpenAI-compatible Blackbox provider and model list (src/providers/blackbox). Includes streaming support, model registration, and config integration.
+- **Config maintenance scripts**: Added scripts to enforce/verify model token limits across provider configs:
+  - `scripts/set-kimi-minimax-context.js` — set MiniMax/Kimi entries to 256K and correct image-capabilities
+  - `scripts/verify-kimi-minimax-context.js` — sanity-checks for MiniMax/Kimi token/capability settings
+
+### Changed
+- **Standardised large-context models**: All MiniMax and Kimi models updated to 256K total context (maxInputTokens = 224000, maxOutputTokens = 32000). Only `kimi-k2.5` exposes vision input.
+- **Global output-size rule**: Models with reported context >= 200K now default to maxOutputTokens = 32K; otherwise maxOutputTokens = 16K. Applied consistently across static configs and dynamic model loaders.
+- **Runtime normalization**: Dynamic model fetchers (Chutes, DeepInfra, HuggingFace, LightningAI, Zenmux, OpenCode, Antigravity, Zhipu, etc.) now normalize token limits and capabilities at runtime to match static config rules.
 
 ### Fixed
-- **Ollama fixed**: Updated the Ollama provider's model definitions to reflect the correct context length. This includes adjusting the `maxInputTokens` and `maxOutputTokens` for all models to ensure accurate token counting and proper functioning of the provider.
-  - Updated `src/providers/config/ollama.json` with the corrected token limits for all models, including `nemotron-3-nano:30b`, `nemotron-3:30b`, `nemotron-2:13b`, and `nemotron-1:6b`.
-  - This fix resolves issues with token counting and stream finalization that were caused by the previously incorrect token limits, ensuring that the Ollama provider operates correctly within its actual capabilities.
+- **Ollama fixed**: Updated the Ollama provider's model definitions to reflect the correct context length (see `src/providers/config/ollama.json`). This resolves token-counting and stream-finalization issues.
+- **Mistral config corrected**: Mistral models' token limits updated so 256K-context models use maxInputTokens = 224000 and maxOutputTokens = 32000 (`src/providers/config/mistral.json`).
+- **Tooltips & UI text**: Corrected tooltips that incorrectly referenced “200K” to say “256K” where applicable.
+- **Config drift fixes**: Fixed multiple providers where dynamic model metadata could drift from project-wide token/capability rules; now enforced both in config files and at runtime.
 ## [0.2.1] - 2026-02-13
 
 ### Removed

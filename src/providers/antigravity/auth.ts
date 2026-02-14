@@ -25,6 +25,47 @@ const ANTIGRAVITY_SCOPES = [
 	"https://www.googleapis.com/auth/experimentsandconfigs",
 ];
 const PROVIDER_KEY = ProviderKey.Antigravity;
+const HIGH_CONTEXT_THRESHOLD = 200000;
+const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32000;
+const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
+const FIXED_256K_MAX_INPUT_TOKENS = 224000;
+const FIXED_256K_MAX_OUTPUT_TOKENS = 32000;
+
+function isMinimaxModel(modelId: string): boolean {
+	return /minimax/i.test(modelId);
+}
+
+function isKimiModel(modelId: string): boolean {
+	return /kimi/i.test(modelId);
+}
+
+function resolveTokenLimits(
+	modelId: string,
+	contextLength: number,
+): { maxInputTokens: number; maxOutputTokens: number } {
+	if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
+		return {
+			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
+			maxOutputTokens: FIXED_256K_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	const safeContextLength =
+		typeof contextLength === "number" && contextLength > 1024
+			? contextLength
+			: 128000;
+
+	let maxOutput =
+		safeContextLength >= HIGH_CONTEXT_THRESHOLD
+			? HIGH_CONTEXT_MAX_OUTPUT_TOKENS
+			: DEFAULT_MAX_OUTPUT_TOKENS;
+	maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, safeContextLength - 1024)));
+
+	return {
+		maxInputTokens: Math.max(1, safeContextLength - maxOutput),
+		maxOutputTokens: maxOutput,
+	};
+}
 
 function generateRandomState(): string {
 	const array = new Uint8Array(32);
@@ -292,6 +333,12 @@ async function addAllAntigravityModelsToCompatible(
 	let addedCount = 0;
 	for (const model of models) {
 		try {
+			const totalContext = model.maxTokens || 128000;
+			const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+				model.id,
+				totalContext,
+			);
+			
 			await CompatibleModelManager.addModel({
 				id: `${PROVIDER_KEY}:${model.id}`,
 				name: `${model.displayName} (Antigravity)`,
@@ -299,8 +346,8 @@ async function addAllAntigravityModelsToCompatible(
 				sdkMode: "openai" as const,
 				baseUrl: baseUrlOverride,
 				model: model.id,
-				maxInputTokens: model.maxTokens || 1000000,
-				maxOutputTokens: model.maxOutputTokens || 65536,
+				maxInputTokens,
+				maxOutputTokens,
 				capabilities: { toolCalling: true, imageInput: true },
 			});
 			addedCount++;
@@ -351,6 +398,12 @@ async function _showAntigravityModelsQuickPick(
 		let addedCount = 0;
 		for (const item of selected) {
 			try {
+				const totalContext = item.model.maxTokens || 128000;
+				const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+					item.model.id,
+					totalContext,
+				);
+				
 				await CompatibleModelManager.addModel({
 					id: `${PROVIDER_KEY}:${item.model.id}`,
 					name: item.model.displayName,
@@ -358,8 +411,8 @@ async function _showAntigravityModelsQuickPick(
 					sdkMode: "openai" as const,
 					baseUrl: baseUrlOverride,
 					model: item.model.id,
-					maxInputTokens: item.model.maxTokens || 1000000,
-					maxOutputTokens: item.model.maxOutputTokens || 65536,
+					maxInputTokens,
+					maxOutputTokens,
 					capabilities: { toolCalling: true, imageInput: true },
 				});
 				addedCount++;

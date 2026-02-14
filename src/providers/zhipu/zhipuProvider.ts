@@ -21,8 +21,12 @@ import { RateLimiter } from "../../utils/rateLimiter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { ZhipuWizard } from "./zhipuWizard";
 
-const DEFAULT_MAX_OUTPUT_TOKENS = 16752;
+const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 186000;
+const HIGH_CONTEXT_THRESHOLD = 200000;
+const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32000;
+const FIXED_256K_MAX_INPUT_TOKENS = 224000;
+const FIXED_256K_MAX_OUTPUT_TOKENS = 32000;
 
 // API endpoints based on plan
 const CODING_PLAN_BASE_URL = "https://api.z.ai/api/coding/paas/v4";
@@ -56,6 +60,24 @@ const HARDCODED_MODELS: ZhipuAPIModel[] = [
 ];
 
 type ZhipuThinkingType = "enabled" | "disabled";
+
+function isMinimaxModel(modelId: string): boolean {
+	return /minimax/i.test(modelId);
+}
+
+function isKimiModel(modelId: string): boolean {
+	return /kimi/i.test(modelId);
+}
+
+function isKimiK25Model(modelId: string): boolean {
+	return /kimi[-_\/]?k2(?:\.|-)5/i.test(modelId);
+}
+
+function outputForInput(maxInputTokens: number): number {
+	return maxInputTokens >= HIGH_CONTEXT_THRESHOLD
+		? HIGH_CONTEXT_MAX_OUTPUT_TOKENS
+		: DEFAULT_MAX_OUTPUT_TOKENS;
+}
 
 /**
  * Zhipu AI Dedicated Model Provider Class
@@ -190,63 +212,73 @@ export class ZhipuProvider
 		toolCalling: boolean;
 		imageInput: boolean;
 	} {
+		if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
+			return {
+				name: modelId,
+				maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
+				maxOutputTokens: FIXED_256K_MAX_OUTPUT_TOKENS,
+				toolCalling: true,
+				imageInput: isKimiModel(modelId) ? isKimiK25Model(modelId) : false,
+			};
+		}
+
 		// Default metadata
 		const defaultMeta = {
 			name: modelId,
 			maxInputTokens: DEFAULT_CONTEXT_LENGTH,
-			maxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
+			maxOutputTokens: outputForInput(DEFAULT_CONTEXT_LENGTH),
 			toolCalling: true,
 			imageInput: false,
 		};
 
-		// Model-specific metadata
+		// Model-specific metadata (200K+ context = 32K output, <200K context = 16K output)
 		const modelMetadata: Record<string, typeof defaultMeta> = {
 			"glm-5": {
 				name: "GLM-5 (Latest)",
-				maxInputTokens: 186000,
-				maxOutputTokens: 16752,
+				maxInputTokens: 168000,
+				maxOutputTokens: outputForInput(168000),
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.7": {
 				name: "GLM-4.7",
-				maxInputTokens: 186000,
-				maxOutputTokens: 16752,
+				maxInputTokens: 168000,
+				maxOutputTokens: outputForInput(168000),
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.6": {
 				name: "GLM-4.6",
-				maxInputTokens: 186000,
-				maxOutputTokens: 16752,
+				maxInputTokens: 168000,
+				maxOutputTokens: outputForInput(168000),
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.5": {
 				name: "GLM-4.5",
-				maxInputTokens: 100000,
-				maxOutputTokens: 28000,
+				maxInputTokens: 112000,
+				maxOutputTokens: outputForInput(112000),
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.5-air": {
 				name: "GLM-4.5-Air",
-				maxInputTokens: 100000,
-				maxOutputTokens: 28000,
+				maxInputTokens: 112000,
+				maxOutputTokens: outputForInput(112000),
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.7-flash": {
 				name: "GLM-4.7-Flash (Free, 1 Concurrent)",
-				maxInputTokens: 186000,
-				maxOutputTokens: 16752,
+				maxInputTokens: 168000,
+				maxOutputTokens: outputForInput(168000),
 				toolCalling: true,
 				imageInput: false,
 			},
 			"glm-4.7-flashx": {
 				name: "GLM-4.7-FlashX (Paid)",
-				maxInputTokens: 186000,
-				maxOutputTokens: 16752,
+				maxInputTokens: 168000,
+				maxOutputTokens: outputForInput(168000),
 				toolCalling: true,
 				imageInput: false,
 			},

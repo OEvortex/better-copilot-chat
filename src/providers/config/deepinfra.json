@@ -1,29 +1,29 @@
 {
-	"displayName": "DeepInfra",
-	"baseUrl": "https://api.deepinfra.com/v1/openai",
-	"apiKeyTemplate": "di-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-	"models": [
-		{
-			"id": "meta-llama/Meta-Llama-3.1-70B-Instruct",
-			"name": "Meta Llama 3.1 70B Instruct",
-			"tooltip": "Meta Llama 3.1 70B - Instruct by DeepInfra",
-			"maxInputTokens": 200000,
-			"maxOutputTokens": 8192,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": false
-			}
-		},
-		{
-			"id": "Qwen/Qwen2-7B-Instruct",
-			"name": "Qwen 2 7B Instruct",
-			"tooltip": "Qwen2 7B - Instruct by DeepInfra",
-			"maxInputTokens": 128000,
-			"maxOutputTokens": 8192,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": false
-			}
-		}
-	]
+    "displayName": "DeepInfra",
+    "baseUrl": "https://api.deepinfra.com/v1/openai",
+    "apiKeyTemplate": "di-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "models": [
+        {
+            "id": "meta-llama/Meta-Llama-3.1-70B-Instruct",
+            "name": "Meta Llama 3.1 70B Instruct",
+            "tooltip": "Meta Llama 3.1 70B - Instruct by DeepInfra",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "Qwen/Qwen2-7B-Instruct",
+            "name": "Qwen 2 7B Instruct",
+            "tooltip": "Qwen2 7B - Instruct by DeepInfra",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 16000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        }
+    ]
 }

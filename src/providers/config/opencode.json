@@ -246,9 +246,9 @@
         {
             "id": "minimax-m2.1",
             "name": "minimax-m2.1",
-            "tooltip": "minimax-m2.1 by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
+            "tooltip": "minimax-m2.1 — 256K context — 256K context",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "minimax-m2.1",
             "capabilities": {
                 "toolCalling": true,
@@ -258,9 +258,9 @@
         {
             "id": "minimax-m2.5-free",
             "name": "minimax-m2.5-free",
-            "tooltip": "minimax-m2.5-free by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
+            "tooltip": "minimax-m2.5-free by OpenCode — 256K context",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "minimax-m2.5-free",
             "capabilities": {
                 "toolCalling": true,
@@ -270,9 +270,9 @@
         {
             "id": "minimax-m2.1-free",
             "name": "minimax-m2.1-free",
-            "tooltip": "minimax-m2.1-free by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
+            "tooltip": "minimax-m2.1-free by OpenCode — 256K context",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "minimax-m2.1-free",
             "capabilities": {
                 "toolCalling": true,
@@ -282,33 +282,33 @@
         {
             "id": "kimi-k2.5",
             "name": "kimi-k2.5",
-            "tooltip": "kimi-k2.5 by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
+            "tooltip": "kimi-k2.5 — 256K context with vision — 256K context with vision",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "kimi-k2.5",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
             "id": "kimi-k2.5-free",
             "name": "kimi-k2.5-free",
-            "tooltip": "kimi-k2.5-free by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
+            "tooltip": "kimi-k2.5-free by OpenCode — 256K context with vision",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "kimi-k2.5-free",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
             "id": "kimi-k2",
             "name": "kimi-k2",
-            "tooltip": "kimi-k2 by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
+            "tooltip": "kimi-k2 by OpenCode — 256K context",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "kimi-k2",
             "capabilities": {
                 "toolCalling": true,
@@ -318,9 +318,9 @@
         {
             "id": "kimi-k2-thinking",
             "name": "kimi-k2-thinking",
-            "tooltip": "kimi-k2-thinking by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
+            "tooltip": "kimi-k2-thinking by OpenCode — 256K context",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "kimi-k2-thinking",
             "capabilities": {
                 "toolCalling": true,

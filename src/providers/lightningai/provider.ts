@@ -29,6 +29,50 @@ import { LightningAIWizard } from "./lightningaiWizard";
 const BASE_URL = "https://lightning.ai/api/v1";
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 128000;
+const HIGH_CONTEXT_THRESHOLD = 200000;
+const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32000;
+const FIXED_256K_MAX_INPUT_TOKENS = 224000;
+const FIXED_256K_MAX_OUTPUT_TOKENS = 32000;
+
+function isMinimaxModel(modelId: string): boolean {
+	return /minimax/i.test(modelId);
+}
+
+function isKimiModel(modelId: string): boolean {
+	return /kimi/i.test(modelId);
+}
+
+function isKimiK25Model(modelId: string): boolean {
+	return /kimi[-_\/]?k2(?:\.|-)5/i.test(modelId);
+}
+
+function resolveTokenLimits(
+	modelId: string,
+	contextLength: number,
+): { maxInputTokens: number; maxOutputTokens: number } {
+	if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
+		return {
+			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
+			maxOutputTokens: FIXED_256K_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	const safeContextLength =
+		typeof contextLength === "number" && contextLength > 1024
+			? contextLength
+			: DEFAULT_CONTEXT_LENGTH;
+
+	let maxOutput =
+		safeContextLength >= HIGH_CONTEXT_THRESHOLD
+			? HIGH_CONTEXT_MAX_OUTPUT_TOKENS
+			: DEFAULT_MAX_OUTPUT_TOKENS;
+	maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, safeContextLength - 1024)));
+
+	return {
+		maxInputTokens: Math.max(1, safeContextLength - maxOutput),
+		maxOutputTokens: maxOutput,
+	};
+}
 
 interface LightningAIModelItem {
 	id: string;
@@ -153,30 +197,29 @@ export class LightningAIProvider
 
 		const infos: LanguageModelChatInformation[] = models.map((m) => {
 			const modalities = m.architecture?.input_modalities ?? [];
-			const vision = Array.isArray(modalities) && modalities.includes("image");
+			const modelId = m.id;
+			const detectedVision =
+				Array.isArray(modalities) && modalities.includes("image");
+			const vision = isKimiModel(modelId)
+				? isKimiK25Model(modelId)
+				: detectedVision;
 			
 			const supportsTools = true;
 
 			const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
-
-			// Accurate token logic: prefer DEFAULT_MAX_OUTPUT_TOKENS but cap at half context
-			let maxOutput = (m.max_tokens && m.max_tokens > 0) ? m.max_tokens : DEFAULT_MAX_OUTPUT_TOKENS;
-			if (maxOutput >= contextLen) {
-				maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
-			}
-			maxOutput = Math.floor(
-				Math.max(1, Math.min(maxOutput, contextLen - 1024)),
+			const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+				modelId,
+				contextLen,
 			);
-			const maxInput = Math.max(1, contextLen - maxOutput);
 
 			return {
-				id: m.id,
-				name: m.name || m.id,
-				tooltip: m.description || `${m.id} by Lightning AI`,
-				family: m.id,
+				id: modelId,
+				name: m.name || modelId,
+				tooltip: m.description || `${modelId} by Lightning AI`,
+				family: modelId,
 				version: "1.0.0",
-				maxInputTokens: maxInput,
-				maxOutputTokens: maxOutput,
+				maxInputTokens,
+				maxOutputTokens,
 				capabilities: {
 					toolCalling: supportsTools,
 					imageInput: vision,
@@ -240,18 +283,25 @@ export class LightningAIProvider
 
 				const modelConfigs: ModelConfig[] = models.map((m) => {
 					const modalities = m.architecture?.input_modalities ?? [];
-					const vision = Array.isArray(modalities) && modalities.includes("image");
+					const modelId = m.id;
+					const detectedVision =
+						Array.isArray(modalities) && modalities.includes("image");
+					const vision = isKimiModel(modelId)
+						? isKimiK25Model(modelId)
+						: detectedVision;
 					const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
-					const maxOutput = (m.max_tokens && m.max_tokens > 0) ? m.max_tokens : DEFAULT_MAX_OUTPUT_TOKENS;
-					const maxInput = Math.max(1, contextLen - maxOutput);
+					const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+						modelId,
+						contextLen,
+					);
 
 					return {
-						id: m.id,
-						name: m.name || m.id,
-						tooltip: m.description || `${m.id} by Lightning AI`,
-						maxInputTokens: maxInput,
-						maxOutputTokens: maxOutput,
-						model: m.id,
+						id: modelId,
+						name: m.name || modelId,
+						tooltip: m.description || `${modelId} by Lightning AI`,
+						maxInputTokens,
+						maxOutputTokens,
+						model: modelId,
 						capabilities: {
 							toolCalling: true,
 							imageInput: vision,
@@ -729,22 +779,28 @@ export class LightningAIProvider
 		const setApiKeyCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.setApiKey`,
 			async () => {
-				await LightningAIWizard.startWizard(
+				const didUpdate = await LightningAIWizard.startWizard(
 					providerConfig.displayName,
 					providerConfig.apiKeyTemplate,
 				);
-				await provider.modelInfoCache?.invalidateCache(providerKey);
-				provider._onDidChangeLanguageModelChatInformation.fire(undefined);
+				if (didUpdate) {
+					await provider.modelInfoCache?.invalidateCache(providerKey);
+					provider._onDidChangeLanguageModelChatInformation.fire(undefined);
+				}
 			},
 		);
 
 		const configWizardCommand = vscode.commands.registerCommand(
 			`chp.${providerKey}.configWizard`,
 			async () => {
-				await LightningAIWizard.startWizard(
+				const didUpdate = await LightningAIWizard.startWizard(
 					providerConfig.displayName,
 					providerConfig.apiKeyTemplate,
 				);
+				if (didUpdate) {
+					await provider.modelInfoCache?.invalidateCache(providerKey);
+					provider._onDidChangeLanguageModelChatInformation.fire(undefined);
+				}
 			},
 		);
 

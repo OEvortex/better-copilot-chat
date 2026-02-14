@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
-import {
-	AccountManager,
+import { AccountManager,
 	AccountQuotaCache,
 	AccountSyncAdapter,
 	registerAccountCommands,
 } from "./accounts";
 import { InlineCompletionShim } from "./copilot/inlineCompletionShim";
 import { AntigravityProvider } from "./providers/antigravity/provider";
+import { BlackboxProvider } from "./providers/blackbox";
 import { ChutesProvider } from "./providers/chutes/chutesProvider";
 import { GenericModelProvider } from "./providers/common/genericModelProvider";
 import { CompatibleProvider } from "./providers/compatible/compatibleProvider";
@@ -58,6 +58,7 @@ const registeredProviders: Record<
 	| AntigravityProvider
 	| DeepInfraProvider
 	| MistralProvider
+	| BlackboxProvider
 > = {};
 const registeredDisposables: vscode.Disposable[] = [];
 
@@ -217,6 +218,15 @@ async function activateProviders(
 				} else if (providerKey === "ollama") {
 					// Use specialized provider for Ollama Cloud (OpenAI-compatible endpoints)
 					const result = OllamaProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider as unknown as GenericModelProvider;
+					disposables = result.disposables as unknown as vscode.Disposable[];
+				} else if (providerKey === "blackbox") {
+					// Use specialized provider for Blackbox AI (OpenAI-compatible with custom headers)
+					const result = BlackboxProvider.createAndActivate(
 						context,
 						providerKey,
 						providerConfig,

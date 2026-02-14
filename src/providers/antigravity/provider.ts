@@ -16,6 +16,7 @@ import { GenericModelProvider } from "../common/genericModelProvider";
 import { AntigravityAuth, antigravityLoginCommand } from "./auth";
 import { AntigravityHandler } from "./handler";
 
+
 export class AntigravityProvider
 	extends GenericModelProvider
 	implements LanguageModelChatProvider
@@ -23,8 +24,8 @@ export class AntigravityProvider
 	private static readonly PROVIDER_KEY = ProviderKey.Antigravity;
 	private cachedModels: ModelConfig[] = [];
 	private readonly antigravityHandler: AntigravityHandler;
-	private readonly accountManager: AccountManager;
-	private readonly lastUsedAccountByModel = new Map<string, string>();
+	readonly accountManager: AccountManager;
+	readonly lastUsedAccountByModel = new Map<string, string>();
 
 	constructor(context: vscode.ExtensionContext) {
 		const virtualConfig: ProviderConfig = {
@@ -121,13 +122,27 @@ export class AntigravityProvider
 				// Find override for this model
 				const override = modelOverrides.find((o) => o.id === m.id);
 
+				// Calculate context window split: 200K+ = 32K output, <200K = 16K output
+				const totalContext = m.maxTokens || 200000;
+				const OUTPUT_THRESHOLD = 200000;
+				const MAX_OUTPUT_32K = 32000;
+				const MAX_OUTPUT_16K = 16000;
+
+				let maxOutput =
+					override?.maxOutputTokens || m.maxOutputTokens || (totalContext >= OUTPUT_THRESHOLD ? MAX_OUTPUT_32K : MAX_OUTPUT_16K);
+
+				// Ensure output doesn't exceed context
+				if (maxOutput >= totalContext) {
+					maxOutput = totalContext >= OUTPUT_THRESHOLD ? MAX_OUTPUT_32K : MAX_OUTPUT_16K;
+				}
+				const maxInput = Math.max(1, totalContext - maxOutput);
+
 				const baseConfig: ModelConfig = {
 					id: m.id,
 					name: m.displayName || m.name,
 					tooltip: `${m.displayName} - Antigravity`,
-					maxInputTokens: m.maxTokens || 200000,
-					maxOutputTokens:
-						override?.maxOutputTokens || m.maxOutputTokens || 8192,
+					maxInputTokens: maxInput,
+					maxOutputTokens: maxOutput,
 					sdkMode: "openai" as const,
 					capabilities: { toolCalling: true, imageInput: true },
 				};

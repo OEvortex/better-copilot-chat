@@ -23,6 +23,50 @@ import { validateRequest } from "./utils";
 const BASE_URL = "https://router.huggingface.co/v1";
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 128000;
+const HIGH_CONTEXT_THRESHOLD = 200000;
+const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32000;
+const FIXED_256K_MAX_INPUT_TOKENS = 224000;
+const FIXED_256K_MAX_OUTPUT_TOKENS = 32000;
+
+function isMinimaxModel(modelId: string): boolean {
+	return /minimax/i.test(modelId);
+}
+
+function isKimiModel(modelId: string): boolean {
+	return /kimi/i.test(modelId);
+}
+
+function isKimiK25Model(modelId: string): boolean {
+	return /kimi[-_\/]?k2(?:\.|-)5/i.test(modelId);
+}
+
+function resolveTokenLimits(
+	modelId: string,
+	contextLength: number,
+): { maxInputTokens: number; maxOutputTokens: number } {
+	if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
+		return {
+			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
+			maxOutputTokens: FIXED_256K_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	const safeContextLength =
+		typeof contextLength === "number" && contextLength > 1024
+			? contextLength
+			: DEFAULT_CONTEXT_LENGTH;
+
+	let maxOutput =
+		safeContextLength >= HIGH_CONTEXT_THRESHOLD
+			? HIGH_CONTEXT_MAX_OUTPUT_TOKENS
+			: DEFAULT_MAX_OUTPUT_TOKENS;
+	maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, safeContextLength - 1024)));
+
+	return {
+		maxInputTokens: Math.max(1, safeContextLength - maxOutput),
+		maxOutputTokens: maxOutput,
+	};
+}
 
 export class HuggingfaceProvider
 	extends GenericModelProvider
@@ -103,7 +147,12 @@ export class HuggingfaceProvider
 		const infos: LanguageModelChatInformation[] = models.flatMap((m) => {
 			const providers = m?.providers ?? [];
 			const modalities = m.architecture?.input_modalities ?? [];
-			const vision = Array.isArray(modalities) && modalities.includes("image");
+			const baseModelId = m.id;
+			const detectedVision =
+				Array.isArray(modalities) && modalities.includes("image");
+			const vision = isKimiModel(baseModelId)
+				? isKimiK25Model(baseModelId)
+				: detectedVision;
 
 			const toolProviders = providers.filter((p) => p.supports_tools === true);
 			const entries: LanguageModelChatInformation[] = [];
@@ -121,18 +170,10 @@ export class HuggingfaceProvider
 						? Math.min(...contextLengths)
 						: DEFAULT_CONTEXT_LENGTH;
 
-				// Accurate token logic: prefer DEFAULT_MAX_OUTPUT_TOKENS but cap at half context
-				let maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
-				if (maxOutput >= aggregateContextLen) {
-					maxOutput = Math.min(
-						aggregateContextLen / 2,
-						DEFAULT_MAX_OUTPUT_TOKENS,
-					);
-				}
-				maxOutput = Math.floor(
-					Math.max(1, Math.min(maxOutput, aggregateContextLen - 1024)),
+				const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+					baseModelId,
+					aggregateContextLen,
 				);
-				const maxInput = Math.max(1, aggregateContextLen - maxOutput);
 
 				const aggregateCapabilities = {
 					toolCalling: true,
@@ -144,8 +185,8 @@ export class HuggingfaceProvider
 					tooltip: "Hugging Face via the cheapest provider",
 					family: "huggingface",
 					version: "1.0.0",
-					maxInputTokens: maxInput,
-					maxOutputTokens: maxOutput,
+					maxInputTokens,
+					maxOutputTokens,
 					capabilities: aggregateCapabilities,
 				} as LanguageModelChatInformation);
 				entries.push({
@@ -154,8 +195,8 @@ export class HuggingfaceProvider
 					tooltip: "Hugging Face via the fastest provider",
 					family: "huggingface",
 					version: "1.0.0",
-					maxInputTokens: maxInput,
-					maxOutputTokens: maxOutput,
+					maxInputTokens,
+					maxOutputTokens,
 					capabilities: aggregateCapabilities,
 				} as LanguageModelChatInformation);
 			}
@@ -163,14 +204,10 @@ export class HuggingfaceProvider
 			for (const p of toolProviders) {
 				const contextLen = p?.context_length ?? DEFAULT_CONTEXT_LENGTH;
 
-				let maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
-				if (maxOutput >= contextLen) {
-					maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
-				}
-				maxOutput = Math.floor(
-					Math.max(1, Math.min(maxOutput, contextLen - 1024)),
+				const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+					baseModelId,
+					contextLen,
 				);
-				const maxInput = Math.max(1, contextLen - maxOutput);
 
 				entries.push({
 					id: `${m.id}:${p.provider}`,
@@ -178,8 +215,8 @@ export class HuggingfaceProvider
 					tooltip: `Hugging Face via ${p.provider}`,
 					family: "huggingface",
 					version: "1.0.0",
-					maxInputTokens: maxInput,
-					maxOutputTokens: maxOutput,
+					maxInputTokens,
+					maxOutputTokens,
 					capabilities: {
 						toolCalling: true,
 						imageInput: vision,
@@ -191,14 +228,10 @@ export class HuggingfaceProvider
 				const base = providers[0];
 				const contextLen = base?.context_length ?? DEFAULT_CONTEXT_LENGTH;
 
-				let maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
-				if (maxOutput >= contextLen) {
-					maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
-				}
-				maxOutput = Math.floor(
-					Math.max(1, Math.min(maxOutput, contextLen - 1024)),
+				const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+					baseModelId,
+					contextLen,
 				);
-				const maxInput = Math.max(1, contextLen - maxOutput);
 
 				entries.push({
 					id: m.id,
@@ -206,8 +239,8 @@ export class HuggingfaceProvider
 					tooltip: "Hugging Face",
 					family: "huggingface",
 					version: "1.0.0",
-					maxInputTokens: maxInput,
-					maxOutputTokens: maxOutput,
+					maxInputTokens,
+					maxOutputTokens,
 					capabilities: {
 						toolCalling: false,
 						imageInput: vision,

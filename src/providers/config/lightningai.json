@@ -44,7 +44,7 @@
             "name": "Gemini 2.5 Flash Lite",
             "tooltip": "Gemini 2.5 Flash-Lite is a model developed by Google DeepMind, designed to handle various tasks including reasoning, science, mathematics, code generation, and more. It features advanced capabilities in multilingual performance and long context understanding. It is optimized for low latency use cases, supporting multimodal input with a 1 million-token context length.\n\n",
             "maxInputTokens": 1032576,
-            "maxOutputTokens": 16000,
+            "maxOutputTokens": 32000,
             "model": "google/gemini-2.5-flash-lite-preview-06-17",
             "capabilities": {
                 "toolCalling": true,
@@ -80,7 +80,7 @@
             "name": "Claude Haiku 4.5",
             "tooltip": "Claude Haiku 4.5 delivers near-frontier performance with exceptional speed and cost-efficiency. It excels at real-time tasks like chat assistants, coding, and multi-agent workflows. Use it alone or alongside Sonnet 4.5 for fast, scalable execution.",
             "maxInputTokens": 136000,
-            "maxOutputTokens": 64000,
+            "maxOutputTokens": 16000,
             "model": "anthropic/claude-haiku-4-5-20251001",
             "capabilities": {
                 "toolCalling": true,
@@ -140,7 +140,7 @@
             "name": "gpt-oss-120b",
             "tooltip": "gpt-oss-120B is a 117 billion parameter language model, using a mixture-of-experts approach but activating only 5.1 billion per token for efficiency. It supports long contexts of up to 128k tokens, enabling it to handle extended conversations or documents smoothly. The model performs nearly at the level of o4-mini on reasoning tasks and surpasses many other open models in quality.",
             "maxInputTokens": 1,
-            "maxOutputTokens": 131072,
+            "maxOutputTokens": 16000,
             "model": "lightning-ai/gpt-oss-120b",
             "capabilities": {
                 "toolCalling": true,
@@ -164,7 +164,7 @@
             "name": "Claude Opus 4.1",
             "tooltip": "Claude Opus 4.1 is an enhanced version of Anthropic’s flagship model, with stronger coding, reasoning, and agentic capabilities. It scores 74.5% on SWE-bench Verified and improves at multi-file refactoring, debugging, and detailed reasoning. With support for extended thinking up to 64K tokens, it’s well-suited for research, data analysis, and tool-assisted problem solving.",
             "maxInputTokens": 168000,
-            "maxOutputTokens": 32000,
+            "maxOutputTokens": 16000,
             "model": "anthropic/claude-opus-4-1-20250805",
             "capabilities": {
                 "toolCalling": true,
@@ -176,7 +176,7 @@
             "name": "GPT 5",
             "tooltip": "GPT-5 is OpenAI model that is built for complex, step-by-step tasks that demand precise instruction following and high-stakes accuracy. It supports test-time routing plus prompts like “think hard about this.” It also reduces hallucinations and sycophancy while improving performance in coding, writing, and health-related tasks.\n",
             "maxInputTokens": 384000,
-            "maxOutputTokens": 16000,
+            "maxOutputTokens": 32000,
             "model": "openai/gpt-5",
             "capabilities": {
                 "toolCalling": true,
@@ -188,7 +188,7 @@
             "name": "GPT 5 mini",
             "tooltip": "GPT-5 Mini is a smaller, more efficient variant of GPT-5 built for lighter reasoning tasks. It maintains the strong instruction-following and safety features of GPT-5 while offering faster responses and lower costs.",
             "maxInputTokens": 384000,
-            "maxOutputTokens": 16000,
+            "maxOutputTokens": 32000,
             "model": "openai/gpt-5-mini",
             "capabilities": {
                 "toolCalling": true,
@@ -200,7 +200,7 @@
             "name": "GPT 5 nano",
             "tooltip": "GPT-5-Nano is the smallest and fastest variant in the GPT-5 system, built as a unified system that can decide when to respond quickly or dig deeper depending on what you ask it. It gets much better across a wide range of skills — writing, coding, math, health, and visual tasks — and is more reliable and accurate in real-world scenarios. Compared to earlier models, it hallucinates less, follows instructions more faithfully, and understands the context better.",
             "maxInputTokens": 384000,
-            "maxOutputTokens": 16000,
+            "maxOutputTokens": 32000,
             "model": "openai/gpt-5-nano",
             "capabilities": {
                 "toolCalling": true,
@@ -212,7 +212,7 @@
             "name": "Gemini 2.5 Pro",
             "tooltip": "Gemini 2.5 Pro is Google’s AI model built for advanced reasoning, coding, math, and scientific work. With integrated “thinking” capabilities, it delivers more accurate answers and handles context with greater nuance. It ranks at the top of multiple benchmarks, including first place on the LMArena leaderboard, showcasing strong human-preference alignment and exceptional problem-solving skills.",
             "maxInputTokens": 1032576,
-            "maxOutputTokens": 16000,
+            "maxOutputTokens": 32000,
             "model": "google/gemini-2.5-pro",
             "capabilities": {
                 "toolCalling": true,
@@ -224,7 +224,7 @@
             "name": "Gemini 2.5 Flash",
             "tooltip": "Gemini 2.5 Flash is Google’s powerful model built for complex reasoning, coding, math, and scientific challenges. With integrated “thinking” capabilities, it delivers more accurate answers and handles context with greater nuance.",
             "maxInputTokens": 1032576,
-            "maxOutputTokens": 16000,
+            "maxOutputTokens": 32000,
             "model": "google/gemini-2.5-flash",
             "capabilities": {
                 "toolCalling": true,
@@ -236,7 +236,7 @@
             "name": "GPT 5.2",
             "tooltip": "GPT-5.2 is OpenAI's  flagship model for coding and agentic tasks across industries. ",
             "maxInputTokens": 384000,
-            "maxOutputTokens": 16000,
+            "maxOutputTokens": 32000,
             "model": "openai/gpt-5.2-2025-12-11",
             "capabilities": {
                 "toolCalling": true,
@@ -248,7 +248,7 @@
             "name": "GPT 4.1",
             "tooltip": "OpenAI’s fast and capable model for reasoning, coding, and chat. It responds quickly, supports long context (128k tokens), and runs efficiently at scale—ideal for advanced API applications.",
             "maxInputTokens": 1031576,
-            "maxOutputTokens": 16000,
+            "maxOutputTokens": 32000,
             "model": "openai/gpt-4.1",
             "capabilities": {
                 "toolCalling": true,
@@ -294,13 +294,13 @@
         {
             "id": "lightning-ai/kimi-k2.5",
             "name": "kimi-k2.5",
-            "tooltip": "Kimi K2.5 is an open-source, native multimodal agentic model built through continual pretraining on approximately 15 trillion mixed visual and text tokens atop Kimi-K2-Base. It seamlessly integrates vision and language understanding with advanced agentic capabilities, instant and thinking modes, as well as conversational and agentic paradigms.",
-            "maxInputTokens": 240000,
-            "maxOutputTokens": 16000,
+            "tooltip": "Kimi K2.5 — 256K context, multimodal (vision + text)",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "lightning-ai/kimi-k2.5",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
@@ -308,7 +308,7 @@
             "name": "Gemini 3 Flash",
             "tooltip": "Gemini 3 Flash Preview is designed to deliver strong agentic capabilities (near-Pro level) at substantial speed and value.",
             "maxInputTokens": 1032576,
-            "maxOutputTokens": 16000,
+            "maxOutputTokens": 32000,
             "model": "google/gemini-3-flash-preview",
             "capabilities": {
                 "toolCalling": true,
@@ -332,7 +332,7 @@
             "name": "Gemini 3 Pro Preview",
             "tooltip": "The best model in the world for multimodal understanding, and our most powerful agentic and vibe-coding model yet",
             "maxInputTokens": 1032576,
-            "maxOutputTokens": 16000,
+            "maxOutputTokens": 32000,
             "model": "google/gemini-3-pro-preview",
             "capabilities": {
                 "toolCalling": true,

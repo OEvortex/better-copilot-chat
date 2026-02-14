@@ -1,105 +1,105 @@
 {
-	"displayName": "Antigravity (Google Cloud Code)",
-	"baseUrl": "https://api.antigravity.com/v1",
-	"apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-	"models": [
-		{
-			"id": "claude-opus-4-5-thinking",
-			"name": "Claude Opus 4.5 Thinking",
-			"tooltip": "Claude Opus 4.5 với khả năng suy luận mở rộng",
-			"sdkMode": "anthropic",
-			"maxInputTokens": 200000,
-			"maxOutputTokens": 64000,
-			"includeThinking": true,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "claude-sonnet-4-5",
-			"name": "Claude Sonnet 4.5",
-			"tooltip": "Claude Sonnet 4.5 - mô hình cân bằng giữa hiệu suất và chi phí",
-			"sdkMode": "anthropic",
-			"maxInputTokens": 200000,
-			"maxOutputTokens": 8192,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "claude-sonnet-4-5-thinking",
-			"name": "Claude Sonnet 4.5 Thinking",
-			"tooltip": "Claude Sonnet 4.5 với khả năng suy luận mở rộng",
-			"sdkMode": "anthropic",
-			"maxInputTokens": 200000,
-			"maxOutputTokens": 64000,
-			"includeThinking": true,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gemini-3-flash",
-			"name": "Gemini 3 Flash",
-			"tooltip": "Gemini 3 Flash - mô hình nhanh và hiệu quả",
-			"sdkMode": "anthropic",
-			"maxInputTokens": 1000000,
-			"maxOutputTokens": 8192,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gemini-3-pro-high",
-			"name": "Gemini 3 Pro High",
-			"tooltip": "Gemini 3 Pro với chế độ chất lượng cao",
-			"sdkMode": "anthropic",
-			"maxInputTokens": 2000000,
-			"maxOutputTokens": 32768,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gemini-3-pro-image",
-			"name": "Gemini 3 Pro Image",
-			"tooltip": "Gemini 3 Pro tối ưu cho xử lý hình ảnh",
-			"sdkMode": "anthropic",
-			"maxInputTokens": 2000000,
-			"maxOutputTokens": 8192,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gemini-3-pro-low",
-			"name": "Gemini 3 Pro Low",
-			"tooltip": "Gemini 3 Pro với chế độ tiết kiệm chi phí",
-			"sdkMode": "anthropic",
-			"maxInputTokens": 2000000,
-			"maxOutputTokens": 8192,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "gpt-oss-120b-medium",
-			"name": "GPT OSS 120B Medium",
-			"tooltip": "GPT Open Source 120B - mô hình mã nguồn mở",
-			"sdkMode": "anthropic",
-			"maxInputTokens": 128000,
-			"maxOutputTokens": 8192,
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": false
-			}
-		}
-	]
+    "displayName": "Antigravity (Google Cloud Code)",
+    "baseUrl": "https://api.antigravity.com/v1",
+    "apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "models": [
+        {
+            "id": "claude-opus-4-5-thinking",
+            "name": "Claude Opus 4.5 Thinking",
+            "tooltip": "Claude Opus 4.5 với khả năng suy luận mở rộng",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 32000,
+            "includeThinking": true,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-sonnet-4-5",
+            "name": "Claude Sonnet 4.5",
+            "tooltip": "Claude Sonnet 4.5 - mô hình cân bằng giữa hiệu suất và chi phí",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-sonnet-4-5-thinking",
+            "name": "Claude Sonnet 4.5 Thinking",
+            "tooltip": "Claude Sonnet 4.5 với khả năng suy luận mở rộng",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 32000,
+            "includeThinking": true,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-3-flash",
+            "name": "Gemini 3 Flash",
+            "tooltip": "Gemini 3 Flash - mô hình nhanh và hiệu quả",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-3-pro-high",
+            "name": "Gemini 3 Pro High",
+            "tooltip": "Gemini 3 Pro với chế độ chất lượng cao",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 2000000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-3-pro-image",
+            "name": "Gemini 3 Pro Image",
+            "tooltip": "Gemini 3 Pro tối ưu cho xử lý hình ảnh",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 2000000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-3-pro-low",
+            "name": "Gemini 3 Pro Low",
+            "tooltip": "Gemini 3 Pro với chế độ tiết kiệm chi phí",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 2000000,
+            "maxOutputTokens": 32000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-oss-120b-medium",
+            "name": "GPT OSS 120B Medium",
+            "tooltip": "GPT Open Source 120B - mô hình mã nguồn mở",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 16000,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        }
+    ]
 }

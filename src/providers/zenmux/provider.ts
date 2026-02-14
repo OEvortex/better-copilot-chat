@@ -30,6 +30,50 @@ import { validateRequest } from "./utils";
 const BASE_URL = "https://zenmux.ai/api/v1";
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 128000;
+const HIGH_CONTEXT_THRESHOLD = 200000;
+const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32000;
+const FIXED_256K_MAX_INPUT_TOKENS = 224000;
+const FIXED_256K_MAX_OUTPUT_TOKENS = 32000;
+
+function isMinimaxModel(modelId: string): boolean {
+	return /minimax/i.test(modelId);
+}
+
+function isKimiModel(modelId: string): boolean {
+	return /kimi/i.test(modelId);
+}
+
+function isKimiK25Model(modelId: string): boolean {
+	return /kimi[-_\/]?k2(?:\.|-)5/i.test(modelId);
+}
+
+function resolveTokenLimits(
+	modelId: string,
+	contextLength: number,
+): { maxInputTokens: number; maxOutputTokens: number } {
+	if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
+		return {
+			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
+			maxOutputTokens: FIXED_256K_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	const safeContextLength =
+		typeof contextLength === "number" && contextLength > 1024
+			? contextLength
+			: DEFAULT_CONTEXT_LENGTH;
+
+	let maxOutput =
+		safeContextLength >= HIGH_CONTEXT_THRESHOLD
+			? HIGH_CONTEXT_MAX_OUTPUT_TOKENS
+			: DEFAULT_MAX_OUTPUT_TOKENS;
+	maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, safeContextLength - 1024)));
+
+	return {
+		maxInputTokens: Math.max(1, safeContextLength - maxOutput),
+		maxOutputTokens: maxOutput,
+	};
+}
 
 /**
  * Zenmux dedicated model provider class
@@ -149,30 +193,29 @@ export class ZenmuxProvider
 
 		const infos: LanguageModelChatInformation[] = models.map((m) => {
 			const modalities = m.input_modalities ?? [];
-			const vision = Array.isArray(modalities) && modalities.includes("image");
+			const modelId = m.id;
+			const detectedVision =
+				Array.isArray(modalities) && modalities.includes("image");
+			const vision = isKimiModel(modelId)
+				? isKimiK25Model(modelId)
+				: detectedVision;
 			// Zenmux models seem to support reasoning based on capabilities.reasoning
 			const supportsReasoning = m.capabilities?.reasoning ?? false;
 
 			const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
-
-			// Accurate token logic: prefer DEFAULT_MAX_OUTPUT_TOKENS but cap at half context
-			let maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
-			if (maxOutput >= contextLen) {
-				maxOutput = Math.min(contextLen / 2, DEFAULT_MAX_OUTPUT_TOKENS);
-			}
-			maxOutput = Math.floor(
-				Math.max(1, Math.min(maxOutput, contextLen - 1024)),
+			const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+				modelId,
+				contextLen,
 			);
-			const maxInput = Math.max(1, contextLen - maxOutput);
 
 			return {
-				id: m.id,
-				name: m.display_name || m.id,
-				tooltip: `${m.display_name || m.id} by Zenmux`,
+				id: modelId,
+				name: m.display_name || modelId,
+				tooltip: `${m.display_name || modelId} by Zenmux`,
 				family: "zenmux",
 				version: "1.0.0",
-				maxInputTokens: maxInput,
-				maxOutputTokens: maxOutput,
+				maxInputTokens,
+				maxOutputTokens,
 				capabilities: {
 					toolCalling: true, // Assuming most Zenmux models support tools as they use OpenAI format
 					imageInput: vision,
@@ -268,12 +311,18 @@ export class ZenmuxProvider
 
 				const modelConfigs: ModelConfig[] = models.map((m) => {
 					const modalities = m.input_modalities ?? [];
-					const vision =
+					const modelId = m.id;
+					const detectedVision =
 						Array.isArray(modalities) && modalities.includes("image");
+					const vision = isKimiModel(modelId)
+						? isKimiK25Model(modelId)
+						: detectedVision;
 
 					const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
-					const maxOutput = DEFAULT_MAX_OUTPUT_TOKENS;
-					const maxInput = Math.max(1, contextLen - maxOutput);
+					const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+						modelId,
+						contextLen,
+					);
 
 					// Generate a clean ID from model ID (remove special characters, keep slashes as hyphens)
 					const cleanId = m.id
@@ -283,11 +332,11 @@ export class ZenmuxProvider
 
 					return {
 						id: cleanId,
-						name: m.display_name || m.id,
-						tooltip: `${m.display_name || m.id} by Zenmux`,
-						maxInputTokens: maxInput,
-						maxOutputTokens: maxOutput,
-						model: m.id,
+						name: m.display_name || modelId,
+						tooltip: `${m.display_name || modelId} by Zenmux`,
+						maxInputTokens,
+						maxOutputTokens,
+						model: modelId,
 						capabilities: {
 							toolCalling: true,
 							imageInput: vision,
