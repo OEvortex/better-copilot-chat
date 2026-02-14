@@ -63,12 +63,14 @@ export function isGemini25Model(modelId: string): boolean {
 
 export function isGlm45Model(modelId: string): boolean {
 	// Explicit exception: glm-4.5 has a 128K context window
-	return /^glm-4\.5(?:[^\d].*)?$/i.test(modelId);
+	// Match anywhere in the model id (supports provider prefixes like z-ai/, zai-org/, etc.)
+	return /glm-4\.5(?!\d)/i.test(modelId);
 }
 
 export function isGlmModel(modelId: string): boolean {
 	// Match glm-5, glm-4.7, glm-4.6 and variants (exclude glm-4.5 — it's treated as 128K)
-	return /^glm-(?:5|4\.(?:6|7))(?:[^\d].*)?$/i.test(modelId);
+	// Use a loose substring match so provider-prefixed ids like "z-ai/glm-4.6" are detected
+	return /glm-(?:5|4\.(?:6|7))(?!\d)/i.test(modelId);
 }
 
 export function getDefaultMaxOutputTokensForContext(

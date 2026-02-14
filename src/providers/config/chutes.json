@@ -136,18 +136,6 @@
             }
         },
         {
-            "id": "nousresearch-hermes-4-3-36b",
-            "name": "NousResearch/Hermes-4.3-36B",
-            "tooltip": "NousResearch/Hermes-4.3-36B by Chutes",
-            "maxInputTokens": 492288,
-            "maxOutputTokens": 32000,
-            "model": "NousResearch/Hermes-4.3-36B",
-            "capabilities": {
-                "toolCalling": false,
-                "imageInput": false
-            }
-        },
-        {
             "id": "nousresearch-hermes-4-70b",
             "name": "NousResearch/Hermes-4-70B",
             "tooltip": "NousResearch/Hermes-4-70B by Chutes",
@@ -156,6 +144,18 @@
             "model": "NousResearch/Hermes-4-70B",
             "capabilities": {
                 "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "nousresearch-hermes-4-3-36b",
+            "name": "NousResearch/Hermes-4.3-36B",
+            "tooltip": "NousResearch/Hermes-4.3-36B by Chutes",
+            "maxInputTokens": 492288,
+            "maxOutputTokens": 32000,
+            "model": "NousResearch/Hermes-4.3-36B",
+            "capabilities": {
+                "toolCalling": false,
                 "imageInput": false
             }
         },
@@ -220,6 +220,18 @@
             }
         },
         {
+            "id": "nousresearch-hermes-4-405b-fp8-tee",
+            "name": "NousResearch/Hermes-4-405B-FP8-TEE",
+            "tooltip": "NousResearch/Hermes-4-405B-FP8-TEE by Chutes",
+            "maxInputTokens": 115072,
+            "maxOutputTokens": 16000,
+            "model": "NousResearch/Hermes-4-405B-FP8-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
             "id": "moonshotai-kimi-k2-5-tee",
             "name": "moonshotai/Kimi-K2.5-TEE",
             "tooltip": "moonshotai/Kimi-K2.5-TEE by Chutes",
@@ -238,18 +250,6 @@
             "maxInputTokens": 24960,
             "maxOutputTokens": 16000,
             "model": "Qwen/Qwen3-14B",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "nousresearch-hermes-4-405b-fp8-tee",
-            "name": "NousResearch/Hermes-4-405B-FP8-TEE",
-            "tooltip": "NousResearch/Hermes-4-405B-FP8-TEE by Chutes",
-            "maxInputTokens": 115072,
-            "maxOutputTokens": 16000,
-            "model": "NousResearch/Hermes-4-405B-FP8-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -472,24 +472,24 @@
             }
         },
         {
-            "id": "zai-org-glm-4-7-fp8",
-            "name": "zai-org/GLM-4.7-FP8",
-            "tooltip": "zai-org/GLM-4.7-FP8 by Chutes",
-            "maxInputTokens": 224000,
-            "maxOutputTokens": 32000,
-            "model": "zai-org/GLM-4.7-FP8",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "zai-org-glm-5-tee",
             "name": "zai-org/GLM-5-TEE",
             "tooltip": "zai-org/GLM-5-TEE by Chutes",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "zai-org/GLM-5-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "zai-org-glm-4-7-fp8",
+            "name": "zai-org/GLM-4.7-FP8",
+            "tooltip": "zai-org/GLM-4.7-FP8 by Chutes",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "zai-org/GLM-4.7-FP8",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false

@@ -1117,7 +1117,7 @@
         "publish": "vsce publish --allow-proposed-apis chatProvider chatParticipantAdditions defaultChatParticipant",
         "pretest": "npm run compile:dev",
         "release": "vsce package && \"${VSCODE_BIN:-/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code}\" --install-extension *.vsix --force",
-        "test": "echo \"No tests specified\" && exit 0"
+        "test": "vitest"
     },
     "dependencies": {
         "@anthropic-ai/sdk": "^0.67.0",
@@ -1129,7 +1129,7 @@
     "devDependencies": {
         "@biomejs/biome": "^2.3.10",
         "@types/json-schema": "^7.0.15",
-        "@types/node": "^20.0.0",
+        "@types/node": "^20.19.33",
         "@types/vscode": "^1.104.0",
         "@vscode/vsce": "^3.6.2",
         "esbuild": "^0.25.10",
@@ -1137,7 +1137,8 @@
         "rimraf": "^6.0.1",
         "ts-node": "^10.9.1",
         "tsx": "^4.21.0",
-        "typescript": "^5.9.2"
+        "typescript": "^5.9.2",
+        "vitest": "^3.2.4"
     },
     "volta": {
         "node": "20.19.5"

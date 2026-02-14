@@ -46,8 +46,8 @@
             "name": "Gemini 3 Flash",
             "tooltip": "Gemini 3 Flash - mô hình nhanh và hiệu quả",
             "sdkMode": "anthropic",
-            "maxInputTokens": 1000000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 936000,
+            "maxOutputTokens": 64000,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -58,8 +58,8 @@
             "name": "Gemini 3 Pro High",
             "tooltip": "Gemini 3 Pro với chế độ chất lượng cao",
             "sdkMode": "anthropic",
-            "maxInputTokens": 2000000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 936000,
+            "maxOutputTokens": 64000,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -70,8 +70,8 @@
             "name": "Gemini 3 Pro Image",
             "tooltip": "Gemini 3 Pro tối ưu cho xử lý hình ảnh",
             "sdkMode": "anthropic",
-            "maxInputTokens": 2000000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 936000,
+            "maxOutputTokens": 64000,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -82,8 +82,8 @@
             "name": "Gemini 3 Pro Low",
             "tooltip": "Gemini 3 Pro với chế độ tiết kiệm chi phí",
             "sdkMode": "anthropic",
-            "maxInputTokens": 2000000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 936000,
+            "maxOutputTokens": 64000,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
