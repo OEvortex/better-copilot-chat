@@ -56,6 +56,7 @@
         "onLanguageModelProvider:chp.chutes",
         "onLanguageModelProvider:chp.zenmux",
         "onLanguageModelProvider:chp.opencode",
+        "onLanguageModelProvider:chp.blackbox",
         "onLanguageModelProvider:chp.huggingface",
         "onLanguageModelProvider:chp.lightningai",
         "onLanguageModelProvider:chp.deepinfra",
@@ -133,6 +134,11 @@
             {
                 "command": "chp.opencode.setApiKey",
                 "title": "Configure OpenCode",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.blackbox.setApiKey",
+                "title": "Configure Blackbox",
                 "category": "Copilot ++"
             },
             {
@@ -422,6 +428,12 @@
                     "type": "string",
                     "default": "",
                     "description": "OpenCode base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
+                "chp.blackbox.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Blackbox base URL or proxy endpoint (optional).",
                     "scope": "application"
                 },
                 "chp.huggingface.baseUrl": {
@@ -753,6 +765,24 @@
                         "apiKey": {
                             "type": "string",
                             "description": "OpenCode API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.blackbox",
+                "displayName": "⦿ Blackbox AI",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Blackbox API key.",
                             "secret": true
                         },
                         "baseUrl": {

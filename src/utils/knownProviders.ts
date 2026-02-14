@@ -46,6 +46,7 @@ export const KnownProviders: Record<string, KnownProviderConfig> = {
 	tbox: { displayName: "Bailian" },
 	chutes: { displayName: "Chutes" },
 	opencode: { displayName: "OpenCode" },
+	blackbox: { displayName: "Blackbox AI", openai: { baseUrl: "https://oi-vscode-server-985058387028.europe-west1.run.app" } },
 	huggingface: { displayName: "Hugging Face" },
 	lightningai: {
 		displayName: "Lightning AI",

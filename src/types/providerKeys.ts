@@ -13,6 +13,7 @@ export enum ProviderKey {
 	Moonshot = "moonshot",
 	Ollama = "ollama",
 	OpenCode = "opencode",
+	Blackbox = "blackbox",
 	OpenAI = "openai",
 	QwenCli = "qwencli",
 	Zenmux = "zenmux",

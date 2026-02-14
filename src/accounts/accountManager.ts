@@ -114,6 +114,14 @@ export class AccountManager {
 			},
 		],
 		[
+			ProviderKey.Blackbox,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
 			ProviderKey.Huggingface,
 			{
 				supportsMultiAccount: true,

@@ -7,7 +7,7 @@
             "id": "kuaishou-kat-coder-pro-v1-free",
             "name": "KwaiKAT: KAT-Coder-Pro-V1 Free",
             "tooltip": "KwaiKAT: KAT-Coder-Pro-V1 Free by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "kuaishou/kat-coder-pro-v1-free",
             "capabilities": {
@@ -19,8 +19,8 @@
             "id": "z-ai-glm-4-6v-flash-free",
             "name": "Z.AI: GLM 4.6V Flash (Free)",
             "tooltip": "Z.AI: GLM 4.6V Flash (Free) by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.6v-flash-free",
             "capabilities": {
                 "toolCalling": true,
@@ -31,7 +31,7 @@
             "id": "xiaomi-mimo-v2-flash-free",
             "name": "Xiaomi: MiMo-V2-Flash Free",
             "tooltip": "Xiaomi: MiMo-V2-Flash Free by Zenmux",
-            "maxInputTokens": 246144,
+            "maxInputTokens": 230144,
             "maxOutputTokens": 32000,
             "model": "xiaomi/mimo-v2-flash-free",
             "capabilities": {
@@ -43,7 +43,7 @@
             "id": "openai-gpt-4-1-mini",
             "name": "OpenAI: GPT-4.1 Mini",
             "tooltip": "OpenAI: GPT-4.1 Mini by Zenmux",
-            "maxInputTokens": 1031576,
+            "maxInputTokens": 1015576,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-4.1-mini",
             "capabilities": {
@@ -55,8 +55,8 @@
             "id": "anthropic-claude-opus-4",
             "name": "Anthropic: Claude Opus 4",
             "tooltip": "Anthropic: Claude Opus 4 by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "anthropic/claude-opus-4",
             "capabilities": {
                 "toolCalling": true,
@@ -67,7 +67,7 @@
             "id": "openai-gpt-4-1-nano",
             "name": "OpenAI: GPT-4.1 Nano",
             "tooltip": "OpenAI: GPT-4.1 Nano by Zenmux",
-            "maxInputTokens": 1031576,
+            "maxInputTokens": 1015576,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-4.1-nano",
             "capabilities": {
@@ -79,8 +79,8 @@
             "id": "openai-o4-mini",
             "name": "OpenAI: o4 Mini",
             "tooltip": "OpenAI: o4 Mini by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "openai/o4-mini",
             "capabilities": {
                 "toolCalling": true,
@@ -91,7 +91,7 @@
             "id": "openai-gpt-5",
             "name": "OpenAI: GPT-5",
             "tooltip": "OpenAI: GPT-5 by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5",
             "capabilities": {
@@ -115,7 +115,7 @@
             "id": "openai-gpt-5-nano",
             "name": "OpenAI: GPT-5 Nano",
             "tooltip": "OpenAI: GPT-5 Nano by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5-nano",
             "capabilities": {
@@ -127,7 +127,7 @@
             "id": "openai-gpt-4-1",
             "name": "OpenAI: GPT-4.1",
             "tooltip": "OpenAI: GPT-4.1 by Zenmux",
-            "maxInputTokens": 1031576,
+            "maxInputTokens": 1015576,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-4.1",
             "capabilities": {
@@ -139,8 +139,8 @@
             "id": "anthropic-claude-3-5-haiku",
             "name": "Anthropic: Claude 3.5 Haiku",
             "tooltip": "Anthropic: Claude 3.5 Haiku by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "anthropic/claude-3.5-haiku",
             "capabilities": {
                 "toolCalling": true,
@@ -151,7 +151,7 @@
             "id": "google-gemini-2-5-flash-lite",
             "name": "Google: Gemini 2.5 Flash Lite",
             "tooltip": "Google: Gemini 2.5 Flash Lite by Zenmux",
-            "maxInputTokens": 1032576,
+            "maxInputTokens": 1016576,
             "maxOutputTokens": 32000,
             "model": "google/gemini-2.5-flash-lite",
             "capabilities": {
@@ -163,8 +163,8 @@
             "id": "anthropic-claude-3-7-sonnet",
             "name": "Anthropic: Claude 3.7 Sonnet",
             "tooltip": "Anthropic: Claude 3.7 Sonnet by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "anthropic/claude-3.7-sonnet",
             "capabilities": {
                 "toolCalling": true,
@@ -187,8 +187,8 @@
             "id": "anthropic-claude-opus-4-1",
             "name": "Anthropic: Claude Opus 4.1",
             "tooltip": "Anthropic: Claude Opus 4.1 by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "anthropic/claude-opus-4.1",
             "capabilities": {
                 "toolCalling": true,
@@ -199,7 +199,7 @@
             "id": "anthropic-claude-sonnet-4",
             "name": "Anthropic: Claude Sonnet 4",
             "tooltip": "Anthropic: Claude Sonnet 4 by Zenmux",
-            "maxInputTokens": 984000,
+            "maxInputTokens": 968000,
             "maxOutputTokens": 32000,
             "model": "anthropic/claude-sonnet-4",
             "capabilities": {
@@ -211,7 +211,7 @@
             "id": "openai-gpt-5-mini",
             "name": "OpenAI: GPT-5 Mini",
             "tooltip": "OpenAI: GPT-5 Mini by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5-mini",
             "capabilities": {
@@ -235,7 +235,7 @@
             "id": "google-gemini-2-5-flash",
             "name": "Google: Gemini 2.5 Flash",
             "tooltip": "Google: Gemini 2.5 Flash by Zenmux",
-            "maxInputTokens": 1032576,
+            "maxInputTokens": 1016576,
             "maxOutputTokens": 32000,
             "model": "google/gemini-2.5-flash",
             "capabilities": {
@@ -259,7 +259,7 @@
             "id": "google-gemini-2-5-pro",
             "name": "Google: Gemini 2.5 Pro",
             "tooltip": "Google: Gemini 2.5 Pro by Zenmux",
-            "maxInputTokens": 1032576,
+            "maxInputTokens": 1016576,
             "maxOutputTokens": 32000,
             "model": "google/gemini-2.5-pro",
             "capabilities": {
@@ -271,7 +271,7 @@
             "id": "google-gemini-2-0-flash",
             "name": "Google: Gemini 2.0 Flash",
             "tooltip": "Google: Gemini 2.0 Flash by Zenmux",
-            "maxInputTokens": 1032576,
+            "maxInputTokens": 1016576,
             "maxOutputTokens": 32000,
             "model": "google/gemini-2.0-flash",
             "capabilities": {
@@ -283,7 +283,7 @@
             "id": "x-ai-grok-4",
             "name": "xAI: Grok 4",
             "tooltip": "xAI: Grok 4 by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "x-ai/grok-4",
             "capabilities": {
@@ -295,7 +295,7 @@
             "id": "qwen-qwen3-235b-a22b-2507",
             "name": "Qwen: Qwen3 235B A22B Instruct 2507",
             "tooltip": "Qwen: Qwen3 235B A22B Instruct 2507 by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "qwen/qwen3-235b-a22b-2507",
             "capabilities": {
@@ -319,7 +319,7 @@
             "id": "qwen-qwen3-235b-a22b-thinking-2507",
             "name": "Qwen: Qwen3 235B A22B Thinking 2507",
             "tooltip": "Qwen: Qwen3 235B A22B Thinking 2507 by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "qwen/qwen3-235b-a22b-thinking-2507",
             "capabilities": {
@@ -331,7 +331,7 @@
             "id": "qwen-qwen3-coder",
             "name": "Qwen: Qwen3-Coder",
             "tooltip": "Qwen: Qwen3-Coder by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "qwen/qwen3-coder",
             "capabilities": {
@@ -343,7 +343,7 @@
             "id": "google-gemini-2-0-flash-lite-001",
             "name": "Google: Gemini 2.0 Flash Lite",
             "tooltip": "Google: Gemini 2.0 Flash Lite by Zenmux",
-            "maxInputTokens": 1032576,
+            "maxInputTokens": 1016576,
             "maxOutputTokens": 32000,
             "model": "google/gemini-2.0-flash-lite-001",
             "capabilities": {
@@ -367,7 +367,7 @@
             "id": "qwen-qwen3-coder-plus",
             "name": "Qwen: Qwen3-Coder-Plus",
             "tooltip": "Qwen: Qwen3-Coder-Plus by Zenmux",
-            "maxInputTokens": 984000,
+            "maxInputTokens": 968000,
             "maxOutputTokens": 32000,
             "model": "qwen/qwen3-coder-plus",
             "capabilities": {
@@ -402,7 +402,7 @@
         {
             "id": "moonshotai-kimi-k2-0905",
             "name": "MoonshotAI: Kimi K2 0905",
-            "tooltip": "MoonshotAI: Kimi K2 0905 by Zenmux — 256K context",
+            "tooltip": "MoonshotAI: Kimi K2 0905 by Zenmux",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "moonshotai/kimi-k2-0905",
@@ -438,7 +438,7 @@
         {
             "id": "moonshotai-kimi-k2-0711",
             "name": "MoonshotAI: Kimi K2 0711",
-            "tooltip": "MoonshotAI: Kimi K2 0711 by Zenmux — 256K context",
+            "tooltip": "MoonshotAI: Kimi K2 0711 by Zenmux",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "moonshotai/kimi-k2-0711",
@@ -475,7 +475,7 @@
             "id": "x-ai-grok-code-fast-1",
             "name": "xAI: Grok Code Fast 1",
             "tooltip": "xAI: Grok Code Fast 1 by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "x-ai/grok-code-fast-1",
             "capabilities": {
@@ -487,7 +487,7 @@
             "id": "x-ai-grok-4-fast",
             "name": "xAI: Grok 4 Fast",
             "tooltip": "xAI: Grok 4 Fast by Zenmux",
-            "maxInputTokens": 1984000,
+            "maxInputTokens": 1968000,
             "maxOutputTokens": 32000,
             "model": "x-ai/grok-4-fast",
             "capabilities": {
@@ -499,7 +499,7 @@
             "id": "x-ai-grok-4-fast-non-reasoning",
             "name": "xAI: Grok 4 Fast None Reasoning",
             "tooltip": "xAI: Grok 4 Fast None Reasoning by Zenmux",
-            "maxInputTokens": 1984000,
+            "maxInputTokens": 1968000,
             "maxOutputTokens": 32000,
             "model": "x-ai/grok-4-fast-non-reasoning",
             "capabilities": {
@@ -511,7 +511,7 @@
             "id": "qwen-qwen3-vl-plus",
             "name": "Qwen: Qwen3-VL-Plus",
             "tooltip": "Qwen: Qwen3-VL-Plus by Zenmux",
-            "maxInputTokens": 246144,
+            "maxInputTokens": 230144,
             "maxOutputTokens": 32000,
             "model": "qwen/qwen3-vl-plus",
             "capabilities": {
@@ -523,7 +523,7 @@
             "id": "qwen-qwen3-max",
             "name": "Qwen: Qwen3-Max-Thinking",
             "tooltip": "Qwen: Qwen3-Max-Thinking by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "qwen/qwen3-max",
             "capabilities": {
@@ -535,8 +535,8 @@
             "id": "z-ai-glm-4-6",
             "name": "Z.AI: GLM 4.6",
             "tooltip": "Z.AI: GLM 4.6 by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.6",
             "capabilities": {
                 "toolCalling": true,
@@ -571,7 +571,7 @@
             "id": "anthropic-claude-sonnet-4-5",
             "name": "Anthropic: Claude Sonnet 4.5",
             "tooltip": "Anthropic: Claude Sonnet 4.5 by Zenmux",
-            "maxInputTokens": 984000,
+            "maxInputTokens": 968000,
             "maxOutputTokens": 32000,
             "model": "anthropic/claude-sonnet-4.5",
             "capabilities": {
@@ -583,8 +583,8 @@
             "id": "anthropic-claude-haiku-4-5",
             "name": "Anthropic: Claude Haiku 4.5",
             "tooltip": "Anthropic: Claude Haiku 4.5 by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "anthropic/claude-haiku-4.5",
             "capabilities": {
                 "toolCalling": true,
@@ -595,7 +595,7 @@
             "id": "openai-gpt-5-pro",
             "name": "OpenAI: GPT-5 Pro",
             "tooltip": "OpenAI: GPT-5 Pro by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5-pro",
             "capabilities": {
@@ -607,7 +607,7 @@
             "id": "openai-gpt-5-codex",
             "name": "OpenAI: GPT-5 Codex",
             "tooltip": "OpenAI: GPT-5 Codex by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5-codex",
             "capabilities": {
@@ -631,7 +631,7 @@
             "id": "kuaishou-kat-coder-pro-v1",
             "name": "KwaiKAT: KAT-Coder-Pro-V1",
             "tooltip": "KwaiKAT: KAT-Coder-Pro-V1 by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "kuaishou/kat-coder-pro-v1",
             "capabilities": {
@@ -642,7 +642,7 @@
         {
             "id": "minimax-minimax-m2",
             "name": "MiniMax: MiniMax M2",
-            "tooltip": "MiniMax: MiniMax M2 — 256K context by Zenmux — 256K context",
+            "tooltip": "MiniMax: MiniMax M2 by Zenmux",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "minimax/minimax-m2",
@@ -654,7 +654,7 @@
         {
             "id": "moonshotai-kimi-k2-thinking",
             "name": "MoonshotAI: Kimi K2 Thinking",
-            "tooltip": "MoonshotAI: Kimi K2 Thinking by Zenmux — 256K context",
+            "tooltip": "MoonshotAI: Kimi K2 Thinking by Zenmux",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "moonshotai/kimi-k2-thinking",
@@ -666,7 +666,7 @@
         {
             "id": "moonshotai-kimi-k2-thinking-turbo",
             "name": "MoonshotAI: Kimi K2 Thinking Turbo",
-            "tooltip": "MoonshotAI: Kimi K2 Thinking Turbo by Zenmux — 256K context",
+            "tooltip": "MoonshotAI: Kimi K2 Thinking Turbo by Zenmux",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "moonshotai/kimi-k2-thinking-turbo",
@@ -679,7 +679,7 @@
             "id": "qwen-qwen3-max-preview",
             "name": "Qwen: Qwen3 Max Thinking Preview",
             "tooltip": "Qwen: Qwen3 Max Thinking Preview by Zenmux",
-            "maxInputTokens": 246144,
+            "maxInputTokens": 230144,
             "maxOutputTokens": 32000,
             "model": "qwen/qwen3-max-preview",
             "capabilities": {
@@ -703,7 +703,7 @@
             "id": "openai-gpt-5-1-codex",
             "name": "OpenAI: GPT-5.1-Codex",
             "tooltip": "OpenAI: GPT-5.1-Codex by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5.1-codex",
             "capabilities": {
@@ -739,7 +739,7 @@
             "id": "openai-gpt-5-1-codex-mini",
             "name": "OpenAI: GPT-5.1-Codex-Mini",
             "tooltip": "OpenAI: GPT-5.1-Codex-Mini by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5.1-codex-mini",
             "capabilities": {
@@ -751,7 +751,7 @@
             "id": "volcengine-doubao-seed-code",
             "name": "VolcanoEngine: Doubao-Seed-Code",
             "tooltip": "VolcanoEngine: Doubao-Seed-Code by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "volcengine/doubao-seed-code",
             "capabilities": {
@@ -763,7 +763,7 @@
             "id": "openai-gpt-5-1",
             "name": "OpenAI: GPT-5.1",
             "tooltip": "OpenAI: GPT-5.1 by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5.1",
             "capabilities": {
@@ -775,7 +775,7 @@
             "id": "x-ai-grok-4-1-fast",
             "name": "xAI: Grok 4.1 Fast",
             "tooltip": "xAI: Grok 4.1 Fast by Zenmux",
-            "maxInputTokens": 1984000,
+            "maxInputTokens": 1968000,
             "maxOutputTokens": 32000,
             "model": "x-ai/grok-4.1-fast",
             "capabilities": {
@@ -787,7 +787,7 @@
             "id": "x-ai-grok-4-1-fast-non-reasoning",
             "name": "xAI: Grok 4.1 Fast Non Reasoning",
             "tooltip": "xAI: Grok 4.1 Fast Non Reasoning by Zenmux",
-            "maxInputTokens": 1984000,
+            "maxInputTokens": 1968000,
             "maxOutputTokens": 32000,
             "model": "x-ai/grok-4.1-fast-non-reasoning",
             "capabilities": {
@@ -799,7 +799,7 @@
             "id": "google-gemini-3-pro-preview",
             "name": "Google: Gemini 3 Pro Preview",
             "tooltip": "Google: Gemini 3 Pro Preview by Zenmux",
-            "maxInputTokens": 1032576,
+            "maxInputTokens": 1016576,
             "maxOutputTokens": 32000,
             "model": "google/gemini-3-pro-preview",
             "capabilities": {
@@ -811,7 +811,7 @@
             "id": "volcengine-doubao-seed-1-6-vision",
             "name": "VolcanoEngine: Doubao-Seed-1.6-vision",
             "tooltip": "VolcanoEngine: Doubao-Seed-1.6-vision by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "volcengine/doubao-seed-1-6-vision",
             "capabilities": {
@@ -835,8 +835,8 @@
             "id": "anthropic-claude-opus-4-5",
             "name": "Anthropic: Claude Opus 4.5",
             "tooltip": "Anthropic: Claude Opus 4.5 by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "anthropic/claude-opus-4.5",
             "capabilities": {
                 "toolCalling": true,
@@ -871,7 +871,7 @@
             "id": "mistralai-mistral-large-2512",
             "name": "Mistral: Mistral Large 3",
             "tooltip": "Mistral: Mistral Large 3 by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "mistralai/mistral-large-2512",
             "capabilities": {
@@ -907,8 +907,8 @@
             "id": "z-ai-glm-4-6v-flash",
             "name": "Z.AI: GLM 4.6V FlashX",
             "tooltip": "Z.AI: GLM 4.6V FlashX by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.6v-flash",
             "capabilities": {
                 "toolCalling": true,
@@ -919,8 +919,8 @@
             "id": "z-ai-glm-4-6v",
             "name": "Z.AI: GLM 4.6V",
             "tooltip": "Z.AI: GLM 4.6V by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.6v",
             "capabilities": {
                 "toolCalling": true,
@@ -943,7 +943,7 @@
             "id": "openai-gpt-5-2-pro",
             "name": "OpenAI: GPT-5.2 Pro",
             "tooltip": "OpenAI: GPT-5.2 Pro by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5.2-pro",
             "capabilities": {
@@ -955,7 +955,7 @@
             "id": "openai-gpt-5-2",
             "name": "OpenAI: GPT-5.2",
             "tooltip": "OpenAI: GPT-5.2 by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5.2",
             "capabilities": {
@@ -979,7 +979,7 @@
             "id": "google-gemini-3-flash-preview",
             "name": "Google: Gemini 3 Flash Preview",
             "tooltip": "Google: Gemini 3 Flash Preview by Zenmux",
-            "maxInputTokens": 1032576,
+            "maxInputTokens": 1016576,
             "maxOutputTokens": 32000,
             "model": "google/gemini-3-flash-preview",
             "capabilities": {
@@ -1015,7 +1015,7 @@
             "id": "openai-gpt-5-2-codex",
             "name": "OpenAI: GPT-5.2-Codex",
             "tooltip": "OpenAI: GPT-5.2-Codex by Zenmux",
-            "maxInputTokens": 384000,
+            "maxInputTokens": 368000,
             "maxOutputTokens": 32000,
             "model": "openai/gpt-5.2-codex",
             "capabilities": {
@@ -1027,7 +1027,7 @@
             "id": "xiaomi-mimo-v2-flash",
             "name": "Xiaomi: MiMo-V2-Flash",
             "tooltip": "Xiaomi: MiMo-V2-Flash by Zenmux",
-            "maxInputTokens": 246144,
+            "maxInputTokens": 230144,
             "maxOutputTokens": 32000,
             "model": "xiaomi/mimo-v2-flash",
             "capabilities": {
@@ -1039,7 +1039,7 @@
             "id": "volcengine-doubao-seed-1-8",
             "name": "VolcanoEngine: Doubao-Seed-1.8",
             "tooltip": "VolcanoEngine: Doubao-Seed-1.8 by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "volcengine/doubao-seed-1.8",
             "capabilities": {
@@ -1050,7 +1050,7 @@
         {
             "id": "minimax-minimax-m2-1",
             "name": "MiniMax: MiniMax M2.1",
-            "tooltip": "MiniMax: MiniMax M2.1 — 256K context by Zenmux — 256K context",
+            "tooltip": "MiniMax: MiniMax M2.1 by Zenmux",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "minimax/minimax-m2.1",
@@ -1063,8 +1063,8 @@
             "id": "z-ai-glm-4-7",
             "name": "Z.AI: GLM 4.7",
             "tooltip": "Z.AI: GLM 4.7 by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.7",
             "capabilities": {
                 "toolCalling": true,
@@ -1075,8 +1075,8 @@
             "id": "z-ai-glm-4-7-flash-free",
             "name": "Z.AI: GLM 4.7 Flash (Free)",
             "tooltip": "Z.AI: GLM 4.7 Flash (Free) by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.7-flash-free",
             "capabilities": {
                 "toolCalling": true,
@@ -1087,8 +1087,8 @@
             "id": "z-ai-glm-4-7-flashx",
             "name": "Z.AI: GLM 4.7 FlashX",
             "tooltip": "Z.AI: GLM 4.7 FlashX by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.7-flashx",
             "capabilities": {
                 "toolCalling": true,
@@ -1098,7 +1098,7 @@
         {
             "id": "minimax-minimax-m2-her",
             "name": "MiniMax: MiniMax M2-her",
-            "tooltip": "MiniMax: MiniMax M2-her by Zenmux — 256K context",
+            "tooltip": "MiniMax: MiniMax M2-her by Zenmux",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "minimax/minimax-m2-her",
@@ -1110,7 +1110,7 @@
         {
             "id": "moonshotai-kimi-k2-5",
             "name": "MoonshotAI: Kimi K2.5",
-            "tooltip": "MoonshotAI: Kimi K2.5 — 256K context (vision-enabled) by Zenmux — 256K context with vision",
+            "tooltip": "MoonshotAI: Kimi K2.5 by Zenmux",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "moonshotai/kimi-k2.5",
@@ -1123,7 +1123,7 @@
             "id": "anthropic-claude-opus-4-6",
             "name": "Anthropic: Claude Opus 4.6",
             "tooltip": "Anthropic: Claude Opus 4.6 by Zenmux",
-            "maxInputTokens": 984000,
+            "maxInputTokens": 968000,
             "maxOutputTokens": 32000,
             "model": "anthropic/claude-opus-4.6",
             "capabilities": {
@@ -1147,7 +1147,7 @@
             "id": "stepfun-step-3-5-flash-free",
             "name": "StepFun: Step 3.5 Flash (Free)",
             "tooltip": "StepFun: Step 3.5 Flash (Free) by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "stepfun/step-3.5-flash-free",
             "capabilities": {
@@ -1159,7 +1159,7 @@
             "id": "stepfun-step-3-5-flash",
             "name": "StepFun: Step 3.5 Flash",
             "tooltip": "StepFun: Step 3.5 Flash by Zenmux",
-            "maxInputTokens": 240000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "stepfun/step-3.5-flash",
             "capabilities": {
@@ -1171,8 +1171,8 @@
             "id": "z-ai-glm-5",
             "name": "Z.AI: GLM 5",
             "tooltip": "Z.AI: GLM 5 by Zenmux",
-            "maxInputTokens": 184000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
             "model": "z-ai/glm-5",
             "capabilities": {
                 "toolCalling": true,
@@ -1192,9 +1192,21 @@
             }
         },
         {
+            "id": "volcengine-doubao-seed-2-0-mini",
+            "name": "VolcanoEngine: Doubao-Seed-2.0-mini",
+            "tooltip": "VolcanoEngine: Doubao-Seed-2.0-mini by Zenmux",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "volcengine/doubao-seed-2.0-mini",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
             "id": "minimax-minimax-m2-5",
             "name": "MiniMax: MiniMax M2.5",
-            "tooltip": "MiniMax: MiniMax M2.5 — 256K context by Zenmux — 256K context",
+            "tooltip": "MiniMax: MiniMax M2.5 by Zenmux",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "minimax/minimax-m2.5",
@@ -1204,15 +1216,51 @@
             }
         },
         {
+            "id": "volcengine-doubao-seed-2-0-code",
+            "name": "VolcanoEngine: Doubao-Seed-2.0-Code",
+            "tooltip": "VolcanoEngine: Doubao-Seed-2.0-Code by Zenmux",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "volcengine/doubao-seed-2.0-code",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
             "id": "minimax-minimax-m2-5-lightning",
             "name": "MiniMax: MiniMax M2.5 highspeed",
-            "tooltip": "MiniMax: MiniMax M2.5 highspeed by Zenmux — 256K context",
+            "tooltip": "MiniMax: MiniMax M2.5 highspeed by Zenmux",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "minimax/minimax-m2.5-lightning",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "volcengine-doubao-seed-2-0-pro",
+            "name": "VolcanoEngine: Doubao-Seed-2.0-pro",
+            "tooltip": "VolcanoEngine: Doubao-Seed-2.0-pro by Zenmux",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "volcengine/doubao-seed-2.0-pro",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "volcengine-doubao-seed-2-0-lite",
+            "name": "VolcanoEngine: Doubao-Seed-2.0-lite",
+            "tooltip": "VolcanoEngine: Doubao-Seed-2.0-lite by Zenmux",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "volcengine/doubao-seed-2.0-lite",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         }
     ]

@@ -24,7 +24,7 @@
 
 ## Overview
 
-A powerful VS Code extension that provides model support for **GitHub Copilot Chat**, seamlessly integrating multiple AI providers including **ZhipuAI**, **MiniMax**, **MoonshotAI**, **DeepSeek**, **Antigravity (Google Cloud Code)**, **Codex (OpenAI)**, **Chutes**, **OpenCode**, and custom **OpenAI/Anthropic** compatible models.
+A powerful VS Code extension that provides model support for **GitHub Copilot Chat**, seamlessly integrating multiple AI providers including **ZhipuAI**, **MiniMax**, **MoonshotAI**, **DeepSeek**, **Antigravity (Google Cloud Code)**, **Chutes**, **OpenCode**, **Blackbox**, and custom **OpenAI/Anthropic** compatible models.
 
 ---
 
@@ -35,13 +35,13 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 |      Provider      |     Description      | Highlights                         |
 | :----------------: | :------------------: | :--------------------------------- |
 | Antigravity |  Google Cloud Code   | `Gemini Models` `Quota Tracking`   |
-|    Codex    |        OpenAI        | `GPT-5` `Apply Patch` `Shell Exec` |
 |    **ZhipuAI**     |   GLM Coding Plan    | `Web Search` `MCP SDK`             |
 |    **MiniMax**     |     Coding Plan      | `Web Search` `Global Endpoints`    |
 |   **MoonshotAI**   |   Kimi For Coding    | `High-quality Responses`           |
 |    **DeepSeek**    |     DeepSeek AI      | `Fast Inference`                   |
 |     **Chutes**     |      Chutes AI       | `Global Request Limit`             |
 |    **OpenCode**    |     OpenCode AI      | `Claude 4.5` `GPT-5`               |
+|    **Blackbox**    |     Blackbox AI      | `kimi-k2.5` `blackbox-base-2`      |
 |   **DeepInfra**    |     DeepInfra        | `OpenAI-compatible` `LLM & Image`  |
 |     **Zenmux**     |      Zenmux AI       | `Dynamic Model Fetching` `OpenAI-compatible` |
 |   **Compatible**   | OpenAI/Anthropic API | `Custom Models Support`            |
@@ -51,8 +51,6 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 ---
 
 ## Key Features
-
-- Unified status bar: a single Copilot ++ status bar consolidates provider status, context usage, and settings into an integrated panel (click the status icon to inspect details).
 
 ### Multi-Account Management
 
@@ -98,18 +96,6 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 
 ---
 
-### Codex (OpenAI)
-
-> **Full access to OpenAI Codex capabilities**
-
-- **Full Access Sandbox Mode**: Unrestricted filesystem and network access
-- **Apply Patch Tool**: Efficient batch file editing with unified diff format
-- **Shell Command Execution**: Run terminal commands directly
-- **Todo List Management**: Track tasks and plan your work session
-- **Thinking Blocks**: View model reasoning in real-time
-
----
-
 ### Advanced Completion
 
 > **Smart code completion features**
@@ -117,7 +103,6 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 - **FIM (Fill In the Middle)**: Intelligent code completion based on context
 - **NES (Next Edit Suggestions)**: Predictive editing suggestions
 - **Web Search Integration**: Real-time information via ZhipuAI and MiniMax
-- **Token Usage Tracking**: Monitor your API usage in real-time
 
 ---
 
@@ -167,7 +152,6 @@ npm run package
 | Provider       | Command                                                 |
 | :------------- | :------------------------------------------------------ |
 | Antigravity    | `Cmd+Shift+P` → `Antigravity Login`                     |
-| Codex          | `Cmd+Shift+P` → `Codex Login`                           |
 | ZhipuAI        | `Cmd+Shift+P` → `ZhipuAI Configuration Wizard`          |
 | MiniMax        | `Cmd+Shift+P` → `Start MiniMax Configuration Wizard`    |
 | MoonshotAI     | `Cmd+Shift+P` → `Start MoonshotAI Configuration Wizard` |

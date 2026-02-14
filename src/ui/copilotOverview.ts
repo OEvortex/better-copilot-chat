@@ -75,6 +75,7 @@ export class CopilotOverview {
 				"deepinfra",
 				"chutes",
 				"opencode",
+				"blackbox",
 				"lightningai",
 				"zenmux",
 				"huggingface",
