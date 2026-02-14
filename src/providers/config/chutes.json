@@ -115,7 +115,7 @@
             "id": "zai-org-glm-4-6-tee",
             "name": "zai-org/GLM-4.6-TEE",
             "tooltip": "zai-org/GLM-4.6-TEE by Chutes",
-            "maxInputTokens": 170752,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "zai-org/GLM-4.6-TEE",
             "capabilities": {
@@ -175,7 +175,7 @@
             "id": "zai-org-glm-4-7-tee",
             "name": "zai-org/GLM-4.7-TEE",
             "tooltip": "zai-org/GLM-4.7-TEE by Chutes",
-            "maxInputTokens": 170752,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "zai-org/GLM-4.7-TEE",
             "capabilities": {
@@ -451,7 +451,7 @@
             "id": "zai-org-glm-4-5-tee",
             "name": "zai-org/GLM-4.5-TEE",
             "tooltip": "zai-org/GLM-4.5-TEE by Chutes",
-            "maxInputTokens": 115072,
+            "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
             "model": "zai-org/GLM-4.5-TEE",
             "capabilities": {
@@ -475,7 +475,7 @@
             "id": "zai-org-glm-4-7-fp8",
             "name": "zai-org/GLM-4.7-FP8",
             "tooltip": "zai-org/GLM-4.7-FP8 by Chutes",
-            "maxInputTokens": 170752,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "zai-org/GLM-4.7-FP8",
             "capabilities": {
@@ -487,7 +487,7 @@
             "id": "zai-org-glm-5-tee",
             "name": "zai-org/GLM-5-TEE",
             "tooltip": "zai-org/GLM-5-TEE by Chutes",
-            "maxInputTokens": 170752,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "zai-org/GLM-5-TEE",
             "capabilities": {
@@ -583,7 +583,7 @@
             "id": "zai-org-glm-4-6-fp8",
             "name": "zai-org/GLM-4.6-FP8",
             "tooltip": "zai-org/GLM-4.6-FP8 by Chutes",
-            "maxInputTokens": 170752,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "zai-org/GLM-4.6-FP8",
             "capabilities": {
@@ -595,7 +595,7 @@
             "id": "zai-org-glm-4-5-air",
             "name": "zai-org/GLM-4.5-Air",
             "tooltip": "zai-org/GLM-4.5-Air by Chutes",
-            "maxInputTokens": 115072,
+            "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
             "model": "zai-org/GLM-4.5-Air",
             "capabilities": {
@@ -619,7 +619,7 @@
             "id": "zai-org-glm-4-7-flash",
             "name": "zai-org/GLM-4.7-Flash",
             "tooltip": "zai-org/GLM-4.7-Flash by Chutes",
-            "maxInputTokens": 170752,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "zai-org/GLM-4.7-Flash",
             "capabilities": {
@@ -631,8 +631,8 @@
             "id": "zai-org-glm-4-6v",
             "name": "zai-org/GLM-4.6V",
             "tooltip": "zai-org/GLM-4.6V by Chutes",
-            "maxInputTokens": 115072,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "zai-org/GLM-4.6V",
             "capabilities": {
                 "toolCalling": true,
@@ -691,7 +691,7 @@
             "id": "zai-org-glm-4-5-fp8",
             "name": "zai-org/GLM-4.5-FP8",
             "tooltip": "zai-org/GLM-4.5-FP8 by Chutes",
-            "maxInputTokens": 115072,
+            "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
             "model": "zai-org/GLM-4.5-FP8",
             "capabilities": {

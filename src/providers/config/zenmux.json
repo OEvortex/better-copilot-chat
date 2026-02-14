@@ -19,7 +19,7 @@
             "id": "z-ai-glm-4-6v-flash-free",
             "name": "Z.AI: GLM 4.6V Flash (Free)",
             "tooltip": "Z.AI: GLM 4.6V Flash (Free) by Zenmux",
-            "maxInputTokens": 168000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.6v-flash-free",
             "capabilities": {
@@ -535,7 +535,7 @@
             "id": "z-ai-glm-4-6",
             "name": "Z.AI: GLM 4.6",
             "tooltip": "Z.AI: GLM 4.6 by Zenmux",
-            "maxInputTokens": 168000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.6",
             "capabilities": {
@@ -907,7 +907,7 @@
             "id": "z-ai-glm-4-6v-flash",
             "name": "Z.AI: GLM 4.6V FlashX",
             "tooltip": "Z.AI: GLM 4.6V FlashX by Zenmux",
-            "maxInputTokens": 168000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.6v-flash",
             "capabilities": {
@@ -919,7 +919,7 @@
             "id": "z-ai-glm-4-6v",
             "name": "Z.AI: GLM 4.6V",
             "tooltip": "Z.AI: GLM 4.6V by Zenmux",
-            "maxInputTokens": 168000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.6v",
             "capabilities": {
@@ -1063,7 +1063,7 @@
             "id": "z-ai-glm-4-7",
             "name": "Z.AI: GLM 4.7",
             "tooltip": "Z.AI: GLM 4.7 by Zenmux",
-            "maxInputTokens": 168000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.7",
             "capabilities": {
@@ -1075,7 +1075,7 @@
             "id": "z-ai-glm-4-7-flash-free",
             "name": "Z.AI: GLM 4.7 Flash (Free)",
             "tooltip": "Z.AI: GLM 4.7 Flash (Free) by Zenmux",
-            "maxInputTokens": 168000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.7-flash-free",
             "capabilities": {
@@ -1087,7 +1087,7 @@
             "id": "z-ai-glm-4-7-flashx",
             "name": "Z.AI: GLM 4.7 FlashX",
             "tooltip": "Z.AI: GLM 4.7 FlashX by Zenmux",
-            "maxInputTokens": 168000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "z-ai/glm-4.7-flashx",
             "capabilities": {
@@ -1171,7 +1171,7 @@
             "id": "z-ai-glm-5",
             "name": "Z.AI: GLM 5",
             "tooltip": "Z.AI: GLM 5 by Zenmux",
-            "maxInputTokens": 168000,
+            "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
             "model": "z-ai/glm-5",
             "capabilities": {

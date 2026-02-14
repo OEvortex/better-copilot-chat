@@ -45,6 +45,12 @@ export {
 	isKimiModel,
 	isKimiK25Model,
 	isGpt5Model,
+	isGpt41Model,
+	isGpt4oModel,
+	isGemini3Model,
+	isGemini25Model,
+	isGlm45Model,
+	isGlmModel,
 	getDefaultMaxOutputTokensForContext,
 	resolveGlobalTokenLimits,
 } from "./globalContextLengthManager";

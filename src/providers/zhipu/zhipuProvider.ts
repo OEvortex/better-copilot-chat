@@ -224,22 +224,22 @@ export class ZhipuProvider
 	const modelMetadata: Record<string, typeof defaultMeta> = {
 		"glm-5": {
 			name: "GLM-5 (Latest)",
-			maxInputTokens: 168000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(168000, DEFAULT_MAX_OUTPUT_TOKENS),
+			maxInputTokens: 224000,
+			maxOutputTokens: getDefaultMaxOutputTokensForContext(224000, DEFAULT_MAX_OUTPUT_TOKENS),
 			toolCalling: true,
 			imageInput: false,
 		},
 		"glm-4.7": {
 			name: "GLM-4.7",
-			maxInputTokens: 168000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(168000, DEFAULT_MAX_OUTPUT_TOKENS),
+			maxInputTokens: 224000,
+			maxOutputTokens: getDefaultMaxOutputTokensForContext(224000, DEFAULT_MAX_OUTPUT_TOKENS),
 			toolCalling: true,
 			imageInput: false,
 		},
 		"glm-4.6": {
 			name: "GLM-4.6",
-			maxInputTokens: 168000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(168000, DEFAULT_MAX_OUTPUT_TOKENS),
+			maxInputTokens: 224000,
+			maxOutputTokens: getDefaultMaxOutputTokensForContext(224000, DEFAULT_MAX_OUTPUT_TOKENS),
 			toolCalling: true,
 			imageInput: false,
 		},
@@ -259,18 +259,19 @@ export class ZhipuProvider
 		},
 		"glm-4.7-flash": {
 			name: "GLM-4.7-Flash (Free, 1 Concurrent)",
-			maxInputTokens: 168000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(168000, DEFAULT_MAX_OUTPUT_TOKENS),
+			maxInputTokens: 224000,
+			maxOutputTokens: getDefaultMaxOutputTokensForContext(224000, DEFAULT_MAX_OUTPUT_TOKENS),
 			toolCalling: true,
 			imageInput: false,
 		},
 		"glm-4.7-flashx": {
 			name: "GLM-4.7-FlashX (Paid)",
-			maxInputTokens: 168000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(168000, DEFAULT_MAX_OUTPUT_TOKENS),
+			maxInputTokens: 224000,
+			maxOutputTokens: getDefaultMaxOutputTokensForContext(224000, DEFAULT_MAX_OUTPUT_TOKENS),
 			toolCalling: true,
 			imageInput: false,
 		},
+
 	};
 
 	return modelMetadata[modelId] || defaultMeta;

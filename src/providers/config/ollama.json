@@ -19,8 +19,8 @@
             "id": "glm-4.6",
             "name": "glm-4.6",
             "tooltip": "Context expanded from 128K to 200K tokens",
-            "maxInputTokens": 168000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "glm-4.6",
             "capabilities": {
                 "toolCalling": true,
@@ -31,8 +31,8 @@
             "id": "glm-4.7",
             "name": "glm-4.7",
             "tooltip": "200K+ token context window",
-            "maxInputTokens": 168000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "glm-4.7",
             "capabilities": {
                 "toolCalling": true,
@@ -43,8 +43,8 @@
             "id": "glm-5",
             "name": "glm-5",
             "tooltip": "200K context window",
-            "maxInputTokens": 168000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
             "model": "glm-5",
             "capabilities": {
                 "toolCalling": true,
