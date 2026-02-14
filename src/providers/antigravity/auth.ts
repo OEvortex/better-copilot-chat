@@ -25,55 +25,17 @@ const ANTIGRAVITY_SCOPES = [
 	"https://www.googleapis.com/auth/experimentsandconfigs",
 ];
 const PROVIDER_KEY = ProviderKey.Antigravity;
-const HIGH_CONTEXT_THRESHOLD = 200000;
-const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32000;
-const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
-const FIXED_256K_MAX_INPUT_TOKENS = 224000;
-const FIXED_256K_MAX_OUTPUT_TOKENS = 32000;
 
-function isMinimaxModel(modelId: string): boolean {
-	return /minimax/i.test(modelId);
-}
-
-function isKimiModel(modelId: string): boolean {
-	return /kimi/i.test(modelId);
-}
-
-function isGpt5Model(modelId: string): boolean {
-	return /gpt-5/i.test(modelId);
-}
+import { resolveGlobalTokenLimits, isKimiK25Model, isKimiModel } from "../../utils";
 
 function resolveTokenLimits(
 	modelId: string,
 	contextLength: number,
 ): { maxInputTokens: number; maxOutputTokens: number } {
-	if (isGpt5Model(modelId)) {
-		// GPT-5 family: 400K total context => 64K output, 336K input
-		return { maxInputTokens: 336000, maxOutputTokens: 64000 };
-	}
-
-	if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
-		return {
-			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
-			maxOutputTokens: FIXED_256K_MAX_OUTPUT_TOKENS,
-		};
-	}
-
-	const safeContextLength =
-		typeof contextLength === "number" && contextLength > 1024
-			? contextLength
-			: 128000;
-
-	let maxOutput =
-		safeContextLength >= HIGH_CONTEXT_THRESHOLD
-			? HIGH_CONTEXT_MAX_OUTPUT_TOKENS
-			: DEFAULT_MAX_OUTPUT_TOKENS;
-	maxOutput = Math.floor(Math.max(1, Math.min(maxOutput, safeContextLength - 1024)));
-
-	return {
-		maxInputTokens: Math.max(1, safeContextLength - maxOutput),
-		maxOutputTokens: maxOutput,
-	};
+	return resolveGlobalTokenLimits(modelId, contextLength, {
+		defaultContextLength: 128000,
+		defaultMaxOutputTokens: 16000,
+	});
 } 
 
 function generateRandomState(): string {

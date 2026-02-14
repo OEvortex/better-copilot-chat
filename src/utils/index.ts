@@ -41,6 +41,14 @@ export { RetryManager } from "./retryManager";
 export { StatusLogger } from "./statusLogger";
 export { TokenCounter } from "./tokenCounter";
 export {
+	isMinimaxModel,
+	isKimiModel,
+	isKimiK25Model,
+	isGpt5Model,
+	getDefaultMaxOutputTokensForContext,
+	resolveGlobalTokenLimits,
+} from "./globalContextLengthManager";
+export {
 	TokenTelemetryTracker,
 	type TokenTelemetryEvent,
 	type TokenResponseMetrics,
