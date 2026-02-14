@@ -17,6 +17,7 @@ import * as vscode from "vscode";
 import type { ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
+import { resolveGlobalTokenLimits } from "../../utils/globalContextLengthManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
@@ -25,6 +26,16 @@ import { GenericModelProvider } from "../common/genericModelProvider";
 
 const DEFAULT_MAX_OUTPUT_TOKENS = 32000;
 const DEFAULT_CONTEXT_LENGTH = 128000;
+
+function resolveTokenLimits(
+    modelId: string,
+    contextLength: number,
+): { maxInputTokens: number; maxOutputTokens: number } {
+    return resolveGlobalTokenLimits(modelId, contextLength, {
+        defaultContextLength: DEFAULT_CONTEXT_LENGTH,
+        defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
+    });
+}
 
 // Blackbox API requires specific headers
 const BLACKBOX_DEFAULT_HEADERS = {
@@ -77,14 +88,22 @@ export class BlackboxProvider
                 imageInput: model.capabilities?.imageInput ?? false,
             };
 
+            const fallbackContextLength =
+                (model.maxInputTokens || 0) + (model.maxOutputTokens || 0) ||
+                DEFAULT_CONTEXT_LENGTH;
+            const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+                model.model || model.id,
+                fallbackContextLength,
+            );
+
             return {
                 id: model.id,
                 name: model.name,
                 tooltip: `${model.name} by Blackbox AI`,
                 family: "blackbox",
                 version: "1.0.0",
-                maxInputTokens: model.maxInputTokens || DEFAULT_CONTEXT_LENGTH,
-                maxOutputTokens: model.maxOutputTokens || DEFAULT_MAX_OUTPUT_TOKENS,
+                maxInputTokens,
+                maxOutputTokens,
                 capabilities,
             } as LanguageModelChatInformation;
         });

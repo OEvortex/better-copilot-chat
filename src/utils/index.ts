@@ -49,6 +49,8 @@ export {
 	isGpt4oModel,
 	isGemini3Model,
 	isGemini25Model,
+	isClaudeOpus46Model,
+	isMingFlashOmniModel,
 	isGlm45Model,
 	isGlmModel,
 	getDefaultMaxOutputTokensForContext,

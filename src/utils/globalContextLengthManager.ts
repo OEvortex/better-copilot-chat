@@ -23,6 +23,10 @@ const GEMINI3_MAX_OUTPUT_TOKENS = 64000; // Gemini 3 -> 64K output
 const GEMINI3_MAX_INPUT_TOKENS = GEMINI_1M_TOTAL_TOKENS - GEMINI3_MAX_OUTPUT_TOKENS;
 const GEMINI25_MAX_OUTPUT_TOKENS = 32000; // Gemini 2.5 -> 32K output
 const GEMINI25_MAX_INPUT_TOKENS = GEMINI_1M_TOTAL_TOKENS - GEMINI25_MAX_OUTPUT_TOKENS;
+// Fixed 64K family (some vendors expose smaller "64k" models where output is 8k)
+const FIXED_64K_TOTAL_TOKENS = 64000;
+const FIXED_64K_MAX_OUTPUT_TOKENS = 8000;
+const FIXED_64K_MAX_INPUT_TOKENS = FIXED_64K_TOTAL_TOKENS - FIXED_64K_MAX_OUTPUT_TOKENS;
 const DEFAULT_MIN_RESERVED_INPUT_TOKENS = 1024;
 
 export function isMinimaxModel(modelId: string): boolean {
@@ -71,6 +75,16 @@ export function isGlmModel(modelId: string): boolean {
 	// Match glm-5, glm-4.7, glm-4.6 and variants (exclude glm-4.5 — it's treated as 128K)
 	// Use a loose substring match so provider-prefixed ids like "z-ai/glm-4.6" are detected
 	return /glm-(?:5|4\.(?:6|7))(?!\d)/i.test(modelId);
+}
+
+export function isClaudeOpus46Model(modelId: string): boolean {
+	// Anthropic Claude Opus 4.6 — treated as a 1,000,000-context / 64K-output family
+	return /claude[-_]?opus[-_]?4(?:\.|-)6/i.test(modelId) || /claude[-_]?opus[-_]?4-6/i.test(modelId);
+}
+
+export function isMingFlashOmniModel(modelId: string): boolean {
+	// inclusionAI Ming-flash-omni-2.0 — single-provider 64K model with 8K output
+	return /ming[-_]?flash[-_]?omni[-_]?2(?:\.|-)0/i.test(modelId) || /ming-flash-omni-2-0/i.test(modelId);
 }
 
 export function getDefaultMaxOutputTokensForContext(
@@ -126,6 +140,14 @@ export function resolveGlobalTokenLimits(
 		};
 	}
 
+	// Anthropic Claude Opus 4.6 — treat as 1M / 64K like other 1M families
+	if (isClaudeOpus46Model(modelId)) {
+		return {
+			maxInputTokens: GEMINI3_MAX_INPUT_TOKENS,
+			maxOutputTokens: GEMINI3_MAX_OUTPUT_TOKENS,
+		};
+	}
+
 	// glm-4.5 is a 128K model (exception)
 	if (isGlm45Model(modelId)) {
 		return {
@@ -139,6 +161,14 @@ export function resolveGlobalTokenLimits(
 		return {
 			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
 			maxOutputTokens: FIXED_256K_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	// inclusionAI Ming-flash-omni (provider-specific 64K model -> 8K output)
+	if (isMingFlashOmniModel(modelId)) {
+		return {
+			maxInputTokens: FIXED_64K_MAX_INPUT_TOKENS,
+			maxOutputTokens: FIXED_64K_MAX_OUTPUT_TOKENS,
 		};
 	}
 

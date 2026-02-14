@@ -19,6 +19,11 @@ import * as vscode from "vscode";
 import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
+import {
+	isKimiK25Model,
+	isKimiModel,
+	resolveGlobalTokenLimits,
+} from "../../utils/globalContextLengthManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
@@ -29,8 +34,6 @@ import { LightningAIWizard } from "./lightningaiWizard";
 const BASE_URL = "https://lightning.ai/api/v1";
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 128000;
-
-import { isKimiModel, isKimiK25Model, resolveGlobalTokenLimits } from "../../utils";
 
 function resolveTokenLimits(
 	modelId: string,

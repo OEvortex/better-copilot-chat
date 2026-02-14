@@ -11,13 +11,15 @@ import type {
 import * as vscode from "vscode";
 import type { ProviderConfig } from "../../types/sharedTypes";
 import {
-	ApiKeyManager,
-	ConfigManager,
 	isKimiK25Model,
 	isKimiModel,
+	resolveGlobalTokenLimits,
+} from "../../utils/globalContextLengthManager";
+import {
+	ApiKeyManager,
+	ConfigManager,
 	Logger,
 	RateLimiter,
-	resolveGlobalTokenLimits,
 	TokenCounter,
 } from "../../utils";
 import { ProviderWizard } from "../../utils/providerWizard";

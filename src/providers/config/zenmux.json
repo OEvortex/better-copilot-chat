@@ -1183,8 +1183,8 @@
             "id": "inclusionai-ming-flash-omni-2-0",
             "name": "inclusionAI: Ming-flash-omni-2.0",
             "tooltip": "inclusionAI: Ming-flash-omni-2.0 by Zenmux",
-            "maxInputTokens": 48000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 56000,
+            "maxOutputTokens": 8000,
             "model": "inclusionai/ming-flash-omni-2.0",
             "capabilities": {
                 "toolCalling": true,
