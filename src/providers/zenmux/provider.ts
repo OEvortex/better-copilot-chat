@@ -36,10 +36,27 @@ const BASE_URL = "https://zenmux.ai/api/v1";
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 128000;
 
+// Zenmux-specific: Claude Opus 4.6 has 1M context with 64K output (special case for Zenmux only)
+function isZenmuxClaudeOpus46(modelId: string): boolean {
+	return /claude[-_]?opus[-_]?4(?:\.|-)6/i.test(modelId);
+}
+
+// Token constants for Zenmux Opus 4.6 special case
+const OPUS_46_ZENMUX_MAX_INPUT_TOKENS = 936000;
+const OPUS_46_ZENMUX_MAX_OUTPUT_TOKENS = 64000;
+
 function resolveTokenLimits(
 	modelId: string,
 	contextLength: number,
 ): { maxInputTokens: number; maxOutputTokens: number } {
+	// Zenmux-specific: Claude Opus 4.6 special handling (1M context / 64K output)
+	if (isZenmuxClaudeOpus46(modelId)) {
+		return {
+			maxInputTokens: OPUS_46_ZENMUX_MAX_INPUT_TOKENS,
+			maxOutputTokens: OPUS_46_ZENMUX_MAX_OUTPUT_TOKENS,
+		};
+	}
+
 	return resolveGlobalTokenLimits(modelId, contextLength, {
 		defaultContextLength: DEFAULT_CONTEXT_LENGTH,
 		defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,

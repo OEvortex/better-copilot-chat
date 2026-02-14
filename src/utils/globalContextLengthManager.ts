@@ -77,10 +77,6 @@ export function isGlmModel(modelId: string): boolean {
 	return /glm-(?:5|4\.(?:6|7))(?!\d)/i.test(modelId);
 }
 
-export function isClaudeOpus46Model(modelId: string): boolean {
-	// Anthropic Claude Opus 4.6 — treated as a 1,000,000-context / 64K-output family
-	return /claude[-_]?opus[-_]?4(?:\.|-)6/i.test(modelId) || /claude[-_]?opus[-_]?4-6/i.test(modelId);
-}
 
 export function isMingFlashOmniModel(modelId: string): boolean {
 	// inclusionAI Ming-flash-omni-2.0 — single-provider 64K model with 8K output
@@ -137,14 +133,6 @@ export function resolveGlobalTokenLimits(
 		return {
 			maxInputTokens: FIXED_128K_MAX_INPUT_TOKENS,
 			maxOutputTokens: FIXED_128K_MAX_OUTPUT_TOKENS,
-		};
-	}
-
-	// Anthropic Claude Opus 4.6 — treat as 1M / 64K like other 1M families
-	if (isClaudeOpus46Model(modelId)) {
-		return {
-			maxInputTokens: GEMINI3_MAX_INPUT_TOKENS,
-			maxOutputTokens: GEMINI3_MAX_OUTPUT_TOKENS,
 		};
 	}
 
