@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 ## [0.2.2] - 2026-02-15
 
 ### Added
+- **Global capability normalization**: Added centralized `resolveGlobalCapabilities()` and `isVisionGptModel()` functions in `globalContextLengthManager.ts` to enforce consistent capability flags across all providers.
+  - All models now have `toolCalling: true` by default
+  - All GPT models (except gpt-oss) and Kimi-2.5 models have `imageInput: true` by default
 - **Blackbox provider**: New OpenAI-compatible Blackbox provider and model list (src/providers/blackbox). Includes streaming support, model registration, and config integration.
 - **Chutes API-driven token limits**: Chutes provider now uses the API's `context_length` field to determine token limits dynamically, instead of using global defaults. Output tokens are calculated as: >= 200K context → 32K output, >= 128K → 16K output, < 128K → 8K output. Input tokens = context_length - output_tokens.
 - **Config maintenance scripts**: Added scripts to enforce/verify model token limits across provider configs:
