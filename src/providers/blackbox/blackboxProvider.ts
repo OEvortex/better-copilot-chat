@@ -17,7 +17,10 @@ import * as vscode from "vscode";
 import type { ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
-import { resolveGlobalTokenLimits } from "../../utils/globalContextLengthManager";
+import {
+    resolveGlobalCapabilities,
+    resolveGlobalTokenLimits,
+} from "../../utils/globalContextLengthManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
@@ -83,10 +86,9 @@ export class BlackboxProvider
         }
 
         const infos = this.providerConfig.models.map((model) => {
-            const capabilities = {
-                toolCalling: model.capabilities?.toolCalling ?? false,
-                imageInput: model.capabilities?.imageInput ?? false,
-            };
+            const capabilities = resolveGlobalCapabilities(model.model || model.id, {
+                detectedImageInput: model.capabilities?.imageInput === true,
+            });
 
             const fallbackContextLength =
                 (model.maxInputTokens || 0) + (model.maxOutputTokens || 0) ||

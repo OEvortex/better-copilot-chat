@@ -30,7 +30,10 @@ const BASE_URL = "https://opencode.ai/zen/v1";
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 128000;
 
-import { isKimiModel, isKimiK25Model, resolveGlobalTokenLimits } from "../../utils";
+import {
+	resolveGlobalCapabilities,
+	resolveGlobalTokenLimits,
+} from "../../utils";
 
 function resolveTokenLimits(
 	modelId: string,
@@ -166,13 +169,9 @@ export class OpenCodeProvider
 			const modelId = m.id;
 			const detectedVision =
 				Array.isArray(modalities) && modalities.includes("image");
-			const vision = isKimiModel(modelId)
-				? isKimiK25Model(modelId)
-				: detectedVision;
-			
-			// We don't have detailed capabilities from /models, so we assume toolCalling is supported
-			// for all models as it's a "zen" provider.
-			const supportsTools = true;
+			const capabilities = resolveGlobalCapabilities(modelId, {
+				detectedImageInput: detectedVision,
+			});
 
 			const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
 			const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
@@ -188,10 +187,7 @@ export class OpenCodeProvider
 				version: "1.0.0",
 				maxInputTokens,
 				maxOutputTokens,
-				capabilities: {
-					toolCalling: supportsTools,
-					imageInput: vision,
-				},
+				capabilities,
 			} as LanguageModelChatInformation;
 		});
 
@@ -254,9 +250,9 @@ export class OpenCodeProvider
 					const modelId = m.id;
 					const detectedVision =
 						Array.isArray(modalities) && modalities.includes("image");
-					const vision = isKimiModel(modelId)
-						? isKimiK25Model(modelId)
-						: detectedVision;
+					const capabilities = resolveGlobalCapabilities(modelId, {
+						detectedImageInput: detectedVision,
+					});
 					const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
 					const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
 						modelId,
@@ -270,10 +266,7 @@ export class OpenCodeProvider
 						maxInputTokens,
 						maxOutputTokens,
 						model: modelId,
-						capabilities: {
-							toolCalling: true,
-							imageInput: vision,
-						},
+						capabilities,
 					} as ModelConfig;
 				});
 

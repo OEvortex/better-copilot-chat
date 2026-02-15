@@ -11,8 +11,7 @@ import type {
 import * as vscode from "vscode";
 import type { ProviderConfig } from "../../types/sharedTypes";
 import {
-	isKimiK25Model,
-	isKimiModel,
+	resolveGlobalCapabilities,
 	resolveGlobalTokenLimits,
 } from "../../utils/globalContextLengthManager";
 import {
@@ -201,15 +200,9 @@ export class DeepInfraProvider
 			const metadata = m.metadata!;
 			const modelId = m.id;
 			const detectedVision = metadata.tags?.includes("vision") ?? false;
-			const vision = isKimiModel(modelId)
-				? isKimiK25Model(modelId)
-				: detectedVision;
-
-			// All models support tools as per user request
-			const capabilities = {
-				toolCalling: true,
-				imageInput: vision,
-			};
+			const capabilities = resolveGlobalCapabilities(modelId, {
+				detectedImageInput: detectedVision,
+			});
 
 			const contextLen = metadata.context_length ?? DEFAULT_CONTEXT_LENGTH;
 			const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(

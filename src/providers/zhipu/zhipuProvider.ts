@@ -61,7 +61,12 @@ const HARDCODED_MODELS: ZhipuAPIModel[] = [
 
 type ZhipuThinkingType = "enabled" | "disabled";
 
-import { isMinimaxModel, getDefaultMaxOutputTokensForContext, resolveGlobalTokenLimits } from "../../utils";
+import {
+	getDefaultMaxOutputTokensForContext,
+	isMinimaxModel,
+	resolveGlobalCapabilities,
+	resolveGlobalTokenLimits,
+} from "../../utils";
 
 
 /**
@@ -197,6 +202,8 @@ export class ZhipuProvider
 		toolCalling: boolean;
 		imageInput: boolean;
 	} {
+		const normalizedCapabilities = resolveGlobalCapabilities(modelId);
+
 		if (isMinimaxModel(modelId)) {
 		const tokens = resolveGlobalTokenLimits(modelId, 256000, {
 			defaultContextLength: DEFAULT_CONTEXT_LENGTH,
@@ -206,8 +213,8 @@ export class ZhipuProvider
 			name: modelId,
 			maxInputTokens: tokens.maxInputTokens,
 			maxOutputTokens: tokens.maxOutputTokens,
-			toolCalling: true,
-			imageInput: false,
+			toolCalling: normalizedCapabilities.toolCalling,
+			imageInput: normalizedCapabilities.imageInput,
 		};
 	}
 
@@ -216,8 +223,8 @@ export class ZhipuProvider
 		name: modelId,
 		maxInputTokens: DEFAULT_CONTEXT_LENGTH,
 		maxOutputTokens: getDefaultMaxOutputTokensForContext(DEFAULT_CONTEXT_LENGTH, DEFAULT_MAX_OUTPUT_TOKENS),
-		toolCalling: true,
-		imageInput: false,
+		toolCalling: normalizedCapabilities.toolCalling,
+		imageInput: normalizedCapabilities.imageInput,
 	};
 
 	// Model-specific metadata (200K+ context = 32K output, <200K context = 16K output)

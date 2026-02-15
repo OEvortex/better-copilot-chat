@@ -20,8 +20,7 @@ import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import {
-	isKimiK25Model,
-	isKimiModel,
+	resolveGlobalCapabilities,
 	resolveGlobalTokenLimits,
 } from "../../utils/globalContextLengthManager";
 import { Logger } from "../../utils/logger";
@@ -171,11 +170,9 @@ export class LightningAIProvider
 			const modelId = m.id;
 			const detectedVision =
 				Array.isArray(modalities) && modalities.includes("image");
-			const vision = isKimiModel(modelId)
-				? isKimiK25Model(modelId)
-				: detectedVision;
-			
-			const supportsTools = true;
+			const capabilities = resolveGlobalCapabilities(modelId, {
+				detectedImageInput: detectedVision,
+			});
 
 			const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
 			const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
@@ -191,10 +188,7 @@ export class LightningAIProvider
 				version: "1.0.0",
 				maxInputTokens,
 				maxOutputTokens,
-				capabilities: {
-					toolCalling: supportsTools,
-					imageInput: vision,
-				},
+				capabilities,
 			} as LanguageModelChatInformation;
 		});
 
@@ -257,9 +251,9 @@ export class LightningAIProvider
 					const modelId = m.id;
 					const detectedVision =
 						Array.isArray(modalities) && modalities.includes("image");
-					const vision = isKimiModel(modelId)
-						? isKimiK25Model(modelId)
-						: detectedVision;
+					const capabilities = resolveGlobalCapabilities(modelId, {
+						detectedImageInput: detectedVision,
+					});
 					const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
 					const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
 						modelId,
@@ -273,10 +267,7 @@ export class LightningAIProvider
 						maxInputTokens,
 						maxOutputTokens,
 						model: modelId,
-						capabilities: {
-							toolCalling: true,
-							imageInput: vision,
-						},
+						capabilities,
 					} as ModelConfig;
 				});
 

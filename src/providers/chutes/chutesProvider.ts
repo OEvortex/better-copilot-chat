@@ -21,8 +21,7 @@ import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
 import {
 	getDefaultMaxOutputTokensForContext,
-	isKimiK25Model,
-	isKimiModel,
+	resolveGlobalCapabilities,
 } from "../../utils/globalContextLengthManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
@@ -170,10 +169,9 @@ export class ChutesProvider
 			const modelId = m.id;
 			const detectedVision =
 				Array.isArray(modalities) && modalities.includes("image");
-			const vision = isKimiModel(modelId)
-				? isKimiK25Model(modelId)
-				: detectedVision;
-			const supportsTools = m.supported_features?.includes("tools") ?? false;
+			const capabilities = resolveGlobalCapabilities(modelId, {
+				detectedImageInput: detectedVision,
+			});
 
 			const contextLen =
 				m.context_length ?? m.max_model_len ?? DEFAULT_CONTEXT_LENGTH;
@@ -190,10 +188,7 @@ export class ChutesProvider
 				version: "1.0.0",
 				maxInputTokens,
 				maxOutputTokens,
-				capabilities: {
-					toolCalling: supportsTools,
-					imageInput: vision,
-				},
+				capabilities,
 			} as LanguageModelChatInformation;
 		});
 
@@ -284,11 +279,9 @@ export class ChutesProvider
 					const modelId = m.id;
 					const detectedVision =
 						Array.isArray(modalities) && modalities.includes("image");
-					const vision = isKimiModel(modelId)
-						? isKimiK25Model(modelId)
-						: detectedVision;
-					const supportsTools =
-						m.supported_features?.includes("tools") ?? false;
+					const capabilities = resolveGlobalCapabilities(modelId, {
+						detectedImageInput: detectedVision,
+					});
 
 					const contextLen =
 						m.context_length ?? m.max_model_len ?? DEFAULT_CONTEXT_LENGTH;
@@ -310,10 +303,7 @@ export class ChutesProvider
 						maxInputTokens,
 						maxOutputTokens,
 						model: modelId,
-						capabilities: {
-							toolCalling: supportsTools,
-							imageInput: vision,
-						},
+						capabilities,
 					} as ModelConfig;
 				});
 

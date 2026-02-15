@@ -41,6 +41,15 @@ export function isKimiK25Model(modelId: string): boolean {
 	return /kimi[-_\/]?k2(?:\.|-)5/i.test(modelId);
 }
 
+export function isGptModel(modelId: string): boolean {
+	return /gpt/i.test(modelId);
+}
+
+// Check if GPT model supports vision (excludes gpt-oss)
+export function isVisionGptModel(modelId: string): boolean {
+	return /gpt/i.test(modelId) && !/gpt-oss/i.test(modelId);
+}
+
 export function isGpt5Model(modelId: string): boolean {
 	return /gpt-5/i.test(modelId);
 }
@@ -190,5 +199,25 @@ export function resolveGlobalTokenLimits(
 	return {
 		maxInputTokens: Math.max(1, safeContextLength - maxOutput),
 		maxOutputTokens: maxOutput,
+	};
+}
+
+export interface ResolveCapabilitiesOptions {
+	detectedToolCalling?: boolean;
+	detectedImageInput?: boolean;
+}
+
+export function resolveGlobalCapabilities(
+	modelId: string,
+	options?: ResolveCapabilitiesOptions,
+): { toolCalling: boolean; imageInput: boolean } {
+	const detectedImageInput = options?.detectedImageInput === true;
+
+	return {
+		// User request: all models should support tools
+		toolCalling: true,
+	// User request: Kimi 2.5 and GPT models should support vision (excluding gpt-oss)
+	imageInput:
+		detectedImageInput || isKimiK25Model(modelId) || isVisionGptModel(modelId),
 	};
 }

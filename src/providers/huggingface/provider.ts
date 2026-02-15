@@ -25,8 +25,7 @@ const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 128000;
 
 import {
-	isKimiModel,
-	isKimiK25Model,
+	resolveGlobalCapabilities,
 	resolveGlobalTokenLimits,
 } from "../../utils";
 
@@ -122,11 +121,11 @@ export class HuggingfaceProvider
 			const baseModelId = m.id;
 			const detectedVision =
 				Array.isArray(modalities) && modalities.includes("image");
-			const vision = isKimiModel(baseModelId)
-				? isKimiK25Model(baseModelId)
-				: detectedVision;
+			const capabilities = resolveGlobalCapabilities(baseModelId, {
+				detectedImageInput: detectedVision,
+			});
 
-			const toolProviders = providers.filter((p) => p.supports_tools === true);
+			const toolProviders = providers;
 			const entries: LanguageModelChatInformation[] = [];
 
 			if (toolProviders.length > 0) {
@@ -147,10 +146,7 @@ export class HuggingfaceProvider
 					aggregateContextLen,
 				);
 
-				const aggregateCapabilities = {
-					toolCalling: true,
-					imageInput: vision,
-				};
+				const aggregateCapabilities = capabilities;
 				entries.push({
 					id: `${m.id}:cheapest`,
 					name: `${m.id} (cheapest)`,
@@ -190,8 +186,8 @@ export class HuggingfaceProvider
 					maxInputTokens,
 					maxOutputTokens,
 					capabilities: {
-						toolCalling: true,
-						imageInput: vision,
+						toolCalling: capabilities.toolCalling,
+						imageInput: capabilities.imageInput,
 					},
 				} as LanguageModelChatInformation);
 			}
@@ -214,8 +210,8 @@ export class HuggingfaceProvider
 					maxInputTokens,
 					maxOutputTokens,
 					capabilities: {
-						toolCalling: false,
-						imageInput: vision,
+						toolCalling: capabilities.toolCalling,
+						imageInput: capabilities.imageInput,
 					},
 				} as LanguageModelChatInformation);
 			}
