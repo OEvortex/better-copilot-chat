@@ -24,80 +24,10 @@ import { RateLimiter } from "../../utils/rateLimiter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { QwenOAuthManager } from "./auth";
 
-/**
- * Rate limit state manager for tracking rate limiting per model
- * Similar to antigravity's QuotaStateManager
- */
-class QwenRateLimitManager {
-	private static instance: QwenRateLimitManager;
-	private modelStates = new Map<
-		string,
-		{ isRateLimited: boolean; resetsAt: number; backoffLevel: number }
-	>();
-
-	static getInstance(): QwenRateLimitManager {
-		if (!QwenRateLimitManager.instance) {
-			QwenRateLimitManager.instance = new QwenRateLimitManager();
-		}
-		return QwenRateLimitManager.instance;
-	}
-
-	markRateLimited(modelId: string, retryAfterMs?: number): void {
-		const existing = this.modelStates.get(modelId) || {
-			isRateLimited: false,
-			resetsAt: 0,
-			backoffLevel: 0,
-		};
-
-		// Exponential backoff: 1s, 2s, 4s, 8s, 16s, max 30s
-		let cooldown = 1000 * 2 ** (existing.backoffLevel || 0);
-		const RATE_LIMIT_MAX_DELAY_MS = 30000;
-		if (cooldown > RATE_LIMIT_MAX_DELAY_MS) {
-			cooldown = RATE_LIMIT_MAX_DELAY_MS;
-		}
-
-		const actualCooldown =
-			retryAfterMs && retryAfterMs > cooldown ? retryAfterMs : cooldown;
-		this.modelStates.set(modelId, {
-			isRateLimited: true,
-			resetsAt: Date.now() + actualCooldown,
-			backoffLevel: (existing.backoffLevel || 0) + 1,
-		});
-
-		Logger.debug(
-			`[qwencli] Rate limit marked for ${modelId}, cooldown: ${actualCooldown}ms, backoff level: ${(existing.backoffLevel || 0) + 1}`,
-		);
-	}
-
-	clearRateLimited(modelId: string): void {
-		const existing = this.modelStates.get(modelId);
-		if (existing) {
-			existing.isRateLimited = false;
-			existing.backoffLevel = 0;
-		}
-	}
-
-	isInCooldown(modelId: string): boolean {
-		const state = this.modelStates.get(modelId);
-		if (!state || !state.isRateLimited) {
-			return false;
-		}
-		if (Date.now() >= state.resetsAt) {
-			this.clearRateLimited(modelId);
-			return false;
-		}
-		return true;
-	}
-
-	getRemainingCooldown(modelId: string): number {
-		const state = this.modelStates.get(modelId);
-		if (!state || !state.isRateLimited) {
-			return 0;
-		}
-		const remaining = state.resetsAt - Date.now();
-		return remaining > 0 ? remaining : 0;
-	}
-}
+// NOTE: antigravity-style per-model cooldown manager was removed —
+// Qwen provider no longer keeps an internal cooldown state. Rate-limit
+// errors are still detected and surfaced, but there is no automatic
+// per-model backoff managed inside this provider.
 
 class ThinkingBlockParser {
 	private inThinkingBlock = false;
@@ -141,8 +71,6 @@ export class QwenCliProvider
 	extends GenericModelProvider
 	implements LanguageModelChatProvider
 {
-	private readonly rateLimitManager = QwenRateLimitManager.getInstance();
-
 	private isRateLimitError(error: unknown): boolean {
 		if (!(error instanceof Error)) {
 			return false;
@@ -352,17 +280,7 @@ export class QwenCliProvider
 			},
 		};
 
-		try {
-			// Check if model is currently in cooldown from previous rate limit
-			if (this.rateLimitManager.isInCooldown(model.id)) {
-				const remainingMs =
-					this.rateLimitManager.getRemainingCooldown(model.id);
-				const remainingSecs = Math.ceil(remainingMs / 1000);
-				throw new Error(
-					`Rate limited: please try again in ${remainingSecs} seconds`,
-				);
-			}
-
+		try {	
 			// Apply rate limiting: 2 requests per 1 second
 			await RateLimiter.getInstance(this.providerKey, 2, 1000).throttle(
 				this.providerConfig.displayName,
@@ -468,8 +386,7 @@ export class QwenCliProvider
 								.setAccountForModel("qwencli", model.id, account.id)
 								.catch(() => {});
 						}
-						// Clear any rate limit state on success
-						this.rateLimitManager.clearRateLimited(model.id);
+    					// success — continue normally
 						return;
 					}
 
@@ -527,8 +444,7 @@ export class QwenCliProvider
 				token,
 			);
 
-			// Clear rate limit state on success
-			this.rateLimitManager.clearRateLimited(model.id);
+			// success — continue normally
 		} catch (error) {
 			// If we got a 401, invalidate cached credentials and retry once with fresh token
 			if (error instanceof Error && error.message.includes("401")) {
@@ -554,15 +470,9 @@ export class QwenCliProvider
 				return;
 			}
 
-			// If we got a rate limit error, set cooldown with exponential backoff
+			// If we got a rate limit error, surface it (no internal cooldown/backoff)
 			if (this.isRateLimitError(error)) {
-				this.rateLimitManager.markRateLimited(model.id, 10000);
-				const remainingMs =
-					this.rateLimitManager.getRemainingCooldown(model.id);
-				const remainingSecs = Math.ceil(remainingMs / 1000);
-				throw new Error(
-					`Rate limited: please try again in ${remainingSecs} seconds`,
-				);
+				throw new Error("Rate limited: please try again later");
 			}
 
 			throw error;
