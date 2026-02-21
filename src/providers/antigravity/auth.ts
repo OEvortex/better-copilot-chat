@@ -7,6 +7,7 @@ import { ConfigManager } from '../../utils/configManager';
 import { configProviders } from '../config';
 import type { AntigravityAuthResult, AntigravityModel, ModelQuickPickItem, TokenResponse, UserInfo } from './types';
 
+// TODO FIX: Replace with your own Google Cloud Project credentials
 const ANTIGRAVITY_CLIENT_ID = '1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com';
 const ANTIGRAVITY_CLIENT_SECRET = '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';
 const ANTIGRAVITY_CALLBACK_PORT = 51121;
