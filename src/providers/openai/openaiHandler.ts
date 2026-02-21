@@ -419,6 +419,9 @@ export class OpenAIHandler {
 				temperature: ConfigManager.getTemperature(),
 				top_p: ConfigManager.getTopP(),
 			};
+			const thinkingEnabled = ConfigManager.getThinking();
+			((createParams as unknown) as Record<string, unknown>).reasoning_effort =
+				thinkingEnabled ? "medium" : "low";
 			// #region Debug: check image content in input messages
 			// let totalImageParts = 0;
 			// let totalDataParts = 0;
@@ -874,12 +877,41 @@ export class OpenAIHandler {
 
 								// Compatible: prioritize reasoning/reasoning_content in delta, otherwise try reading from message
 								// Note: Some providers (Chutes) use 'reasoning', others (OpenAI-compatible) use 'reasoning_content'
+								// Kimi K2.5 uses reasoning_details array
 								const reasoningContent =
 									delta?.reasoning ??
 									delta?.reasoning_content ??
 									message?.reasoning ??
 									message?.reasoning_content;
-								if (reasoningContent) {
+								
+								// Handle reasoning_details array (Kimi K2.5 format)
+								if (delta?.reasoning_details && Array.isArray(delta.reasoning_details)) {
+									for (const detail of delta.reasoning_details) {
+										if (detail.type === "reasoning" && detail.text) {
+											const shouldOutputThinking = modelConfig.outputThinking !== false;
+											if (shouldOutputThinking) {
+												try {
+													if (!currentThinkingId) {
+														currentThinkingId = `thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+													}
+													thinkingContentBuffer += detail.text;
+													progress.report(
+														new vscode.LanguageModelThinkingPart(
+															thinkingContentBuffer,
+															currentThinkingId,
+														),
+													);
+													thinkingContentBuffer = "";
+													hasThinkingContent = true;
+												} catch (e) {
+													Logger.trace(
+														`${model.name} failed to report reasoning_details: ${String(e)}`,
+													);
+												}
+											}
+										}
+									}
+								} else if (reasoningContent) {
 									// Check outputThinking setting in model configuration
 									const shouldOutputThinking =
 										modelConfig.outputThinking !== false; // default true
@@ -1505,11 +1537,21 @@ export class OpenAIHandler {
 			content: textContent || null, // Contains only regular text content, no thinking content
 		};
 
-		// If there is thinking content, add to reasoning_content field
+		// For kimi-k2.5 models, always include reasoning_content field (even if empty) when there are tool calls
+		// This is required by Moonshot AI API to avoid "reasoning_content is missing" error
+		const isKimiK25 = modelConfig?.id?.toLowerCase().includes("kimi-k2.5");
+		const hasToolCalls = toolCalls.length > 0;
+		
 		if (thinkingContent) {
 			assistantMessage.reasoning_content = thinkingContent;
 			Logger.trace(
 				`Add reasoning_content: ${thinkingContent.length} characters`,
+			);
+		} else if (isKimiK25 && hasToolCalls) {
+			// For kimi-k2.5 with tool calls, include empty reasoning_content to satisfy API requirement
+			assistantMessage.reasoning_content = "";
+			Logger.trace(
+				`[kimi-k2.5] Added empty reasoning_content for tool call message to satisfy Moonshot AI API`,
 			);
 		}
 

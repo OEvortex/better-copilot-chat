@@ -399,6 +399,21 @@ export class DeepInfraProvider
 				top_p: ConfigManager.getTopP(),
 			};
 
+			const reasoningEffort = (
+				options.modelOptions as
+					| { reasoning_effort?: string; reasoningEffort?: string }
+					| undefined
+			)?.reasoning_effort ??
+				(
+					options.modelOptions as
+						| { reasoning_effort?: string; reasoningEffort?: string }
+						| undefined
+				)?.reasoningEffort;
+			((createParams as unknown) as Record<string, unknown>).reasoning_effort =
+				typeof reasoningEffort === "string" && reasoningEffort.length > 0
+					? reasoningEffort
+					: "medium";
+
 			if (
 				options.tools &&
 				options.tools.length > 0 &&

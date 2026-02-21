@@ -212,6 +212,7 @@ export class SettingsPage {
 			{ id: "minimax", displayName: "MiniMax" },
 			{ id: "deepseek", displayName: "DeepSeek" },
 			{ id: "deepinfra", displayName: "DeepInfra" },
+			{ id: "nvidia", displayName: "NVIDIA NIM" },
 			{ id: "compatible", displayName: "OpenAI/Anthropic Compatible" },
 		];
 

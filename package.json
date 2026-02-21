@@ -60,6 +60,7 @@
         "onLanguageModelProvider:chp.huggingface",
         "onLanguageModelProvider:chp.lightningai",
         "onLanguageModelProvider:chp.deepinfra",
+        "onLanguageModelProvider:chp.nvidia",
         "onLanguageModelProvider:chp.mistral",
         "onLanguageModelProvider:chp.ollama",
         "onLanguageModelProvider:chp.qwencli",
@@ -159,6 +160,11 @@
             {
                 "command": "chp.deepinfra.setApiKey",
                 "title": "Configure DeepInfra",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.nvidia.setApiKey",
+                "title": "Configure NVIDIA NIM",
                 "category": "Copilot ++"
             },
             {
@@ -295,6 +301,24 @@
                     "minimum": 0,
                     "maximum": 2,
                     "description": "Controls the randomness of AI model output. Lower values (like 0.1) produce more deterministic output, while higher values (like 1.0) produce more creative output.",
+                    "scope": "application"
+                },
+                "chp.reasoningEffort": {
+                    "type": "string",
+                    "enum": [
+                        "none",
+                        "low",
+                        "medium",
+                        "high"
+                    ],
+                    "enumDescriptions": [
+                        "Disable reasoning - model will not use extended thinking",
+                        "Low reasoning effort - minimal extended thinking for faster responses",
+                        "Medium reasoning effort - balanced thinking time and response quality (default)",
+                        "High reasoning effort - maximum extended thinking for complex reasoning tasks"
+                    ],
+                    "default": "medium",
+                    "description": "Controls the reasoning effort for models that support extended thinking (e.g., o1, o3, o4-mini). This is passed to the reasoning_effort parameter in OpenAI-compatible API requests. Set to 'none' to disable.",
                     "scope": "application"
                 },
                 "chp.topP": {
@@ -452,6 +476,12 @@
                     "type": "string",
                     "default": "",
                     "description": "DeepInfra base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
+                "chp.nvidia.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "NVIDIA NIM base URL or proxy endpoint (optional).",
                     "scope": "application"
                 },
                 "chp.mistral.baseUrl": {

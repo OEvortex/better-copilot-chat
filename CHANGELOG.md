@@ -5,9 +5,24 @@ All notable changes to this project will be documented in this file.
 ## [0.2.3] - 2026-02-21
 
 ### Added
+- **NVIDIA NIM Provider**: Added new NVIDIA NIM provider with OpenAI SDK compatibility.
+  - Configured at `https://integrate.api.nvidia.com/v1`
+  - Rate limit: 40 requests per minute
+  - Supports dynamic model discovery via `/models` endpoint
+  - Includes retry logic for rate limit and server errors
+- **Reasoning Effort Support**: Added configurable `reasoning_effort` parameter for OpenAI-compatible providers.
+  - New `chp.reasoningEffort` setting: `none`, `low`, `medium` (default), `high`
+  - Applied to: OpenAI, Chutes, OpenCode, DeepInfra, Blackbox, HuggingFace, LightningAI, Zenmux, Ollama, Compatible providers
+- **Devstral Model Support**: Added token limit handling for Devstral-2 and Devstral-small-2 models.
+  - 256K total context (224K input / 32K output)
 - **ChatJimmy FIM Support**: Added new ChatJimmy provider for Fill-In-the-Middle (FIM) completions.
   - Implemented `chatjimmyFimHandler.ts` for handling FIM requests to ChatJimmy API.
   - ChatJimmy is a public API that doesn't require authentication.
+- **Ollama Dynamic Model Fetching**: Ollama provider now fetches available models dynamically from the `/v1/models` endpoint.
+  - Added `types.ts` for OpenAI-compatible model response types.
+  - Automatic capability detection (tool calling, vision) from model metadata tags.
+  - Graceful fallback to static configuration if API is unavailable or rate-limited.
+  - 10-second timeout to prevent hanging during model discovery.
 
 ### Fixed
 - **ChatJimmy Response Parsing**: Fixed JSON stream parsing errors by converting ChatJimmy plain-text responses into OpenAI-compatible SSE format.

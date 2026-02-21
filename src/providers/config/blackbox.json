@@ -17,7 +17,7 @@
         },
         {
             "id": "custom/blackbox-base-2",
-            "name": "blackbox-base-2",
+            "name": "Grok code fast",
             "tooltip": "Grok code fast — 256K context (coding-focused)",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
@@ -29,7 +29,7 @@
         },
         {
             "id": "minimax-m2",
-            "name": "minimax-m2",
+            "name": "minimax-m2.5",
             "tooltip": "256K context length",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,

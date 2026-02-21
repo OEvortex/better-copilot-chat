@@ -1,0 +1,19 @@
+{
+    "displayName": "NVIDIA NIM",
+    "baseUrl": "https://integrate.api.nvidia.com/v1",
+    "apiKeyTemplate": "nvapi-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "models": [
+        {
+            "id": "meta/llama-3.1-70b-instruct",
+            "name": "meta/llama-3.1-70b-instruct",
+            "tooltip": "Llama 3.1 70B Instruct by NVIDIA NIM",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "meta/llama-3.1-70b-instruct",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        }
+    ]
+}

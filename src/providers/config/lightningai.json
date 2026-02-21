@@ -316,6 +316,18 @@
             }
         },
         {
+            "id": "anthropic/claude-sonnet-4-6",
+            "name": "Claude Sonnet 4.6",
+            "tooltip": "Claude Sonnet 4.6 is Anthropic's most capable Sonnet model yet, featuring major upgrades in coding, computer use, long-context reasoning, and agentic tasks — approaching Opus-level performance at Sonnet pricing.",
+            "maxInputTokens": 168000,
+            "maxOutputTokens": 32000,
+            "model": "anthropic/claude-sonnet-4-6",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
             "id": "openai/gpt-4-turbo",
             "name": "GPT 4 turbo",
             "tooltip": "GPT-4 Turbo is an upgraded version of GPT-4, designed to deliver the same high intelligence while being faster and more cost-effective.",

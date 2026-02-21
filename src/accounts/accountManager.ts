@@ -114,6 +114,14 @@ export class AccountManager {
 			},
 		],
 		[
+			ProviderKey.Nvidia,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
 			ProviderKey.Blackbox,
 			{
 				supportsMultiAccount: true,

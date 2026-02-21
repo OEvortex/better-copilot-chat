@@ -11,6 +11,7 @@ export enum ProviderKey {
 	MiniMax = "minimax",
 	MiniMaxCoding = "minimax-coding",
 	Moonshot = "moonshot",
+	Nvidia = "nvidia",
 	Ollama = "ollama",
 	OpenCode = "opencode",
 	Blackbox = "blackbox",

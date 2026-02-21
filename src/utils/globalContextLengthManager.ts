@@ -10,6 +10,9 @@ const FIXED_256K_MAX_INPUT_TOKENS = 224000;
 const FIXED_256K_MAX_OUTPUT_TOKENS = 32000;
 const FIXED_128K_MAX_INPUT_TOKENS = 112000;
 const FIXED_128K_MAX_OUTPUT_TOKENS = 16000;
+// Devstral models: 256K total context, 32K output
+const DEVSTRAL_MAX_INPUT_TOKENS = 256000 - 32000;
+const DEVSTRAL_MAX_OUTPUT_TOKENS = 32000;
 // GPT-5 (400K total -> 64K output / 336K input)
 const GPT5_MAX_INPUT_TOKENS = 336000;
 const GPT5_MAX_OUTPUT_TOKENS = 64000;
@@ -84,6 +87,11 @@ export function isGlmModel(modelId: string): boolean {
 	// Match glm-5, glm-4.7, glm-4.6 and variants (exclude glm-4.5 — it's treated as 128K)
 	// Use a loose substring match so provider-prefixed ids like "z-ai/glm-4.6" are detected
 	return /glm-(?:5|4\.(?:6|7))(?!\d)/i.test(modelId);
+}
+
+export function isDevstralModel(modelId: string): boolean {
+	// Matches devstral-2 and devstral-small-2 (256K context, 32K output)
+	return /devstral[-_]?2/i.test(modelId);
 }
 
 
@@ -166,6 +174,14 @@ export function resolveGlobalTokenLimits(
 		return {
 			maxInputTokens: FIXED_64K_MAX_INPUT_TOKENS,
 			maxOutputTokens: FIXED_64K_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	// Devstral models: 256K total context, 32K output
+	if (isDevstralModel(modelId)) {
+		return {
+			maxInputTokens: DEVSTRAL_MAX_INPUT_TOKENS,
+			maxOutputTokens: DEVSTRAL_MAX_OUTPUT_TOKENS,
 		};
 	}
 

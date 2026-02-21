@@ -376,6 +376,41 @@ export class OpenCodeProvider
 				top_p: ConfigManager.getTopP(),
 			};
 
+			// Handle reasoning parameters based on model type
+			// Kimi K2.5 uses 'reasoning' parameter, OpenAI models use 'reasoning' parameter
+			const thinkingEnabled = ConfigManager.getThinking();
+			
+			// Check if this is a Kimi K2.5 model
+			const isKimiK25 = model.id.toLowerCase().includes("kimi-k2.5");
+			
+			if (isKimiK25) {
+				// Kimi K2.5 uses 'reasoning' parameter with enabled and budget_tokens
+				if (thinkingEnabled) {
+					// Calculate budget tokens based on model's max output tokens
+					// Use 50% as default budget for thinking
+					const budgetTokens = Math.floor(model.maxOutputTokens * 0.5);
+					
+					((createParams as unknown) as Record<string, unknown>).reasoning = {
+						enabled: true,
+						budget_tokens: budgetTokens,
+					};
+				} else {
+					// Explicitly disable reasoning
+					((createParams as unknown) as Record<string, unknown>).reasoning = {
+						enabled: false,
+					};
+				}
+			} else {
+				// For other models (OpenAI, etc.), use reasoning parameter with effort level
+				if (thinkingEnabled) {
+					// Use medium effort by default for OpenAI models
+					((createParams as unknown) as Record<string, unknown>).reasoning_effort = "medium";
+				} else {
+					// Disable reasoning
+					((createParams as unknown) as Record<string, unknown>).reasoning_effort = "low";
+				}
+			}
+
 			// Add model options (match Chutes behavior)
 			if (options.modelOptions) {
 				const mo = options.modelOptions as Record<string, unknown>;

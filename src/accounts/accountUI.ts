@@ -151,6 +151,7 @@ export class AccountUI {
 			},
 			{ label: "DeepSeek", value: "deepseek", authType: "apiKey" as const },
 			{ label: "DeepInfra", value: "deepinfra", authType: "apiKey" as const },
+			{ label: "NVIDIA NIM", value: "nvidia", authType: "apiKey" as const },
 			{
 				label: "Compatible (Custom)",
 				value: ProviderKey.Compatible,
@@ -868,6 +869,7 @@ export class AccountUI {
 			minimax: "MiniMax",
 			deepseek: "DeepSeek",
 			deepinfra: "DeepInfra",
+			nvidia: "NVIDIA NIM",
 			compatible: "Compatible",
 		};
 		return (

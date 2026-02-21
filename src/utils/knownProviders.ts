@@ -66,6 +66,12 @@ export const KnownProviders: Record<string, KnownProviderConfig> = {
 			baseUrl: "https://api.deepinfra.com/v1/openai",
 		},
 	},
+	nvidia: {
+		displayName: "NVIDIA NIM",
+		openai: {
+			baseUrl: "https://integrate.api.nvidia.com/v1",
+		},
+	},
 	mistral: {
 		displayName: "Mistral AI",
 		openai: {

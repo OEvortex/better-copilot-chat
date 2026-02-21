@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
  *  Ollama Cloud Dedicated Provider
- *  Uses static model configuration from src/providers/config/ollama.json
+ *  Supports dynamic model fetching from https://ollama.com/v1/models
  *--------------------------------------------------------------------------------------------*/
 
 import OpenAI from "openai";
@@ -22,6 +22,7 @@ import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
+import type { OllamaModelItem, OllamaModelsResponse } from "./types";
 
 const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
 const DEFAULT_CONTEXT_LENGTH = 262000;
@@ -67,21 +68,58 @@ export class OllamaProvider
 			return [];
 		}
 
-		const infos = this.providerConfig.models.map((model) => {
-			const capabilities = {
-				toolCalling: model.capabilities?.toolCalling ?? false,
-				imageInput: model.capabilities?.imageInput ?? false,
-			};
+		// Try to fetch models dynamically from /v1/models endpoint
+		let models: OllamaModelItem[] = [];
+		try {
+			models = await this.fetchModels(apiKey);
+		} catch (err) {
+			Logger.warn(
+				"[Ollama] Failed to fetch models dynamically, using static config",
+				err instanceof Error ? err.message : String(err),
+			);
+			// Fall back to static config
+			return this.providerConfig.models.map((model) =>
+				this.modelConfigToInfo(model),
+			);
+		}
+
+		// If API returns no models, fall back to static config
+		if (!models || models.length === 0) {
+			Logger.info(
+				"[Ollama] No models returned from API, using static config",
+			);
+			return this.providerConfig.models.map((model) =>
+				this.modelConfigToInfo(model),
+			);
+		}
+
+		// Convert dynamic models to VS Code format
+		const infos: LanguageModelChatInformation[] = models.map((model) => {
+			const contextLength =
+				model.metadata?.context_length || DEFAULT_CONTEXT_LENGTH;
+			const maxOutput =
+				model.metadata?.max_tokens || DEFAULT_MAX_OUTPUT_TOKENS;
+
+			// Detect capabilities from model metadata or ID patterns
+			const hasToolCalling =
+				model.metadata?.tags?.includes("tool_calling") ?? false;
+			const hasImageInput =
+				model.metadata?.tags?.includes("vision") ||
+				model.id.toLowerCase().includes("vl") ||
+				model.id.toLowerCase().includes("vision");
 
 			return {
 				id: model.id,
-				name: model.name,
-				tooltip: `${model.name} by Ollama`,
+				name: model.id,
+				tooltip: `${model.id} by Ollama`,
 				family: "ollama",
 				version: "1.0.0",
-				maxInputTokens: model.maxInputTokens || DEFAULT_CONTEXT_LENGTH,
-				maxOutputTokens: model.maxOutputTokens || DEFAULT_MAX_OUTPUT_TOKENS,
-				capabilities,
+				maxInputTokens: contextLength - maxOutput,
+				maxOutputTokens: maxOutput,
+				capabilities: {
+					toolCalling: hasToolCalling,
+					imageInput: hasImageInput,
+				},
 			} as LanguageModelChatInformation;
 		});
 
@@ -164,6 +202,21 @@ export class OllamaProvider
 					options.modelOptions?.temperature ?? ConfigManager.getTemperature(),
 				top_p: ConfigManager.getTopP(),
 			};
+
+			const reasoningEffort = (
+				options.modelOptions as
+					| { reasoning_effort?: string; reasoningEffort?: string }
+					| undefined
+			)?.reasoning_effort ??
+				(
+					options.modelOptions as
+						| { reasoning_effort?: string; reasoningEffort?: string }
+						| undefined
+				)?.reasoningEffort;
+			((createParams as unknown) as Record<string, unknown>).reasoning_effort =
+				typeof reasoningEffort === "string" && reasoningEffort.length > 0
+					? reasoningEffort
+					: "medium";
 
 			// Add model options
 			if (options.modelOptions) {
@@ -391,6 +444,77 @@ export class OllamaProvider
 				error instanceof Error ? error.message : String(error),
 			);
 			throw error;
+		}
+	}
+
+	/**
+	 * Fetch available models from Ollama's /v1/models endpoint
+	 */
+	private async fetchModels(apiKey: string): Promise<OllamaModelItem[]> {
+		try {
+			const baseUrl =
+				this.providerConfig.baseUrl || "https://ollama.com/v1";
+			const modelsUrl = `${baseUrl}/models`;
+			Logger.debug(`[Ollama] Fetching models from: ${modelsUrl}`);
+
+			const abortController = new AbortController();
+			const timeoutId = setTimeout(() => abortController.abort(), 10000); // 10 second timeout
+
+			try {
+				const resp = await fetch(modelsUrl, {
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${apiKey}`,
+						"User-Agent": this.userAgent,
+					},
+					signal: abortController.signal,
+				});
+
+				clearTimeout(timeoutId);
+
+				if (!resp.ok) {
+					const text = await resp.text();
+					Logger.warn(
+						`[Ollama] Failed to fetch models: ${resp.status} ${resp.statusText}`,
+					);
+					if (resp.status === 429) {
+						Logger.warn(
+							"[Ollama] Rate limited (429). Will retry with pre-configured models.",
+						);
+					}
+					throw new Error(
+						`Failed to fetch Ollama models: ${resp.status} ${text}`,
+					);
+				}
+
+				const parsed = (await resp.json()) as OllamaModelsResponse;
+				const models = parsed.data || [];
+				Logger.info(
+					`[Ollama] Successfully fetched ${models.length} models`,
+				);
+				return models;
+			} catch (fetchError) {
+				clearTimeout(timeoutId);
+				if (
+					fetchError instanceof Error &&
+					fetchError.name === "AbortError"
+				) {
+					Logger.warn(
+						"[Ollama] Model fetch timeout (10s). Using pre-configured models.",
+					);
+				} else {
+					Logger.warn(
+						`[Ollama] Model fetch failed: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}. Using pre-configured models.`,
+					);
+				}
+				throw fetchError;
+			}
+		} catch (err) {
+			Logger.warn(
+				"[Ollama] Error in fetchModels:",
+				err instanceof Error ? err.message : String(err),
+			);
+			throw err;
 		}
 	}
 

@@ -11,6 +11,7 @@ import lightningai from "./lightningai.json";
 import minimax from "./minimax.json";
 import mistral from "./mistral.json";
 import moonshot from "./moonshot.json";
+import nvidia from "./nvidia.json";
 import opencode from "./opencode.json";
 import ollama from "./ollama.json";
 import qwencli from "./qwencli.json";
@@ -24,6 +25,7 @@ const providers = {
 	minimax,
 	moonshot,
 	deepseek,
+	nvidia,
 	antigravity,
 	chatjimmy,
 	chutes,

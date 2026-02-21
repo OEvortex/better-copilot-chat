@@ -73,6 +73,7 @@ export class CopilotOverview {
 			const providers = [
 				"deepseek",
 				"deepinfra",
+				"nvidia",
 				"chutes",
 				"opencode",
 				"blackbox",

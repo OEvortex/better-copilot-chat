@@ -16,6 +16,7 @@ import { HuggingfaceProvider } from "./providers/huggingface/provider";
 import { LightningAIProvider } from "./providers/lightningai/provider";
 import { MiniMaxProvider } from "./providers/minimax/minimaxProvider";
 import { MistralProvider } from "./providers/mistral/mistralProvider";
+import { NvidiaProvider } from "./providers/nvidia";
 import { OllamaProvider } from "./providers/ollama";
 import { OpenCodeProvider } from "./providers/opencode/opencodeProvider";
 import { QwenCliProvider } from "./providers/qwencli/provider";
@@ -58,6 +59,7 @@ const registeredProviders: Record<
 	| AntigravityProvider
 	| DeepInfraProvider
 	| MistralProvider
+	| NvidiaProvider
 	| BlackboxProvider
 > = {};
 const registeredDisposables: vscode.Disposable[] = [];
@@ -113,7 +115,8 @@ async function activateProviders(
 					| HuggingfaceProvider
 					| OllamaProvider
 					| DeepInfraProvider
-					| MistralProvider;
+					| MistralProvider
+					| NvidiaProvider;
 				let disposables: vscode.Disposable[];
 
 				if (providerKey === "zhipu") {
@@ -209,6 +212,15 @@ async function activateProviders(
 				} else if (providerKey === "mistral") {
 					// Use specialized provider for Mistral AI (OpenAI-compatible endpoints)
 					const result = MistralProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider as unknown as GenericModelProvider;
+					disposables = result.disposables as unknown as vscode.Disposable[];
+				} else if (providerKey === "nvidia") {
+					// Use specialized provider for NVIDIA NIM (OpenAI-compatible + model discovery + 40 RPM throttle)
+					const result = NvidiaProvider.createAndActivate(
 						context,
 						providerKey,
 						providerConfig,
