@@ -112,24 +112,24 @@
             }
         },
         {
-            "id": "openai-gpt-oss-120b-tee",
-            "name": "openai/gpt-oss-120b-TEE",
-            "tooltip": "openai/gpt-oss-120b-TEE by Chutes",
-            "maxInputTokens": 115072,
-            "maxOutputTokens": 16000,
-            "model": "openai/gpt-oss-120b-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "qwen-qwen3-coder-next-tee",
             "name": "Qwen/Qwen3-Coder-Next-TEE",
             "tooltip": "Qwen/Qwen3-Coder-Next-TEE by Chutes",
             "maxInputTokens": 230144,
             "maxOutputTokens": 32000,
             "model": "Qwen/Qwen3-Coder-Next-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "openai-gpt-oss-120b-tee",
+            "name": "openai/gpt-oss-120b-TEE",
+            "tooltip": "openai/gpt-oss-120b-TEE by Chutes",
+            "maxInputTokens": 115072,
+            "maxOutputTokens": 16000,
+            "model": "openai/gpt-oss-120b-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -364,18 +364,6 @@
             }
         },
         {
-            "id": "deepseek-ai-deepseek-v3-2-speciale-tee",
-            "name": "deepseek-ai/DeepSeek-V3.2-Speciale-TEE",
-            "tooltip": "deepseek-ai/DeepSeek-V3.2-Speciale-TEE by Chutes",
-            "maxInputTokens": 147840,
-            "maxOutputTokens": 16000,
-            "model": "deepseek-ai/DeepSeek-V3.2-Speciale-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "qwen-qwen2-5-vl-72b-instruct-tee",
             "name": "Qwen/Qwen2.5-VL-72B-Instruct-TEE",
             "tooltip": "Qwen/Qwen2.5-VL-72B-Instruct-TEE by Chutes",
@@ -385,6 +373,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
+            }
+        },
+        {
+            "id": "deepseek-ai-deepseek-v3-2-speciale-tee",
+            "name": "deepseek-ai/DeepSeek-V3.2-Speciale-TEE",
+            "tooltip": "deepseek-ai/DeepSeek-V3.2-Speciale-TEE by Chutes",
+            "maxInputTokens": 147840,
+            "maxOutputTokens": 16000,
+            "model": "deepseek-ai/DeepSeek-V3.2-Speciale-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
             }
         },
         {

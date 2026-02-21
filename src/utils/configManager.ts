@@ -70,8 +70,6 @@ export type FIMCompletionConfig = Omit<NESCompletionConfig, "manualOnly">;
 export interface CHPConfig {
 	/** Temperature parameter, controls output randomness (0.0-2.0) */
 	temperature: number;
-	/** Enable thinking/reasoning for models that support it */
-	thinking: boolean;
 	/** Top-p parameter, controls output diversity (0.0-1.0) */
 	topP: number;
 	/** Maximum output token count */
@@ -142,7 +140,6 @@ export class ConfigManager {
 			temperature: ConfigManager.validateTemperature(
 				config.get<number>("temperature", 0.1),
 			),
-			thinking: config.get<boolean>("thinking", true),
 			topP: ConfigManager.validateTopP(config.get<number>("topP", 1.0)),
 			maxTokens: ConfigManager.validateMaxTokens(
 				config.get<number>("maxTokens", 256000),
@@ -230,13 +227,6 @@ export class ConfigManager {
 	 */
 	static getTemperature(): number {
 		return ConfigManager.getConfig().temperature;
-	}
-
-	/**
-	 * Get thinking/reasoning enabled state
-	 */
-	static getThinking(): boolean {
-		return ConfigManager.getConfig().thinking;
 	}
 
 	/**

@@ -381,21 +381,6 @@ export class LightningAIProvider
 				),
 			};
 
-			const reasoningEffort = (
-				options.modelOptions as
-					| { reasoning_effort?: string; reasoningEffort?: string }
-					| undefined
-			)?.reasoning_effort ??
-				(
-					options.modelOptions as
-						| { reasoning_effort?: string; reasoningEffort?: string }
-						| undefined
-				)?.reasoningEffort;
-			((createParams as unknown) as Record<string, unknown>).reasoning_effort =
-				typeof reasoningEffort === "string" && reasoningEffort.length > 0
-					? reasoningEffort
-					: "medium";
-
 			// Handle temperature and top_p (Lightning AI restriction: cannot use both)
 			const userTemperature = options.modelOptions?.temperature ?? ConfigManager.getTemperature();
 			const userTopP = ConfigManager.getTopP();

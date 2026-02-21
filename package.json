@@ -303,24 +303,6 @@
                     "description": "Controls the randomness of AI model output. Lower values (like 0.1) produce more deterministic output, while higher values (like 1.0) produce more creative output.",
                     "scope": "application"
                 },
-                "chp.reasoningEffort": {
-                    "type": "string",
-                    "enum": [
-                        "none",
-                        "low",
-                        "medium",
-                        "high"
-                    ],
-                    "enumDescriptions": [
-                        "Disable reasoning - model will not use extended thinking",
-                        "Low reasoning effort - minimal extended thinking for faster responses",
-                        "Medium reasoning effort - balanced thinking time and response quality (default)",
-                        "High reasoning effort - maximum extended thinking for complex reasoning tasks"
-                    ],
-                    "default": "medium",
-                    "description": "Controls the reasoning effort for models that support extended thinking (e.g., o1, o3, o4-mini). This is passed to the reasoning_effort parameter in OpenAI-compatible API requests. Set to 'none' to disable.",
-                    "scope": "application"
-                },
                 "chp.topP": {
                     "type": "number",
                     "default": 1,

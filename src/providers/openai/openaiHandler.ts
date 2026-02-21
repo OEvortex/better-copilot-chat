@@ -419,44 +419,6 @@ export class OpenAIHandler {
 				temperature: ConfigManager.getTemperature(),
 				top_p: ConfigManager.getTopP(),
 			};
-			const thinkingEnabled = ConfigManager.getThinking();
-			((createParams as unknown) as Record<string, unknown>).reasoning_effort =
-				thinkingEnabled ? "medium" : "low";
-			// #region Debug: check image content in input messages
-			// let totalImageParts = 0;
-			// let totalDataParts = 0;
-			// let cacheControlParts = 0;
-			// messages.forEach((msg, index) => {
-			//     const dataParts = msg.content.filter(part => part instanceof vscode.LanguageModelDataPart);
-			//     const imageParts = dataParts.filter(part => {
-			//         const dataPart = part as vscode.LanguageModelDataPart;
-			//         return this.isImageMimeType(dataPart.mimeType);
-			//     });
-			//     const cacheControls = dataParts.filter(part => {
-			//         const dataPart = part as vscode.LanguageModelDataPart;
-			//         return dataPart.mimeType === 'cache_control';
-			//     });
-
-			//     totalDataParts += dataParts.length;
-			//     totalImageParts += imageParts.length;
-			//     cacheControlParts += cacheControls.length;
-
-			//     if (dataParts.length > 0) {
-			//         Logger.debug(`Message ${index}: Found ${dataParts.length} data parts, including ${imageParts.length} images, ${cacheControls.length} cache identifiers`);
-			//         dataParts.forEach((part, partIndex) => {
-			//             const dataPart = part as vscode.LanguageModelDataPart;
-			//             const isImage = this.isImageMimeType(dataPart.mimeType);
-			//             const isCache = dataPart.mimeType === 'cache_control';
-			//             const icon = isImage ? 'IMAGE' : isCache ? 'CACHE' : 'OTHER';
-			//             Logger.trace(`${icon} Data part ${partIndex}: MIME=${dataPart.mimeType}, size=${dataPart.data.length} bytes, type=${isImage ? 'image' : isCache ? 'cache' : 'other'}`);
-			//         });
-			//     }
-			// });
-			// if (totalDataParts > 0) {
-			//     const effectiveDataParts = totalDataParts - cacheControlParts;
-			//     Logger.debug(`Data statistics: total ${totalDataParts} data parts (${effectiveDataParts} effective data + ${cacheControlParts} cache identifiers), including ${totalImageParts} images, model image capability: ${model.capabilities?.imageInput}`);
-			// }
-			// #endregion
 
 			// Add tool support (if any)
 			if (
@@ -876,42 +838,14 @@ export class OpenAIHandler {
 								}
 
 								// Compatible: prioritize reasoning/reasoning_content in delta, otherwise try reading from message
-								// Note: Some providers (Chutes) use 'reasoning', others (OpenAI-compatible) use 'reasoning_content'
-								// Kimi K2.5 uses reasoning_details array
+								// Handle reasoning/reasoning_content from delta or message
 								const reasoningContent =
 									delta?.reasoning ??
 									delta?.reasoning_content ??
 									message?.reasoning ??
 									message?.reasoning_content;
-								
-								// Handle reasoning_details array (Kimi K2.5 format)
-								if (delta?.reasoning_details && Array.isArray(delta.reasoning_details)) {
-									for (const detail of delta.reasoning_details) {
-										if (detail.type === "reasoning" && detail.text) {
-											const shouldOutputThinking = modelConfig.outputThinking !== false;
-											if (shouldOutputThinking) {
-												try {
-													if (!currentThinkingId) {
-														currentThinkingId = `thinking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-													}
-													thinkingContentBuffer += detail.text;
-													progress.report(
-														new vscode.LanguageModelThinkingPart(
-															thinkingContentBuffer,
-															currentThinkingId,
-														),
-													);
-													thinkingContentBuffer = "";
-													hasThinkingContent = true;
-												} catch (e) {
-													Logger.trace(
-														`${model.name} failed to report reasoning_details: ${String(e)}`,
-													);
-												}
-											}
-										}
-									}
-								} else if (reasoningContent) {
+
+								if (reasoningContent) {
 									// Check outputThinking setting in model configuration
 									const shouldOutputThinking =
 										modelConfig.outputThinking !== false; // default true
@@ -1531,27 +1465,17 @@ export class OpenAIHandler {
 			return null;
 		}
 
-		// Create extended assistant message, supporting reasoning_content field
-		const assistantMessage: ExtendedAssistantMessageParam = {
+		// Create assistant message
+		const assistantMessage: OpenAI.Chat.ChatCompletionAssistantMessageParam = {
 			role: "assistant",
-			content: textContent || null, // Contains only regular text content, no thinking content
+			content: textContent || null,
 		};
 
-		// For kimi-k2.5 models, always include reasoning_content field (even if empty) when there are tool calls
-		// This is required by Moonshot AI API to avoid "reasoning_content is missing" error
-		const isKimiK25 = modelConfig?.id?.toLowerCase().includes("kimi-k2.5");
-		const hasToolCalls = toolCalls.length > 0;
-		
+		// If there is thinking content, add to reasoning_content field
 		if (thinkingContent) {
-			assistantMessage.reasoning_content = thinkingContent;
+			(assistantMessage as any).reasoning_content = thinkingContent;
 			Logger.trace(
 				`Add reasoning_content: ${thinkingContent.length} characters`,
-			);
-		} else if (isKimiK25 && hasToolCalls) {
-			// For kimi-k2.5 with tool calls, include empty reasoning_content to satisfy API requirement
-			assistantMessage.reasoning_content = "";
-			Logger.trace(
-				`[kimi-k2.5] Added empty reasoning_content for tool call message to satisfy Moonshot AI API`,
 			);
 		}
 
