@@ -43,7 +43,7 @@
             "id": "google/gemini-2.5-flash-lite-preview-06-17",
             "name": "Gemini 2.5 Flash Lite",
             "tooltip": "Gemini 2.5 Flash-Lite is a model developed by Google DeepMind, designed to handle various tasks including reasoning, science, mathematics, code generation, and more. It features advanced capabilities in multilingual performance and long context understanding. It is optimized for low latency use cases, supporting multimodal input with a 1 million-token context length.\n\n",
-            "maxInputTokens": 1016576,
+            "maxInputTokens": 968000,
             "maxOutputTokens": 32000,
             "model": "google/gemini-2.5-flash-lite-preview-06-17",
             "capabilities": {
@@ -211,7 +211,7 @@
             "id": "google/gemini-2.5-pro",
             "name": "Gemini 2.5 Pro",
             "tooltip": "Gemini 2.5 Pro is Google’s AI model built for advanced reasoning, coding, math, and scientific work. With integrated “thinking” capabilities, it delivers more accurate answers and handles context with greater nuance. It ranks at the top of multiple benchmarks, including first place on the LMArena leaderboard, showcasing strong human-preference alignment and exceptional problem-solving skills.",
-            "maxInputTokens": 1016576,
+            "maxInputTokens": 968000,
             "maxOutputTokens": 32000,
             "model": "google/gemini-2.5-pro",
             "capabilities": {
@@ -223,7 +223,7 @@
             "id": "google/gemini-2.5-flash",
             "name": "Gemini 2.5 Flash",
             "tooltip": "Gemini 2.5 Flash is Google’s powerful model built for complex reasoning, coding, math, and scientific challenges. With integrated “thinking” capabilities, it delivers more accurate answers and handles context with greater nuance.",
-            "maxInputTokens": 1016576,
+            "maxInputTokens": 968000,
             "maxOutputTokens": 32000,
             "model": "google/gemini-2.5-flash",
             "capabilities": {
@@ -307,8 +307,8 @@
             "id": "google/gemini-3-flash-preview",
             "name": "Gemini 3 Flash",
             "tooltip": "Gemini 3 Flash Preview is designed to deliver strong agentic capabilities (near-Pro level) at substantial speed and value.",
-            "maxInputTokens": 1016576,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 936000,
+            "maxOutputTokens": 64000,
             "model": "google/gemini-3-flash-preview",
             "capabilities": {
                 "toolCalling": true,
@@ -331,8 +331,8 @@
             "id": "google/gemini-3-pro-preview",
             "name": "Gemini 3 Pro Preview",
             "tooltip": "The best model in the world for multimodal understanding, and our most powerful agentic and vibe-coding model yet",
-            "maxInputTokens": 1016576,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 936000,
+            "maxOutputTokens": 64000,
             "model": "google/gemini-3-pro-preview",
             "capabilities": {
                 "toolCalling": true,

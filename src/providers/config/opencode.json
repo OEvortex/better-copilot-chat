@@ -40,12 +40,12 @@
             }
         },
         {
-            "id": "claude-sonnet-4",
-            "name": "claude-sonnet-4",
-            "tooltip": "claude-sonnet-4 by OpenCode",
+            "id": "claude-sonnet-4-6",
+            "name": "claude-sonnet-4-6",
+            "tooltip": "claude-sonnet-4-6 by OpenCode",
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
-            "model": "claude-sonnet-4",
+            "model": "claude-sonnet-4-6",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -58,6 +58,18 @@
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
             "model": "claude-sonnet-4-5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "claude-sonnet-4",
+            "name": "claude-sonnet-4",
+            "tooltip": "claude-sonnet-4 by OpenCode",
+            "maxInputTokens": 112000,
+            "maxOutputTokens": 16000,
+            "model": "claude-sonnet-4",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -82,6 +94,18 @@
             "maxInputTokens": 112000,
             "maxOutputTokens": 16000,
             "model": "claude-haiku-4-5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "gemini-3.1-pro",
+            "name": "gemini-3.1-pro",
+            "tooltip": "gemini-3.1-pro by OpenCode",
+            "maxInputTokens": 936000,
+            "maxOutputTokens": 64000,
+            "model": "gemini-3.1-pro",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -304,6 +328,42 @@
             }
         },
         {
+            "id": "alpha-gpt-5.3-codex",
+            "name": "alpha-gpt-5.3-codex",
+            "tooltip": "alpha-gpt-5.3-codex by OpenCode",
+            "maxInputTokens": 336000,
+            "maxOutputTokens": 64000,
+            "model": "alpha-gpt-5.3-codex",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "alpha-gpt-5.4",
+            "name": "alpha-gpt-5.4",
+            "tooltip": "alpha-gpt-5.4 by OpenCode",
+            "maxInputTokens": 336000,
+            "maxOutputTokens": 64000,
+            "model": "alpha-gpt-5.4",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "alpha-kimi-k2.5",
+            "name": "alpha-kimi-k2.5",
+            "tooltip": "alpha-kimi-k2.5 by OpenCode",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "alpha-kimi-k2.5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
             "id": "kimi-k2.5",
             "name": "kimi-k2.5",
             "tooltip": "kimi-k2.5 by OpenCode",
@@ -364,18 +424,6 @@
             }
         },
         {
-            "id": "glm-4.7-free",
-            "name": "glm-4.7-free",
-            "tooltip": "glm-4.7-free by OpenCode",
-            "maxInputTokens": 224000,
-            "maxOutputTokens": 32000,
-            "model": "glm-4.7-free",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "big-pickle",
             "name": "big-pickle",
             "tooltip": "big-pickle by OpenCode",
@@ -388,12 +436,12 @@
             }
         },
         {
-            "id": "alpha-g5",
-            "name": "alpha-g5",
-            "tooltip": "alpha-g5 by OpenCode",
-            "maxInputTokens": 112000,
-            "maxOutputTokens": 16000,
-            "model": "alpha-g5",
+            "id": "glm-5-free",
+            "name": "glm-5-free",
+            "tooltip": "glm-5-free by OpenCode",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "glm-5-free",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false

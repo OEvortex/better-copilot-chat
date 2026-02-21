@@ -1,0 +1,20 @@
+{
+    "displayName": "ChatJimmy",
+    "baseUrl": "https://chatjimmy.ai/api",
+    "apiKeyTemplate": "optional-api-key-for-future-auth",
+    "models": [
+        {
+            "id": "llama3.1-8B",
+            "name": "Llama 3.1 8B",
+            "tooltip": "Llama 3.1 8B model on ChatJimmy - Optimized for code completion and FIM tasks",
+            "sdkMode": "openai",
+            "baseUrl": "https://chatjimmy.ai/api",
+            "maxInputTokens": 8192,
+            "maxOutputTokens": 2048,
+            "capabilities": {
+                "toolCalling": false,
+                "imageInput": false
+            }
+        }
+    ]
+}

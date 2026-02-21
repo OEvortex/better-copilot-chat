@@ -22,3 +22,6 @@ extension.js*
 
 # Ignore .zencoder files
 .zencoder
+
+# Ignore .agents files
+.agents

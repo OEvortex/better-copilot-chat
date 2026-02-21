@@ -1262,6 +1262,42 @@
                 "toolCalling": true,
                 "imageInput": true
             }
+        },
+        {
+            "id": "qwen-qwen3-5-plus",
+            "name": "Qwen: Qwen3.5-Plus",
+            "tooltip": "Qwen: Qwen3.5-Plus by Zenmux",
+            "maxInputTokens": 968000,
+            "maxOutputTokens": 32000,
+            "model": "qwen/qwen3.5-plus",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "google-gemini-3-1-pro-preview",
+            "name": "Google: Gemini 3.1 Pro Preview",
+            "tooltip": "Google: Gemini 3.1 Pro Preview by Zenmux",
+            "maxInputTokens": 936000,
+            "maxOutputTokens": 64000,
+            "model": "google/gemini-3.1-pro-preview",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "anthropic-claude-sonnet-4-6",
+            "name": "Anthropic: Claude Sonnet 4.6",
+            "tooltip": "Anthropic: Claude Sonnet 4.6 by Zenmux",
+            "maxInputTokens": 968000,
+            "maxOutputTokens": 32000,
+            "model": "anthropic/claude-sonnet-4.6",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
         }
     ]
 }

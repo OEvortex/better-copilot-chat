@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3] - 2026-02-21
+
+### Added
+- **ChatJimmy FIM Support**: Added new ChatJimmy provider for Fill-In-the-Middle (FIM) completions.
+  - Implemented `chatjimmyFimHandler.ts` for handling FIM requests to ChatJimmy API.
+  - ChatJimmy is a public API that doesn't require authentication.
+
+### Fixed
+- **ChatJimmy Response Parsing**: Fixed JSON stream parsing errors by converting ChatJimmy plain-text responses into OpenAI-compatible SSE format.
+  - Added `stripChatJimmyStats()` to remove `<|stats|>...</|stats|>` metadata blocks.
+  - Added `buildChatJimmyCompletionSse()` to wrap response text in proper JSON SSE format.
+  - Updated `getBody()` to handle ChatJimmy FIM responses specially for chat-lib compatibility.
+- **ChatJimmy API Key Check**: Fixed API key validation to skip authentication check for ChatJimmy (public API).
+- **Cancellation Token**: Fixed AbortSignal usage in ChatJimmy FIM handler for proper request cancellation.
+
 ## [0.2.2] - 2026-02-15
 
 ### Added

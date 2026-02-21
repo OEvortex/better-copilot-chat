@@ -65,6 +65,29 @@ class ResponseWrapper {
  * Custom Fetcher implementation
  */
 export class Fetcher implements IFetcher {
+	private stripChatJimmyStats(rawText: string): string {
+		return rawText.replace(/<\|stats\|>[\s\S]*?<\|\/stats\|>/g, "").trimEnd();
+	}
+
+	private buildChatJimmyCompletionSse(text: string, model: string): string {
+		const payload = {
+			id: `chatcmpl-chatjimmy-${Date.now()}`,
+			object: "text_completion",
+			created: Math.floor(Date.now() / 1000),
+			model,
+			choices: [
+				{
+					text,
+					index: 0,
+					logprobs: null,
+					finish_reason: "stop",
+				},
+			],
+		};
+
+		return `data: ${JSON.stringify(payload)}\n\ndata: [DONE]\n\n`;
+	}
+
 	getUserAgentLibrary(): string {
 		return "Fetcher";
 	}
@@ -111,6 +134,8 @@ export class Fetcher implements IFetcher {
 
 		const ConfigManager = getConfigManager();
 		let modelConfig: NESCompletionConfig["modelConfig"];
+		let isChatJimmyFim = false;
+
 		if (url.endsWith("/chat/completions")) {
 			modelConfig = ConfigManager.getNESConfig().modelConfig;
 			if (!modelConfig || !modelConfig.baseUrl) {
@@ -124,7 +149,13 @@ export class Fetcher implements IFetcher {
 				logger.error("[Fetcher] FIM model configuration missing");
 				throw new Error("FIM model configuration is missing");
 			}
-			url = `${modelConfig.baseUrl}/completions`;
+			// Special handling for ChatJimmy FIM provider
+			if (modelConfig.provider === "chatjimmy") {
+				isChatJimmyFim = true;
+				url = `${modelConfig.baseUrl}/chat`;
+			} else {
+				url = `${modelConfig.baseUrl}/completions`;
+			}
 		} else {
 			throw new Error("Not Support Request URL");
 		}
@@ -132,44 +163,74 @@ export class Fetcher implements IFetcher {
 		const { provider, model, maxTokens, extraBody } = modelConfig;
 
 		try {
-			const apiKey = await keyManager.getApiKey(provider);
-			if (!apiKey) {
-				logger.error(`[Fetcher] ${provider} API key not configured`);
-				throw new Error("API key not configured");
-			}
+			// ChatJimmy is a public API that doesn't require authentication
+			let requestHeaders: Record<string, string>;
 
-			const requestHeaders: Record<string, string> = {
-				...(options.headers || {}),
-				"Content-Type": "application/json",
-				"User-Agent": VersionManager.getUserAgent(provider),
-				Authorization: `Bearer ${apiKey}`,
-			};
-
-			if (extraBody) {
-				for (const key in extraBody) {
-					requestBody[key] = extraBody[key];
+			if (provider !== "chatjimmy") {
+				const apiKey = await keyManager.getApiKey(provider);
+				if (!apiKey) {
+					logger.error(`[Fetcher] ${provider} API key not configured`);
+					throw new Error("API key not configured");
 				}
+
+				requestHeaders = {
+					...(options.headers || {}),
+					"Content-Type": "application/json",
+					"User-Agent": VersionManager.getUserAgent(provider),
+					"Authorization": `Bearer ${apiKey}`,
+				};
+			} else {
+				// ChatJimmy public API - no authentication required
+				requestHeaders = {
+					...(options.headers || {}),
+					"Content-Type": "application/json",
+					"User-Agent": VersionManager.getUserAgent(provider),
+				};
 			}
-			// if (Array.isArray(requestBody.messages)) {
-			//     const messages = requestBody.messages;
-			//     const promptAddition =
-			//         '\n IMPORTANT: Do NOT use markdown code blocks (```). Output ONLY the raw code. Do not explain.';
-			//     // Try to add to system message
-			//     const systemMessage = messages.find(m => m.role === 'system');
-			//     if (systemMessage) {
-			//         systemMessage.content = (systemMessage.content || '') + promptAddition;
-			//     }
-			//     CompletionLogger.trace('[Fetcher] Prompt instruction injected to prohibit Markdown');
-			// }
+
+			let finalRequestBody: Record<string, unknown> = { ...requestBody };
+
+			// Special handling for ChatJimmy FIM format
+			if (isChatJimmyFim) {
+				// Convert FIM request format to ChatJimmy format
+				// FIM request has: {prompt: "<prefix><suffix>"}
+				// ChatJimmy expects: {messages: [{role, content}], chatOptions: {selectedModel, systemPrompt, topK}}
+				const fimContent = requestBody.prompt as string || "";
+				
+				finalRequestBody = {
+					messages: [
+						{
+							role: "user",
+							content: fimContent,
+						},
+					],
+					chatOptions: {
+						selectedModel: model,
+						systemPrompt:
+							"You are a code completion AI. Complete the code between the prefix and suffix markers. Return ONLY the code to fill in the middle, without any explanation.",
+						topK: 8,
+					},
+					attachment: null,
+				};
+			} else {
+				// Standard OpenAI format
+				if (extraBody) {
+					for (const key in extraBody) {
+						finalRequestBody[key] = extraBody[key];
+					}
+				}
+
+				finalRequestBody = {
+					...finalRequestBody,
+					model,
+					max_tokens: maxTokens,
+				};
+			}
 
 			const fetchOptions: RequestInit = {
 				method: "POST",
 				headers: requestHeaders,
-				body: JSON.stringify({
-					...requestBody,
-					model,
-					max_tokens: maxTokens,
-				}),
+				body: JSON.stringify(finalRequestBody),
 				signal: options.signal as AbortSignal | undefined,
 			};
 
@@ -236,6 +297,26 @@ export class Fetcher implements IFetcher {
 			};
 
 			const getBody = async (): Promise<Readable | null> => {
+				if (isChatJimmyFim) {
+					if (bodyConsumed) {
+						if (cachedText !== null) {
+							const cleanedText = this.stripChatJimmyStats(cachedText);
+							const ssePayload = this.buildChatJimmyCompletionSse(
+								cleanedText,
+								model,
+							);
+							return Readable.from([ssePayload]);
+						}
+						throw new Error("Response body has already been consumed");
+					}
+
+					bodyConsumed = true;
+					cachedText = await response.text();
+					const cleanedText = this.stripChatJimmyStats(cachedText);
+					const ssePayload = this.buildChatJimmyCompletionSse(cleanedText, model);
+					return Readable.from([ssePayload]);
+				}
+
 				if (bodyConsumed) {
 					// If text has already been read, return stream based on cached text
 					if (cachedText !== null) {
