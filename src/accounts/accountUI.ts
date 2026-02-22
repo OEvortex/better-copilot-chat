@@ -262,7 +262,7 @@ export class AccountUI {
 	}
 
 	/**
-	 * Add OAuth account (Antigravity)
+	 * Add OAuth account
 	 */
 	async addOAuthAccount(provider: string): Promise<void> {
 		if (provider === ProviderKey.Antigravity) {
@@ -289,6 +289,10 @@ export class AccountUI {
 					"Codex OAuth login failed. Please try again.",
 				);
 			}
+		} else {
+			vscode.window.showWarningMessage(
+				`OAuth login is not configured for provider: ${provider}`,
+			);
 		}
 	}
 

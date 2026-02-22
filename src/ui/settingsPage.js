@@ -419,3 +419,17 @@ window.addEventListener("message", (event) => {
 			break;
 	}
 });
+
+// Expose handlers for inline HTML event attributes
+window.initializeSettingsPage = _initializeSettingsPage;
+window.handleToggleChange = _handleToggleChange;
+window.handleStrategyChange = _handleStrategyChange;
+window.openAccountManager = _openAccountManager;
+window.refreshSettings = _refreshSettings;
+
+// Ask extension for current state when the page loads
+window.addEventListener("DOMContentLoaded", () => {
+	vscode.postMessage({
+		command: "refresh",
+	});
+});

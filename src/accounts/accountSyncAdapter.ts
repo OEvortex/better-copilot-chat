@@ -10,6 +10,8 @@ import { Logger } from "../utils/logger";
 import { AccountManager } from "./accountManager";
 import type { OAuthCredentials } from "./types";
 
+const CODEX_PROVIDER = "codex";
+
 /**
  * Adapter to sync accounts from various sources
  */
@@ -128,7 +130,7 @@ export class AccountSyncAdapter {
 	 */
 	async syncCodexAccount(): Promise<void> {
 		try {
-			const stored = await ApiKeyManager.getApiKey("codex");
+			const stored = await ApiKeyManager.getApiKey(CODEX_PROVIDER);
 			if (!stored) {
 				return;
 			}
@@ -142,7 +144,7 @@ export class AccountSyncAdapter {
 
 			// Check whether this account already exists
 			const existingAccounts =
-				this.accountManager.getAccountsByProvider("codex");
+				this.accountManager.getAccountsByProvider(CODEX_PROVIDER);
 			const existingByEmail = existingAccounts.find(
 				(acc) => acc.email === authData.email,
 			);
@@ -169,7 +171,7 @@ export class AccountSyncAdapter {
 				};
 
 				await this.accountManager.addOAuthAccount(
-					"codex",
+					CODEX_PROVIDER,
 					displayName,
 					authData.email || "",
 					credentials,
@@ -229,7 +231,7 @@ export class AccountSyncAdapter {
 		// Sync active accounts back to ApiKeyManager for compatibility
 		const allProviders = [
 			ProviderKey.Antigravity,
-			ProviderKey.Codex,
+			CODEX_PROVIDER,
 			...providers,
 		];
 		for (const provider of allProviders) {
@@ -271,13 +273,13 @@ export class AccountSyncAdapter {
 			);
 		} else if (
 			"accessToken" in activeCredentials &&
-			provider === ProviderKey.Codex
+			provider === CODEX_PROVIDER
 		) {
 			// Codex requires special format
 			const account = this.accountManager.getActiveAccount(provider);
 
 			// Get existing data to preserve account_id, organization_id, etc.
-			const existingData = await ApiKeyManager.getApiKey("codex");
+			const existingData = await ApiKeyManager.getApiKey(CODEX_PROVIDER);
 			let existingParsed: Record<string, unknown> = {};
 			if (existingData) {
 				try {
@@ -304,7 +306,7 @@ export class AccountSyncAdapter {
 			Logger.info(
 				"[accountSync] Preserving Codex account/org data during sync",
 			);
-			await ApiKeyManager.setApiKey("codex", JSON.stringify(authData));
+			await ApiKeyManager.setApiKey(CODEX_PROVIDER, JSON.stringify(authData));
 		}
 	}
 

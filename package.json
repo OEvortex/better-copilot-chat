@@ -66,6 +66,7 @@
         "onLanguageModelProvider:chp.qwencli",
         "onLanguageModelProvider:chp.geminicli",
         "onLanguageModelProvider:chp.antigravity",
+        "onLanguageModelProvider:chp.codex",
         "onLanguageModelTool:chp_zhipuWebSearch",
         "onLanguageModelTool:chp_minimaxWebSearch",
         "onFileSystem:chp-settings"
@@ -220,6 +221,16 @@
             {
                 "command": "chp.showAntigravityQuota",
                 "title": "Show Antigravity Quota & Models",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.codex.login",
+                "title": "Codex Login (OpenAI OAuth)",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.codex.logout",
+                "title": "Codex Logout",
                 "category": "Copilot ++"
             },
             {
@@ -494,6 +505,12 @@
                     "type": "string",
                     "default": "",
                     "description": "Antigravity base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
+                "chp.codex.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Codex base URL or proxy endpoint (optional).",
                     "scope": "application"
                 },
                 "chp.fimCompletion.enabled": {
@@ -907,6 +924,24 @@
                 "displayName": "⦿ Gemini CLI",
                 "configuration": {
                     "properties": {}
+                }
+            },
+            {
+                "vendor": "chp.codex",
+                "displayName": "⦿ Codex (OpenAI)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "OpenAI / OAuth.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
                 }
             },
             {
