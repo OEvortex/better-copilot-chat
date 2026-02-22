@@ -59,6 +59,13 @@ This ensures the user understands your actions before they happen.
 
 `;
 
+const CODEX_HOST_ENVIRONMENT_MESSAGE =
+	process.platform === "win32"
+		? "Host OS is Windows. Use PowerShell/cmd-compatible commands. Do NOT wrap commands with /bin/sh -c or bash -lc."
+		: process.platform === "darwin"
+			? "Host OS is macOS. Use zsh/bash-compatible commands."
+			: "Host OS is Linux. Use POSIX shell-compatible commands.";
+
 // Tool definitions for Codex CLI - These MUST be sent to the API for tool calling to work
 // Note: Using non-strict mode to allow optional parameters
 const CODEX_TOOLS = [
@@ -66,7 +73,7 @@ const CODEX_TOOLS = [
 		type: "function",
 		name: "shell",
 		description:
-			"Runs a shell command in the user's terminal. Use this for executing commands, running scripts, installing packages, etc.",
+			"Runs a shell command in the user's terminal using the host OS shell. On Windows, use PowerShell/cmd-compatible commands and do not wrap with /bin/sh -c or bash -lc.",
 		parameters: {
 			type: "object",
 			properties: {
@@ -74,7 +81,7 @@ const CODEX_TOOLS = [
 					type: "array",
 					items: { type: "string" },
 					description:
-						'The command and its arguments to run as an array, e.g., ["ls", "-la"]',
+						'The command and its arguments as an array. Use host-native command syntax, e.g. on Windows ["Get-ChildItem", "-Force"] or ["cmd", "/c", "dir"].',
 				},
 				workdir: {
 					type: "string",
@@ -269,10 +276,13 @@ function getCodexDeveloperMessage(useVSCodeTools: boolean): string {
 
 # VS Code Tools Integration
 You are running inside VS Code through GitHub Copilot Chat. You MUST use VS Code's native tools instead of Codex CLI tools.
+${CODEX_HOST_ENVIRONMENT_MESSAGE}
 
 ${vscodeToolsInstructions}`;
 	}
-	return CODEX_DEVELOPER_MESSAGE;
+	return `${CODEX_DEVELOPER_MESSAGE}
+
+${CODEX_HOST_ENVIRONMENT_MESSAGE}`;
 }
 
 /**
@@ -564,11 +574,17 @@ export class CodexHandler {
 		const promptCacheKey = crypto.randomUUID();
 		const sessionId = crypto.randomUUID();
 
-		// Determine if using VS Code tools (needed for developer message injection)
-		const useVSCodeTools = !!(
-			options.tools &&
-			options.tools.length > 0 &&
-			model.capabilities?.toolCalling
+		const availableVSCodeTools = Array.isArray(options.tools)
+			? options.tools
+			: [];
+		const toolCallingSupported = model.capabilities?.toolCalling !== false;
+		const useVSCodeTools =
+			availableVSCodeTools.length > 0 && toolCallingSupported;
+		Logger.debug(
+			`[codex] Available VS Code tools: ${availableVSCodeTools.map((tool) => tool.name).join(", ") || "none"}`,
+		);
+		Logger.info(
+			`[codex] Tool routing: options.tools=${availableVSCodeTools.length}, model.toolCalling=${model.capabilities?.toolCalling ?? "undefined"}, useVSCodeTools=${useVSCodeTools}`,
 		);
 
 		// Convert messages to Responses API format
@@ -596,7 +612,7 @@ export class CodexHandler {
 
 		// Convert VS Code tools to Codex format if available, otherwise use default CODEX_TOOLS
 		if (useVSCodeTools) {
-			const vsCodeTools = this.convertVSCodeToolsToCodex(options.tools);
+			const vsCodeTools = this.convertVSCodeToolsToCodex(availableVSCodeTools);
 			// Check if manage_todo_list is already in VS Code tools
 			const hasManageTodoList = vsCodeTools.some((t: unknown) => {
 				const tool = t as { name?: string };
@@ -615,6 +631,9 @@ export class CodexHandler {
 			payload.tools = vsCodeTools;
 		} else {
 			payload.tools = CODEX_TOOLS;
+			Logger.warn(
+				"[codex] VS Code tools unavailable for this request. Falling back to Codex native tools (tool execution in VS Code may be limited).",
+			);
 		}
 
 		// Add reasoning.effort if specified in model name
@@ -1354,10 +1373,12 @@ export class CodexHandler {
 														const cmd = Array.isArray(parsedArgs.command)
 															? parsedArgs.command.join(" ")
 															: parsedArgs.command;
-														let shellText = `\n🖥️ **Running command:**\n\`\`\`bash\n${cmd}\n\`\`\`\n`;
+														let shellText = `\n🖥️ **Planned command (not executed automatically):**\n\`\`\`bash\n${cmd}\n\`\`\`\n`;
 														if (parsedArgs.workdir) {
 															shellText += `Working directory: \`${parsedArgs.workdir}\`\n`;
 														}
+														shellText +=
+															"VS Code native tools were unavailable in this request, so this command was not executed.\n";
 														progress.report(
 															new vscode.LanguageModelTextPart(shellText),
 														);
