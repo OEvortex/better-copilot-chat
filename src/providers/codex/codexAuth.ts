@@ -485,6 +485,15 @@ async function doCodexLoginAndSave(isAddingNewAccount: boolean): Promise<void> {
 				expiresAt: result.expiresAt,
 			};
 			await accountManager.updateCredentials(existingByEmail.id, credentials);
+			await accountManager.updateAccount(existingByEmail.id, {
+				metadata: {
+					...(existingByEmail.metadata || {}),
+					accountId: result.accountId,
+					organizationId: result.organizationId,
+					projectId: result.projectId,
+					organizations: result.organizations,
+				},
+			});
 			Logger.info(`Updated existing Codex account: ${result.email}`);
 		} else {
 			// Add new account directly to AccountManager
@@ -506,7 +515,12 @@ async function doCodexLoginAndSave(isAddingNewAccount: boolean): Promise<void> {
 				displayName,
 				result.email || "",
 				credentials,
-				{ accountId: result.accountId },
+				{
+					accountId: result.accountId,
+					organizationId: result.organizationId,
+					projectId: result.projectId,
+					organizations: result.organizations,
+				},
 			);
 			Logger.info(`Added new Codex account: ${displayName}`);
 		}

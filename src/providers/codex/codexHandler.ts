@@ -378,10 +378,17 @@ export class CodexHandler {
 				}
 			}
 
-			// Find other available accounts (not the current one)
-			const otherAccounts = accounts.filter(
+			// Find other accounts (not the current one), preferring those not in quota cooldown
+			const candidateAccounts = accounts.filter(
 				(acc) => acc.id !== currentAccountId && acc.status === "active",
 			);
+			const availableOtherAccounts = candidateAccounts.filter(
+				(acc) => !accountManager.isAccountQuotaLimited(acc.id),
+			);
+			const otherAccounts =
+				availableOtherAccounts.length > 0
+					? availableOtherAccounts
+					: candidateAccounts;
 
 			// Auto-switch if load balance is enabled and there are other accounts
 			if (isLoadBalanceEnabled && otherAccounts.length > 0) {
@@ -535,7 +542,8 @@ export class CodexHandler {
 		progress: vscode.Progress<vscode.LanguageModelResponsePart2>,
 		token: vscode.CancellationToken,
 		accessToken: string,
-		accountId?: string,
+		managedAccountId?: string,
+		chatgptAccountId?: string,
 		organizationId?: string,
 		projectId?: string,
 	): Promise<void> {
@@ -629,8 +637,8 @@ export class CodexHandler {
 			Originator: "codex_cli_rs",
 		};
 
-		if (accountId) {
-			headers["Chatgpt-Account-Id"] = accountId;
+		if (chatgptAccountId) {
+			headers["Chatgpt-Account-Id"] = chatgptAccountId;
 		}
 
 		// Add organization header for Business workspace
@@ -667,7 +675,7 @@ export class CodexHandler {
 						progress,
 						token,
 						!!useVSCodeTools,
-						accountId,
+						managedAccountId,
 						organizationId,
 						projectId,
 					);
@@ -717,7 +725,7 @@ export class CodexHandler {
 		progress: vscode.Progress<vscode.LanguageModelResponsePart2>,
 		token: vscode.CancellationToken,
 		useVSCodeTools: boolean,
-		accountId?: string,
+		managedAccountId?: string,
 		_organizationId?: string,
 		_projectId?: string,
 	): Promise<void> {
@@ -751,7 +759,10 @@ export class CodexHandler {
 							if (res.statusCode === 429) {
 								const usageLimitError = parseUsageLimitError(body);
 								if (usageLimitError) {
-									await this.handleUsageLimitError(usageLimitError, accountId);
+									await this.handleUsageLimitError(
+										usageLimitError,
+										managedAccountId,
+									);
 								}
 							}
 

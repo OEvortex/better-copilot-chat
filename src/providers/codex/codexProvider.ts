@@ -12,6 +12,7 @@ import type {
 	ProvideLanguageModelChatResponseOptions,
 } from "vscode";
 import * as vscode from "vscode";
+import type { Account, OAuthCredentials } from "../../accounts/types";
 import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import {
 	CodexAuth,
@@ -178,56 +179,177 @@ export class CodexProvider
 				model: model.id,
 			};
 			const providerKey = CodexProvider.PROVIDER_KEY;
+			const loadBalanceEnabled =
+				this.accountManager.getLoadBalanceEnabled(providerKey);
 			const accounts = this.accountManager.getAccountsByProvider(providerKey);
+			const activeAccount = this.accountManager.getActiveAccount(providerKey);
 
-			// Simple account selection for now (first available or default)
-			// Can be enhanced with load balancing later if needed
-			let accessToken = "";
-			let accountId = "";
-			let organizationId = "";
-			let projectId = "";
+			const usableAccounts =
+				accounts.filter((a) => a.status === "active").length > 0
+					? accounts.filter((a) => a.status === "active")
+					: accounts;
 
-			if (accounts.length > 0) {
-				// Use first account
-				// We need to get the actual token, which might need refresh
-				// AccountManager stores credentials, but we should use CodexAuth to ensure validity/refresh
-				// However, CodexAuth currently manages a single "global" token in ApiKeyManager for backward compat
-				// If we use AccountManager, we should use its credentials.
-				// For now, let's stick to CodexAuth global token to match current implementation
-				accessToken = (await CodexAuth.getAccessToken()) || "";
-				accountId = (await CodexAuth.getAccountId()) || "";
-				organizationId = (await CodexAuth.getOrganizationId()) || "";
-				projectId = (await CodexAuth.getProjectId()) || "";
-			} else {
-				accessToken = (await CodexAuth.getAccessToken()) || "";
-				accountId = (await CodexAuth.getAccountId()) || "";
-				organizationId = (await CodexAuth.getOrganizationId()) || "";
-				projectId = (await CodexAuth.getProjectId()) || "";
+			const orderedAccounts = activeAccount
+				? [
+						...usableAccounts.filter((a) => a.id === activeAccount.id),
+						...usableAccounts.filter((a) => a.id !== activeAccount.id),
+					]
+				: usableAccounts;
+
+			const availableAccounts = loadBalanceEnabled
+				? orderedAccounts.filter(
+						(a) => !this.accountManager.isAccountQuotaLimited(a.id),
+					)
+				: orderedAccounts;
+
+			const accountCandidates =
+				availableAccounts.length > 0
+					? availableAccounts
+					: orderedAccounts.length > 0
+						? orderedAccounts
+						: [undefined];
+
+			let lastError: unknown;
+			let switchedAccount = false;
+
+			for (const account of accountCandidates) {
+				const authContext = await this.resolveAuthContext(account);
+				if (!authContext.accessToken) {
+					lastError = new Error("Not logged in to Codex. Please login first.");
+					continue;
+				}
+
+				try {
+					Logger.info(`Codex Provider processing request: ${model.name}`);
+					Logger.info(
+						`[codex] Using account "${authContext.displayName}" localId=${authContext.managedAccountId || "GLOBAL"} chatgptAccountId=${authContext.chatgptAccountId || "EMPTY"} organizationId=${authContext.organizationId || "EMPTY"} projectId=${authContext.projectId || "EMPTY"}`,
+					);
+
+					await this.codexHandler.handleRequest(
+						model,
+						configWithAuth,
+						messages,
+						options,
+						progress,
+						token,
+						authContext.accessToken,
+						authContext.managedAccountId,
+						authContext.chatgptAccountId,
+						authContext.organizationId,
+						authContext.projectId,
+					);
+
+					if (
+						switchedAccount &&
+						loadBalanceEnabled &&
+						account &&
+						activeAccount?.id !== account.id
+					) {
+						await this.accountManager.switchAccount(providerKey, account.id);
+					}
+					return;
+				} catch (error) {
+					if (account && this.isQuotaError(error) && loadBalanceEnabled) {
+						switchedAccount = true;
+						lastError = error;
+						continue;
+					}
+					throw error;
+				}
 			}
 
-			if (!accessToken) {
-				throw new Error("Not logged in to Codex. Please login first.");
+			if (lastError) {
+				throw lastError;
 			}
-
-			Logger.info(`Codex Provider processing request: ${model.name}`);
-			Logger.info(
-				`[codex] Retrieved from storage - accountId: ${accountId || "EMPTY"}, organizationId: ${organizationId || "EMPTY"}, projectId: ${projectId || "EMPTY"}`,
-			);
-			await this.codexHandler.handleRequest(
-				model,
-				configWithAuth,
-				messages,
-				options,
-				progress,
-				token,
-				accessToken,
-				accountId,
-				organizationId,
-				projectId,
-			);
+			throw new Error("Not logged in to Codex. Please login first.");
 		} catch (error) {
 			Logger.error("Codex request failed:", error);
 			throw error;
 		}
+	}
+
+	private async resolveAuthContext(account?: Account): Promise<{
+		accessToken: string;
+		managedAccountId?: string;
+		chatgptAccountId?: string;
+		organizationId?: string;
+		projectId?: string;
+		displayName: string;
+	}> {
+		if (!account) {
+			return {
+				accessToken: (await CodexAuth.getAccessToken()) || "",
+				chatgptAccountId: (await CodexAuth.getAccountId()) || "",
+				organizationId: (await CodexAuth.getOrganizationId()) || "",
+				projectId: (await CodexAuth.getProjectId()) || "",
+				displayName: "Global Codex Session",
+			};
+		}
+
+		let accessToken = "";
+		const credentials = (await this.accountManager.getCredentials(
+			account.id,
+		)) as OAuthCredentials | undefined;
+
+		if (credentials?.accessToken) {
+			accessToken = credentials.accessToken;
+			const expiresAtMs = credentials.expiresAt
+				? new Date(credentials.expiresAt).getTime()
+				: 0;
+			const shouldRefresh =
+				!!credentials.refreshToken &&
+				(expiresAtMs === 0 || expiresAtMs - Date.now() <= 5 * 60 * 1000);
+
+			if (shouldRefresh) {
+				const refreshed = await CodexAuth.refreshToken(credentials.refreshToken, {
+					persist: false,
+				});
+				if (refreshed?.accessToken) {
+					accessToken = refreshed.accessToken;
+					await this.accountManager.updateCredentials(account.id, {
+						...credentials,
+						accessToken: refreshed.accessToken,
+						expiresAt: refreshed.expiresAt,
+					});
+				}
+			}
+		}
+
+		if (!accessToken) {
+			accessToken = (await CodexAuth.getAccessToken()) || "";
+		}
+
+		const metadata = account.metadata || {};
+		const metadataAccountId =
+			typeof metadata.accountId === "string" ? metadata.accountId : undefined;
+		const metadataOrgId =
+			typeof metadata.organizationId === "string"
+				? metadata.organizationId
+				: undefined;
+		const metadataProjectId =
+			typeof metadata.projectId === "string" ? metadata.projectId : undefined;
+
+		return {
+			accessToken,
+			managedAccountId: account.id,
+			chatgptAccountId: metadataAccountId || (await CodexAuth.getAccountId()) || "",
+			organizationId:
+				metadataOrgId || (await CodexAuth.getOrganizationId()) || "",
+			projectId: metadataProjectId || (await CodexAuth.getProjectId()) || "",
+			displayName: account.displayName,
+		};
+	}
+
+	protected override isQuotaError(error: unknown): boolean {
+		if (!(error instanceof Error)) {
+			return false;
+		}
+		const msg = error.message;
+		return (
+			msg.includes('"type":"usage_limit_reached"') ||
+			msg.includes('"type": "usage_limit_reached"') ||
+			msg.includes("usage_limit_reached") ||
+			msg.includes("429")
+		);
 	}
 }

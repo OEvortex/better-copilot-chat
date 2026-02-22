@@ -703,11 +703,10 @@ export class AccountManager {
 	 * Get load balance enabled state for provider
 	 */
 	getLoadBalanceEnabled(provider: string): boolean {
-		// Default to true for antigravity and codex to enable automatic account switching
-		const defaultValue = !!(
-			provider === ProviderKey.Antigravity || provider === ProviderKey.Codex
+		return (
+			this.routingConfig[provider]?.loadBalanceEnabled ??
+			this.getDefaultLoadBalanceEnabled(provider)
 		);
-		return this.routingConfig[provider]?.loadBalanceEnabled ?? defaultValue;
 	}
 
 	/**
@@ -737,15 +736,28 @@ export class AccountManager {
 	 * Ensure provider routing config exists
 	 */
 	private ensureProviderRoutingConfig(provider: string): ProviderRoutingConfig {
+		const defaultLoadBalance = this.getDefaultLoadBalanceEnabled(provider);
 		if (!this.routingConfig[provider]) {
 			this.routingConfig[provider] = {
 				modelAssignments: {},
-				loadBalanceEnabled: false,
+				loadBalanceEnabled: defaultLoadBalance,
 			};
 		} else if (!this.routingConfig[provider].modelAssignments) {
 			this.routingConfig[provider].modelAssignments = {};
 		}
+		if (typeof this.routingConfig[provider].loadBalanceEnabled !== "boolean") {
+			this.routingConfig[provider].loadBalanceEnabled = defaultLoadBalance;
+		}
 		return this.routingConfig[provider];
+	}
+
+	/**
+	 * Default load balance state for provider
+	 */
+	private getDefaultLoadBalanceEnabled(provider: string): boolean {
+		return !!(
+			provider === ProviderKey.Antigravity || provider === ProviderKey.Codex
+		);
 	}
 
 	/**

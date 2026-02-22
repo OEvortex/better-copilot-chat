@@ -261,6 +261,7 @@ export class AntigravityProvider
 				usableAccounts,
 				assignedAccountId,
 				loadBalanceEnabled,
+				AntigravityProvider.PROVIDER_KEY,
 			);
 
 			// Lấy active account để luôn ưu tiên nó đầu tiên
@@ -334,6 +335,17 @@ export class AntigravityProvider
 					);
 					this.lastUsedAccountByModel.set(model.id, account.id);
 					if (switchedAccount) {
+						if (loadBalanceEnabled) {
+							const switched = await this.accountManager.switchAccount(
+								AntigravityProvider.PROVIDER_KEY,
+								account.id,
+							);
+							if (!switched) {
+								Logger.warn(
+									`[antigravity] Failed to persist automatic account switch to ${account.displayName}`,
+								);
+							}
+						}
 						Logger.info(
 							`[antigravity] Saving account "${account.displayName}" as preferred for model ${model.id}`,
 						);
@@ -378,11 +390,12 @@ export class AntigravityProvider
 		}
 	}
 
-	private buildAccountCandidates(
+	protected override buildAccountCandidates(
 		modelId: string,
 		accounts: Account[],
 		assignedAccountId: string | undefined,
 		loadBalanceEnabled: boolean,
+		providerKey: string,
 	): Account[] {
 		if (accounts.length === 0) {
 			return [];
@@ -390,9 +403,7 @@ export class AntigravityProvider
 		const assignedAccount = assignedAccountId
 			? accounts.find((a) => a.id === assignedAccountId)
 			: undefined;
-		const activeAccount = this.accountManager.getActiveAccount(
-			AntigravityProvider.PROVIDER_KEY,
-		);
+		const activeAccount = this.accountManager.getActiveAccount(providerKey);
 		const defaultAccount =
 			activeAccount || accounts.find((a) => a.isDefault) || accounts[0];
 		if (!loadBalanceEnabled) {
@@ -465,7 +476,7 @@ export class AntigravityProvider
 		return refreshed.accessToken;
 	}
 
-	private isQuotaError(error: unknown): boolean {
+	protected override isQuotaError(error: unknown): boolean {
 		if (!(error instanceof Error)) {
 			return false;
 		}
@@ -481,7 +492,7 @@ export class AntigravityProvider
 		);
 	}
 
-	private isLongTermQuotaExhausted(error: unknown): boolean {
+	protected override isLongTermQuotaExhausted(error: unknown): boolean {
 		return (
 			error instanceof Error &&
 			error.message.startsWith("Account quota exhausted")

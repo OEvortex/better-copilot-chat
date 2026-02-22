@@ -140,6 +140,10 @@ export class AccountSyncAdapter {
 				refresh_token: string;
 				email?: string;
 				expires_at: string;
+				account_id?: string;
+				organization_id?: string;
+				project_id?: string;
+				organizations?: unknown[];
 			};
 
 			// Check whether this account already exists
@@ -160,6 +164,15 @@ export class AccountSyncAdapter {
 					existingByEmail.id,
 					credentials,
 				);
+				await this.accountManager.updateAccount(existingByEmail.id, {
+					metadata: {
+						...(existingByEmail.metadata || {}),
+						accountId: authData.account_id,
+						organizationId: authData.organization_id,
+						projectId: authData.project_id,
+						organizations: authData.organizations,
+					},
+				});
 				Logger.debug(`Updated Codex account: ${authData.email}`);
 			} else {
 				// Add a new account
@@ -175,6 +188,12 @@ export class AccountSyncAdapter {
 					displayName,
 					authData.email || "",
 					credentials,
+					{
+						accountId: authData.account_id,
+						organizationId: authData.organization_id,
+						projectId: authData.project_id,
+						organizations: authData.organizations,
+					},
 				);
 				Logger.info(`Synced Codex account: ${displayName}`);
 			}
@@ -277,6 +296,22 @@ export class AccountSyncAdapter {
 		) {
 			// Codex requires special format
 			const account = this.accountManager.getActiveAccount(provider);
+			const accountMetadata = account?.metadata || {};
+			const accountIdFromAccount =
+				typeof accountMetadata.accountId === "string"
+					? accountMetadata.accountId
+					: undefined;
+			const organizationIdFromAccount =
+				typeof accountMetadata.organizationId === "string"
+					? accountMetadata.organizationId
+					: undefined;
+			const projectIdFromAccount =
+				typeof accountMetadata.projectId === "string"
+					? accountMetadata.projectId
+					: undefined;
+			const organizationsFromAccount = Array.isArray(accountMetadata.organizations)
+				? (accountMetadata.organizations as unknown[])
+				: undefined;
 
 			// Get existing data to preserve account_id, organization_id, etc.
 			const existingData = await ApiKeyManager.getApiKey(CODEX_PROVIDER);
@@ -294,18 +329,20 @@ export class AccountSyncAdapter {
 				access_token: activeCredentials.accessToken,
 				refresh_token: activeCredentials.refreshToken,
 				email: account?.email || "",
-				// IMPORTANT: Preserve these fields from existing storage
 				account_id:
-					(existingParsed.account_id as string) || account?.metadata?.accountId,
-				organization_id: existingParsed.organization_id as string,
-				project_id: existingParsed.project_id as string,
-				organizations: existingParsed.organizations as unknown[],
+					accountIdFromAccount || (existingParsed.account_id as string),
+				organization_id:
+					organizationIdFromAccount ||
+					(existingParsed.organization_id as string),
+				project_id:
+					projectIdFromAccount || (existingParsed.project_id as string),
+				organizations:
+					organizationsFromAccount ||
+					(existingParsed.organizations as unknown[]),
 				expires_at: activeCredentials.expiresAt,
 				timestamp: Date.now(),
 			};
-			Logger.info(
-				"[accountSync] Preserving Codex account/org data during sync",
-			);
+			Logger.info("[accountSync] Syncing Codex account/org/project metadata");
 			await ApiKeyManager.setApiKey(CODEX_PROVIDER, JSON.stringify(authData));
 		}
 	}
