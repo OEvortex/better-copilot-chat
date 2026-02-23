@@ -885,10 +885,30 @@ export class AntigravityHandler {
                             `Quota exceeded${quotaDelay ? ` (quota resets in ${this.quotaNotificationManager.formatDuration(quotaDelay)})` : ''}: ${lastBody || `HTTP ${result.status}`}`
                         );
                     }
-                    if (category === ErrorCategory.Transient && shouldFallback(category) && idx + 1 < baseUrls.length) {
+                    if (category === ErrorCategory.Transient && shouldFallback(category)) {
                         lastStatus = result.status || 0;
                         lastBody = result.body || '';
-                        continue;
+                        const retryDelay = parseQuotaRetryDelay(lastBody);
+
+                        if (idx + 1 < baseUrls.length) {
+                            Logger.warn(
+                                `[antigravity] Transient HTTP ${lastStatus} on ${baseUrls[idx]}. Trying fallback endpoint${retryDelay ? ` after ${this.quotaNotificationManager.formatDuration(retryDelay)}` : ''}.`
+                            );
+                            continue;
+                        }
+
+                        const action = await retrier.handleRateLimit(false, lastBody, token);
+                        if (action === RateLimitAction.Retry) {
+                            Logger.warn(
+                                `[antigravity] Transient HTTP ${lastStatus}. Retrying request${retryDelay ? ` after ${this.quotaNotificationManager.formatDuration(retryDelay)}` : ''}.`
+                            );
+                            idx--;
+                            continue;
+                        }
+
+                        throw new Error(
+                            `HTTP ${lastStatus}${retryDelay ? ` (retry in ${this.quotaNotificationManager.formatDuration(retryDelay)})` : ''}: ${lastBody || result.statusText || 'Transient server error'}`
+                        );
                     }
                     if (category === ErrorCategory.AuthError) {
                         throw new Error('Authentication failed. Please re-login to Antigravity.');
@@ -922,8 +942,9 @@ export class AntigravityHandler {
                 }
             }
             if (lastStatus !== 0) {
+                const retryDelay = parseQuotaRetryDelay(lastBody);
                 throw new Error(
-                    `HTTP ${lastStatus}${parseQuotaRetryDelay(lastBody) ? ` (quota resets in ${this.quotaNotificationManager.formatDuration(parseQuotaRetryDelay(lastBody)!)})` : ''}: ${lastBody}`
+                    `HTTP ${lastStatus}${retryDelay ? ` (retry in ${this.quotaNotificationManager.formatDuration(retryDelay)})` : ''}: ${lastBody}`
                 );
             }
             if (lastError) {

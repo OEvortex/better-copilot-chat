@@ -368,6 +368,13 @@ export class AntigravityProvider
 						}
 						throw error;
 					}
+					if (loadBalanceEnabled && this.isCapacityExhaustedError(error)) {
+						Logger.warn(
+							`[antigravity] Account ${account.displayName} model capacity exhausted, switching...`,
+						);
+						lastError = error;
+						continue;
+					}
 					if (loadBalanceEnabled && this.isQuotaError(error)) {
 						Logger.warn(
 							`[antigravity] Account ${account.displayName} rate limited, switching...`,
@@ -496,6 +503,20 @@ export class AntigravityProvider
 		return (
 			error instanceof Error &&
 			error.message.startsWith("Account quota exhausted")
+		);
+	}
+
+	protected isCapacityExhaustedError(error: unknown): boolean {
+		if (!(error instanceof Error)) {
+			return false;
+		}
+		const message = error.message.toLowerCase();
+		return (
+			message.includes("model_capacity_exhausted") ||
+			message.includes("no capacity available for model") ||
+			(message.includes("http 503") && message.includes("capacity")) ||
+			(message.includes('"code": 503') && message.includes("unavailable")) ||
+			(message.includes('"code":503') && message.includes("unavailable"))
 		);
 	}
 }
