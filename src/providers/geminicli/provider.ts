@@ -19,6 +19,7 @@ import {
 	type OAuthCredentials,
 } from "../../accounts";
 import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
+import { resolveGlobalTokenLimits } from "../../utils/globalContextLengthManager";
 import { Logger } from "../../utils/logger";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { GeminiOAuthManager } from "./auth";
@@ -30,6 +31,10 @@ export class GeminiCliProvider
 {
 	private readonly geminiHandler: GeminiHandler;
 	private readonly cooldowns = new Map<string, number>();
+
+	// Gemini CLI uses 1M context for most models
+	private static readonly DEFAULT_CONTEXT_LENGTH = 1000000;
+	private static readonly DEFAULT_MAX_OUTPUT_TOKENS = 32000;
 
 	constructor(
 		context: vscode.ExtensionContext,
@@ -138,8 +143,64 @@ export class GeminiCliProvider
 		// This prevents the UI from refreshing/flickering when trying to add models
 		// Authentication check will happen when user tries to use the model
 		return this.providerConfig.models.map((model) =>
-			this.modelConfigToInfo(model),
+			this.resolveModelInfo(model),
 		);
+	}
+
+	/**
+	 * Resolve model info with global token limit overrides
+	 */
+	private resolveModelInfo(model: ModelConfig): LanguageModelChatInformation {
+		const tokenLimits = resolveGlobalTokenLimits(
+			model.id,
+			GeminiCliProvider.DEFAULT_CONTEXT_LENGTH,
+			{
+				defaultContextLength: GeminiCliProvider.DEFAULT_CONTEXT_LENGTH,
+				defaultMaxOutputTokens: GeminiCliProvider.DEFAULT_MAX_OUTPUT_TOKENS,
+			},
+		);
+
+		return this.modelConfigToInfoWithTokens(model, tokenLimits.maxInputTokens, tokenLimits.maxOutputTokens);
+	}
+
+	/**
+	 * Override to inject resolved token limits
+	 */
+	private modelConfigToInfoWithTokens(
+		model: ModelConfig,
+		maxInputTokens: number,
+		maxOutputTokens: number,
+	): LanguageModelChatInformation {
+		// Read edit tool mode setting
+		const editToolMode = vscode.workspace
+			.getConfiguration("chp")
+			.get("editToolMode", "claude") as string;
+
+		let family: string;
+		if (editToolMode && editToolMode !== "none") {
+			family = editToolMode.startsWith("claude")
+				? "claude-sonnet-4.5"
+				: editToolMode;
+		} else if (editToolMode === "none") {
+			family = model.id;
+		} else {
+			family = model.id;
+		}
+
+		const info: LanguageModelChatInformation = {
+			id: model.id,
+			name: model.name,
+			detail: this.providerConfig.displayName,
+			tooltip:
+				model.tooltip || `${model.name} via ${this.providerConfig.displayName}`,
+			family: family,
+			maxInputTokens: maxInputTokens,
+			maxOutputTokens: maxOutputTokens,
+			version: model.id,
+			capabilities: model.capabilities,
+		};
+
+		return info;
 	}
 
 	override async provideLanguageModelChatResponse(

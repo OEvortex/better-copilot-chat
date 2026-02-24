@@ -51,6 +51,7 @@ export {
 	isGpt4oModel,
 	isGemini3Model,
 	isGemini25Model,
+	isGemini2Model,
 	isMingFlashOmniModel,
 	isGlm45Model,
 	isGlmModel,

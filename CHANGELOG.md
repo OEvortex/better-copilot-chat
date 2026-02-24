@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.3] - 2026-02-21
+## [0.2.3] - 2026-02-24
 
 ### Added
 - **NVIDIA NIM Provider**: Added new NVIDIA NIM provider with OpenAI SDK compatibility.
@@ -25,6 +25,17 @@ All notable changes to this project will be documented in this file.
   - Thinking content automatically detected and reported to VS Code for all providers
   - Works out of the box without configuration for: OpenAI, OpenCode, Blackbox, Chutes, DeepInfra, HuggingFace, LightningAI, Zenmux, Ollama, Compatible providers
   - Simplified message handling with automatic `reasoning_content` field support
+- **Gemini CLI Provider Enhancements**:
+  - Added `gemini-3.1-pro-preview` model to Gemini CLI provider
+  - Gemini CLI provider now respects global token limits from `globalContextLengthManager.ts`
+  - Added `isGemini2Model()` helper function for Gemini 2 model detection
+  - Updated `isGemini3Model()` to include Gemini 3.1 variants
+
+### Changed
+- **Gemini Model Token Limits**: Updated token limits for all Gemini models:
+  - Gemini 3 / 3.1 models: 1M total context → 936K input / 64K output
+  - Gemini 2.5 models: 1M total context → 968K input / 32K output
+  - Gemini 2 models: 1M total context → 968K input / 32K output
 
 ### Fixed
 - **ChatJimmy Response Parsing**: Fixed JSON stream parsing errors by converting ChatJimmy plain-text responses into OpenAI-compatible SSE format.

@@ -22,10 +22,12 @@ const GPT4_1_MAX_OUTPUT_TOKENS = 32000;
 const GPT4_1_MAX_INPUT_TOKENS = GPT4_1_TOTAL_TOKENS - GPT4_1_MAX_OUTPUT_TOKENS;
 // Gemini large-context families (1,000,000 total)
 const GEMINI_1M_TOTAL_TOKENS = 1000000;
-const GEMINI3_MAX_OUTPUT_TOKENS = 64000; // Gemini 3 -> 64K output
+const GEMINI3_MAX_OUTPUT_TOKENS = 64000; // Gemini 3 / 3.1 -> 64K output
 const GEMINI3_MAX_INPUT_TOKENS = GEMINI_1M_TOTAL_TOKENS - GEMINI3_MAX_OUTPUT_TOKENS;
 const GEMINI25_MAX_OUTPUT_TOKENS = 32000; // Gemini 2.5 -> 32K output
 const GEMINI25_MAX_INPUT_TOKENS = GEMINI_1M_TOTAL_TOKENS - GEMINI25_MAX_OUTPUT_TOKENS;
+const GEMINI2_MAX_OUTPUT_TOKENS = 32000; // Gemini 2 -> 32K output
+const GEMINI2_MAX_INPUT_TOKENS = GEMINI_1M_TOTAL_TOKENS - GEMINI2_MAX_OUTPUT_TOKENS;
 // Fixed 64K family (some vendors expose smaller "64k" models where output is 8k)
 const FIXED_64K_TOTAL_TOKENS = 64000;
 const FIXED_64K_MAX_OUTPUT_TOKENS = 8000;
@@ -68,13 +70,20 @@ export function isGpt4oModel(modelId: string): boolean {
 }
 
 export function isGemini3Model(modelId: string): boolean {
-	// Matches gemini-3 variants (gemini-3, gemini-3-pro, gemini-3-flash, etc.)
-	return /gemini[-_]?3/i.test(modelId);
+	// Matches gemini-3 and gemini-3.1 variants (gemini-3, gemini-3-pro, gemini-3-flash, gemini-3.1-pro-preview, etc.)
+	return /gemini[-_]?3(?:\.[-_]?1)?/i.test(modelId);
 }
 
 export function isGemini25Model(modelId: string): boolean {
 	// Matches gemini-2.5 and variants (gemini-2-5, gemini-2.5-flash, etc.)
+	// Must have .5 or -5 to distinguish from gemini-2
 	return /gemini[-_]?2(?:\.|-)5/i.test(modelId);
+}
+
+export function isGemini2Model(modelId: string): boolean {
+	// Matches gemini-2 variants but NOT gemini-2.5 (use isGemini25Model for that)
+	// Examples: gemini-2.0-flash, gemini-2-flash, gemini-2-pro
+	return /gemini[-_]?2(?!\.|-?5)/i.test(modelId);
 }
 
 export function isGlm45Model(modelId: string): boolean {
@@ -130,7 +139,7 @@ export function resolveGlobalTokenLimits(
 		};
 	}
 
-	// Gemini 3 / Gemini 2.5 large-context families
+	// Gemini 3 / Gemini 3.1 large-context families (1M total, 64K output)
 	if (isGemini3Model(modelId)) {
 		return {
 			maxInputTokens: GEMINI3_MAX_INPUT_TOKENS,
@@ -138,10 +147,19 @@ export function resolveGlobalTokenLimits(
 		};
 	}
 
+	// Gemini 2.5 large-context family (1M total, 32K output)
 	if (isGemini25Model(modelId)) {
 		return {
 			maxInputTokens: GEMINI25_MAX_INPUT_TOKENS,
 			maxOutputTokens: GEMINI25_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	// Gemini 2 family (1M total, 32K output)
+	if (isGemini2Model(modelId)) {
+		return {
+			maxInputTokens: GEMINI2_MAX_INPUT_TOKENS,
+			maxOutputTokens: GEMINI2_MAX_OUTPUT_TOKENS,
 		};
 	}
 

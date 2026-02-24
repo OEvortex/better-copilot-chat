@@ -62,6 +62,18 @@
                 "toolCalling": true,
                 "imageInput": true
             }
+        },
+        {
+            "id": "gemini-3.1-pro-preview",
+            "name": "Gemini 3.1 Pro Preview",
+            "tooltip": "Gemini 3.1 Pro Preview via CLI",
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 32000,
+            "sdkMode": "openai",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
         }
     ]
 }
