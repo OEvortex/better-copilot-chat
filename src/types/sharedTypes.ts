@@ -127,6 +127,7 @@ export interface ProviderConfig {
 	displayName: string;
 	baseUrl: string;
 	apiKeyTemplate: string;
+	supportsApiKey?: boolean;
 	models: ModelConfig[];
 }
 

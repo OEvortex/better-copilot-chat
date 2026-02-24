@@ -21,12 +21,9 @@ import { RateLimiter } from "../../utils/rateLimiter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { ZhipuWizard } from "./zhipuWizard";
 
-const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
-const DEFAULT_CONTEXT_LENGTH = 186000;
-const HIGH_CONTEXT_THRESHOLD = 200000;
-const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32000;
-const FIXED_256K_MAX_INPUT_TOKENS = 224000;
-const FIXED_256K_MAX_OUTPUT_TOKENS = 32000;
+// Default values - actual limits determined by resolveGlobalTokenLimits in globalContextLengthManager
+const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+const DEFAULT_CONTEXT_LENGTH = 192 * 1024; // 196608 (using 1k=1024)
 
 // API endpoints based on plan
 const CODING_PLAN_BASE_URL = "https://api.z.ai/api/coding/paas/v4";
@@ -62,8 +59,6 @@ const HARDCODED_MODELS: ZhipuAPIModel[] = [
 type ZhipuThinkingType = "enabled" | "disabled";
 
 import {
-	getDefaultMaxOutputTokensForContext,
-	isMinimaxModel,
 	resolveGlobalCapabilities,
 	resolveGlobalTokenLimits,
 } from "../../utils";
@@ -193,7 +188,7 @@ export class ZhipuProvider
 	}
 
 	/**
-	 * Get metadata for known models
+	 * Get metadata for known models - uses globalContextLengthManager for all token limits
 	 */
 	private getModelMetadata(modelId: string): {
 		name: string;
@@ -204,84 +199,29 @@ export class ZhipuProvider
 	} {
 		const normalizedCapabilities = resolveGlobalCapabilities(modelId);
 
-		if (isMinimaxModel(modelId)) {
-		const tokens = resolveGlobalTokenLimits(modelId, 256000, {
+		// Use resolveGlobalTokenLimits which handles all GLM models correctly
+		const tokens = resolveGlobalTokenLimits(modelId, DEFAULT_CONTEXT_LENGTH, {
 			defaultContextLength: DEFAULT_CONTEXT_LENGTH,
 			defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
 		});
+
+		// Build display name based on model
+		let displayName = modelId;
+		if (modelId === "glm-5") {
+			displayName = "GLM-5 (Latest)";
+		} else if (modelId === "glm-4.7-flash") {
+			displayName = "GLM-4.7-Flash (Free,)";
+		} else if (modelId === "glm-4.7-flashx") {
+			displayName = "GLM-4.7-FlashX";
+		}
+
 		return {
-			name: modelId,
+			name: displayName,
 			maxInputTokens: tokens.maxInputTokens,
 			maxOutputTokens: tokens.maxOutputTokens,
 			toolCalling: normalizedCapabilities.toolCalling,
 			imageInput: normalizedCapabilities.imageInput,
 		};
-	}
-
-	// Default metadata
-	const defaultMeta = {
-		name: modelId,
-		maxInputTokens: DEFAULT_CONTEXT_LENGTH,
-		maxOutputTokens: getDefaultMaxOutputTokensForContext(DEFAULT_CONTEXT_LENGTH, DEFAULT_MAX_OUTPUT_TOKENS),
-		toolCalling: normalizedCapabilities.toolCalling,
-		imageInput: normalizedCapabilities.imageInput,
-	};
-
-	// Model-specific metadata (200K+ context = 32K output, <200K context = 16K output)
-	const modelMetadata: Record<string, typeof defaultMeta> = {
-		"glm-5": {
-			name: "GLM-5 (Latest)",
-			maxInputTokens: 224000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(224000, DEFAULT_MAX_OUTPUT_TOKENS),
-			toolCalling: true,
-			imageInput: false,
-		},
-		"glm-4.7": {
-			name: "GLM-4.7",
-			maxInputTokens: 224000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(224000, DEFAULT_MAX_OUTPUT_TOKENS),
-			toolCalling: true,
-			imageInput: false,
-		},
-		"glm-4.6": {
-			name: "GLM-4.6",
-			maxInputTokens: 224000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(224000, DEFAULT_MAX_OUTPUT_TOKENS),
-			toolCalling: true,
-			imageInput: false,
-		},
-		"glm-4.5": {
-			name: "GLM-4.5",
-			maxInputTokens: 112000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(112000, DEFAULT_MAX_OUTPUT_TOKENS),
-			toolCalling: true,
-			imageInput: false,
-		},
-		"glm-4.5-air": {
-			name: "GLM-4.5-Air",
-			maxInputTokens: 112000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(112000, DEFAULT_MAX_OUTPUT_TOKENS),
-			toolCalling: true,
-			imageInput: false,
-		},
-		"glm-4.7-flash": {
-			name: "GLM-4.7-Flash (Free, 1 Concurrent)",
-			maxInputTokens: 224000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(224000, DEFAULT_MAX_OUTPUT_TOKENS),
-			toolCalling: true,
-			imageInput: false,
-		},
-		"glm-4.7-flashx": {
-			name: "GLM-4.7-FlashX (Paid)",
-			maxInputTokens: 224000,
-			maxOutputTokens: getDefaultMaxOutputTokensForContext(224000, DEFAULT_MAX_OUTPUT_TOKENS),
-			toolCalling: true,
-			imageInput: false,
-		},
-
-	};
-
-	return modelMetadata[modelId] || defaultMeta;
 	}
 
 	/**

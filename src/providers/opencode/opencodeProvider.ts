@@ -27,8 +27,8 @@ import { GenericModelProvider } from "../common/genericModelProvider";
 import { validateRequest } from "./utils";
 
 const BASE_URL = "https://opencode.ai/zen/v1";
-const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
-const DEFAULT_CONTEXT_LENGTH = 128000;
+const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
 
 import {
 	resolveGlobalCapabilities,

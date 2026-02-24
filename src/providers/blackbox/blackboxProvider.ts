@@ -27,8 +27,8 @@ import { TokenCounter } from "../../utils/tokenCounter";
 import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
 
-const DEFAULT_MAX_OUTPUT_TOKENS = 32000;
-const DEFAULT_CONTEXT_LENGTH = 128000;
+const DEFAULT_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
+const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
 
 function resolveTokenLimits(
     modelId: string,
@@ -53,6 +53,8 @@ export class BlackboxProvider
 {
     private readonly userAgent: string;
     private clientCache = new Map<string, { client: OpenAI; lastUsed: number }>();
+    // Track processed tool call events to prevent duplicates
+    private currentRequestProcessedEvents = new Set<string>();
 
     constructor(
         context: vscode.ExtensionContext,
@@ -137,6 +139,9 @@ export class BlackboxProvider
         await RateLimiter.getInstance(this.providerKey, 2, 1000).throttle(
             this.providerConfig.displayName,
         );
+
+        // Clear processed events for new request
+        this.currentRequestProcessedEvents.clear();
 
         try {
             const rememberLastModel = ConfigManager.getRememberLastModel();
@@ -320,6 +325,17 @@ export class BlackboxProvider
                 if (token.isCancellationRequested) {
                     return;
                 }
+
+                // Deduplicate tool call events
+                const eventKey = `tool_call_${event.name}_${event.index}_${event.arguments.length}`;
+                if (this.currentRequestProcessedEvents.has(eventKey)) {
+                    Logger.trace(
+                        `[Blackbox] Skip duplicate tool call event: ${event.name} (index: ${event.index})`,
+                    );
+                    return;
+                }
+                this.currentRequestProcessedEvents.add(eventKey);
+
                 // Finalize thinking before tool calls
                 if (currentThinkingId) {
                     try {
@@ -461,6 +477,11 @@ export class BlackboxProvider
     }
 
     private async ensureApiKey(silent: boolean): Promise<string | undefined> {
+        // If provider doesn't require API key (supportsApiKey is false), use the template key
+        if (this.providerConfig.supportsApiKey === false) {
+            return this.providerConfig.apiKeyTemplate || "xxx";
+        }
+
         let apiKey = await ApiKeyManager.getApiKey(this.providerKey);
         if (!apiKey && !silent) {
             await ApiKeyManager.promptAndSetApiKey(

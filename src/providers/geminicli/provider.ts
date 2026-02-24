@@ -34,7 +34,7 @@ export class GeminiCliProvider
 
 	// Gemini CLI uses 1M context for most models
 	private static readonly DEFAULT_CONTEXT_LENGTH = 1000000;
-	private static readonly DEFAULT_MAX_OUTPUT_TOKENS = 32000;
+	private static readonly DEFAULT_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
 
 	constructor(
 		context: vscode.ExtensionContext,

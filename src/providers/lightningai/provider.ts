@@ -31,8 +31,8 @@ import { convertTools, validateRequest } from "../huggingface/utils";
 import { LightningAIWizard } from "./lightningaiWizard";
 
 const BASE_URL = "https://lightning.ai/api/v1";
-const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
-const DEFAULT_CONTEXT_LENGTH = 128000;
+const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
 
 function resolveTokenLimits(
 	modelId: string,

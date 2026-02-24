@@ -32,13 +32,15 @@ import type { ChutesModelItem, ChutesModelsResponse } from "./types";
 import { validateRequest } from "./utils";
 
 const BASE_URL = "https://llm.chutes.ai/v1";
-const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
-const DEFAULT_CONTEXT_LENGTH = 131072;
+const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
 
-// Output token constants based on context length thresholds
-const HIGH_CONTEXT_OUTPUT_TOKENS = 32000;   // >= 200K context -> 32K output
-const MEDIUM_CONTEXT_OUTPUT_TOKENS = 16000;  // >= 128K context -> 16K output
-const LOW_CONTEXT_OUTPUT_TOKENS = 8000;       // < 128K context -> 8K output
+// Output token constants based on context length thresholds (using 1k=1024)
+const HIGH_CONTEXT_OUTPUT_TOKENS = 32 * 1024; // 32768 - >= 200K context -> 32K output
+const MEDIUM_CONTEXT_OUTPUT_TOKENS = 16 * 1024; // 16384 - >= 128K context -> 16K output
+const LOW_CONTEXT_OUTPUT_TOKENS = 8 * 1024; // 8192 - < 128K context -> 8K output
+const HIGH_CONTEXT_THRESHOLD = 200 * 1024; // 204800
+const MEDIUM_CONTEXT_THRESHOLD = 128 * 1024; // 131072
 
 /**
  * Calculate token limits based on the API's context_length
@@ -52,9 +54,9 @@ function resolveTokenLimits(
 ): { maxInputTokens: number; maxOutputTokens: number } {
 	// Determine output tokens based on context length thresholds
 	let maxOutputTokens: number;
-	if (contextLength >= 200000) {
+	if (contextLength >= HIGH_CONTEXT_THRESHOLD) {
 		maxOutputTokens = HIGH_CONTEXT_OUTPUT_TOKENS;
-	} else if (contextLength >= 128000) {
+	} else if (contextLength >= MEDIUM_CONTEXT_THRESHOLD) {
 		maxOutputTokens = MEDIUM_CONTEXT_OUTPUT_TOKENS;
 	} else {
 		maxOutputTokens = LOW_CONTEXT_OUTPUT_TOKENS;

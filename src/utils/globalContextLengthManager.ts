@@ -4,74 +4,53 @@ export interface ResolveTokenLimitsOptions {
 	minReservedInputTokens?: number;
 }
 
-const HIGH_CONTEXT_THRESHOLD = 200000;
-const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32000;
-const FIXED_256K_MAX_INPUT_TOKENS = 224000;
-const FIXED_256K_MAX_OUTPUT_TOKENS = 32000;
-const FIXED_128K_MAX_INPUT_TOKENS = 112000;
-const FIXED_128K_MAX_OUTPUT_TOKENS = 16000;
-// Devstral models: 256K total context, 32K output
-const DEVSTRAL_MAX_INPUT_TOKENS = 256000 - 32000;
-const DEVSTRAL_MAX_OUTPUT_TOKENS = 32000;
-// GPT-5 (400K total -> 64K output / 336K input)
-const GPT5_MAX_INPUT_TOKENS = 336000;
-const GPT5_MAX_OUTPUT_TOKENS = 64000;
-// GPT-4-1 family: 1,000,000 total context, 32K output
-const GPT4_1_TOTAL_TOKENS = 1000000;
-const GPT4_1_MAX_OUTPUT_TOKENS = 32000;
-const GPT4_1_MAX_INPUT_TOKENS = GPT4_1_TOTAL_TOKENS - GPT4_1_MAX_OUTPUT_TOKENS;
+const DEFAULT_MIN_RESERVED_INPUT_TOKENS = 1024;
+// Devstral models: 256K total context (1k=1024), 32K output
+const DEVSTRAL_MAX_INPUT_TOKENS = 256 * 1024 - 32 * 1024; // 229376
+const DEVSTRAL_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
+// Fixed 128K family (1k=1024): 16K output / 112K input
+export const FIXED_128K_MAX_INPUT_TOKENS = 128 * 1024 - 16 * 1024; // 114688
+export const FIXED_128K_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+// GLM-4.5 special case: 128K total but 32K output
+export const GLM45_MAX_INPUT_TOKENS = 128 * 1024 - 32 * 1024; // 98304
+export const GLM45_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
+// Fixed 256K family (1k=1024): 32K output / 224K input
+const FIXED_256K_MAX_INPUT_TOKENS = 256 * 1024 - 32 * 1024; // 229376
+const FIXED_256K_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
+// Fixed 64K family (1k=1024): some vendors expose smaller "64k" models where output is 8k
+const FIXED_64K_TOTAL_TOKENS = 64 * 1024; // 65536
+const FIXED_64K_MAX_OUTPUT_TOKENS = 8 * 1024; // 8192
+const FIXED_64K_MAX_INPUT_TOKENS = FIXED_64K_TOTAL_TOKENS - FIXED_64K_MAX_OUTPUT_TOKENS; // 57344
+// Gemma 3 models: 128K total context (1k=1024), 16K output / 112K input
+const GEMA3_TOTAL_TOKENS = 128 * 1024; // 131072
+const GEMA3_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+const GEMA3_MAX_INPUT_TOKENS = GEMA3_TOTAL_TOKENS - GEMA3_MAX_OUTPUT_TOKENS; // 114688
 // Gemini large-context families (1,000,000 total)
 const GEMINI_1M_TOTAL_TOKENS = 1000000;
-const GEMINI3_MAX_OUTPUT_TOKENS = 64000; // Gemini 3 / 3.1 -> 64K output
-const GEMINI3_MAX_INPUT_TOKENS = GEMINI_1M_TOTAL_TOKENS - GEMINI3_MAX_OUTPUT_TOKENS;
-const GEMINI25_MAX_OUTPUT_TOKENS = 32000; // Gemini 2.5 -> 32K output
+const GEMINI25_MAX_OUTPUT_TOKENS = 32 * 1024; // Gemini 2.5 -> 32K output (32768)
 const GEMINI25_MAX_INPUT_TOKENS = GEMINI_1M_TOTAL_TOKENS - GEMINI25_MAX_OUTPUT_TOKENS;
-const GEMINI2_MAX_OUTPUT_TOKENS = 32000; // Gemini 2 -> 32K output
+const GEMINI2_MAX_OUTPUT_TOKENS = 32 * 1024; // Gemini 2 -> 32K output (32768)
 const GEMINI2_MAX_INPUT_TOKENS = GEMINI_1M_TOTAL_TOKENS - GEMINI2_MAX_OUTPUT_TOKENS;
-// Fixed 64K family (some vendors expose smaller "64k" models where output is 8k)
-const FIXED_64K_TOTAL_TOKENS = 64000;
-const FIXED_64K_MAX_OUTPUT_TOKENS = 8000;
-const FIXED_64K_MAX_INPUT_TOKENS = FIXED_64K_TOTAL_TOKENS - FIXED_64K_MAX_OUTPUT_TOKENS;
-const DEFAULT_MIN_RESERVED_INPUT_TOKENS = 1024;
+const GEMINI3_MAX_OUTPUT_TOKENS = 64 * 1024; // Gemini 3 / 3.1 -> 64K output (65536)
+const GEMINI3_MAX_INPUT_TOKENS = GEMINI_1M_TOTAL_TOKENS - GEMINI3_MAX_OUTPUT_TOKENS;
+// GPT-5 (400K total -> 1k=1024, 64K output / 336K input)
+const GPT5_MAX_INPUT_TOKENS = 400 * 1024 - 64 * 1024; // 344064
+const GPT5_MAX_OUTPUT_TOKENS = 64 * 1024; // 65536
+// GPT-4-1 family: 1,000,000 total context, 32K output
+const GPT4_1_TOTAL_TOKENS = 1000000;
+const GPT4_1_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
+const GPT4_1_MAX_INPUT_TOKENS = GPT4_1_TOTAL_TOKENS - GPT4_1_MAX_OUTPUT_TOKENS;
+const HIGH_CONTEXT_THRESHOLD = 200 * 1024; // 204800 (using 1k=1024)
+const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
 
-export function isMinimaxModel(modelId: string): boolean {
-	return /minimax/i.test(modelId);
+export function isDevstralModel(modelId: string): boolean {
+	// Matches devstral-2 and devstral-small-2 (256K context, 32K output)
+	return /devstral[-_]?2/i.test(modelId);
 }
 
-export function isKimiModel(modelId: string): boolean {
-	return /kimi/i.test(modelId);
-}
-
-export function isKimiK25Model(modelId: string): boolean {
-	return /kimi[-_\/]?k2(?:\.|-)5/i.test(modelId);
-}
-
-export function isGptModel(modelId: string): boolean {
-	return /gpt/i.test(modelId);
-}
-
-// Check if GPT model supports vision (excludes gpt-oss)
-export function isVisionGptModel(modelId: string): boolean {
-	return /gpt/i.test(modelId) && !/gpt-oss/i.test(modelId);
-}
-
-export function isGpt5Model(modelId: string): boolean {
-	return /gpt-5/i.test(modelId);
-}
-
-export function isGpt41Model(modelId: string): boolean {
-	// Examples: gpt-4-1, gpt-4-1-mini, gpt-4-1-nano
-	return /gpt-4-1/i.test(modelId);
-}
-
-export function isGpt4oModel(modelId: string): boolean {
-	// Examples: gpt-4o, gpt-4o-mini
-	return /gpt-4o/i.test(modelId);
-}
-
-export function isGemini3Model(modelId: string): boolean {
-	// Matches gemini-3 and gemini-3.1 variants (gemini-3, gemini-3-pro, gemini-3-flash, gemini-3.1-pro-preview, etc.)
-	return /gemini[-_]?3(?:\.[-_]?1)?/i.test(modelId);
+export function isGemma3Model(modelId: string): boolean {
+	// Matches gemma-3 and variants (gemma-3, gemma-3-pro, gemma-3-flash, etc.)
+	return /gemma[-_]?3/i.test(modelId);
 }
 
 export function isGemini25Model(modelId: string): boolean {
@@ -86,6 +65,11 @@ export function isGemini2Model(modelId: string): boolean {
 	return /gemini[-_]?2(?!\.|-?5)/i.test(modelId);
 }
 
+export function isGemini3Model(modelId: string): boolean {
+	// Matches gemini-3 and gemini-3.1 variants (gemini-3, gemini-3-pro, gemini-3-flash, gemini-3.1-pro-preview, etc.)
+	return /gemini[-_]?3(?:\.[-_]?1)?/i.test(modelId);
+}
+
 export function isGlm45Model(modelId: string): boolean {
 	// Explicit exception: glm-4.5 has a 128K context window
 	// Match anywhere in the model id (supports provider prefixes like z-ai/, zai-org/, etc.)
@@ -98,11 +82,40 @@ export function isGlmModel(modelId: string): boolean {
 	return /glm-(?:5|4\.(?:6|7))(?!\d)/i.test(modelId);
 }
 
-export function isDevstralModel(modelId: string): boolean {
-	// Matches devstral-2 and devstral-small-2 (256K context, 32K output)
-	return /devstral[-_]?2/i.test(modelId);
+export function isGpt41Model(modelId: string): boolean {
+	// Examples: gpt-4-1, gpt-4-1-mini, gpt-4-1-nano
+	return /gpt-4-1/i.test(modelId);
 }
 
+export function isGpt4oModel(modelId: string): boolean {
+	// Examples: gpt-4o, gpt-4o-mini
+	return /gpt-4o/i.test(modelId);
+}
+
+export function isGpt5Model(modelId: string): boolean {
+	return /gpt-5/i.test(modelId);
+}
+
+export function isGptModel(modelId: string): boolean {
+	return /gpt/i.test(modelId);
+}
+
+export function isKimiK25Model(modelId: string): boolean {
+	return /kimi[-_\/]?k2(?:\.|-)5/i.test(modelId);
+}
+
+export function isKimiModel(modelId: string): boolean {
+	return /kimi/i.test(modelId);
+}
+
+export function isMinimaxModel(modelId: string): boolean {
+	return /minimax/i.test(modelId);
+}
+
+// Check if GPT model supports vision (excludes gpt-oss)
+export function isVisionGptModel(modelId: string): boolean {
+	return /gpt/i.test(modelId) && !/gpt-oss/i.test(modelId);
+}
 
 export function isMingFlashOmniModel(modelId: string): boolean {
 	// inclusionAI Ming-flash-omni-2.0 — single-provider 64K model with 8K output
@@ -123,35 +136,19 @@ export function resolveGlobalTokenLimits(
 	contextLength: number,
 	options: ResolveTokenLimitsOptions,
 ): { maxInputTokens: number; maxOutputTokens: number } {
-	// GPT-5 family: very large (400K / 64K)
-	if (isGpt5Model(modelId)) {
+	// Devstral models: 256K total context, 32K output
+	if (isDevstralModel(modelId)) {
 		return {
-			maxInputTokens: GPT5_MAX_INPUT_TOKENS,
-			maxOutputTokens: GPT5_MAX_OUTPUT_TOKENS,
+			maxInputTokens: DEVSTRAL_MAX_INPUT_TOKENS,
+			maxOutputTokens: DEVSTRAL_MAX_OUTPUT_TOKENS,
 		};
 	}
 
-	// GPT-4-1 family: 1M total context, 32K output
-	if (isGpt41Model(modelId)) {
+	// Gemma 3 models: 128K total context (1k=1024), 16K output
+	if (isGemma3Model(modelId)) {
 		return {
-			maxInputTokens: GPT4_1_MAX_INPUT_TOKENS,
-			maxOutputTokens: GPT4_1_MAX_OUTPUT_TOKENS,
-		};
-	}
-
-	// Gemini 3 / Gemini 3.1 large-context families (1M total, 64K output)
-	if (isGemini3Model(modelId)) {
-		return {
-			maxInputTokens: GEMINI3_MAX_INPUT_TOKENS,
-			maxOutputTokens: GEMINI3_MAX_OUTPUT_TOKENS,
-		};
-	}
-
-	// Gemini 2.5 large-context family (1M total, 32K output)
-	if (isGemini25Model(modelId)) {
-		return {
-			maxInputTokens: GEMINI25_MAX_INPUT_TOKENS,
-			maxOutputTokens: GEMINI25_MAX_OUTPUT_TOKENS,
+			maxInputTokens: GEMA3_MAX_INPUT_TOKENS,
+			maxOutputTokens: GEMA3_MAX_OUTPUT_TOKENS,
 		};
 	}
 
@@ -163,19 +160,19 @@ export function resolveGlobalTokenLimits(
 		};
 	}
 
-	// GPT-4o: 128K total (16K output)
-	if (isGpt4oModel(modelId)) {
+	// Gemini 2.5 large-context family (1M total, 32K output)
+	if (isGemini25Model(modelId)) {
 		return {
-			maxInputTokens: FIXED_128K_MAX_INPUT_TOKENS,
-			maxOutputTokens: FIXED_128K_MAX_OUTPUT_TOKENS,
+			maxInputTokens: GEMINI25_MAX_INPUT_TOKENS,
+			maxOutputTokens: GEMINI25_MAX_OUTPUT_TOKENS,
 		};
 	}
 
-	// glm-4.5 is a 128K model (exception)
-	if (isGlm45Model(modelId)) {
+	// Gemini 3 / Gemini 3.1 large-context families (1M total, 64K output)
+	if (isGemini3Model(modelId)) {
 		return {
-			maxInputTokens: FIXED_128K_MAX_INPUT_TOKENS,
-			maxOutputTokens: FIXED_128K_MAX_OUTPUT_TOKENS,
+			maxInputTokens: GEMINI3_MAX_INPUT_TOKENS,
+			maxOutputTokens: GEMINI3_MAX_OUTPUT_TOKENS,
 		};
 	}
 
@@ -187,19 +184,43 @@ export function resolveGlobalTokenLimits(
 		};
 	}
 
+	// GLM-4.5 is a special case: 128K total but 32K output (different from standard 128K models)
+	if (isGlm45Model(modelId)) {
+		return {
+			maxInputTokens: GLM45_MAX_INPUT_TOKENS,
+			maxOutputTokens: GLM45_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	// GPT-4-1 family: 1M total context, 32K output
+	if (isGpt41Model(modelId)) {
+		return {
+			maxInputTokens: GPT4_1_MAX_INPUT_TOKENS,
+			maxOutputTokens: GPT4_1_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	// GPT-4o: 128K total (16K output)
+	if (isGpt4oModel(modelId)) {
+		return {
+			maxInputTokens: FIXED_128K_MAX_INPUT_TOKENS,
+			maxOutputTokens: FIXED_128K_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	// GPT-5 family: very large (400K / 64K)
+	if (isGpt5Model(modelId)) {
+		return {
+			maxInputTokens: GPT5_MAX_INPUT_TOKENS,
+			maxOutputTokens: GPT5_MAX_OUTPUT_TOKENS,
+		};
+	}
+
 	// inclusionAI Ming-flash-omni (provider-specific 64K model -> 8K output)
 	if (isMingFlashOmniModel(modelId)) {
 		return {
 			maxInputTokens: FIXED_64K_MAX_INPUT_TOKENS,
 			maxOutputTokens: FIXED_64K_MAX_OUTPUT_TOKENS,
-		};
-	}
-
-	// Devstral models: 256K total context, 32K output
-	if (isDevstralModel(modelId)) {
-		return {
-			maxInputTokens: DEVSTRAL_MAX_INPUT_TOKENS,
-			maxOutputTokens: DEVSTRAL_MAX_OUTPUT_TOKENS,
 		};
 	}
 

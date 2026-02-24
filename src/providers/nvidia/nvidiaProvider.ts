@@ -24,8 +24,8 @@ import { GenericModelProvider } from "../common/genericModelProvider";
 import type { NvidiaModelItem, NvidiaModelsResponse } from "./types";
 
 const BASE_URL = "https://integrate.api.nvidia.com/v1";
-const DEFAULT_CONTEXT_LENGTH = 128000;
-const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
+const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
+const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
 const NVIDIA_RATE_LIMIT_REQUESTS = 40;
 const NVIDIA_RATE_LIMIT_WINDOW_MS = 60000;
 

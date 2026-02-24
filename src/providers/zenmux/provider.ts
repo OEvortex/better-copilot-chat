@@ -32,8 +32,8 @@ import type { ZenmuxModelItem, ZenmuxModelsResponse } from "./types";
 import { validateRequest } from "./utils";
 
 const BASE_URL = "https://zenmux.ai/api/v1";
-const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
-const DEFAULT_CONTEXT_LENGTH = 128000;
+const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
 
 // Zenmux-specific: Claude Opus 4.6 has 1M context with 64K output (special case for Zenmux only)
 function isZenmuxClaudeOpus46(modelId: string): boolean {

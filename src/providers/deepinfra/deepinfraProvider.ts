@@ -25,8 +25,8 @@ import { ProviderWizard } from "../../utils/providerWizard";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import type { DeepInfraModelItem, DeepInfraModelsResponse } from "./types";
 
-const DEFAULT_CONTEXT_LENGTH = 128000;
-const DEFAULT_MAX_OUTPUT_TOKENS = 16000;
+const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
+const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
 
 function resolveTokenLimits(
 	modelId: string,

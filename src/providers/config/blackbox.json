@@ -1,11 +1,12 @@
 {
     "displayName": "Blackbox AI",
     "baseUrl": "https://oi-vscode-server-985058387028.europe-west1.run.app",
-    "apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "apiKeyTemplate": "xxx",
+    "supportsApiKey": false,
     "models": [
         {
             "id": "moonshotai/kimi-k2.5",
-            "name": "kimi-k2.5",
+            "name": "kimi-k2.5 (free)",
             "tooltip": "256K context window with reasoning and vision capabilities",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
@@ -17,7 +18,7 @@
         },
         {
             "id": "custom/blackbox-base-2",
-            "name": "Grok code fast",
+            "name": "Grok code fast (free)",
             "tooltip": "Grok code fast — 256K context (coding-focused)",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,
@@ -29,7 +30,7 @@
         },
         {
             "id": "minimax-m2",
-            "name": "minimax-m2.5",
+            "name": "minimax-m2.5 (free)",
             "tooltip": "256K context length",
             "maxInputTokens": 224000,
             "maxOutputTokens": 32000,

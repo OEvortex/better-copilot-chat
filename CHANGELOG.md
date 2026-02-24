@@ -41,6 +41,10 @@ All notable changes to this project will be documented in this file.
   - Gemini 3 / 3.1 models: 1M total context → 936K input / 64K output
   - Gemini 2.5 models: 1M total context → 968K input / 32K output
   - Gemini 2 models: 1M total context → 968K input / 32K output
+- **Blackbox Free Models**: Updated Blackbox provider to support free models without requiring API key.
+  - Added `supportsApiKey` property to ProviderConfig type
+  - Models now use default API key ("xxx") for free access
+  - All model names updated with "(free)" suffix
 
 ### Fixed
 - **ChatJimmy Response Parsing**: Fixed JSON stream parsing errors by converting ChatJimmy plain-text responses into OpenAI-compatible SSE format.
@@ -53,10 +57,13 @@ All notable changes to this project will be documented in this file.
   - Removed deprecated web-search model alias fallback chain.
   - Simplified to return raw content without source formatting.
   - Removed fallback to non-grounded search when web search fails.
+- **Blackbox Duplicate Tool Calls**: Fixed issue where each tool was being called twice in Blackbox provider.
+  - Added deduplication logic using event key tracking (`tool_call_{name}_{index}_{argsLength}`)
+  - Events Set cleared at start of each request
 
 ### Removed
 - **Delegate to Agent Tool**: Removed the `delegateToAgent` tool as it was never fully functional and had issues with VS Code command execution.
-- **Cancellation Token**: Fixed AbortSignal usage in ChatJimmy FIM handler for proper request cancellation.
+- **ChatJimmy Cancellation Token**: Fixed AbortSignal usage in ChatJimmy FIM handler for proper request cancellation.
 
 ## [0.2.2] - 2026-02-15
 
