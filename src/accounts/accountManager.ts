@@ -171,6 +171,14 @@ export class AccountManager {
 			},
 		],
 		[
+			ProviderKey.Kilo,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
 			ProviderKey.MiniMaxCoding,
 			{
 				supportsMultiAccount: true,

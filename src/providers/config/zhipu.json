@@ -75,7 +75,7 @@
         },
         {
             "id": "glm-4.7-flash",
-            "name": "GLM-4.7-Flash (Free,)",
+            "name": "GLM-4.7-Flash (Free)",
             "tooltip": "glm-4.7-flash by ZhipuAI",
             "maxInputTokens": 229376,
             "maxOutputTokens": 32768,

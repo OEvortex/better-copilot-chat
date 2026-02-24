@@ -200,7 +200,7 @@ function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
 			s.items =
 				firstItem && typeof firstItem === "object" ? firstItem : undefined;
 		}
-		if (typeof s.type === 'string') {
+		if (typeof s.type === "string") {
 			s.type = s.type.toLowerCase();
 		}
 		for (const key of Object.keys(s)) {
@@ -208,31 +208,76 @@ function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
 				delete s[key];
 			}
 		}
-		for (const nested of [
-			s.properties,
-			s.items,
-			s.additionalProperties,
-			s.patternProperties,
-			s.propertyNames,
-			s.contains,
-		]) {
-			if (nested && typeof nested === "object" && !Array.isArray(nested)) {
-				cleanRecursive(nested as Record<string, unknown>);
+
+		if (s.properties && typeof s.properties === "object" && !Array.isArray(s.properties)) {
+			const cleanedProperties: Record<string, unknown> = {};
+			const propKeys = Object.keys(s.properties);
+			
+			for (const key of propKeys) {
+				const val = (s.properties as Record<string, unknown>)[key];
+				if (val && typeof val === "object" && !Array.isArray(val)) {
+					// Sanitize key name to match [a-zA-Z0-9_]*
+					const safeKey = key.replace(/[^a-zA-Z0-9_]/g, "_");
+					cleanedProperties[safeKey] = val;
+					cleanRecursive(val as Record<string, unknown>);
+				}
 			}
-			if (Array.isArray(nested)) {
-				for (const item of nested) {
+			s.properties = cleanedProperties;
+		}
+
+		// Robust filtering of required fields (must be after properties cleaning)
+		if (s.required && Array.isArray(s.required)) {
+			if (
+				s.properties &&
+				typeof s.properties === "object" &&
+				!Array.isArray(s.properties)
+			) {
+				const propKeys = new Set(Object.keys(s.properties));
+				const filteredRequired = (s.required as unknown[]).filter(
+					(key) => typeof key === "string" && propKeys.has(key.replace(/[^a-zA-Z0-9_]/g, "_")),
+				) as string[];
+
+				if (filteredRequired.length > 0) {
+					s.required = filteredRequired.map(k => k.replace(/[^a-zA-Z0-9_]/g, "_"));
+				} else {
+					delete s.required;
+				}
+			} else {
+				delete s.required;
+			}
+		}
+
+		// Handle nested schemas in objects and arrays
+		if (s.items) {
+			if (Array.isArray(s.items)) {
+				for (const item of s.items) {
 					if (item && typeof item === "object") {
 						cleanRecursive(item as Record<string, unknown>);
 					}
 				}
+			} else if (typeof s.items === "object") {
+				cleanRecursive(s.items as Record<string, unknown>);
 			}
 		}
-		if (s.properties && typeof s.properties === "object") {
-			for (const v of Object.values(s.properties)) {
+
+		if (s.additionalProperties && typeof s.additionalProperties === "object") {
+			cleanRecursive(s.additionalProperties as Record<string, unknown>);
+		}
+
+		if (s.patternProperties && typeof s.patternProperties === "object") {
+			for (const v of Object.values(s.patternProperties)) {
 				if (v && typeof v === "object") {
 					cleanRecursive(v as Record<string, unknown>);
 				}
 			}
+		}
+
+		if (s.propertyNames && typeof s.propertyNames === "object") {
+			cleanRecursive(s.propertyNames as Record<string, unknown>);
+		}
+
+		if (s.contains && typeof s.contains === "object") {
+			cleanRecursive(s.contains as Record<string, unknown>);
 		}
 	};
 	cleanRecursive(sanitized);
@@ -694,7 +739,7 @@ class FromIRTranslator {
 			request.tools = [
 				{
 					functionDeclarations: options.tools?.map((tool) => ({
-						name: tool.name,
+						name: tool.name.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 63),
 						description: tool.description || "",
 						parameters:
 							tool.inputSchema && typeof tool.inputSchema === "object"

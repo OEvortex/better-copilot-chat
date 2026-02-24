@@ -218,6 +218,7 @@ function renderContent(selectedProviderInfo, providerAccounts) {
                     <div class="content-subtitle">${escapeHtml(countLabel)}</div>
                 </div>
                 <div class="content-actions">
+                    <button class="btn btn-ghost" onclick="configModelsForProvider('${selectedProviderInfo.id}')">Config Models</button>
                     <button class="btn btn-ghost" onclick="addAccountForProvider('${selectedProviderInfo.id}')">Add</button>
                 </div>
             </div>
@@ -1195,6 +1196,7 @@ function getProviderIcon(providerId) {
         moonshot: "🌙",
         minimax: "🔷",
         deepseek: "🔍",
+        kilo: "⚖️",
         deepinfra: "🚀",
         compatible: "⚙️",
     };
@@ -1365,6 +1367,16 @@ function getCountdownUpdateInterval(remainingMs) {
     return 1000;
 }
 
+/**
+ * Configure models for a specific provider
+ */
+function _configModelsForProvider(providerId) {
+    vscode.postMessage({
+        command: "configModels",
+        provider: providerId,
+    });
+}
+
 // Expose handlers used by inline HTML and host initialization.
 window.initializeAccountManager = _initializeAccountManager;
 window.openGCMPSettings = _openGCMPSettings;
@@ -1372,6 +1384,7 @@ window.showAddAccountModal = _showAddAccountModal;
 window.selectProviderForAdd = _selectProviderForAdd;
 window.submitAddAccount = _submitAddAccount;
 window.addAccountForProvider = _addAccountForProvider;
+window.configModelsForProvider = _configModelsForProvider;
 window.handleAccountCardClick = _handleAccountCardClick;
 window.showAccountDetails = _showAccountDetails;
 window.confirmDeleteAccount = _confirmDeleteAccount;

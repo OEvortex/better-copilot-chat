@@ -58,6 +58,7 @@
         "onLanguageModelProvider:chp.opencode",
         "onLanguageModelProvider:chp.blackbox",
         "onLanguageModelProvider:chp.huggingface",
+        "onLanguageModelProvider:chp.kilo",
         "onLanguageModelProvider:chp.lightningai",
         "onLanguageModelProvider:chp.deepinfra",
         "onLanguageModelProvider:chp.nvidia",
@@ -147,6 +148,11 @@
             {
                 "command": "chp.huggingface.setApiKey",
                 "title": "Configure Hugging Face",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.kilo.setApiKey",
+                "title": "Configure Kilo AI",
                 "category": "Copilot ++"
             },
             {
@@ -831,6 +837,24 @@
                         "apiKey": {
                             "type": "string",
                             "description": "Hugging Face API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.kilo",
+                "displayName": "⦿ Kilo AI",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Kilo AI API key.",
                             "secret": true
                         },
                         "baseUrl": {

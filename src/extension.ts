@@ -14,6 +14,7 @@ import { CompatibleProvider } from "./providers/compatible/compatibleProvider";
 import { DeepInfraProvider } from "./providers/deepinfra/deepinfraProvider";
 import { GeminiCliProvider } from "./providers/geminicli/provider";
 import { HuggingfaceProvider } from "./providers/huggingface/provider";
+import { KiloProvider } from "./providers/kilo/provider";
 import { LightningAIProvider } from "./providers/lightningai/provider";
 import { MiniMaxProvider } from "./providers/minimax/minimaxProvider";
 import { MistralProvider } from "./providers/mistral/mistralProvider";
@@ -204,6 +205,15 @@ async function activateProviders(
 					);
 					provider = result.provider as unknown as GenericModelProvider;
 					disposables = result.disposables as unknown as vscode.Disposable[];
+				} else if (providerKey === "kilo") {
+					// Use specialized provider for kilo (dynamic model fetching)
+					const result = KiloProvider.createAndActivate(
+						context,
+						providerKey,
+						providerConfig,
+					);
+					provider = result.provider;
+					disposables = result.disposables;
 				} else if (providerKey === "deepinfra") {
 					// Use specialized provider for DeepInfra (OpenAI-compatible endpoints)
 					const result = DeepInfraProvider.createAndActivate(

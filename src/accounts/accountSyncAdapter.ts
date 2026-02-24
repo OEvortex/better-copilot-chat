@@ -316,6 +316,7 @@ export class AccountSyncAdapter {
 			ProviderKey.MiniMax,
 			ProviderKey.MiniMaxCoding,
 			ProviderKey.DeepSeek,
+			ProviderKey.Kilo,
 			ProviderKey.DeepInfra,
 			ProviderKey.Kimi,
 			ProviderKey.OpenAI,

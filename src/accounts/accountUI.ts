@@ -165,6 +165,11 @@ export class AccountUI {
 				authType: "apiKey" as const,
 			},
 			{
+				label: "Kilo AI",
+				value: ProviderKey.Kilo,
+				authType: "apiKey" as const,
+			},
+			{
 				label: "OpenAI",
 				value: ProviderKey.OpenAI,
 				authType: "apiKey" as const,
@@ -951,6 +956,7 @@ export class AccountUI {
 			minimax: "MiniMax",
 			"minimax-coding": "MiniMax Coding",
 			kimi: "Kimi",
+			kilo: "Kilo AI",
 			openai: "OpenAI",
 			mistral: "Mistral",
 			huggingface: "Hugging Face",

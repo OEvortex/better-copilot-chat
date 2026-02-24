@@ -54,6 +54,12 @@ export const KnownProviders: Record<string, KnownProviderConfig> = {
 			baseUrl: "https://lightning.ai/api/v1",
 		},
 	},
+	kilo: {
+		displayName: "Kilo AI",
+		openai: {
+			baseUrl: "https://api.kilo.ai/api/gateway",
+		},
+	},
 	zenmux: {
 		displayName: "Zenmux",
 		openai: {

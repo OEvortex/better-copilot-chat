@@ -48,6 +48,7 @@ export class AccountManagerPage {
 		{ id: "minimax", name: "MiniMax", authType: "apiKey" },
 		{ id: "minimax-coding", name: "MiniMax Coding", authType: "apiKey" },
 		{ id: "kimi", name: "Kimi", authType: "apiKey" },
+		{ id: "kilo", name: "Kilo AI", authType: "apiKey" },
 		{ id: "openai", name: "OpenAI", authType: "apiKey" },
 		{ id: "mistral", name: "Mistral", authType: "apiKey" },
 		{ id: "huggingface", name: "Hugging Face", authType: "apiKey" },
@@ -375,6 +376,40 @@ export class AccountManagerPage {
 			case "checkQuota":
 				await this.handleCheckQuota(message.accountId as string);
 				break;
+
+			case "configModels":
+				await this.handleConfigModels(message.provider as string);
+				break;
+		}
+	}
+
+	/**
+	 * Handle configuring models for a provider
+	 */
+	private async handleConfigModels(provider: string): Promise<void> {
+		try {
+			if (provider === ProviderKey.Compatible) {
+				await vscode.commands.executeCommand("chp.compatible.manageModels");
+			} else if (provider === ProviderKey.Antigravity) {
+				await vscode.commands.executeCommand("chp.antigravity.login");
+			} else {
+				// Try to trigger specialized setApiKey command which usually opens a wizard
+				const commandId = `chp.${provider}.setApiKey`;
+				const commands = await vscode.commands.getCommands(true);
+				if (commands.includes(commandId)) {
+					await vscode.commands.executeCommand(commandId);
+				} else {
+					// Fallback to compatible model manager if specialized command not found
+					await vscode.commands.executeCommand("chp.compatible.manageModels");
+				}
+			}
+		} catch (error) {
+			Logger.error(`Failed to open configuration for ${provider}:`, error);
+			this.sendToWebview({
+				command: "showToast",
+				message: `Failed to open configuration for ${provider}`,
+				type: "error",
+			});
 		}
 	}
 

@@ -24,6 +24,9 @@ export class AntigravityStreamProcessor {
 	private hasReceivedContent = false;
 	private hasThinkingContent = false;
 
+	// Function calls buffer to support XML-style <function_calls> blocks split across parts/chunks
+	private functionCallsBuffer = "";
+
 	// Activity tracking để giữ UI "sống" khi đang xử lý tool calls
 	private lastActivityReportTime = 0;
 	private activityReportInterval: ReturnType<typeof setInterval> | null = null;
@@ -334,20 +337,118 @@ export class AntigravityStreamProcessor {
 			return;
 		}
 		if (typeof part.text === "string") {
-			const processedText = this.processTextWithThinkingTags(
-				part.text,
-				modelConfig,
-			);
-			if (this.isInsideThinkingTag) {
-				this.flushThinkingBufferIfNeeded(progress);
-			} else {
-				this.finalizeThinkingPart(progress);
-				if (processedText.length > 0) {
-					this.textBuffer += processedText;
-					if (processedText.trim().length > 0) {
-						this.hasReceivedContent = true;
+			// Prepend any leftover function_calls fragment from previous parts
+			const textToProcess = this.functionCallsBuffer + part.text;
+
+			// Try to extract complete <function_calls>...</function_calls> blocks
+			const funcCallsRegex = /<function_calls>[\s\S]*?<\/function_calls>/g;
+			let lastIndex = 0;
+			let match = funcCallsRegex.exec(textToProcess);
+			while (match !== null) {
+				// Process text before the function_calls block
+				const before = textToProcess.slice(lastIndex, match.index);
+				if (before.length > 0) {
+					const processedText = this.processTextWithThinkingTags(
+						before,
+						modelConfig,
+					);
+					if (this.isInsideThinkingTag) {
+						this.flushThinkingBufferIfNeeded(progress);
+					} else {
+						this.finalizeThinkingPart(progress);
+						if (processedText.length > 0) {
+							this.textBuffer += processedText;
+							if (processedText.trim().length > 0) {
+								this.hasReceivedContent = true;
+							}
+							this.flushTextBufferIfNeeded(progress);
+						}
 					}
-					this.flushTextBufferIfNeeded(progress);
+				}
+
+				// Extract tool calls from the block
+				const block = match[0];
+				const toolCallRegex =
+					/<tool_call\s+name="([^"]+)"\s+arguments='([^']*)'\s*\/>/g;
+				let toolMatch = toolCallRegex.exec(block);
+				// Flush buffers before reporting tool calls
+				this.flushTextBuffer(progress, true);
+				this.flushThinkingBuffer(progress);
+				while (toolMatch !== null) {
+					const name = toolMatch[1];
+					const argsString = toolMatch[2] || "";
+					let argsObj: Record<string, unknown> = {};
+					try {
+						argsObj = JSON.parse(argsString);
+					} catch {
+						// Fallback: wrap as value
+						argsObj = { value: argsString };
+					}
+					const callId = createCallId();
+					// Deduplicate
+					const dedupeKey = `${callId}:${name}`;
+					if (!this.seenToolCalls.has(dedupeKey)) {
+						this.seenToolCalls.add(dedupeKey);
+						// Queue the tool call so UI has a small pause to update
+						this.pendingToolCalls.push({ callId, name, args: argsObj });
+						this.hasReceivedContent = true;
+						this.markActivity();
+					}
+					toolMatch = toolCallRegex.exec(block);
+				}
+
+				lastIndex = funcCallsRegex.lastIndex;
+				match = funcCallsRegex.exec(textToProcess);
+			}
+
+			// Handle trailing text after last processed function_calls block
+			const remaining = textToProcess.slice(lastIndex);
+
+			// If there's an incomplete function_calls start tag at end, keep it in buffer
+			const openStart = remaining.indexOf("<function_calls>");
+			const closeEnd = remaining.indexOf("</function_calls>");
+			if (openStart !== -1 && closeEnd === -1) {
+				// Keep from the open tag onwards in buffer
+				this.functionCallsBuffer = remaining.slice(openStart);
+				const beforeOpen = remaining.slice(0, openStart);
+				if (beforeOpen.length > 0) {
+					const processedText = this.processTextWithThinkingTags(
+						beforeOpen,
+						modelConfig,
+					);
+					if (this.isInsideThinkingTag) {
+						this.flushThinkingBufferIfNeeded(progress);
+					} else {
+						this.finalizeThinkingPart(progress);
+						if (processedText.length > 0) {
+							this.textBuffer += processedText;
+							if (processedText.trim().length > 0) {
+								this.hasReceivedContent = true;
+							}
+							this.flushTextBufferIfNeeded(progress);
+						}
+					}
+				}
+			} else {
+				// No incomplete function_calls at end, clear buffer
+				this.functionCallsBuffer = "";
+				if (remaining.length > 0) {
+					const processedText = this.processTextWithThinkingTags(
+						remaining,
+						modelConfig,
+					);
+					if (this.isInsideThinkingTag) {
+						this.flushThinkingBufferIfNeeded(progress);
+					} else {
+						this.finalizeThinkingPart(progress);
+						if (processedText.length > 0) {
+							this.textBuffer += processedText;
+							if (processedText.trim().length > 0) {
+								this.hasReceivedContent = true;
+							}
+							this.flushTextBufferIfNeeded(progress);
+						}
+					}
 				}
 			}
 		}

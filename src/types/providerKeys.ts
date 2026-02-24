@@ -8,6 +8,7 @@ export enum ProviderKey {
 	Huggingface = "huggingface",
 	LightningAI = "lightningai",
 	Kimi = "kimi",
+	Kilo = "kilo",
 	Mistral = "mistral",
 	MiniMax = "minimax",
 	MiniMaxCoding = "minimax-coding",

@@ -43,6 +43,7 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 |    **OpenCode**    |     OpenCode AI      | `Claude 4.5` `GPT-5`               |
 |    **Blackbox**    |     Blackbox AI      | `kimi-k2.5` `blackbox-base-2`      |
 |   **DeepInfra**    |     DeepInfra        | `OpenAI-compatible` `LLM & Image`  |
+|     **Kilo AI**    |      Kilo AI         | `Dynamic Model Fetching` `High Performance` |
 |     **Zenmux**     |      Zenmux AI       | `Dynamic Model Fetching` `OpenAI-compatible` |
 |   **Compatible**   | OpenAI/Anthropic API | `Custom Models Support`            |
 
@@ -156,6 +157,7 @@ npm run package
 | MiniMax        | `Cmd+Shift+P` → `Start MiniMax Configuration Wizard`    |
 | MoonshotAI     | `Cmd+Shift+P` → `Start MoonshotAI Configuration Wizard` |
 | DeepSeek       | `Cmd+Shift+P` → `Set DeepSeek API Key`                  |
+| Kilo AI        | `Cmd+Shift+P` → `Configure Kilo AI`                     |
 | DeepInfra      | `Cmd+Shift+P` → `Set DeepInfra API Key`                 |
 | Custom         | `Cmd+Shift+P` → `Compatible Provider Settings`          |
 

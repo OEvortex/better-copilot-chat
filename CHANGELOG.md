@@ -14,12 +14,16 @@ All notable changes to this project will be documented in this file.
   - Automatically syncs Qwen CLI credentials from `~/.qwen/oauth_creds.json` into the Account Manager on startup.
   - Improved `AccountSyncAdapter` to handle all supported API key providers (Zhipu, DeepSeek, etc.) ensuring backward compatibility with existing API key storage.
 
-### Changed
+### Fixed
 
-**Account Management UI/UX:**
-- **Improved Account Manager Page**: Updated the WebView interface to include all supported providers in the "Add Account" list.
-- **Standardized Display Names**: Consistent and clear provider naming across the `AccountUI` QuickPick menus and the main Account Manager page.
-- **Robust Syncing**: `AccountSyncAdapter` now ensures that active accounts in the manager are always mirrored back to the legacy `ApiKeyManager` for seamless transition.
+**Tool Calling & API Reliability:**
+- **Robust Schema Sanitization**: Resolved critical 400 `INVALID_ARGUMENT` errors in Antigravity and Gemini CLI providers by implementing strict tool schema cleaning.
+  - Automatically filters the `required` property array to only include existing fields.
+  - Sanitizes property names and tool names to strictly match Gemini's naming requirements (`[a-zA-Z0-9_-]`).
+  - Fixed recursion logic error that incorrectly processed property maps as schemas.
+- **Improved Tool Call Stability**: Enhanced handling for models with large numbers of tool definitions (60+ tools) to ensure protocol compliance.
+- **XML-Style Tool Parsing**: Added support for XML-style `<function_calls>` blocks in the Antigravity stream processor for better compatibility with newer Gemini models.
+- **Message Balancing**: Implemented automatic balancing of function calls and responses in message history to prevent "parts mismatch" errors.
 
 ## [0.2.4] - 2026-02-24
 

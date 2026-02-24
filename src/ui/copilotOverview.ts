@@ -78,6 +78,7 @@ export class CopilotOverview {
 				"opencode",
 				"blackbox",
 				"lightningai",
+				"kilo",
 				"zenmux",
 				"huggingface",
 				"minimax",

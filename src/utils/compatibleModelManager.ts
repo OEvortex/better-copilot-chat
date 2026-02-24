@@ -423,75 +423,50 @@ export class CompatibleModelManager {
 	 */
 	private static async promptAndSetApiKey(): Promise<void> {
 		try {
-			// Get all configured providers
-			const providers = await CompatibleModelManager.getUniqueProviders();
-			if (providers.length === 0) {
+			// Get all providers (built-in + known + custom from models)
+			const { configProviders } = await import("../providers/config/index.js");
+			const builtinProviderKeys = Object.keys(configProviders);
+			const knownProviderKeys = Object.keys(KnownProviders);
+			const modelProviderKeys = await CompatibleModelManager.getUniqueProviders();
+
+			const allProviderKeys = [
+				...new Set([
+					...builtinProviderKeys,
+					...knownProviderKeys,
+					...modelProviderKeys,
+				]),
+			].sort();
+
+			if (allProviderKeys.length === 0) {
 				vscode.window.showWarningMessage(
-					"No custom model configurations, please add a model first",
+					"No providers available",
 				);
 				return;
 			}
-			// If only one provider, directly set that provider's API key
-			if (providers.length === 1) {
-				await CompatibleModelManager.setApiKeyForProvider(providers[0]);
-				return;
-			}
-
-			// Get historical custom providers
-			const historicalProviders =
-				await CompatibleModelManager.getHistoricalCustomProviders();
 
 			const customProviders: string[] = [];
 			const knownProviders: string[] = [];
 			const builtinProviders: string[] = [];
 
-			providers.forEach((provider) => {
-				if (historicalProviders.includes(provider)) {
-					customProviders.push(provider);
+			allProviderKeys.forEach((provider) => {
+				if (provider in configProviders) {
+					builtinProviders.push(provider);
 				} else if (provider in KnownProviders) {
 					knownProviders.push(provider);
-				} else if (provider in configProviders) {
-					builtinProviders.push(provider);
 				} else {
-					// Default categorize as custom provider
 					customProviders.push(provider);
 				}
 			});
 
-			// Create selection items in order of custom, known, built-in, and add separators
+			// Create selection items
 			const providerChoices = [];
 
-			// Custom providers
-			if (customProviders.length > 0) {
-				providerChoices.push(
-					...customProviders.map((provider) => ({ label: provider })),
-				);
-			}
-
-			// Known providers (add separator)
-			if (knownProviders.length > 0) {
-				if (customProviders.length > 0) {
-					providerChoices.push({
-						label: "Known Providers",
-						kind: vscode.QuickPickItemKind.Separator,
-					});
-				}
-				providerChoices.push(
-					...knownProviders.map((provider) => ({
-						label: provider,
-						description: KnownProviders[provider]?.displayName,
-					})),
-				);
-			}
-
-			// Built-in providers (add separator)
+			// Built-in providers first (most common)
 			if (builtinProviders.length > 0) {
-				if (customProviders.length > 0 || knownProviders.length > 0) {
-					providerChoices.push({
-						label: "Built-in Providers",
-						kind: vscode.QuickPickItemKind.Separator,
-					});
-				}
+				providerChoices.push({
+					label: "Built-in Providers",
+					kind: vscode.QuickPickItemKind.Separator,
+				});
 				providerChoices.push(
 					...builtinProviders.map((provider) => ({
 						label: provider,
@@ -502,7 +477,32 @@ export class CompatibleModelManager {
 				);
 			}
 
-			// If multiple providers, let user choose
+			// Known providers
+			if (knownProviders.length > 0) {
+				providerChoices.push({
+					label: "Known Providers",
+					kind: vscode.QuickPickItemKind.Separator,
+				});
+				providerChoices.push(
+					...knownProviders.map((provider) => ({
+						label: provider,
+						description: KnownProviders[provider]?.displayName,
+					})),
+				);
+			}
+
+			// Custom providers
+			if (customProviders.length > 0) {
+				providerChoices.push({
+					label: "Custom Providers",
+					kind: vscode.QuickPickItemKind.Separator,
+				});
+				providerChoices.push(
+					...customProviders.map((provider) => ({ label: provider })),
+				);
+			}
+
+			// Let user choose
 			const selected = await vscode.window.showQuickPick(providerChoices, {
 				placeHolder: "Select provider to set API key for",
 			});
