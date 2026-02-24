@@ -490,6 +490,137 @@ export function extractToolCallFromGeminiResponse(
 	};
 }
 
+export interface GeminiResponseGroundingMetadata {
+	groundingChunks?: Array<{ web?: { title?: string; url?: string } }>;
+	groundingSupports?: Array<{
+		startIndex?: number;
+		endIndex?: number;
+		text?: string;
+	}>;
+}
+
+export interface GeminiResponseCandidate {
+	content?: {
+		parts?: Array<Record<string, unknown>>;
+	};
+	groundingMetadata?: GeminiResponseGroundingMetadata;
+}
+
+export function extractGeminiResponseCandidates(
+	payload: unknown,
+): GeminiResponseCandidate[] {
+	if (!payload || typeof payload !== "object") {
+		return [];
+	}
+
+	const root = payload as Record<string, unknown>;
+	const responseRoot =
+		root.response && typeof root.response === "object"
+			? (root.response as Record<string, unknown>)
+			: root;
+	const candidates = responseRoot.candidates;
+
+	if (!Array.isArray(candidates)) {
+		return [];
+	}
+
+	return candidates.filter(
+		(candidate): candidate is GeminiResponseCandidate =>
+			!!candidate && typeof candidate === "object",
+	);
+}
+
+export function extractTextFromGeminiCandidates(
+	candidates: GeminiResponseCandidate[],
+): string {
+	const textSegments: string[] = [];
+
+	for (const candidate of candidates) {
+		const parts = candidate.content?.parts;
+		if (!Array.isArray(parts)) {
+			continue;
+		}
+
+		for (const part of parts) {
+			if (!part || typeof part !== "object") {
+				continue;
+			}
+			if (part.thought === true) {
+				continue;
+			}
+			if (typeof part.text === "string" && part.text.trim()) {
+				textSegments.push(part.text.trim());
+			}
+		}
+	}
+
+	return textSegments.join("\n\n");
+}
+
+export function extractGroundingMetadataFromGeminiCandidates(
+	candidates: GeminiResponseCandidate[],
+): GeminiResponseGroundingMetadata | undefined {
+	for (const candidate of candidates) {
+		if (candidate.groundingMetadata) {
+			return candidate.groundingMetadata;
+		}
+	}
+
+	return undefined;
+}
+
+export function parseGeminiSSECandidates(
+	sseText: string,
+): GeminiResponseCandidate[] {
+	const lines = sseText.split(/\r?\n/);
+	const aggregatedCandidates: GeminiResponseCandidate[] = [];
+	let sseDataParts: string[] = [];
+
+	const flushEvent = () => {
+		if (sseDataParts.length === 0) {
+			return;
+		}
+
+		const eventData = sseDataParts.join("\n").trim();
+		sseDataParts = [];
+
+		if (!eventData || eventData === "[DONE]") {
+			return;
+		}
+
+		try {
+			const parsed = JSON.parse(eventData) as unknown;
+			aggregatedCandidates.push(...extractGeminiResponseCandidates(parsed));
+		} catch {
+			// Ignore non-JSON or partial chunks
+		}
+	};
+
+	for (const line of lines) {
+		if (line.trim().length === 0) {
+			flushEvent();
+			continue;
+		}
+
+		if (!line.startsWith("data:")) {
+			continue;
+		}
+
+		const payload = line.slice(5).trimStart();
+		if (payload === "[DONE]") {
+			flushEvent();
+			continue;
+		}
+
+		if (payload) {
+			sseDataParts.push(payload);
+		}
+	}
+
+	flushEvent();
+	return aggregatedCandidates;
+}
+
 class MessageConverter {
 	convertMessagesToGemini(
 		messages: readonly vscode.LanguageModelChatMessage[],

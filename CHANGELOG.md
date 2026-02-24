@@ -30,6 +30,11 @@ All notable changes to this project will be documented in this file.
   - Gemini CLI provider now respects global token limits from `globalContextLengthManager.ts`
   - Added `isGemini2Model()` helper function for Gemini 2 model detection
   - Updated `isGemini3Model()` to include Gemini 3.1 variants
+- **Gemini CLI Web Search Tool**: Added new `google_web_search` tool for Gemini CLI provider
+  - Uses Google's "web-search" utility model via Gemini CLI OAuth credentials
+  - Returns synthesized answers with citations and source URIs
+  - Registered as `chp_google_web_search` in the tool registry
+  - Works with existing Gemini CLI authentication (no separate API key needed)
 
 ### Changed
 - **Gemini Model Token Limits**: Updated token limits for all Gemini models:

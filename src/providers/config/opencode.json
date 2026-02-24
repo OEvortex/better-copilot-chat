@@ -352,18 +352,6 @@
             }
         },
         {
-            "id": "alpha-kimi-k2.5",
-            "name": "alpha-kimi-k2.5",
-            "tooltip": "alpha-kimi-k2.5 by OpenCode",
-            "maxInputTokens": 224000,
-            "maxOutputTokens": 32000,
-            "model": "alpha-kimi-k2.5",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "kimi-k2.5",
             "name": "kimi-k2.5",
             "tooltip": "kimi-k2.5 by OpenCode",

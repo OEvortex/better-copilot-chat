@@ -68,6 +68,7 @@
         "onLanguageModelProvider:chp.antigravity",
         "onLanguageModelTool:chp_zhipuWebSearch",
         "onLanguageModelTool:chp_minimaxWebSearch",
+        "onLanguageModelTool:chp_google_web_search",
         "onFileSystem:chp-settings"
     ],
     "contributes": {
@@ -1042,6 +1043,26 @@
                     },
                     "required": [
                         "q"
+                    ]
+                },
+                "canBeReferencedInPrompt": true
+            },
+            {
+                "name": "chp_google_web_search",
+                "displayName": "Google Web Search (Gemini CLI)",
+                "toolReferenceName": "googleWebSearch",
+                "modelDescription": "Performs a grounded Google Search to find information across the internet. Returns a synthesized answer with citations and source URIs. Uses Gemini CLI OAuth credentials - requires running 'gemini auth login' first.",
+                "userDescription": "Get latest information through Google web search using Gemini CLI",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The search query. Supports natural language questions, entity names, keywords, or URLs."
+                        }
+                    },
+                    "required": [
+                        "query"
                     ]
                 },
                 "canBeReferencedInPrompt": true
