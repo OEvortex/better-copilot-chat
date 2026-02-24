@@ -55,6 +55,8 @@ export {
 	isMingFlashOmniModel,
 	isGlm45Model,
 	isGlmModel,
+	isDeepSeekModel,
+	isLlama32Model,
 	getDefaultMaxOutputTokensForContext,
 	resolveGlobalCapabilities,
 	resolveGlobalTokenLimits,

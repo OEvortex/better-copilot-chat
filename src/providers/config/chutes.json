@@ -67,8 +67,8 @@
             "id": "unsloth-gemma-3-27b-it",
             "name": "unsloth/gemma-3-27b-it",
             "tooltip": "unsloth/gemma-3-27b-it by Chutes",
-            "maxInputTokens": 119808,
-            "maxOutputTokens": 8192,
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
             "model": "unsloth/gemma-3-27b-it",
             "capabilities": {
                 "toolCalling": true,
@@ -103,8 +103,8 @@
             "id": "zai-org-glm-4-7-tee",
             "name": "zai-org/GLM-4.7-TEE",
             "tooltip": "zai-org/GLM-4.7-TEE by Chutes",
-            "maxInputTokens": 186368,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
             "model": "zai-org/GLM-4.7-TEE",
             "capabilities": {
                 "toolCalling": true,
@@ -127,8 +127,8 @@
             "id": "zai-org-glm-5-tee",
             "name": "zai-org/GLM-5-TEE",
             "tooltip": "zai-org/GLM-5-TEE by Chutes",
-            "maxInputTokens": 186368,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
             "model": "zai-org/GLM-5-TEE",
             "capabilities": {
                 "toolCalling": true,
@@ -163,8 +163,8 @@
             "id": "zai-org-glm-4-6-tee",
             "name": "zai-org/GLM-4.6-TEE",
             "tooltip": "zai-org/GLM-4.6-TEE by Chutes",
-            "maxInputTokens": 186368,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
             "model": "zai-org/GLM-4.6-TEE",
             "capabilities": {
                 "toolCalling": true,

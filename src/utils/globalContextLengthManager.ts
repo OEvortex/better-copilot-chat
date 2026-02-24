@@ -8,6 +8,10 @@ const DEFAULT_MIN_RESERVED_INPUT_TOKENS = 1024;
 // Devstral models: 256K total context (1k=1024), 32K output
 const DEVSTRAL_MAX_INPUT_TOKENS = 256 * 1024 - 32 * 1024; // 229376
 const DEVSTRAL_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
+// DeepSeek models: 160K total context (1k=1024), 16K output / 144K input
+const DEEPSEEK_TOTAL_TOKENS = 160 * 1024; // 163840
+const DEEPSEEK_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+const DEEPSEEK_MAX_INPUT_TOKENS = DEEPSEEK_TOTAL_TOKENS - DEEPSEEK_MAX_OUTPUT_TOKENS; // 147456
 // Fixed 128K family (1k=1024): 16K output / 112K input
 export const FIXED_128K_MAX_INPUT_TOKENS = 128 * 1024 - 16 * 1024; // 114688
 export const FIXED_128K_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
@@ -48,9 +52,19 @@ export function isDevstralModel(modelId: string): boolean {
 	return /devstral[-_]?2/i.test(modelId);
 }
 
+export function isDeepSeekModel(modelId: string): boolean {
+	// Matches deepseek-r1, deepseek-tng, deepseek-v3-1, deepseek-v3.2
+	return /deepseek[-_]?/i.test(modelId);
+}
+
 export function isGemma3Model(modelId: string): boolean {
 	// Matches gemma-3 and variants (gemma-3, gemma-3-pro, gemma-3-flash, etc.)
 	return /gemma[-_]?3/i.test(modelId);
+}
+
+export function isLlama32Model(modelId: string): boolean {
+	// Matches llama-3.2 series: llama-3-2-1b, llama-3-2-3b, etc. (128K context, 16K output)
+	return /llama[-_]?3[-_]?2/i.test(modelId);
 }
 
 export function isGemini25Model(modelId: string): boolean {
@@ -105,11 +119,15 @@ export function isKimiK25Model(modelId: string): boolean {
 }
 
 export function isKimiModel(modelId: string): boolean {
-	return /kimi/i.test(modelId);
+	// Matches all Kimi models including kimi-k2, kimi-k2.1, kimi-k2.5, etc.
+	// Note: kimi-k2.5 is handled separately by isKimiK25Model for vision support
+	return /kimi[-_]?k2/i.test(modelId);
 }
 
 export function isMinimaxModel(modelId: string): boolean {
-	return /minimax/i.test(modelId);
+	// Matches all MiniMax M2 series: minimax-m2, minimax-m2.1, minimax-m2-5, etc.
+	// All M2 series models have 256K context with 32K output
+	return /minimax[-_]?m2/i.test(modelId);
 }
 
 // Check if GPT model supports vision (excludes gpt-oss)
@@ -136,6 +154,14 @@ export function resolveGlobalTokenLimits(
 	contextLength: number,
 	options: ResolveTokenLimitsOptions,
 ): { maxInputTokens: number; maxOutputTokens: number } {
+	// DeepSeek models: 160K total (16K output)
+	if (isDeepSeekModel(modelId)) {
+		return {
+			maxInputTokens: DEEPSEEK_MAX_INPUT_TOKENS,
+			maxOutputTokens: DEEPSEEK_MAX_OUTPUT_TOKENS,
+		};
+	}
+
 	// Devstral models: 256K total context, 32K output
 	if (isDevstralModel(modelId)) {
 		return {
@@ -149,6 +175,14 @@ export function resolveGlobalTokenLimits(
 		return {
 			maxInputTokens: GEMA3_MAX_INPUT_TOKENS,
 			maxOutputTokens: GEMA3_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	// Llama 3.2 series: 128K total context (1k=1024), 16K output
+	if (isLlama32Model(modelId)) {
+		return {
+			maxInputTokens: FIXED_128K_MAX_INPUT_TOKENS,
+			maxOutputTokens: FIXED_128K_MAX_OUTPUT_TOKENS,
 		};
 	}
 
@@ -224,7 +258,7 @@ export function resolveGlobalTokenLimits(
 		};
 	}
 
-	// Minimax / Kimi remain fixed 256K
+	// Minimax M2 series / Kimi K2 series: 256K total context, 32K output
 	if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
 		return {
 			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,

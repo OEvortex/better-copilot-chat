@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 ## [0.2.3] - 2026-02-24
 
 ### Added
+- **New Model Support in `globalContextLengthManager.ts`**:
+  - **Gemma 3 Models**: 128K total context (114K input / 16K output)
+    - `gemma-3`, `gemma-3-pro`, `gemma-3-flash`, `gemma-3-4b`, etc.
+  - **Llama 3.2 Series**: 128K total context (114K input / 16K output)
+    - `llama-3-2-1b`, `llama-3-2-3b`, and all Llama 3.2 variants
+  - **DeepSeek Models**: 160K total context (147K input / 16K output)
+    - `deepseek-r1`, `deepseek-tng`, `deepseek-v3-1`, `deepseek-v3.2`
+  - **GLM-4.5 Special Case**: 128K total context with 32K output (98K input)
+    - Different from standard 128K models which have 16K output
+  - **MiniMax M2.5**: 256K total context (229K input / 32K output)
+- **Token Count Standardization**: All token calculations now use 1K = 1024 tokens (was incorrectly using 1000)
+  - Updated all constants in `globalContextLengthManager.ts` and provider files
+  - Fixed FIXED_128K, FIXED_256K, FIXED_64K, and all model-specific constants
+- **New Model Support in `globalContextLengthManager.ts`**:
+  - **Gemma 3 Models**: 128K total context (114K input / 16K output)
+    - `gemma-3`, `gemma-3-pro`, `gemma-3-flash`, `gemma-3-4b`, etc.
+  - **Llama 3.2 Series**: 128K total context (114K input / 16K output)
+    - `llama-3-2-1b`, `llama-3-2-3b`, and all Llama 3.2 variants
+  - **DeepSeek Models**: 160K total context (147K input / 16K output)
+    - `deepseek-r1`, `deepseek-tng`, `deepseek-v3-1`, `deepseek-v3.2`
+  - **GLM-4.5 Special Case**: 128K total context with 32K output (98K input)
+    - Different from standard 128K models which have 16K output
+  - **MiniMax M2.5**: 256K total context (229K input / 32K output)
+- **Token Count Standardization**: All token calculations now use 1K = 1024 tokens (was incorrectly using 1000)
+  - Updated all constants in `globalContextLengthManager.ts` and provider files
+  - Fixed FIXED_128K, FIXED_256K, FIXED_64K, and all model-specific constants
 - **NVIDIA NIM Provider**: Added new NVIDIA NIM provider with OpenAI SDK compatibility.
   - Configured at `https://integrate.api.nvidia.com/v1`
   - Rate limit: 40 requests per minute
@@ -37,6 +63,34 @@ All notable changes to this project will be documented in this file.
   - Works with existing Gemini CLI authentication (no separate API key needed)
 
 ### Changed
+- **Refactored Model Detection Functions**:
+  - Consolidated `isMinimaxModel()` and `isMinimaxM25Model()` into single function
+    - Now matches all MiniMax M2 series: `minimax-m2`, `minimax-m2.1`, `minimax-m2-5`, etc.
+  - Updated `isKimiModel()` to match all Kimi K2 series: `kimi-k2`, `kimi-k2.1`, `kimi-k2.5`, etc.
+    - `isKimiK25Model()` remains separate for vision capability detection
+  - All M2/K2 series models use 256K context with 32K output
+- **Chutes Provider**: Updated to use `resolveGlobalTokenLimits()` from `globalContextLengthManager.ts`
+  - Removed local token threshold constants
+  - Now properly handles GLM-5, GLM-4.6, GLM-4.7 with 256K context
+- **Zhipu Provider**: Simplified to use `resolveGlobalTokenLimits()` for all GLM models
+  - Removed hardcoded model metadata lookup table
+  - GLM-4.5 correctly gets 128K/32K, GLM-4.6/4.7/5 get 256K/32K
+- **Provider Token Defaults**: Updated all providers to use 1K=1024 token calculations
+  - Fixed `blackbox`, `chutes`, `deepinfra`, `huggingface`, `lightningai`, `nvidia`, `ollama`, `opencode`, `zenmux`
+- **Refactored Model Detection Functions**:
+  - Consolidated `isMinimaxModel()` and `isMinimaxM25Model()` into single function
+    - Now matches all MiniMax M2 series: `minimax-m2`, `minimax-m2.1`, `minimax-m2-5`, etc.
+  - Updated `isKimiModel()` to match all Kimi K2 series: `kimi-k2`, `kimi-k2.1`, `kimi-k2.5`, etc.
+    - `isKimiK25Model()` remains separate for vision capability detection
+  - All M2/K2 series models use 256K context with 32K output
+- **Chutes Provider**: Updated to use `resolveGlobalTokenLimits()` from `globalContextLengthManager.ts`
+  - Removed local token threshold constants
+  - Now properly handles GLM-5, GLM-4.6, GLM-4.7 with 256K context
+- **Zhipu Provider**: Simplified to use `resolveGlobalTokenLimits()` for all GLM models
+  - Removed hardcoded model metadata lookup table
+  - GLM-4.5 correctly gets 128K/32K, GLM-4.6/4.7/5 get 256K/32K
+- **Provider Token Defaults**: Updated all providers to use 1K=1024 token calculations
+  - Fixed `blackbox`, `chutes`, `deepinfra`, `huggingface`, `lightningai`, `nvidia`, `ollama`, `opencode`, `zenmux`
 - **Gemini Model Token Limits**: Updated token limits for all Gemini models:
   - Gemini 3 / 3.1 models: 1M total context → 936K input / 64K output
   - Gemini 2.5 models: 1M total context → 968K input / 32K output
