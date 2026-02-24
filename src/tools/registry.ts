@@ -5,7 +5,6 @@
 
 import * as vscode from "vscode";
 import { Logger } from "../utils";
-import { DelegateToAgentTool } from "./delegateToAgent";
 import { GeminiSearchTool } from "./geminiSearch";
 import { MiniMaxSearchTool } from "./minimaxSearch";
 import { ZhipuSearchTool } from "./zhipuSearch";
@@ -14,7 +13,6 @@ import { ZhipuSearchTool } from "./zhipuSearch";
 let zhipuSearchTool: ZhipuSearchTool | undefined;
 let minimaxSearchTool: MiniMaxSearchTool | undefined;
 let geminiSearchTool: GeminiSearchTool | undefined;
-let delegateToAgentTool: DelegateToAgentTool | undefined;
 
 /**
  * Register all tools
@@ -48,16 +46,6 @@ export function registerAllTools(context: vscode.ExtensionContext): void {
 		);
 		context.subscriptions.push(geminiToolDisposable);
 
-		// Register Delegate to Agent tool
-		delegateToAgentTool = new DelegateToAgentTool();
-		const delegateToolDisposable = vscode.lm.registerTool(
-			"chp_delegateToAgent",
-			{
-				invoke: delegateToAgentTool.invoke.bind(delegateToAgentTool),
-			},
-		);
-		context.subscriptions.push(delegateToolDisposable);
-
 		// Add cleanup logic to context
 		context.subscriptions.push({
 			dispose: async () => {
@@ -68,7 +56,6 @@ export function registerAllTools(context: vscode.ExtensionContext): void {
 		Logger.info("Zhipu AI web search tool registered: chp_zhipuWebSearch");
 		Logger.info("MiniMax web search tool registered: chp_minimaxWebSearch");
 		Logger.info("Gemini CLI web search tool registered: chp_google_web_search");
-		Logger.info("Delegate to agent tool registered: chp_delegateToAgent");
 	} catch (error) {
 		Logger.error(
 			"Tool registration failed",
@@ -93,11 +80,6 @@ export async function cleanupAllTools(): Promise<void> {
 			await minimaxSearchTool.cleanup();
 			minimaxSearchTool = undefined;
 			Logger.info("MiniMax web search tool resources cleaned up");
-		}
-
-		if (delegateToAgentTool) {
-			delegateToAgentTool = undefined;
-			Logger.info("Delegate to agent tool resources cleaned up");
 		}
 
 		if (geminiSearchTool) {

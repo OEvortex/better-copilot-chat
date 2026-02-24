@@ -48,6 +48,14 @@ All notable changes to this project will be documented in this file.
   - Added `buildChatJimmyCompletionSse()` to wrap response text in proper JSON SSE format.
   - Updated `getBody()` to handle ChatJimmy FIM responses specially for chat-lib compatibility.
 - **ChatJimmy API Key Check**: Fixed API key validation to skip authentication check for ChatJimmy (public API).
+- **Gemini Web Search Tool**: Improved response parsing to handle wrapped Gemini API response payloads and multiple content parts.
+  - Added shared parsing helpers in handler.ts for reuse across Gemini CLI provider and search tool.
+  - Removed deprecated web-search model alias fallback chain.
+  - Simplified to return raw content without source formatting.
+  - Removed fallback to non-grounded search when web search fails.
+
+### Removed
+- **Delegate to Agent Tool**: Removed the `delegateToAgent` tool as it was never fully functional and had issues with VS Code command execution.
 - **Cancellation Token**: Fixed AbortSignal usage in ChatJimmy FIM handler for proper request cancellation.
 
 ## [0.2.2] - 2026-02-15

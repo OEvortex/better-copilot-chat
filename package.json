@@ -929,34 +929,6 @@
                 }
             }
         ],
-        "chatParticipants": [
-            {
-                "id": "chp.gemini",
-                "name": "gemini",
-                "fullName": "Gemini CLI",
-                "description": "Google Gemini AI Assistant via CLI",
-                "isSticky": true,
-                "commands": [
-                    {
-                        "name": "session",
-                        "description": "View current session information"
-                    }
-                ]
-            },
-            {
-                "id": "chp.claude",
-                "name": "claude",
-                "fullName": "Claude CLI",
-                "description": "Anthropic Claude AI Assistant via CLI",
-                "isSticky": true,
-                "commands": [
-                    {
-                        "name": "session",
-                        "description": "View current session information"
-                    }
-                ]
-            }
-        ],
         "languageModelTools": [
             {
                 "name": "chp_zhipuWebSearch",

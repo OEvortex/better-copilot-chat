@@ -67,72 +67,6 @@ export class GeminiSearchTool {
 		return `${trimmedBaseUrl}/v1internal:streamGenerateContent?alt=sse`;
 	}
 
-	private async fallbackWithoutWebSearch(
-		url: string,
-		accessToken: string,
-		query: string,
-		projectId: string,
-	): Promise<{
-		content: string;
-		sources?: Array<{ title: string; url: string }>;
-		citations?: Array<{ startIndex: number; endIndex: number; segment: string }>;
-	}> {
-		const uuid = crypto.randomUUID
-			? crypto.randomUUID()
-			: crypto.randomBytes(16).toString("hex");
-		const requestBody = {
-			model: "gemini-2.5-flash",
-			user_prompt_id: `tool-fallback-${uuid}`,
-			...(projectId ? { project: projectId } : {}),
-			request: {
-				contents: [
-					{
-						role: "user",
-						parts: [
-							{
-								text: `Web search tool is temporarily unavailable due to backend errors. Provide the best available answer from model knowledge for: ${query}`,
-							},
-						],
-					},
-				],
-				generationConfig: {
-					temperature: 0.1,
-				},
-			},
-		};
-
-		Logger.warn("[Gemini Search] Falling back to non-grounded completion");
-		const response = await fetch(url, {
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-				"Content-Type": "application/json",
-				"User-Agent": GeminiSearchTool.DEFAULT_USER_AGENT,
-			},
-			body: JSON.stringify(requestBody),
-		});
-
-		if (!response.ok) {
-			const err = await response.text();
-			throw new Error(
-				`Search fallback also failed: ${response.status} ${response.statusText} - ${err}`,
-			);
-		}
-		const data = (await response.json()) as {
-			candidates?: Array<{
-				content?: { parts?: Array<{ text?: string }> };
-			}>;
-		};
-		const content =
-			data.candidates?.[0]?.content?.parts?.[0]?.text ||
-			"No response available from fallback model.";
-		return {
-			content: `⚠️ Web-grounded search is temporarily unavailable for this account/backend.\n\n${content}`,
-			sources: [],
-			citations: [],
-		};
-	}
-
 	private async getProjectId(
 		accessToken: string,
 		baseUrl: string,
@@ -285,7 +219,6 @@ export class GeminiSearchTool {
 		const url = this.buildGenerateContentUrl(baseUrl);
 
 		const searchModels = [
-			"web-search",
 			"gemini-3-flash-preview",
 			"gemini-2.5-flash",
 			"gemini-2.5-pro",
@@ -299,9 +232,8 @@ export class GeminiSearchTool {
 				? crypto.randomUUID()
 				: crypto.randomBytes(16).toString("hex");
 			
-			// web-search alias doesn't need explicit tools - backend handles it
-			// Other models need explicit googleSearch tool
-			const hasExplicitTools = model !== "web-search";
+		// All models need explicit googleSearch tool
+		const hasExplicitTools = true;
 			const baseRequest = {
 				contents: [
 					{
@@ -411,13 +343,7 @@ export class GeminiSearchTool {
 		}
 
 		if (!candidates) {
-			// Final graceful fallback: avoid hard tool failure when backend rejects web search.
-			return await this.fallbackWithoutWebSearch(
-				url,
-				credentials.accessToken,
-				query,
-				projectId,
-			);
+			throw new Error("All Gemini search models failed. No candidates returned.");
 		}
 
 		// Extract response text
@@ -437,13 +363,8 @@ export class GeminiSearchTool {
 		}
 
 		if (!responseText && sources.length === 0) {
-			Logger.warn("[Gemini Search] No content or sources found, using fallback");
-			return await this.fallbackWithoutWebSearch(
-				url,
-				credentials.accessToken,
-				query,
-				projectId,
-			);
+			Logger.warn("[Gemini Search] No content or sources found");
+			throw new Error("Gemini search returned no content and no sources.");
 		}
 
 		return {
@@ -515,20 +436,10 @@ export class GeminiSearchTool {
 	}
 
 	/**
-	 * Format search result with citations and sources
+	 * Format search result - returns raw content only
 	 */
 	private formatSearchResult(result: GeminiSearchResult): string {
-		let formatted = result.content;
-
-		// Add sources section if available
-		if (result.sources && result.sources.length > 0) {
-			formatted += "\n\n**Sources:**\n";
-			result.sources.forEach((source, index) => {
-				formatted += `${index + 1}. [${source.title}](${source.url})\n`;
-			});
-		}
-
-		return formatted;
+		return result.content;
 	}
 
 	/**
