@@ -355,8 +355,8 @@
             "id": "z-ai-glm-4-5-air",
             "name": "Z.AI: GLM 4.5 Air",
             "tooltip": "Z.AI: GLM 4.5 Air by Zenmux",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 98304,
+            "maxOutputTokens": 32768,
             "model": "z-ai/glm-4.5-air",
             "capabilities": {
                 "toolCalling": true,
@@ -427,8 +427,8 @@
             "id": "z-ai-glm-4-5",
             "name": "Z.AI: GLM 4.5",
             "tooltip": "Z.AI: GLM 4.5 by Zenmux",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 98304,
+            "maxOutputTokens": 32768,
             "model": "z-ai/glm-4.5",
             "capabilities": {
                 "toolCalling": true,

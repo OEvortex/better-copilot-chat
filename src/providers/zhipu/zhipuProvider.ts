@@ -210,7 +210,7 @@ export class ZhipuProvider
 		if (modelId === "glm-5") {
 			displayName = "GLM-5 (Latest)";
 		} else if (modelId === "glm-4.7-flash") {
-			displayName = "GLM-4.7-Flash (Free,)";
+			displayName = "GLM-4.7-Flash (Free)";
 		} else if (modelId === "glm-4.7-flashx") {
 			displayName = "GLM-4.7-FlashX";
 		}
