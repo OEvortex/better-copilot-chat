@@ -108,25 +108,11 @@ export class OllamaProvider
 				model.id.toLowerCase().includes("vl") ||
 				model.id.toLowerCase().includes("vision");
 
-			// Use the same family logic as GenericModelProvider
-			const editToolMode = vscode.workspace
-				.getConfiguration("chp")
-				.get("editToolMode", "claude") as string;
-
-			let family: string;
-			if (editToolMode && editToolMode !== "none") {
-				family = editToolMode.startsWith("claude")
-					? "claude-sonnet-4-5"
-					: editToolMode;
-			} else {
-				family = "ollama";
-			}
-
 			return {
 				id: model.id,
 				name: model.id,
 				tooltip: `${model.id} by Ollama`,
-				family: family,
+				family: "ollama",
 				version: "1.0.0",
 				maxInputTokens: contextLength - maxOutput,
 				maxOutputTokens: maxOutput,

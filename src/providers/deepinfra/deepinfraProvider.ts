@@ -227,25 +227,11 @@ export class DeepInfraProvider
 				contextLen,
 			);
 
-			// Use the same family logic as GenericModelProvider
-			const editToolMode = vscode.workspace
-				.getConfiguration("chp")
-				.get("editToolMode", "claude") as string;
-
-			let family: string;
-			if (editToolMode && editToolMode !== "none") {
-				family = editToolMode.startsWith("claude")
-					? "claude-sonnet-4-5"
-					: editToolMode;
-			} else {
-				family = this.providerKey;
-			}
-
 			return {
 				id: modelId,
 				name: modelId,
 				tooltip: metadata.description || `DeepInfra model: ${modelId}`,
-				family: family,
+				family: "deepinfra",
 				version: "1.0.0",
 				maxInputTokens,
 				maxOutputTokens,

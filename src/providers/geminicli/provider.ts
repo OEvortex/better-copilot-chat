@@ -148,27 +148,13 @@ export class GeminiCliProvider
 		maxInputTokens: number,
 		maxOutputTokens: number,
 	): LanguageModelChatInformation {
-		// Read edit tool mode setting
-		const editToolMode = vscode.workspace
-			.getConfiguration("chp")
-			.get("editToolMode", "claude") as string;
-
-		let family: string;
-		if (editToolMode && editToolMode !== "none") {
-			family = editToolMode.startsWith("claude")
-				? "claude-sonnet-4.5"
-				: editToolMode;
-		} else {
-			family = "geminicli";
-		}
-
 		const info: LanguageModelChatInformation = {
 			id: model.id,
 			name: model.name,
 			detail: this.providerConfig.displayName,
 			tooltip:
 				model.tooltip || `${model.name} via ${this.providerConfig.displayName}`,
-			family: family,
+			family: "geminicli",
 			maxInputTokens: maxInputTokens,
 			maxOutputTokens: maxOutputTokens,
 			version: model.id,

@@ -136,21 +136,23 @@ export class CodexProvider
 			}));
 
 			const modelInfos: LanguageModelChatInformation[] = this.cachedModels.map(
-				(model) => ({
-					id: model.id,
-					name: model.name,
-					vendor: "chp.codex",
-					family: "codex",
-					version: "1.0",
-					maxInputTokens: model.maxInputTokens,
-					maxOutputTokens: model.maxOutputTokens,
-					capabilities: {
-						toolCalling: model.capabilities?.toolCalling ?? true,
-						imageInput: model.capabilities?.imageInput ?? false,
-					},
-					tooltip: model.tooltip || model.name,
-					detail: "Codex",
-				}),
+				(model) => {
+					return {
+						id: model.id,
+						name: model.name,
+						vendor: "chp.codex",
+						family: "codex",
+						version: "1.0",
+						maxInputTokens: model.maxInputTokens,
+						maxOutputTokens: model.maxOutputTokens,
+						capabilities: {
+							toolCalling: model.capabilities?.toolCalling ?? true,
+							imageInput: model.capabilities?.imageInput ?? false,
+						},
+						tooltip: model.tooltip || model.name,
+						detail: "Codex",
+					};
+				},
 			);
 
 			Logger.debug(`Codex Provider provides ${modelInfos.length} models`);

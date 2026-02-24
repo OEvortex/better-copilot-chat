@@ -79,24 +79,11 @@ export class KiloProvider
 
 		// Always return current models from config first
 		const currentModels = this.providerConfig.models.map(m => {
-			const info = this.modelConfigToInfo(m);
-			
-			// Use the same family logic as GenericModelProvider
-			const editToolMode = vscode.workspace
-				.getConfiguration("chp")
-				.get("editToolMode", "claude") as string;
-
-			let family: string;
-			if (editToolMode && editToolMode !== "none") {
-				family = editToolMode.startsWith("claude")
-					? "claude-sonnet-4-5"
-					: editToolMode;
-			} else {
-				family = "kilo";
-			}
-			
-			info.family = family;
-			return info;
+			const baseInfo = this.modelConfigToInfo(m);
+			return {
+				...baseInfo,
+				family: "kilo",
+			};
 		});
 
 		// Throttled background fetch and update

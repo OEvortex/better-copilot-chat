@@ -176,25 +176,11 @@ export class AntigravityProvider
 			}
 			const modelInfos: LanguageModelChatInformation[] = this.cachedModels.map(
 				(model) => {
-					// Use the same family logic as GenericModelProvider
-					const editToolMode = vscode.workspace
-						.getConfiguration("chp")
-						.get("editToolMode", "claude") as string;
-
-					let family: string;
-					if (editToolMode && editToolMode !== "none") {
-						family = editToolMode.startsWith("claude")
-							? "claude-sonnet-4-5"
-							: editToolMode;
-					} else {
-						family = "antigravity";
-					}
-
 					return {
 						id: model.id,
 						name: model.name,
 						vendor: "chp.antigravity",
-						family: family,
+						family: "antigravity",
 						version: "1.0",
 						maxInputTokens: model.maxInputTokens,
 						maxOutputTokens: model.maxOutputTokens,

@@ -193,25 +193,11 @@ export class ZenmuxProvider
 				contextLen,
 			);
 
-			// Use the same family logic as GenericModelProvider
-			const editToolMode = vscode.workspace
-				.getConfiguration("chp")
-				.get("editToolMode", "claude") as string;
-
-			let family: string;
-			if (editToolMode && editToolMode !== "none") {
-				family = editToolMode.startsWith("claude")
-					? "claude-sonnet-4-5"
-					: editToolMode;
-			} else {
-				family = "zenmux";
-			}
-
 			return {
 				id: modelId,
 				name: m.display_name || modelId,
 				tooltip: `${m.display_name || modelId} by Zenmux`,
-				family: family,
+				family: "zenmux",
 				version: "1.0.0",
 				maxInputTokens,
 				maxOutputTokens,

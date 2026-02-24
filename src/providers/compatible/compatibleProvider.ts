@@ -246,7 +246,6 @@ export class CompatibleProvider extends GenericModelProvider {
 				}
 			}
 
-			// Convert models from the latest configuration to VS Code format
 			let modelInfos = currentConfig.models.map((model) => {
 				const info = this.modelConfigToInfo(model);
 				const sdkModeDisplay =
@@ -255,16 +254,16 @@ export class CompatibleProvider extends GenericModelProvider {
 				if (model.provider) {
 					const knownProvider = KnownProviders[model.provider];
 					if (knownProvider?.displayName) {
-						return { ...info, detail: knownProvider.displayName };
+						return { ...info, detail: knownProvider.displayName, family: "compatible" };
 					}
 					const provider =
 						configProviders[model.provider as keyof typeof configProviders];
 					if (provider?.displayName) {
-						return { ...info, detail: provider.displayName };
+						return { ...info, detail: provider.displayName, family: "compatible" };
 					}
 				}
 
-				return { ...info, detail: `${sdkModeDisplay} Compatible` };
+				return { ...info, detail: `${sdkModeDisplay} Compatible`, family: "compatible" };
 			});
 
 			// Read user's last selected model and mark as default (only if memory is enabled)
@@ -313,16 +312,16 @@ export class CompatibleProvider extends GenericModelProvider {
 					if (model.provider) {
 						const knownProvider = KnownProviders[model.provider];
 						if (knownProvider?.displayName) {
-							return { ...info, detail: knownProvider.displayName };
+							return { ...info, detail: knownProvider.displayName, family: "compatible" };
 						}
 						const provider =
 							configProviders[model.provider as keyof typeof configProviders];
 						if (provider?.displayName) {
-							return { ...info, detail: provider.displayName };
+							return { ...info, detail: provider.displayName, family: "compatible" };
 						}
 					}
 
-					return { ...info, detail: `${sdkModeDisplay} Compatible` };
+					return { ...info, detail: `${sdkModeDisplay} Compatible`, family: "compatible" };
 				});
 
 				await this.modelInfoCache?.cacheModels(

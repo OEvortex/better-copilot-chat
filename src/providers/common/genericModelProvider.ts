@@ -93,16 +93,6 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 				Logger.trace(`${this.providerKey} configuration updated`);
 				this._onDidChangeLanguageModelChatInformation.fire();
 			}
-			if (e.affectsConfiguration("chp.editToolMode")) {
-				Logger.trace(`${this.providerKey} detected editToolMode change`);
-				// Clear cache
-				this.modelInfoCache
-					?.invalidateCache(this.providerKey)
-					.catch((err) =>
-						Logger.warn(`[${this.providerKey}] Failed to clear cache:`, err),
-					);
-				this._onDidChangeLanguageModelChatInformation.fire();
-			}
 		});
 		// Listen for chat endpoint changes
 		this.accountManager.onAccountChange((e) => {
@@ -241,28 +231,13 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 	protected modelConfigToInfo(
 		model: ModelConfig,
 	): LanguageModelChatInformation {
-		// Read edit tool mode setting
-		const editToolMode = vscode.workspace
-			.getConfiguration("chp")
-			.get("editToolMode", "claude") as string;
-
-		let family: string;
-		if (editToolMode && editToolMode !== "none") {
-			family = editToolMode.startsWith("claude")
-				? "claude-sonnet-4-5"
-				: editToolMode;
-		} else {
-			family = this.providerKey; // Use provider key as family (e.g. 'minimax', 'deepseek')
-		}
-
-
 		const info: LanguageModelChatInformation = {
 			id: model.id,
 			name: model.name,
 			detail: this.providerConfig.displayName,
 			tooltip:
 				model.tooltip || `${model.name} via ${this.providerConfig.displayName}`,
-			family: family,
+			family: model.family || this.providerKey,
 			maxInputTokens: model.maxInputTokens,
 			maxOutputTokens: model.maxOutputTokens,
 			version: model.id,

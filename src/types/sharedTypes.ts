@@ -18,6 +18,11 @@ export interface ModelConfig {
 		imageInput: boolean;
 	};
 	/**
+	 * Model family identifier (optional)
+	 * Used for grouping models in the model selector.
+	 */
+	family?: string;
+	/**
 	 * SDK mode selection (optional)
 	 * - "anthropic": Use Anthropic SDK
 	 * - "openai": Use OpenAI SDK (default)
