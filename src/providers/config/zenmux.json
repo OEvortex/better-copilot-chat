@@ -175,7 +175,7 @@
             "id": "deepseek-deepseek-r1-0528",
             "name": "DeepSeek: R1 0528",
             "tooltip": "DeepSeek: R1 0528 by Zenmux",
-            "maxInputTokens": 47616,
+            "maxInputTokens": 147456,
             "maxOutputTokens": 16384,
             "model": "deepseek/deepseek-r1-0528",
             "capabilities": {
@@ -247,7 +247,7 @@
             "id": "deepseek-deepseek-chat-v3-1",
             "name": "DeepSeek: DeepSeek V3.1",
             "tooltip": "DeepSeek: DeepSeek V3.1 by Zenmux",
-            "maxInputTokens": 111616,
+            "maxInputTokens": 147456,
             "maxOutputTokens": 16384,
             "model": "deepseek/deepseek-chat-v3.1",
             "capabilities": {
@@ -379,7 +379,7 @@
             "id": "deepseek-deepseek-chat",
             "name": "DeepSeek: DeepSeek-V3.2 (Non-thinking Mode)",
             "tooltip": "DeepSeek: DeepSeek-V3.2 (Non-thinking Mode) by Zenmux",
-            "maxInputTokens": 111616,
+            "maxInputTokens": 147456,
             "maxOutputTokens": 16384,
             "model": "deepseek/deepseek-chat",
             "capabilities": {
@@ -619,7 +619,7 @@
             "id": "deepseek-deepseek-reasoner",
             "name": "DeepSeek: DeepSeek-V3.2 (Thinking Mode)",
             "tooltip": "DeepSeek: DeepSeek-V3.2 (Thinking Mode) by Zenmux",
-            "maxInputTokens": 111616,
+            "maxInputTokens": 147456,
             "maxOutputTokens": 16384,
             "model": "deepseek/deepseek-reasoner",
             "capabilities": {
@@ -931,7 +931,7 @@
             "id": "deepseek-deepseek-v3-2",
             "name": "DeepSeek: DeepSeek V3.2",
             "tooltip": "DeepSeek: DeepSeek V3.2 by Zenmux",
-            "maxInputTokens": 111616,
+            "maxInputTokens": 147456,
             "maxOutputTokens": 16384,
             "model": "deepseek/deepseek-v3.2",
             "capabilities": {

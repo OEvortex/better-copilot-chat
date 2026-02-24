@@ -1,3 +1,5 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
 import OpenAI from "openai";
 import type {
 	CancellationToken,
@@ -9,7 +11,7 @@ import type {
 	ProvideLanguageModelChatResponseOptions,
 } from "vscode";
 import * as vscode from "vscode";
-import type { ProviderConfig } from "../../types/sharedTypes";
+import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import {
 	resolveGlobalCapabilities,
 	resolveGlobalTokenLimits,
@@ -27,6 +29,8 @@ import type { DeepInfraModelItem, DeepInfraModelsResponse } from "./types";
 
 const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
 const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+const BASE_URL = "https://api.deepinfra.com/v1/openai";
+const DEFAULT_API_KEY_TEMPLATE = "di-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 function resolveTokenLimits(
 	modelId: string,
@@ -47,6 +51,8 @@ export class DeepInfraProvider
 	implements LanguageModelChatProvider
 {
 	private readonly userAgent: string;
+	private readonly extensionPath: string;
+	private readonly configFilePath: string;
 	private clientCache = new Map<string, { client: OpenAI; lastUsed: number }>();
 
 	constructor(
@@ -54,9 +60,18 @@ export class DeepInfraProvider
 		providerKey: string,
 		providerConfig: ProviderConfig,
 		userAgent: string,
+		extensionPath: string,
 	) {
 		super(context, providerKey, providerConfig);
 		this.userAgent = userAgent;
+		this.extensionPath = extensionPath;
+		this.configFilePath = path.join(
+			this.extensionPath,
+			"src",
+			"providers",
+			"config",
+			"deepinfra.json",
+		);
 	}
 
 	/**
@@ -89,9 +104,7 @@ export class DeepInfraProvider
 
 	private async fetchModels(apiKey: string): Promise<DeepInfraModelItem[]> {
 		try {
-			const baseUrl =
-				this.providerConfig.baseUrl ||
-				"https://api.deepinfra.com/v1/openai";
+			const baseUrl = this.providerConfig.baseUrl || BASE_URL;
 			const modelsUrl = `${baseUrl}/models`;
 			Logger.debug(`[DeepInfra] Fetching models from: ${modelsUrl}`);
 
@@ -162,6 +175,10 @@ export class DeepInfraProvider
 		}
 
 		let models = await this.fetchModels(apiKey);
+
+		if (models.length > 0) {
+			this.updateConfigFileAsync(models);
+		}
 
 		// If API fetch fails or returns no models, fall back to pre-configured models
 		if (!models || models.length === 0) {
@@ -291,6 +308,7 @@ export class DeepInfraProvider
 			providerKey,
 			providerConfig,
 			ua,
+			context.extensionPath,
 		);
 		const providerDisposable = vscode.lm.registerLanguageModelChatProvider(
 			`chp.${providerKey}`,
@@ -328,7 +346,7 @@ export class DeepInfraProvider
 		// IMPORTANT: this.providerConfig uses the getter which returns cachedProviderConfig (with overrides applied)
 		const baseURL =
 			this.providerConfig.baseUrl ||
-			"https://api.deepinfra.com/v1/openai";
+			BASE_URL;
 		Logger.info(`[DeepInfra] Creating OpenAI client with baseURL: ${baseURL}`);
 		// Include apiKey in cache key to differentiate clients for different accounts
 		const cacheKey = `deepinfra:${apiKey}:${baseURL}`;
@@ -352,6 +370,95 @@ export class DeepInfraProvider
 		this.clientCache.set(cacheKey, { client, lastUsed: Date.now() });
 		Logger.info(`[DeepInfra] Created new OpenAI client for baseURL: ${baseURL}`);
 		return client;
+	}
+
+	/**
+	 * Update config file asynchronously in background
+	 */
+	private updateConfigFileAsync(models: DeepInfraModelItem[]): void {
+		(async () => {
+			try {
+				if (!fs.existsSync(this.configFilePath)) {
+					Logger.debug(
+						`[DeepInfra] Config file not found at ${this.configFilePath}, skipping auto-update`,
+					);
+					return;
+				}
+
+				const modelConfigs: ModelConfig[] = models
+					.filter(
+						(m) =>
+							m.metadata &&
+							typeof m.metadata.max_tokens === "number" &&
+							typeof m.metadata.context_length === "number",
+					)
+					.map((m) => {
+						const metadata = m.metadata!;
+						const modelId = m.id;
+						const detectedVision = metadata.tags?.includes("vision") ?? false;
+						const capabilities = resolveGlobalCapabilities(modelId, {
+							detectedImageInput: detectedVision,
+						});
+
+						const contextLen =
+							metadata.context_length ?? DEFAULT_CONTEXT_LENGTH;
+						const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+							modelId,
+							contextLen,
+						);
+
+						return {
+							id: modelId,
+							name: modelId,
+							tooltip:
+								metadata.description || `${modelId} by DeepInfra`,
+							maxInputTokens,
+							maxOutputTokens,
+							model: modelId,
+							capabilities,
+						} as ModelConfig;
+					});
+
+				let existingConfig: ProviderConfig;
+				try {
+					const configContent = fs.readFileSync(this.configFilePath, "utf8");
+					existingConfig = JSON.parse(configContent);
+				} catch (err) {
+					Logger.warn(
+						`[DeepInfra] Failed to read existing config, using defaults:`,
+						err instanceof Error ? err.message : String(err),
+					);
+					existingConfig = {
+						displayName: "DeepInfra",
+						baseUrl: BASE_URL,
+						apiKeyTemplate: DEFAULT_API_KEY_TEMPLATE,
+						models: [],
+					};
+				}
+
+				const updatedConfig: ProviderConfig = {
+					displayName: existingConfig.displayName || "DeepInfra",
+					baseUrl: existingConfig.baseUrl || BASE_URL,
+					apiKeyTemplate:
+						existingConfig.apiKeyTemplate || DEFAULT_API_KEY_TEMPLATE,
+					models: modelConfigs,
+				};
+
+				fs.writeFileSync(
+					this.configFilePath,
+					JSON.stringify(updatedConfig, null, 4),
+					"utf8",
+				);
+				Logger.info(
+					`[DeepInfra] Auto-updated config file with ${modelConfigs.length} models`,
+				);
+			} catch (err) {
+				Logger.warn(
+					`[DeepInfra] Background config update failed:`,
+					err instanceof Error ? err.message : String(err),
+				);
+			}
+		})();
 	}
 
 	override async provideLanguageModelChatResponse(
