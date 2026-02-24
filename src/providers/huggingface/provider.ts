@@ -147,11 +147,26 @@ export class HuggingfaceProvider
 				);
 
 				const aggregateCapabilities = capabilities;
+
+				// Use the same family logic as GenericModelProvider
+				const editToolMode = vscode.workspace
+					.getConfiguration("chp")
+					.get("editToolMode", "claude") as string;
+
+				let family: string;
+				if (editToolMode && editToolMode !== "none") {
+					family = editToolMode.startsWith("claude")
+						? "claude-sonnet-4-5"
+						: editToolMode;
+				} else {
+					family = "huggingface";
+				}
+
 				entries.push({
 					id: `${m.id}:cheapest`,
 					name: `${m.id} (cheapest)`,
 					tooltip: "Hugging Face via the cheapest provider",
-					family: "huggingface",
+					family: family,
 					version: "1.0.0",
 					maxInputTokens,
 					maxOutputTokens,
@@ -161,7 +176,7 @@ export class HuggingfaceProvider
 					id: `${m.id}:fastest`,
 					name: `${m.id} (fastest)`,
 					tooltip: "Hugging Face via the fastest provider",
-					family: "huggingface",
+					family: family,
 					version: "1.0.0",
 					maxInputTokens,
 					maxOutputTokens,
@@ -177,11 +192,25 @@ export class HuggingfaceProvider
 					contextLen,
 				);
 
+				// Use the same family logic
+				const editToolMode = vscode.workspace
+					.getConfiguration("chp")
+					.get("editToolMode", "claude") as string;
+
+				let family: string;
+				if (editToolMode && editToolMode !== "none") {
+					family = editToolMode.startsWith("claude")
+						? "claude-sonnet-4-5"
+						: editToolMode;
+				} else {
+					family = "huggingface";
+				}
+
 				entries.push({
 					id: `${m.id}:${p.provider}`,
 					name: `${m.id} via ${p.provider}`,
 					tooltip: `Hugging Face via ${p.provider}`,
-					family: "huggingface",
+					family: family,
 					version: "1.0.0",
 					maxInputTokens,
 					maxOutputTokens,
@@ -201,11 +230,25 @@ export class HuggingfaceProvider
 					contextLen,
 				);
 
+				// Use the same family logic
+				const editToolMode = vscode.workspace
+					.getConfiguration("chp")
+					.get("editToolMode", "claude") as string;
+
+				let family: string;
+				if (editToolMode && editToolMode !== "none") {
+					family = editToolMode.startsWith("claude")
+						? "claude-sonnet-4-5"
+						: editToolMode;
+				} else {
+					family = "huggingface";
+				}
+
 				entries.push({
 					id: m.id,
 					name: m.id,
 					tooltip: "Hugging Face",
-					family: "huggingface",
+					family: family,
 					version: "1.0.0",
 					maxInputTokens,
 					maxOutputTokens,

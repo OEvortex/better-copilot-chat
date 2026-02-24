@@ -249,13 +249,12 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 		let family: string;
 		if (editToolMode && editToolMode !== "none") {
 			family = editToolMode.startsWith("claude")
-				? "claude-sonnet-4.5"
+				? "claude-sonnet-4-5"
 				: editToolMode;
-		} else if (editToolMode === "none") {
-			family = model.id;
 		} else {
-			family = model.id; // Fall back to using model ID
+			family = this.providerKey; // Use provider key as family (e.g. 'minimax', 'deepseek')
 		}
+
 
 		const info: LanguageModelChatInformation = {
 			id: model.id,
@@ -433,7 +432,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 
 		// Find corresponding model configuration
 		const modelConfig = this.providerConfig.models.find(
-			(m: ModelConfig) => m.id === model.id,
+			(m: ModelConfig) => m.id === model.id || m.model === model.id,
 		);
 		if (!modelConfig) {
 			const errorMessage = `Model not found: ${model.id}`;

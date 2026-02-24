@@ -248,11 +248,26 @@ export class ZhipuProvider
 			// Map API models to LanguageModelChatInformation
 			const infos = models.map((m) => {
 				const modelMeta = this.getModelMetadata(m.id);
+
+				// Use the same family logic as GenericModelProvider
+				const editToolMode = vscode.workspace
+					.getConfiguration("chp")
+					.get("editToolMode", "claude") as string;
+
+				let family: string;
+				if (editToolMode && editToolMode !== "none") {
+					family = editToolMode.startsWith("claude")
+						? "claude-sonnet-4-5"
+						: editToolMode;
+				} else {
+					family = "zhipu";
+				}
+
 				return {
 					id: m.id,
 					name: modelMeta.name,
 					tooltip: `${m.id} by ZhipuAI`,
-					family: "zhipu",
+					family: family,
 					version: "1.0.0",
 					maxInputTokens: modelMeta.maxInputTokens,
 					maxOutputTokens: modelMeta.maxOutputTokens,

@@ -158,10 +158,8 @@ export class GeminiCliProvider
 			family = editToolMode.startsWith("claude")
 				? "claude-sonnet-4.5"
 				: editToolMode;
-		} else if (editToolMode === "none") {
-			family = model.id;
 		} else {
-			family = model.id;
+			family = "geminicli";
 		}
 
 		const info: LanguageModelChatInformation = {

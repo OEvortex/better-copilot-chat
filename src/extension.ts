@@ -118,10 +118,12 @@ async function activateProviders(
 					| QwenCliProvider
 					| GeminiCliProvider
 					| HuggingfaceProvider
+					| KiloProvider
 					| OllamaProvider
 					| DeepInfraProvider
 					| MistralProvider
-					| NvidiaProvider;
+					| NvidiaProvider
+					| BlackboxProvider;
 				let disposables: vscode.Disposable[];
 
 				if (providerKey === "zhipu") {

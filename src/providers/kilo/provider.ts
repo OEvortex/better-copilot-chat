@@ -68,74 +68,56 @@ export class KiloProvider
 		super.refreshHandlers();
 	}
 
+	private lastFetchTime = 0;
+	private static readonly FETCH_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
+
 	async provideLanguageModelChatInformation(
 		options: { silent: boolean },
 		_token: CancellationToken,
 	): Promise<LanguageModelChatInformation[]> {
 		const apiKey = await this.ensureApiKey(options.silent ?? true);
 
-		let models: KiloModelItem[] = [];
-		try {
-			const result = await this.fetchModels(apiKey);
-			models = result.models;
-		} catch (err) {
-			Logger.warn("[Kilo] Failed to fetch models during initialization, using cached config if available");
-			if (this.providerConfig.models && this.providerConfig.models.length > 0) {
-				return this.providerConfig.models.map(m => ({
-					id: m.model || m.id,
-					name: m.name || m.id,
-					tooltip: m.tooltip || m.id,
-					family: "kilo",
-					version: "1.0.0",
-					maxInputTokens: m.maxInputTokens || 128000,
-					maxOutputTokens: m.maxOutputTokens || 16000,
-					capabilities: m.capabilities || resolveGlobalCapabilities(m.model || m.id),
-				} as LanguageModelChatInformation));
+		// Always return current models from config first
+		const currentModels = this.providerConfig.models.map(m => {
+			const info = this.modelConfigToInfo(m);
+			
+			// Use the same family logic as GenericModelProvider
+			const editToolMode = vscode.workspace
+				.getConfiguration("chp")
+				.get("editToolMode", "claude") as string;
+
+			let family: string;
+			if (editToolMode && editToolMode !== "none") {
+				family = editToolMode.startsWith("claude")
+					? "claude-sonnet-4-5"
+					: editToolMode;
+			} else {
+				family = "kilo";
 			}
-			return [];
-		}
-
-		this.updateConfigFileAsync(models);
-
-		const infos: LanguageModelChatInformation[] = models.map((m) => {
-			const modalities = m.architecture?.input_modalities ?? [];
-			const modelId = m.id;
-			const detectedVision =
-				Array.isArray(modalities) && modalities.includes("image");
-			const capabilities = resolveGlobalCapabilities(modelId, {
-				detectedImageInput: detectedVision,
-			});
-
-			const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
-			const { maxInputTokens, maxOutputTokens } = resolveGlobalTokenLimits(
-				modelId,
-				contextLen,
-				{
-					defaultContextLength: DEFAULT_CONTEXT_LENGTH,
-					defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
-				}
-			);
-
-			return {
-				id: modelId,
-				name: m.name || modelId,
-				tooltip: m.description || `${m.name || modelId} by Kilo AI`,
-				family: "kilo",
-				version: "1.0.0",
-				maxInputTokens,
-				maxOutputTokens,
-				capabilities,
-			} as LanguageModelChatInformation;
+			
+			info.family = family;
+			return info;
 		});
 
-		const dedupedInfos = this.dedupeModelInfos(infos);
+		// Throttled background fetch and update
+		const now = Date.now();
+		if (now - this.lastFetchTime > KiloProvider.FETCH_COOLDOWN_MS) {
+			this.refreshModelsAsync(apiKey);
+		}
 
-		this._chatEndpoints = dedupedInfos.map((info) => ({
-			model: info.id,
-			modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens,
-		}));
+		return this.dedupeModelInfos(currentModels);
+	}
 
-		return dedupedInfos;
+	private async refreshModelsAsync(apiKey?: string): Promise<void> {
+		this.lastFetchTime = Date.now();
+		try {
+			const result = await this.fetchModels(apiKey);
+			if (result.models && result.models.length > 0) {
+				await this.updateConfigFileAsync(result.models);
+			}
+		} catch (err) {
+			Logger.trace("[Kilo] Background model refresh failed:", err);
+		}
 	}
 
 	private async fetchModels(
@@ -156,84 +138,67 @@ export class KiloProvider
 		
 		if (!resp.ok) {
 			const text = await resp.text().catch(() => "");
-			throw new Error(`Failed to fetch Kilo models: ${resp.status} ${resp.statusText}
-${text}`);
+			throw new Error(`Failed to fetch Kilo models: ${resp.status} ${resp.statusText}\n${text}`);
 		}
 		
 		const parsed = (await resp.json()) as KiloModelsResponse;
 		return { models: parsed.data ?? [] };
 	}
 
-	private updateConfigFileAsync(models: KiloModelItem[]): void {
-		(async () => {
-			try {
-				if (!fs.existsSync(this.configFilePath)) {
-					return;
-				}
-
-				const modelConfigs: ModelConfig[] = models.map((m) => {
-					const modalities = m.architecture?.input_modalities ?? [];
-					const modelId = m.id;
-					const detectedVision =
-						Array.isArray(modalities) && modalities.includes("image");
-					const capabilities = resolveGlobalCapabilities(modelId, {
-						detectedImageInput: detectedVision,
-					});
-
-					const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
-					const { maxInputTokens, maxOutputTokens } = resolveGlobalTokenLimits(
-						modelId,
-						contextLen,
-						{
-							defaultContextLength: DEFAULT_CONTEXT_LENGTH,
-							defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
-						}
-					);
-
-					const cleanId = m.id
-						.replace(/[/]/g, "-")
-						.replace(/[^a-zA-Z0-9-]/g, "-")
-						.toLowerCase();
-
-					return {
-						id: cleanId,
-						name: m.name || modelId,
-						tooltip: m.description || `${m.name || modelId} by Kilo AI`,
-						maxInputTokens,
-						maxOutputTokens,
-						model: modelId,
-						capabilities,
-					} as ModelConfig;
+	private async updateConfigFileAsync(models: KiloModelItem[]): Promise<void> {
+		try {
+			const modelConfigs: ModelConfig[] = models.map((m) => {
+				const modalities = m.architecture?.input_modalities ?? [];
+				const modelId = m.id;
+				const detectedVision = Array.isArray(modalities) && modalities.includes("image");
+				const capabilities = resolveGlobalCapabilities(modelId, { detectedImageInput: detectedVision });
+				const contextLen = m.context_length ?? DEFAULT_CONTEXT_LENGTH;
+				const { maxInputTokens, maxOutputTokens } = resolveGlobalTokenLimits(modelId, contextLen, {
+					defaultContextLength: DEFAULT_CONTEXT_LENGTH,
+					defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
 				});
+				const cleanId = m.id.replace(/[/]/g, "-").replace(/[^a-zA-Z0-9-]/g, "-").toLowerCase();
+				return {
+					id: cleanId,
+					name: m.name || modelId,
+					tooltip: m.description || `${m.name || modelId} by Kilo AI`,
+					maxInputTokens,
+					maxOutputTokens,
+					model: modelId,
+					capabilities,
+				} as ModelConfig;
+			});
 
-				let existingConfig: ProviderConfig;
-				try {
-					const configContent = fs.readFileSync(this.configFilePath, "utf8");
-					existingConfig = JSON.parse(configContent);
-				} catch {
-					existingConfig = {
-						displayName: "Kilo AI",
-						baseUrl: BASE_URL,
-						apiKeyTemplate: "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-						models: [],
-					};
+			// Update in-memory configurations synchronously
+			let configChanged = false;
+			if (this.baseProviderConfig) {
+				const oldModelsJson = JSON.stringify(this.baseProviderConfig.models);
+				const newModelsJson = JSON.stringify(modelConfigs);
+				if (oldModelsJson !== newModelsJson) {
+					this.baseProviderConfig.models = modelConfigs;
+					configChanged = true;
 				}
-
-				const updatedConfig: ProviderConfig = {
-					...existingConfig,
-					models: modelConfigs,
-				};
-
-				fs.writeFileSync(
-					this.configFilePath,
-					JSON.stringify(updatedConfig, null, 4),
-					"utf8",
-				);
-				Logger.info(`[Kilo] Auto-updated config file with ${modelConfigs.length} models`);
-			} catch (err) {
-				Logger.warn(`[Kilo] Background config update failed:`, err);
 			}
-		})();
+			
+			if (configChanged) {
+				this.cachedProviderConfig = ConfigManager.applyProviderOverrides(
+					this.providerKey,
+					this.baseProviderConfig,
+				);
+
+				// Only write to file if it exists (for dev environment)
+				if (fs.existsSync(this.configFilePath)) {
+					fs.writeFileSync(
+						this.configFilePath,
+						JSON.stringify(this.baseProviderConfig, null, 4),
+						"utf8",
+					);
+					Logger.info(`[Kilo] Auto-updated config with ${modelConfigs.length} models`);
+				}
+			}
+		} catch (err) {
+			Logger.warn(`[Kilo] Config update failed:`, err);
+		}
 	}
 
 	override async provideLanguageModelChatResponse(
@@ -250,7 +215,7 @@ ${text}`);
 		try {
 			const apiKey = await this.ensureApiKey(true);
 			if (!apiKey) {
-				throw new Error("Kilo API key not found");
+				throw new Error("Kilo AI API key not found");
 			}
 
 			// Use GenericModelProvider's implementation for OpenAI-compatible providers

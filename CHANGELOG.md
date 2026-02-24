@@ -6,13 +6,37 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+**New AI Provider Integration:**
+- **Kilo AI Provider**: Added comprehensive support for Kilo AI (`https://api.kilo.ai/api/gateway`).
+  - Implemented dynamic model fetching from `/models` endpoint to automatically keep configurations up-to-date.
+  - Full integration with OpenAI-compatible streaming and tool calling.
+  - Available across all extension interfaces (Account Manager, Model Editor, Quick Switch).
+
 **Universal Multi-Account Support:**
 - **Full Provider Coverage**: Expanded the Account Manager to support all 22 integrated providers.
-  - Added multi-account support for Lightning AI, Ollama, Zenmux, MiniMax Coding, Kimi, OpenAI, Mistral, Hugging Face, Blackbox, Chutes, and OpenCode.
+  - Added multi-account support for Lightning AI, Ollama, Zenmux, MiniMax Coding, Kimi, OpenAI, Mistral, Hugging Face, Blackbox, Chutes, OpenCode, and Kilo AI.
 - **Enhanced Account Synchronization**: 
   - Automatically syncs Gemini CLI credentials from `~/.gemini/oauth_creds.json` into the Account Manager on startup.
   - Automatically syncs Qwen CLI credentials from `~/.qwen/oauth_creds.json` into the Account Manager on startup.
   - Improved `AccountSyncAdapter` to handle all supported API key providers (Zhipu, DeepSeek, etc.) ensuring backward compatibility with existing API key storage.
+
+### Changed
+
+**Account Management UI/UX:**
+- **Modern Account Manager UI**: Complete visual overhaul with a clean "glassmorphism" aesthetic and sidebar navigation.
+  - Real-time updates: Additions, deletions, and default account changes are now reflected instantly without restarts.
+  - Floating toast notifications for immediate action feedback.
+- **Direct Model Configuration**: Added a new "Config Models" button directly within the Account Manager view, allowing seamless transition to the visual model editor for the selected provider.
+
+**Enhanced Model Organization:**
+- **Unified Model Families**: Implemented consistent model family identification across all 22 providers.
+  - Models are now grouped by their provider name (e.g., "minimax", "deepseek", "kilo") in the VS Code model selector when `editToolMode` is disabled.
+  - Dynamic family switching based on `editToolMode` configuration to ensure compatibility with advanced VS Code features like Copilot's "Edit" mode.
+- **Universal Provider Menu**: The `Manage API Keys` quick pick menu now displays all built-in providers, allowing you to configure providers (like Kilo or Zenmux) even before adding custom models for them.
+- **Improved Account Manager Page**: Updated the WebView interface to include all supported providers in the "Add Account" list.
+- **Standardized Display Names**: Consistent and clear provider naming across the `AccountUI` QuickPick menus and the main Account Manager page.
+- **Robust Syncing**: `AccountSyncAdapter` now ensures that active accounts in the manager are always mirrored back to the legacy `ApiKeyManager` for seamless transition.
+- **Control Hub Updates**: Added missing providers (Kilo, Zenmux, etc.) to the Copilot Usage overview panel to track their token usage effectively.
 
 ### Fixed
 

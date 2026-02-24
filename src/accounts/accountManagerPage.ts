@@ -626,29 +626,58 @@ export class AccountManagerPage {
 			return;
 		}
 
-		const accounts = this.accountManager.getAllAccounts();
-		
-		// Fetch credentials for all accounts to send to webview
-		const accountsWithEndpoints: Array<{
-			id: string;
-			endpoint?: string;
-		}> = [];
-		
-		for (const account of accounts) {
-			const creds = await this.accountManager.getCredentials(account.id);
-			if (creds && "endpoint" in creds && creds.endpoint) {
-				accountsWithEndpoints.push({
-					id: account.id,
-					endpoint: creds.endpoint,
-				});
+		Logger.debug("[AccountManagerPage] Refreshing webview data...");
+
+		try {
+			const accounts = this.accountManager.getAllAccounts();
+			
+			// Fetch credentials for all accounts to send to webview
+			const accountsWithEndpoints: Array<{
+				id: string;
+				endpoint?: string;
+			}> = [];
+			
+			for (const account of accounts) {
+				const creds = await this.accountManager.getCredentials(account.id);
+				if (creds && "endpoint" in creds && creds.endpoint) {
+					accountsWithEndpoints.push({
+						id: account.id,
+						endpoint: creds.endpoint,
+					});
+				}
 			}
+			
+			// Get account quota states from cache
+			const accountQuotaCache = AccountQuotaCache.getInstance();
+			const accountQuotaStates = accountQuotaCache.getAllStates();
+			const serializedQuotaStates = accountQuotaStates.map((state) => ({
+				accountId: state.accountId,
+				accountName: state.accountName,
+				provider: state.provider,
+				quotaExceeded: state.quotaExceeded,
+				quotaResetAt: state.quotaResetAt,
+				affectedModel: state.affectedModel,
+				lastError: state.lastError,
+				successCount: state.successCount,
+				failureCount: state.failureCount,
+				lastSuccessAt: state.lastSuccessAt,
+				lastFailureAt: state.lastFailureAt,
+				updatedAt: state.updatedAt,
+			}));
+
+			this.sendToWebview({
+				command: "updateAccounts",
+				accounts: accounts,
+				accountEndpoints: accountsWithEndpoints,
+				providers: AccountManagerPage.providers,
+				accountQuotaStates: serializedQuotaStates,
+				antigravityQuota: AccountManagerPage.antigravityQuotaNotice
+			});
+			
+			Logger.debug(`[AccountManagerPage] Sent ${accounts.length} accounts to webview`);
+		} catch (error) {
+			Logger.error("[AccountManagerPage] Failed to refresh webview:", error);
 		}
-		
-		this.sendToWebview({
-			command: "updateAccounts",
-			accounts: accounts,
-			accountEndpoints: accountsWithEndpoints,
-		});
 	}
 
 	/**

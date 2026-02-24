@@ -175,22 +175,38 @@ export class AntigravityProvider
 					) ?? undefined;
 			}
 			const modelInfos: LanguageModelChatInformation[] = this.cachedModels.map(
-				(model) => ({
-					id: model.id,
-					name: model.name,
-					vendor: "chp.antigravity",
-					family: "antigravity",
-					version: "1.0",
-					maxInputTokens: model.maxInputTokens,
-					maxOutputTokens: model.maxOutputTokens,
-					isDefault: rememberLastModel && model.id === lastSelectedId,
-					capabilities: {
-						toolCalling: model.capabilities?.toolCalling ?? true,
-						imageInput: model.capabilities?.imageInput ?? true,
-					},
-					tooltip: model.tooltip || model.name,
-					detail: "Antigravity",
-				}),
+				(model) => {
+					// Use the same family logic as GenericModelProvider
+					const editToolMode = vscode.workspace
+						.getConfiguration("chp")
+						.get("editToolMode", "claude") as string;
+
+					let family: string;
+					if (editToolMode && editToolMode !== "none") {
+						family = editToolMode.startsWith("claude")
+							? "claude-sonnet-4-5"
+							: editToolMode;
+					} else {
+						family = "antigravity";
+					}
+
+					return {
+						id: model.id,
+						name: model.name,
+						vendor: "chp.antigravity",
+						family: family,
+						version: "1.0",
+						maxInputTokens: model.maxInputTokens,
+						maxOutputTokens: model.maxOutputTokens,
+						isDefault: rememberLastModel && model.id === lastSelectedId,
+						capabilities: {
+							toolCalling: model.capabilities?.toolCalling ?? true,
+							imageInput: model.capabilities?.imageInput ?? true,
+						},
+						tooltip: model.tooltip || model.name,
+						detail: "Antigravity",
+					};
+				},
 			);
 			Logger.debug(`Antigravity Provider provides ${modelInfos.length} models`);
 			return modelInfos;

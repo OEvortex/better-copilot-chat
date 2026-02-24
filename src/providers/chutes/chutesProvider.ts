@@ -161,11 +161,25 @@ export class ChutesProvider
 				contextLen,
 			);
 
+			// Use the same family logic as GenericModelProvider
+			const editToolMode = vscode.workspace
+				.getConfiguration("chp")
+				.get("editToolMode", "claude") as string;
+
+			let family: string;
+			if (editToolMode && editToolMode !== "none") {
+				family = editToolMode.startsWith("claude")
+					? "claude-sonnet-4-5"
+					: editToolMode;
+			} else {
+				family = "chutes";
+			}
+
 			return {
 				id: modelId,
 				name: modelId,
 				tooltip: `${modelId} by Chutes`,
-				family: "chutes",
+				family: family,
 				version: "1.0.0",
 				maxInputTokens,
 				maxOutputTokens,

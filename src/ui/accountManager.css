@@ -1,1349 +1,587 @@
-/* Account Manager Page Styles */
+/* Account Manager Page Styles - Modern Overhaul */
 :root {
-	--vscode-font-family: var(
-		--vscode-editor-font-family,
-		-apple-system,
-		BlinkMacSystemFont,
-		"Segoe UI",
-		Roboto,
-		Oxygen,
-		Ubuntu,
-		Cantarell,
-		"Open Sans",
-		"Helvetica Neue",
-		sans-serif
-	);
-	--vscode-font-size: var(--vscode-editor-font-size, 13px);
-
-	--radius-lg: 16px;
-	--radius-md: 12px;
-	--radius-sm: 10px;
-	--shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.12);
+    --vscode-font-family: var(--vscode-editor-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+    --vscode-font-size: var(--vscode-editor-font-size, 13px);
+    
+    /* Design Tokens */
+    --radius-xl: 20px;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --radius-xs: 4px;
+    
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+    
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-	font-family: var(--vscode-font-family);
-	font-size: var(--vscode-font-size);
-	color: var(--vscode-foreground);
-	background-color: var(--vscode-editor-background);
-	padding: 16px 16px 24px;
-	line-height: 1.4;
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
+    color: var(--vscode-foreground);
+    background-color: var(--vscode-editor-background);
+    padding: 24px;
+    line-height: 1.5;
+    overflow-x: hidden;
 }
 
 .container {
-	max-width: 1100px;
-	margin: 0 auto;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .shell {
-	display: flex;
-	flex-direction: column;
-	gap: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
+/* Glassmorphism Surface */
 .surface {
-	background: var(
-		--vscode-editorWidget-background,
-		var(--vscode-editor-background)
-	);
-	border: 1px solid var(--vscode-panel-border);
-	border-radius: var(--radius-lg);
-	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+    background: var(--vscode-editorWidget-background, var(--vscode-editor-background));
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base);
 }
 
-/* Top bar */
+.surface:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Top Bar - Elevated */
 .topbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: var(--vscode-sideBar-background);
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: var(--radius-xl);
+    margin-bottom: 8px;
 }
 
 .topbar-title {
-	min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .topbar-title-text {
-	font-size: 18px;
-	font-weight: 700;
-	color: var(--vscode-foreground);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--vscode-textLink-foreground), var(--vscode-charts-purple, #a970ff));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .topbar-subtitle {
-	margin-top: 2px;
-	font-size: 12px;
-	color: var(--vscode-descriptionForeground);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--vscode-descriptionForeground);
+    opacity: 0.8;
 }
 
 .topbar-actions {
-	display: flex;
-	gap: 10px;
-	align-items: center;
-	flex-shrink: 0;
+    display: flex;
+    gap: 12px;
+    align-items: center;
 }
 
-/* Settings link */
-.settings-link {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	padding: 6px 12px;
-	border-radius: var(--radius-sm);
-	color: var(--vscode-textLink-foreground);
-	text-decoration: none;
-	font-size: 13px;
-	font-weight: 500;
-	transition:
-		background-color 0.15s ease,
-		color 0.15s ease;
-	cursor: pointer;
-}
-
-.settings-link:hover {
-	background-color: var(--vscode-toolbar-hoverBackground);
-	color: var(
-		--vscode-textLink-activeForeground,
-		var(--vscode-textLink-foreground)
-	);
-}
-
-.settings-icon {
-	font-size: 14px;
-}
-
-.settings-text {
-	white-space: nowrap;
-}
-
-/* Main layout */
+/* Main Layout - Flexible Columns */
 .layout {
-	display: grid;
-	grid-template-columns: 260px 1fr;
-	gap: 14px;
-	align-items: start;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    align-items: start;
 }
 
+/* Sidebar - Modern Navigation */
 .sidebar {
-	padding: 14px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	position: sticky;
-	top: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 24px;
+    background: var(--vscode-sideBar-background);
+    height: fit-content;
+    max-height: calc(100vh - 120px);
 }
 
 .sidebar-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+    padding: 0 8px 8px;
+    border-bottom: 1px solid var(--vscode-panel-border);
 }
 
 .sidebar-title {
-	font-size: 12px;
-	font-weight: 700;
-	color: var(--vscode-descriptionForeground);
-	letter-spacing: 0.8px;
-	text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--vscode-descriptionForeground);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .provider-list {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .provider-item {
-	width: 100%;
-	display: grid;
-	grid-template-columns: 28px 1fr auto;
-	align-items: center;
-	gap: 10px;
-	padding: 10px 10px;
-	border-radius: var(--radius-md);
-	border: 1px solid transparent;
-	background: transparent;
-	color: var(--vscode-foreground);
-	cursor: pointer;
-	text-align: left;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--vscode-foreground);
+    cursor: pointer;
+    text-align: left;
+    transition: all var(--transition-fast);
 }
 
 .provider-item:hover {
-	background: var(--vscode-list-hoverBackground);
+    background: var(--vscode-list-hoverBackground);
+    transform: translateX(4px);
 }
 
 .provider-item.active {
-	background: var(--vscode-list-inactiveSelectionBackground);
-	border-color: var(--vscode-focusBorder);
+    background: var(--vscode-list-activeSelectionBackground);
+    color: var(--vscode-list-activeSelectionForeground);
+    box-shadow: var(--shadow-sm);
 }
 
 .provider-item-icon {
-	display: inline-flex;
-	width: 28px;
-	height: 28px;
-	border-radius: var(--radius-sm);
-	align-items: center;
-	justify-content: center;
-	background: var(--vscode-badge-background);
-	color: var(--vscode-badge-foreground);
-	font-size: 14px;
-}
-
-.provider-icon-img {
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-	border-radius: var(--radius-sm);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
 }
 
 .provider-item-name {
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	font-weight: 600;
-	font-size: 13px;
+    flex: 1;
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .provider-item-count {
-	font-variant-numeric: tabular-nums;
-	font-size: 12px;
-	color: var(--vscode-descriptionForeground);
-	padding: 2px 8px;
-	border-radius: 999px;
-	border: 1px solid var(--vscode-panel-border);
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--vscode-badge-background);
+    color: var(--vscode-badge-foreground);
+    padding: 2px 8px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
 }
 
-.sidebar-footer {
-	margin-top: 6px;
-}
-
-.btn-block {
-	width: 100%;
-	justify-content: center;
-}
-
+/* Content Area - Spacious and Clean */
 .content {
-	padding: 14px;
+    padding: 24px;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .content-header {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 12px;
-	margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
 }
 
 .content-title {
-	font-size: 16px;
-	font-weight: 700;
-}
-
-.content-subtitle {
-	margin-top: 2px;
-	font-size: 12px;
-	color: var(--vscode-descriptionForeground);
+    font-size: 20px;
+    font-weight: 700;
 }
 
 .content-actions {
-	flex-shrink: 0;
+    display: flex;
+    gap: 10px;
 }
 
+/* Account Cards - Grid/List View */
 .account-cards {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+    gap: 16px;
 }
 
-/* Notice */
-.notice {
-	padding: 12px 14px;
-	border-radius: var(--radius-lg);
-	border: 1px solid var(--vscode-panel-border);
-	background: var(
-		--vscode-editorWidget-background,
-		var(--vscode-editor-background)
-	);
-}
-
-.notice-warning {
-	border-color: var(--vscode-notificationsWarningBorder, #ffa500);
-	background: var(
-		--vscode-inputValidation-warningBackground,
-		rgba(255, 165, 0, 0.08)
-	);
-}
-
-.notice-title {
-	font-weight: 700;
-	font-size: 13px;
-	color: var(--vscode-notificationsWarningForeground, #ffa500);
-	margin-bottom: 4px;
-}
-
-.notice-body {
-	color: var(--vscode-foreground);
-	font-size: 12px;
-}
-
-.notice-meta {
-	margin-top: 4px;
-	color: var(--vscode-descriptionForeground);
-}
-
-.quota-countdown {
-	font-variant-numeric: tabular-nums;
-	font-weight: 700;
-	color: var(--vscode-foreground);
-}
-
-/* Codex Rate Limit Banner */
-.codex-rate-limit-banner {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	margin: 0 0 16px;
-	padding: 12px 16px;
-	border-radius: 4px;
-	border-left: 3px solid var(--vscode-charts-green, #4caf50);
-	background: var(--vscode-editor-background);
-	border: 1px solid var(--vscode-panel-border);
-}
-
-.codex-rate-limit-banner.warning {
-	border-left-color: var(--vscode-notificationsWarningBorder, #ffa500);
-	background: var(
-		--vscode-inputValidation-warningBackground,
-		rgba(255, 165, 0, 0.08)
-	);
-}
-
-.rate-limit-header {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-.rate-limit-icon {
-	font-size: 14px;
-}
-
-.rate-limit-title {
-	font-weight: 600;
-	font-size: 13px;
-	color: var(--vscode-foreground);
-}
-
-.rate-limit-updated {
-	margin-left: auto;
-	font-size: 11px;
-	color: var(--vscode-descriptionForeground);
-}
-
-.rate-limit-content {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
-
-.rate-limit-row {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	font-size: 12px;
-}
-
-.rate-limit-label {
-	min-width: 60px;
-	color: var(--vscode-descriptionForeground);
-}
-
-.rate-limit-bar {
-	font-family: monospace;
-	font-size: 11px;
-	color: var(--vscode-foreground);
-	opacity: 0.8;
-}
-
-.rate-limit-value {
-	min-width: 35px;
-	text-align: right;
-	font-weight: 600;
-	color: var(--vscode-foreground);
-}
-
-.codex-rate-limit-banner.warning .rate-limit-value {
-	color: var(--vscode-notificationsWarningForeground, #ffa500);
-}
-
-/* Account-level Rate Limit (inline in account card) */
-.account-rate-limit {
-	margin-top: 8px;
-	padding: 8px 10px;
-	border-radius: 4px;
-	background: var(--vscode-editor-background);
-	border: 1px solid var(--vscode-panel-border);
-	font-size: 11px;
-}
-
-.account-rate-limit.warning {
-	border-color: var(--vscode-notificationsWarningBorder, #ffa500);
-	background: var(
-		--vscode-inputValidation-warningBackground,
-		rgba(255, 165, 0, 0.08)
-	);
-}
-
-.rate-limit-header-inline {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	margin-bottom: 4px;
-}
-
-.rate-limit-title-small {
-	font-weight: 600;
-	font-size: 11px;
-	color: var(--vscode-foreground);
-}
-
-.rate-limit-value.warning {
-	color: var(--vscode-notificationsWarningForeground, #ffa500);
-}
-
-/* Account Quota State (cached quota info) */
-.account-quota-state {
-	margin-top: 8px;
-	padding: 8px 10px;
-	border-radius: 4px;
-	background: var(--vscode-editor-background);
-	border: 1px solid var(--vscode-panel-border);
-	font-size: 11px;
-}
-
-.account-quota-state.success {
-	border-color: var(--vscode-notificationsInfoBorder, #3794ff);
-}
-
-.account-quota-state.warning {
-	border-color: var(--vscode-notificationsWarningBorder, #ffa500);
-	background: var(
-		--vscode-inputValidation-warningBackground,
-		rgba(255, 165, 0, 0.08)
-	);
-}
-
-.account-quota-state.error {
-	border-color: var(--vscode-notificationsErrorBorder, #f14c4c);
-	background: var(
-		--vscode-inputValidation-errorBackground,
-		rgba(241, 76, 76, 0.08)
-	);
-}
-
-.quota-state-header {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	margin-bottom: 6px;
-}
-
-.quota-state-icon {
-	font-size: 12px;
-}
-
-.quota-state-title {
-	font-weight: 600;
-	font-size: 11px;
-	color: var(--vscode-foreground);
-}
-
-.quota-state-content {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-}
-
-.quota-state-row {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 8px;
-}
-
-.quota-state-row.warning {
-	color: var(--vscode-notificationsWarningForeground, #ffa500);
-}
-
-.quota-state-label {
-	color: var(--vscode-descriptionForeground);
-	font-size: 10px;
-}
-
-.quota-state-value {
-	font-family: var(--vscode-editor-font-family, monospace);
-	font-size: 10px;
-	color: var(--vscode-foreground);
-}
-
-.quota-state-value.success {
-	color: var(--vscode-notificationsInfoForeground, #3794ff);
-}
-
-.quota-state-value.warning {
-	color: var(--vscode-notificationsWarningForeground, #ffa500);
-}
-
-.quota-state-value.error {
-	color: var(--vscode-notificationsErrorForeground, #f14c4c);
-}
-
-/* Buttons */
-.btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 8px 14px;
-	border: 1px solid transparent;
-	border-radius: 12px;
-	font-size: 12px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: opacity 0.15s ease;
-}
-
-.btn:hover {
-	opacity: 0.85;
-}
-
-.btn-primary {
-	background-color: var(--vscode-button-background);
-	color: var(--vscode-button-foreground);
-}
-
-.btn-secondary {
-	background-color: var(--vscode-button-secondaryBackground);
-	color: var(--vscode-button-secondaryForeground);
-	border-color: transparent;
-}
-
-.btn-ghost {
-	background: transparent;
-	border-color: var(--vscode-panel-border);
-	color: var(--vscode-foreground);
-}
-
-.btn-ghost:hover {
-	background: var(--vscode-list-hoverBackground);
-}
-
-.btn-danger {
-	background-color: rgba(220, 53, 69, 0.15);
-	color: var(--vscode-errorForeground, #dc3545);
-	border: 1px solid rgba(220, 53, 69, 0.3);
-}
-
-.btn-icon {
-	padding: 8px 10px;
-	background: transparent;
-	border: 1px solid var(--vscode-panel-border);
-	min-width: 34px;
-	justify-content: center;
-}
-
-.btn-icon:hover {
-	background-color: var(--vscode-list-hoverBackground);
-}
-
-/* ===== SIMPLIFIED ACCOUNT CARD ===== */
 .account-card-simple {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	padding: 12px 14px;
-	border-radius: var(--radius-lg);
-	border: 1px solid var(--vscode-panel-border);
-	background: var(--vscode-editor-background);
-	transition: all 0.15s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    border: 1.5px solid var(--vscode-panel-border);
+    background: var(--vscode-sideBar-background);
+    transition: all var(--transition-base);
+    overflow: hidden;
 }
 
 .account-card-simple:hover {
-	background: var(--vscode-list-hoverBackground);
-	border-color: var(--vscode-focusBorder);
+    border-color: var(--vscode-focusBorder);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .account-card-simple.active {
-	background: var(--vscode-list-inactiveSelectionBackground);
-	border-color: var(--vscode-focusBorder);
+    background: var(--vscode-editor-background);
+    border-color: var(--vscode-textLink-foreground);
+    box-shadow: 0 0 0 1px var(--vscode-textLink-foreground);
 }
 
-.account-card-simple.quota-limited {
-	border-color: var(--vscode-notificationsWarningBorder, #ffa500);
-	background: var(
-		--vscode-inputValidation-warningBackground,
-		rgba(255, 165, 0, 0.05)
-	);
+.account-card-simple.active::before {
+    content: "ACTIVE";
+    position: absolute;
+    top: 12px;
+    right: -25px;
+    background: var(--vscode-textLink-foreground);
+    color: white;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 4px 30px;
+    transform: rotate(45deg);
 }
 
-.account-card-left {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	flex: 1;
-	min-width: 0;
-	cursor: pointer;
-}
-
-.account-info-compact {
-	flex: 1;
-	min-width: 0;
-}
-
-.account-name-row {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	flex-wrap: wrap;
-}
-
-.status-dot-inline {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: var(--vscode-charts-green, #4caf50);
-	flex-shrink: 0;
-}
-
-.status-dot-inline.inactive,
-.status-dot-inline.error {
-	background: var(--vscode-charts-red, #f14c4c);
-}
-
-.status-dot-inline.pending {
-	background: var(--vscode-charts-yellow, #cca700);
-}
-
-.account-email-compact {
-	font-size: 11px;
-	color: var(--vscode-descriptionForeground);
-	margin-top: 2px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.account-meta-compact {
-	display: flex;
-	gap: 12px;
-	margin-top: 4px;
-	font-size: 11px;
-	color: var(--vscode-descriptionForeground);
-}
-
-.account-stats {
-	font-family: var(--vscode-editor-font-family, monospace);
-}
-
-.quota-badge-compact {
-	padding: 4px 10px;
-	border-radius: 999px;
-	background: var(
-		--vscode-inputValidation-warningBackground,
-		rgba(255, 165, 0, 0.15)
-	);
-	border: 1px solid var(--vscode-notificationsWarningBorder, #ffa500);
-	font-size: 11px;
-	font-weight: 600;
-	color: var(--vscode-notificationsWarningForeground, #ffa500);
-	white-space: nowrap;
-}
-
-.quota-countdown-compact {
-	font-variant-numeric: tabular-nums;
-}
-
-/* Bigger, easier to click action buttons */
-.account-actions-compact {
-	display: flex;
-	gap: 8px;
-	flex-shrink: 0;
-}
-
-.btn-action {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 44px;
-	height: 44px;
-	padding: 0 16px;
-	border-radius: 12px;
-	border: 1px solid var(--vscode-panel-border);
-	background: transparent;
-	color: var(--vscode-foreground);
-	font-size: 14px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.15s ease;
-}
-
-.btn-action:hover {
-	background: var(--vscode-list-hoverBackground);
-}
-
-.btn-action.btn-use {
-	background: var(--vscode-button-background);
-	color: var(--vscode-button-foreground);
-	border-color: transparent;
-	padding: 0 20px;
-}
-
-.btn-action.btn-use:hover {
-	opacity: 0.9;
-}
-
-.btn-action.btn-info {
-	font-size: 16px;
-}
-
-.btn-action.btn-delete {
-	color: var(--vscode-errorForeground, #f14c4c);
-	font-size: 16px;
-}
-
-.btn-action.btn-delete:hover {
-	background: rgba(220, 53, 69, 0.15);
-	border-color: rgba(220, 53, 69, 0.3);
-}
-
-/* Legacy account-card styles (keep for compatibility) */
-.account-card {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 12px;
-	padding: 12px 12px;
-	border-radius: var(--radius-lg);
-	border: 1px solid var(--vscode-panel-border);
-	background: var(--vscode-editor-background);
-	transition:
-		background-color 0.15s ease,
-		border-color 0.15s ease;
-	position: relative;
-}
-
-.account-card.clickable {
-	cursor: pointer;
-}
-
-.account-card.clickable::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	border-radius: var(--radius-lg);
-	box-shadow: inset 0 0 0 1px transparent;
-	pointer-events: none;
-	transition: box-shadow 0.15s ease;
-}
-
-.account-card.clickable:hover::after {
-	box-shadow: inset 0 0 0 1px var(--vscode-focusBorder);
-}
-
-.account-card:hover {
-	background: var(--vscode-list-hoverBackground);
-	border-color: var(--vscode-focusBorder);
-}
-
-.account-card.active {
-	background: var(--vscode-list-inactiveSelectionBackground);
-	border-color: var(--vscode-focusBorder);
-}
-
-/* Quota limited account card - Simplified */
-.account-card.quota-limited {
-	border-color: var(--vscode-notificationsWarningBorder, #ffa500);
-	background: var(
-		--vscode-inputValidation-warningBackground,
-		rgba(255, 165, 0, 0.05)
-	);
-}
-
-.account-card-main {
-	display: flex;
-	align-items: flex-start;
-	gap: 12px;
-	min-width: 0;
-	flex: 1;
+.account-card-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
 }
 
 .account-avatar {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	background: var(--vscode-textLink-foreground, #3794ff);
-	color: #fff;
-	font-size: 12px;
-	font-weight: 600;
-	flex-shrink: 0;
-	text-transform: uppercase;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--vscode-textLink-foreground), var(--vscode-charts-blue, #007acc));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    box-shadow: var(--shadow-sm);
 }
 
-.account-card-info {
-	min-width: 0;
-	flex: 1;
+.account-info-compact {
+    flex: 1;
+    min-width: 0;
 }
 
-.account-card-title {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-	align-items: center;
+.account-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
 }
 
 .account-name {
-	font-size: 13px;
-	font-weight: 700;
-	color: var(--vscode-foreground);
-	margin-right: 2px;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-email-compact {
+    font-size: 12px;
+    color: var(--vscode-descriptionForeground);
+    opacity: 0.8;
 }
 
 .badge {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 3px 8px;
-	border-radius: 999px;
-	font-size: 11px;
-	font-weight: 700;
-	border: 1px solid var(--vscode-panel-border);
-	background: transparent;
-	color: var(--vscode-foreground);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
 .badge-primary {
-	background: var(--vscode-badge-background);
-	border-color: transparent;
-	color: var(--vscode-badge-foreground);
+    background: var(--vscode-textLink-foreground);
+    color: white;
 }
 
 .badge-muted {
-	color: var(--vscode-descriptionForeground);
+    background: var(--vscode-badge-background);
+    color: var(--vscode-badge-foreground);
 }
 
-.badge-warning {
-	border-color: var(--vscode-notificationsWarningBorder, #ffa500);
-	color: var(--vscode-notificationsWarningForeground, #ffa500);
-	background: var(
-		--vscode-inputValidation-warningBackground,
-		rgba(255, 165, 0, 0.08)
-	);
+/* Quota State Styling */
+.quota-limited {
+    border-color: var(--vscode-notificationsWarningBorder, #ffa500);
 }
 
-.badge-status {
-	color: var(--vscode-descriptionForeground);
+.quota-badge-compact {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 165, 0, 0.1);
+    color: var(--vscode-notificationsWarningForeground, #ffa500);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 12px;
 }
 
-.account-quota-inline {
-	margin-top: 8px;
-	display: inline-flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 8px;
-	padding: 6px 10px;
-	border-radius: 999px;
-	border: 1px solid var(--vscode-notificationsWarningBorder, #ffa500);
-	background: var(
-		--vscode-inputValidation-warningBackground,
-		rgba(255, 165, 0, 0.08)
-	);
-	font-size: 11px;
+/* Actions Bar in Card */
+.account-actions-compact {
+    display: flex;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--vscode-panel-border);
+    margin-top: auto;
 }
 
-.quota-model {
-	color: var(--vscode-foreground);
-	font-weight: 600;
+.btn-action {
+    flex: 1;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--vscode-panel-border);
+    background: transparent;
+    color: var(--vscode-foreground);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
 }
 
-.quota-timer {
-	color: var(--vscode-descriptionForeground);
-	font-size: 11px;
+.btn-action:hover {
+    background: var(--vscode-toolbar-hoverBackground);
+    border-color: var(--vscode-focusBorder);
 }
 
-.quota-timer .account-quota-countdown {
-	font-weight: 600;
-	color: var(--vscode-foreground);
-	font-variant-numeric: tabular-nums;
-	font-size: 12px;
+.btn-action.btn-use {
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: none;
+    flex: 2;
 }
 
-.account-email {
-	font-size: 11px;
-	color: var(--vscode-descriptionForeground);
-	margin-top: 2px;
+.btn-action.btn-delete {
+    color: var(--vscode-errorForeground);
 }
 
-.account-meta {
-	display: flex;
-	gap: 10px;
-	margin-top: 4px;
-	font-size: 11px;
-	color: var(--vscode-descriptionForeground);
+.btn-action.btn-delete:hover {
+    background: rgba(241, 76, 76, 0.1);
+    border-color: var(--vscode-errorForeground);
 }
 
-.account-meta-item {
-	display: flex;
-	align-items: center;
-	gap: 4px;
+/* Buttons Global */
+.btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* Legacy status pills (still used in details modal) */
-.account-status {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 3px 10px;
-	border-radius: 999px;
-	font-size: 11px;
-	font-weight: 700;
-	border: 1px solid var(--vscode-panel-border);
+.btn-primary {
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
 }
 
-.account-status.active {
-	background: rgba(40, 167, 69, 0.12);
-	border-color: rgba(40, 167, 69, 0.28);
-	color: #28a745;
+.btn-primary:hover {
+    background: var(--vscode-button-hoverBackground);
 }
 
-.account-status.inactive {
-	background: rgba(108, 117, 125, 0.12);
-	border-color: rgba(108, 117, 125, 0.28);
-	color: #6c757d;
+.btn-ghost {
+    background: transparent;
+    border-color: var(--vscode-panel-border);
+    color: var(--vscode-foreground);
 }
 
-.account-status.expired {
-	background: rgba(255, 193, 7, 0.12);
-	border-color: rgba(255, 193, 7, 0.28);
-	color: #ffc107;
+.btn-ghost:hover {
+    background: var(--vscode-toolbar-hoverBackground);
+    border-color: var(--vscode-focusBorder);
 }
 
-.account-status.error {
-	background: rgba(220, 53, 69, 0.12);
-	border-color: rgba(220, 53, 69, 0.28);
-	color: #dc3545;
-}
-
-.status-dot {
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-}
-
-.status-dot.active {
-	background-color: #28a745;
-}
-
-.status-dot.inactive {
-	background-color: #6c757d;
-}
-
-.status-dot.expired {
-	background-color: #ffc107;
-}
-
-.status-dot.error {
-	background-color: #dc3545;
-}
-
-.account-card-actions {
-	display: flex;
-	gap: 8px;
-	align-items: center;
-	justify-content: flex-end;
-	flex-shrink: 0;
-}
-
-.btn-compact {
-	padding: 6px 12px;
-	font-size: 11px;
-	border-radius: 10px;
-}
-
-/* Empty State - Simplified */
+/* Empty States */
 .empty-state {
-	text-align: center;
-	padding: 32px 16px;
-	color: var(--vscode-descriptionForeground);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: var(--radius-xl);
+    border: 2px dashed var(--vscode-panel-border);
 }
 
 .empty-state-title {
-	font-size: 15px;
-	font-weight: 600;
-	color: var(--vscode-foreground);
-	margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
 }
 
 .empty-state-description {
-	font-size: 13px;
-	margin-bottom: 16px;
-	line-height: 1.5;
+    color: var(--vscode-descriptionForeground);
+    max-width: 300px;
+    margin-bottom: 24px;
 }
 
-/* Modal - Simplified */
+/* Modals - Deep Layered */
 .modal-overlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(0, 0, 0, 0.5);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 1000;
-	animation: fadeIn 0.15s ease;
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
 }
 
 .modal {
-	background-color: var(--vscode-editor-background);
-	border-radius: var(--radius-lg);
-	border: 1px solid var(--vscode-panel-border);
-	max-width: 500px;
-	width: 90%;
-	max-height: 85vh;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-	animation: slideUp 0.15s ease;
+    width: 90%;
+    max-width: 520px;
+    background: var(--vscode-editorWidget-background);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--vscode-panel-border);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    animation: zoomIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@keyframes slideUp {
-	from {
-		opacity: 0;
-		transform: translateY(10px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
 .modal-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 14px 16px;
-	border-bottom: 1px solid var(--vscode-panel-border);
-	background: var(--vscode-editor-background);
+    padding: 24px;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.modal-title {
-	font-size: 16px;
-	font-weight: 600;
-}
+.modal-title { font-size: 18px; font-weight: 800; }
 
-.modal-close {
-	background: none;
-	border: none;
-	font-size: 20px;
-	cursor: pointer;
-	color: var(--vscode-foreground);
-	opacity: 0.6;
-	transition: opacity 0.15s ease;
-	width: 28px;
-	height: 28px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 10px;
-}
-
-.modal-close:hover {
-	opacity: 1;
-	background-color: var(--vscode-list-hoverBackground);
-}
-
-.modal-body {
-	padding: 16px;
-	overflow-y: auto;
-}
+.modal-body { padding: 24px; }
 
 .modal-footer {
-	display: flex;
-	justify-content: flex-end;
-	gap: 8px;
-	padding: 14px 16px;
-	border-top: 1px solid var(--vscode-panel-border);
-	background-color: var(--vscode-editor-background);
+    padding: 16px 24px;
+    background: var(--vscode-sideBar-background);
+    border-top: 1px solid var(--vscode-panel-border);
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
 }
 
-/* Form Elements - Simplified */
-.form-group {
-	margin-bottom: 16px;
-}
-
-.form-label {
-	display: block;
-	font-size: 12px;
-	font-weight: 600;
-	margin-bottom: 6px;
-	color: var(--vscode-foreground);
-}
-
+/* Form Styles */
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 12px; }
 .form-input {
-	width: 100%;
-	padding: 8px 12px;
-	font-size: 12px;
-	border: 1px solid var(--vscode-input-border);
-	border-radius: 12px;
-	background-color: var(--vscode-input-background);
-	color: var(--vscode-input-foreground);
-	transition: border-color 0.15s ease;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: 1.5px solid var(--vscode-input-border);
+    outline: none;
+    transition: border-color 0.2s;
 }
+.form-input:focus { border-color: var(--vscode-focusBorder); }
 
-.form-input:focus {
-	outline: none;
-	border-color: var(--vscode-focusBorder);
-}
-
-.form-input::placeholder {
-	color: var(--vscode-input-placeholderForeground);
-}
-
-.form-select {
-	width: 100%;
-	padding: 8px 12px;
-	font-size: 12px;
-	border: 1px solid var(--vscode-input-border);
-	border-radius: 12px;
-	background-color: var(--vscode-input-background);
-	color: var(--vscode-input-foreground);
-	cursor: pointer;
-	transition: border-color 0.15s ease;
-}
-
-.form-select:focus {
-	outline: none;
-	border-color: var(--vscode-focusBorder);
-}
-
-.form-hint {
-	font-size: 11px;
-	color: var(--vscode-descriptionForeground);
-	margin-top: 4px;
-	line-height: 1.4;
-}
-
-/* Provider Select Grid - Simplified */
+/* Provider Grid */
 .provider-select-grid {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 12px;
-	margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 4px;
 }
 
 .provider-select-item {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 10px;
-	border: 1px solid var(--vscode-panel-border);
-	border-radius: 12px;
-	cursor: pointer;
-	transition:
-		border-color 0.15s ease,
-		background-color 0.15s ease;
-	background: var(--vscode-editor-background);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--vscode-panel-border);
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .provider-select-item:hover {
-	border-color: var(--vscode-focusBorder);
-	background: var(--vscode-list-hoverBackground);
+    background: var(--vscode-list-hoverBackground);
+    border-color: var(--vscode-focusBorder);
 }
 
-.provider-select-item.selected {
-	border-color: var(--vscode-textLink-foreground);
-	background: var(--vscode-list-inactiveSelectionBackground);
+.provider-select-icon { font-size: 20px; }
+.provider-select-name { font-weight: 700; font-size: 13px; }
+.provider-select-type { font-size: 10px; color: var(--vscode-descriptionForeground); font-weight: 600; }
+
+/* Responsive adjustments */
+@media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; max-height: none; }
+    .topbar { flex-direction: column; align-items: stretch; gap: 16px; }
 }
 
-.provider-select-icon {
-	display: inline-flex;
-	width: 32px;
-	height: 32px;
-	border-radius: var(--radius-sm);
-	align-items: center;
-	justify-content: center;
-	background: var(--vscode-badge-background);
-	color: var(--vscode-badge-foreground);
-	font-size: 16px;
-	flex-shrink: 0;
-}
-
-.provider-select-info {
-	flex: 1;
-}
-
-.provider-select-name {
-	font-weight: 600;
-	font-size: 13px;
-	margin-bottom: 2px;
-}
-
-.provider-select-type {
-	font-size: 10px;
-	color: var(--vscode-descriptionForeground);
-	text-transform: uppercase;
-	letter-spacing: 0.3px;
-}
-
-/* Toast Notifications - Simplified */
+/* Toast Notifications - Floating Pills */
 .toast-container {
-	position: fixed;
-	top: 16px;
-	right: 16px;
-	z-index: 2000;
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 3000;
 }
 
 .toast {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 10px 14px;
-	border-radius: 12px;
-	animation: slideIn 0.15s ease;
-	min-width: 250px;
-	font-size: 12px;
+    background: var(--vscode-notifications-background, #333);
+    color: var(--vscode-notifications-foreground, #fff);
+    padding: 12px 20px;
+    border-radius: 50px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    border: 1px solid var(--vscode-notifications-border, transparent);
+    animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
-.toast.success {
-	background: rgba(40, 167, 69, 0.9);
-	color: white;
-}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-.toast.error {
-	background: rgba(220, 53, 69, 0.9);
-	color: white;
-}
-
-.toast.warning {
-	background: rgba(255, 193, 7, 0.9);
-	color: #000;
-}
-
-.toast.info {
-	background: var(--vscode-button-background);
-	color: var(--vscode-button-foreground);
-}
-
-@keyframes slideIn {
-	from {
-		transform: translateX(100%);
-		opacity: 0;
-	}
-	to {
-		transform: translateX(0);
-		opacity: 1;
-	}
-}
-
-/* Loading Spinner - Simplified */
-.loading-spinner {
-	display: inline-block;
-	width: 14px;
-	height: 14px;
-	border: 2px solid var(--vscode-foreground);
-	border-radius: 50%;
-	border-top-color: transparent;
-	animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-	to {
-		transform: rotate(360deg);
-	}
-}
-
-/* Responsive - Simplified */
-@media (max-width: 768px) {
-	.layout {
-		grid-template-columns: 1fr;
-	}
-
-	.sidebar {
-		position: static;
-		top: auto;
-	}
-
-	.provider-select-grid {
-		grid-template-columns: 1fr;
-	}
-
-	/* Simplified account card on mobile */
-	.account-card-simple {
-		flex-wrap: wrap;
-		gap: 10px;
-	}
-
-	.account-card-left {
-		width: 100%;
-	}
-
-	.account-actions-compact {
-		width: 100%;
-		justify-content: flex-end;
-	}
-
-	.btn-action {
-		min-width: 48px;
-		height: 48px;
-	}
-
-	.btn-action.btn-use {
-		flex: 1;
-		max-width: 120px;
-	}
-
-	.quota-badge-compact {
-		margin-left: auto;
-	}
-}
-
-/* Scrollbar - Simplified */
-::-webkit-scrollbar {
-	width: 6px;
-	height: 6px;
-}
-
-::-webkit-scrollbar-track {
-	background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-	background-color: var(--vscode-scrollbarSlider-background);
-	border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-	background-color: var(--vscode-scrollbarSlider-hoverBackground);
-}
+.toast.success { border-left: 4px solid var(--vscode-charts-green); }
+.toast.error { border-left: 4px solid var(--vscode-charts-red); }
