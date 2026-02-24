@@ -4,15 +4,87 @@
     "apiKeyTemplate": "This ApiKey is a long string with a JWT-like structure",
     "models": [
         {
+            "id": "MiniMax-M2.5",
+            "name": "MiniMax-M2.5",
+            "sdkMode": "anthropic",
+            "baseUrl": "https://api.minimaxi.com/anthropic",
+            "tooltip": "MiniMax-M2.5 - 204.8K context (top-notch performance, ~60 TPS)",
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
+            "includeThinking": true,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "MiniMax-M2.5-Coding-Plan",
+            "name": "MiniMax-M2.5 (Coding Plan)",
+            "model": "MiniMax-M2.5",
+            "sdkMode": "anthropic",
+            "baseUrl": "https://api.minimaxi.com/anthropic",
+            "tooltip": "MiniMax-M2.5 - 204.8K context (coding-focused, ~60 TPS)",
+            "provider": "minimax-coding",
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
+            "includeThinking": true,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "MiniMax-M2.5-highspeed",
+            "name": "MiniMax-M2.5-highspeed",
+            "sdkMode": "anthropic",
+            "baseUrl": "https://api.minimaxi.com/anthropic",
+            "tooltip": "MiniMax-M2.5-highspeed - 204.8K context (~100 TPS)",
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
+            "includeThinking": true,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
             "id": "MiniMax-M2.1-Coding-Plan",
             "name": "MiniMax-M2.1 (Coding Plan)",
             "model": "MiniMax-M2.1",
             "sdkMode": "anthropic",
             "baseUrl": "https://api.minimaxi.com/anthropic",
-            "tooltip": "MiniMax-M2.1 - 256K context (coding-focused)",
+            "tooltip": "MiniMax-M2.1 - 204.8K context (coding-focused)",
             "provider": "minimax-coding",
-            "maxInputTokens": 224000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
+            "includeThinking": true,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "MiniMax-M2.1-highspeed",
+            "name": "MiniMax-M2.1-highspeed",
+            "sdkMode": "anthropic",
+            "baseUrl": "https://api.minimaxi.com/anthropic",
+            "tooltip": "MiniMax-M2.1-highspeed - 204.8K context (~100 TPS)",
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
+            "includeThinking": true,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "MiniMax-M2.1",
+            "name": "MiniMax-M2.1 (Pay-per-use)",
+            "sdkMode": "anthropic",
+            "baseUrl": "https://api.minimaxi.com/anthropic",
+            "tooltip": "MiniMax-M2.1 - 204.8K context",
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "includeThinking": true,
             "capabilities": {
                 "toolCalling": true,
@@ -25,38 +97,10 @@
             "model": "MiniMax-M2",
             "sdkMode": "anthropic",
             "baseUrl": "https://api.minimaxi.com/anthropic",
-            "tooltip": "MiniMax-M2 - 256K context (coding-focused)",
+            "tooltip": "MiniMax-M2 - 204.8K context (coding-focused)",
             "provider": "minimax-coding",
-            "maxInputTokens": 224000,
-            "maxOutputTokens": 32000,
-            "includeThinking": true,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "MiniMax-M2.1",
-            "name": "MiniMax-M2.1 (Pay-per-use)",
-            "sdkMode": "anthropic",
-            "baseUrl": "https://api.minimaxi.com/anthropic",
-            "tooltip": "MiniMax-M2.1 - 256K context",
-            "maxInputTokens": 224000,
-            "maxOutputTokens": 32000,
-            "includeThinking": true,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "MiniMax-M2.1-Lightning",
-            "name": "MiniMax-M2.1-Lightning (2x Speed Rate)",
-            "sdkMode": "anthropic",
-            "baseUrl": "https://api.minimaxi.com/anthropic",
-            "tooltip": "MiniMax-M2.1 - 256K context (high-throughput)",
-            "maxInputTokens": 224000,
-            "maxOutputTokens": 32000,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "includeThinking": true,
             "capabilities": {
                 "toolCalling": true,
@@ -68,9 +112,9 @@
             "name": "MiniMax-M2 (Pay-per-use)",
             "sdkMode": "anthropic",
             "baseUrl": "https://api.minimaxi.com/anthropic",
-            "tooltip": "MiniMax-M2 - 256K context",
-            "maxInputTokens": 224000,
-            "maxOutputTokens": 32000,
+            "tooltip": "MiniMax-M2 - 204.8K context",
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "includeThinking": true,
             "capabilities": {
                 "toolCalling": true,

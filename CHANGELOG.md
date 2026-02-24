@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4] - 2026-02-24
+
+### Added
+
+**MiniMax Model Support Enhancements:**
+- **MiniMax M2.5 & M2.5-highspeed**: Added full support for latest MiniMax models
+  - MiniMax-M2.5 with ~60 TPS throughput
+  - MiniMax-M2.5-highspeed with ~100 TPS throughput
+- **MiniMax Coding Plan Subscriptions**: New Coding Plan models with subscription-based pricing
+  - MiniMax-M2.5-Coding-Plan: ¥98/month (100 prompts/5h)
+  - MiniMax-M2.1-Coding-Plan: ¥29-¥119/month (40-300 prompts/5h)
+  - MiniMax-M2-Coding-Plan: Efficient coding workflows
+
+### Changed
+
+**MiniMax Context Window Correction:**
+- **Corrected MiniMax M2 series context length from 256K to 204.8K**
+  - All MiniMax models now use: 204,800 total tokens (172,032 input / 32,768 output)
+  - Updated `globalContextLengthManager.ts` with new `MINIMAX` constants
+  - Separated MiniMax (204.8K) from Kimi K2 series (256K) in token resolution logic
+  - All model entries in `minimax.json` updated with correct token limits
+
+### Removed
+
+- **MiniMax-M2.5-highspeed-Coding-Plan**: Removed duplicate highspeed coding plan model
+- **MiniMax-M2.1-highspeed-Coding-Plan**: Removed duplicate highspeed coding plan model
+
 ## [0.2.3] - 2026-02-24
 
 ### Added

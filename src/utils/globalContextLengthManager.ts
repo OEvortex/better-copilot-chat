@@ -21,6 +21,10 @@ export const GLM45_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
 // Fixed 256K family (1k=1024): 32K output / 224K input
 const FIXED_256K_MAX_INPUT_TOKENS = 256 * 1024 - 32 * 1024; // 229376
 const FIXED_256K_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
+// MiniMax M2 series: 204.8K total context (1k=1024), 32K output / 172K input
+const MINIMAX_TOTAL_TOKENS = 200 * 1024; // 204800
+const MINIMAX_MAX_INPUT_TOKENS = MINIMAX_TOTAL_TOKENS - 32 * 1024; // 172032
+const MINIMAX_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
 // Fixed 64K family (1k=1024): some vendors expose smaller "64k" models where output is 8k
 const FIXED_64K_TOTAL_TOKENS = 64 * 1024; // 65536
 const FIXED_64K_MAX_OUTPUT_TOKENS = 8 * 1024; // 8192
@@ -258,8 +262,16 @@ export function resolveGlobalTokenLimits(
 		};
 	}
 
-	// Minimax M2 series / Kimi K2 series: 256K total context, 32K output
-	if (isMinimaxModel(modelId) || isKimiModel(modelId)) {
+	// Minimax M2 series: 204.8K total context, 32K output
+	if (isMinimaxModel(modelId)) {
+		return {
+			maxInputTokens: MINIMAX_MAX_INPUT_TOKENS,
+			maxOutputTokens: MINIMAX_MAX_OUTPUT_TOKENS,
+		};
+	}
+
+	// Kimi K2 series: 256K total context, 32K output
+	if (isKimiModel(modelId)) {
 		return {
 			maxInputTokens: FIXED_256K_MAX_INPUT_TOKENS,
 			maxOutputTokens: FIXED_256K_MAX_OUTPUT_TOKENS,
