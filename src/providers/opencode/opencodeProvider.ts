@@ -53,6 +53,8 @@ interface OpenCodeModelItem {
 	context_length?: number;
 	input_modalities?: string[];
 	max_output_length?: number;
+	name?: string; // Optional model name
+	description?: string; // Optional model description
 }
 
 interface OpenCodeModelsResponse {

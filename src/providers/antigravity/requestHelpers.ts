@@ -63,12 +63,20 @@ const MODEL_ALIASES: Record<string, string> = {
 	"gemini-2.5-computer-use-preview-10-2025": "rev19-uic3-1p",
 	"gemini-3-pro-image-preview": "gemini-3-pro-image",
 	"gemini-3-pro-preview": "gemini-3-pro-high",
+	"gemini-3-flash-low": "gemini-3-flash",
+	"gemini-3-flash-medium": "gemini-3-flash",
+	"gemini-3-flash-high": "gemini-3-flash",
 	"gemini-claude-sonnet-4-5": "claude-sonnet-4-5",
 	"claude-sonnet-4-5": "claude-sonnet-4-5",
 	"gemini-claude-sonnet-4-5-thinking": "claude-sonnet-4-5-thinking",
 	"claude-sonnet-4-5-thinking": "claude-sonnet-4-5-thinking",
 	"gemini-claude-opus-4-5-thinking": "claude-opus-4-5-thinking",
 	"claude-opus-4-5-thinking": "claude-opus-4-5-thinking",
+	"gemini-claude-sonnet-4-6": "claude-sonnet-4-6",
+	"claude-sonnet-4-6": "claude-sonnet-4-6",
+	"gemini-claude-opus-4-6-thinking": "claude-opus-4-6-thinking",
+	"claude-opus-4-6-thinking": "claude-opus-4-6-thinking",
+	"claude-opus-4-6-thinking-low": "claude-opus-4-6-thinking",
 };
 
 export function aliasToModelName(modelName: string): string {
@@ -662,7 +670,13 @@ export function prepareAntigravityRequest(
 		options.tools.length > 0 &&
 		model.capabilities?.toolCalling;
 	if (isClaudeThinkingModel && isThinkingEnabled && !hasTools) {
-		const thinkingBudget = modelConfig.thinkingBudget || 10000;
+		const selectedModelId = (modelConfig.id || model.id).toLowerCase();
+		let thinkingBudget = modelConfig.thinkingBudget || 10000;
+		if (selectedModelId.includes("claude-opus-4-6-thinking-low")) {
+			thinkingBudget = 8192;
+		} else if (selectedModelId.includes("claude-opus-4-6-thinking")) {
+			thinkingBudget = 32768;
+		}
 		if (maxOutputTokens < thinkingBudget + 1000) {
 			generationConfig.maxOutputTokens = thinkingBudget + 1000;
 		}

@@ -4,74 +4,24 @@
     "apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "models": [
         {
-            "id": "claude-opus-4-5-thinking",
-            "name": "Claude Opus 4.5 Thinking",
-            "tooltip": "Claude Opus 4.5 với khả năng suy luận mở rộng",
+            "id": "gemini-3-pro-low",
+            "name": "Gemini 3 Pro Low",
+            "tooltip": "Gemini 3 Pro Low",
             "sdkMode": "anthropic",
-            "maxInputTokens": 200000,
-            "maxOutputTokens": 32000,
-            "includeThinking": true,
+            "maxInputTokens": 935936,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
             }
         },
         {
-            "id": "claude-sonnet-4-5",
-            "name": "Claude Sonnet 4.5",
-            "tooltip": "Claude Sonnet 4.5 - mô hình cân bằng giữa hiệu suất và chi phí",
+            "id": "gemini-3-pro-high",
+            "name": "Gemini 3 Pro High",
+            "tooltip": "Gemini 3 Pro High",
             "sdkMode": "anthropic",
-            "maxInputTokens": 200000,
-            "maxOutputTokens": 32000,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "claude-sonnet-4-5-thinking",
-            "name": "Claude Sonnet 4.5 Thinking",
-            "tooltip": "Claude Sonnet 4.5 với khả năng suy luận mở rộng",
-            "sdkMode": "anthropic",
-            "maxInputTokens": 200000,
-            "maxOutputTokens": 32000,
-            "includeThinking": true,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "gemini-3-flash",
-            "name": "Gemini 3 Flash",
-            "tooltip": "Gemini 3 Flash - mô hình nhanh và hiệu quả",
-            "sdkMode": "anthropic",
-            "maxInputTokens": 936000,
-            "maxOutputTokens": 64000,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "gemini-3.1-pro-high",
-            "name": "Gemini 3.1 Pro High",
-            "tooltip": "Gemini 3.1 Pro High - chế độ chất lượng cao",
-            "sdkMode": "anthropic",
-            "maxInputTokens": 936000,
-            "maxOutputTokens": 64000,
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "gemini-3-pro-image",
-            "name": "Gemini 3 Pro Image",
-            "tooltip": "Gemini 3 Pro tối ưu cho xử lý hình ảnh",
-            "sdkMode": "anthropic",
-            "maxInputTokens": 936000,
-            "maxOutputTokens": 64000,
+            "maxInputTokens": 935936,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -80,25 +30,151 @@
         {
             "id": "gemini-3.1-pro-low",
             "name": "Gemini 3.1 Pro Low",
-            "tooltip": "Gemini 3.1 Pro Low - chế độ tiết kiệm chi phí",
+            "tooltip": "Gemini 3.1 Pro Low",
             "sdkMode": "anthropic",
-            "maxInputTokens": 936000,
-            "maxOutputTokens": 64000,
+            "maxInputTokens": 935936,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
             }
         },
         {
-            "id": "gpt-oss-120b-medium",
-            "name": "GPT OSS 120B Medium",
-            "tooltip": "GPT Open Source 120B - mô hình mã nguồn mở",
+            "id": "gemini-3.1-pro-high",
+            "name": "Gemini 3.1 Pro High",
+            "tooltip": "Gemini 3.1 Pro High",
             "sdkMode": "anthropic",
-            "maxInputTokens": 128000,
-            "maxOutputTokens": 16000,
+            "maxInputTokens": 935936,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-3-flash",
+            "name": "Gemini 3 Flash",
+            "tooltip": "Gemini 3 Flash (thinkingLevel: minimal)",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 935936,
+            "maxOutputTokens": 65536,
+            "extraBody": {
+                "thinkingLevel": "minimal"
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-3-flash-low",
+            "name": "Gemini 3 Flash (Thinking Low)",
+            "tooltip": "Gemini 3 Flash with thinkingLevel low",
+            "sdkMode": "anthropic",
+            "model": "gemini-3-flash",
+            "maxInputTokens": 935936,
+            "maxOutputTokens": 65536,
+            "extraBody": {
+                "thinkingLevel": "low"
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-3-flash-medium",
+            "name": "Gemini 3 Flash (Thinking Medium)",
+            "tooltip": "Gemini 3 Flash with thinkingLevel medium",
+            "sdkMode": "anthropic",
+            "model": "gemini-3-flash",
+            "maxInputTokens": 935936,
+            "maxOutputTokens": 65536,
+            "extraBody": {
+                "thinkingLevel": "medium"
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-3-flash-high",
+            "name": "Gemini 3 Flash (Thinking High)",
+            "tooltip": "Gemini 3 Flash with thinkingLevel high",
+            "sdkMode": "anthropic",
+            "model": "gemini-3-flash",
+            "maxInputTokens": 935936,
+            "maxOutputTokens": 65536,
+            "extraBody": {
+                "thinkingLevel": "high"
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-2.5-flash",
+            "name": "Gemini 2.5 Flash",
+            "tooltip": "Gemini 2.5 Flash",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 967232,
+            "maxOutputTokens": 32768,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-2.5-pro",
+            "name": "Gemini 2.5 Pro",
+            "tooltip": "Gemini 2.5 Pro",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 967232,
+            "maxOutputTokens": 32768,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-sonnet-4-6",
+            "name": "Claude Sonnet 4.6",
+            "tooltip": "Claude Sonnet 4.6",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 196608,
+            "maxOutputTokens": 32768,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-opus-4-6-thinking",
+            "name": "Claude Opus 4.6 Thinking (Max)",
+            "tooltip": "Claude Opus 4.6 Thinking with max thinking budget",
+            "sdkMode": "anthropic",
+            "maxInputTokens": 196608,
+            "maxOutputTokens": 32768,
+            "includeThinking": true,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-opus-4-6-thinking-low",
+            "name": "Claude Opus 4.6 Thinking (Low)",
+            "tooltip": "Claude Opus 4.6 Thinking with low thinking budget",
+            "sdkMode": "anthropic",
+            "model": "claude-opus-4-6-thinking",
+            "maxInputTokens": 196608,
+            "maxOutputTokens": 32768,
+            "includeThinking": true,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         }
     ]

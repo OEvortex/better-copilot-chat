@@ -1,6 +1,5 @@
 /**
- * Account Manager Page JavaScript - Modern Refactor
- * Handles all UI interactions for the Account Manager WebView
+ * Account Manager Page JavaScript - Ultra Modern Refactor
  */
 
 // VS Code API
@@ -64,14 +63,11 @@ function renderTopBar() {
         <div class="topbar">
             <div class="topbar-title">
                 <span class="topbar-title-text">Account Manager</span>
-                <span class="topbar-subtitle">Manage your multi-account AI ecosystem</span>
+                <span class="topbar-subtitle">Configure your AI providers and models</span>
             </div>
             <div class="topbar-actions">
                 <button class="btn btn-ghost" onclick="refreshAccounts()">
                     <span class="codicon codicon-refresh"></span> Refresh
-                </button>
-                <button class="btn btn-primary" onclick="showAddAccountModal()">
-                    <span class="codicon codicon-add"></span> Add Account
                 </button>
             </div>
         </div>
@@ -80,20 +76,18 @@ function renderTopBar() {
 
 function renderSidebar() {
     return `
-        <div class="surface sidebar">
-            <div class="sidebar-header">
-                <span class="sidebar-title">Providers</span>
-            </div>
+        <div class="sidebar">
+            <div class="sidebar-header">Providers</div>
             <div class="provider-list">
                 ${providers.map(p => {
                     const count = accounts.filter(a => a.provider === p.id).length;
                     const isActive = selectedProviderId === p.id;
                     return `
-                        <button class="provider-item ${isActive ? 'active' : ''}" onclick="selectProvider('${p.id}')">
+                        <div class="provider-item ${isActive ? 'active' : ''}" onclick="selectProvider('${p.id}')">
                             <span class="provider-item-icon">${getProviderIcon(p.id)}</span>
                             <span class="provider-item-name">${p.name}</span>
                             ${count > 0 ? `<span class="provider-item-count">${count}</span>` : ''}
-                        </button>
+                        </div>
                     `;
                 }).join('')}
             </div>
@@ -104,10 +98,13 @@ function renderSidebar() {
 function renderContent() {
     if (!selectedProviderId) {
         return `
-            <div class="surface content">
-                <div class="empty-state">
-                    <div class="empty-state-title">No Provider Selected</div>
-                    <p class="empty-state-description">Select a provider from the sidebar to manage your accounts.</p>
+            <div class="content">
+                <div class="content-scrollable">
+                    <div class="empty-state">
+                        <span class="empty-state-icon codicon codicon-hubot"></span>
+                        <div class="empty-state-title">No Provider Selected</div>
+                        <p class="empty-state-description">Select an AI provider from the sidebar to manage your accounts, API keys, and configurations.</p>
+                    </div>
                 </div>
             </div>
         `;
@@ -117,33 +114,38 @@ function renderContent() {
     const providerAccounts = accounts.filter(a => a.provider === selectedProviderId);
 
     return `
-        <div class="surface content">
-            <div class="content-header">
-                <div>
-                    <h2 class="content-title">${provider ? provider.name : selectedProviderId}</h2>
-                    <p class="topbar-subtitle">${providerAccounts.length} account(s) configured</p>
+        <div class="content">
+            <div class="content-scrollable">
+                <div class="content-header">
+                    <div>
+                        <h2 class="content-title">${provider ? provider.name : selectedProviderId}</h2>
+                        <p class="content-subtitle">${providerAccounts.length} account${providerAccounts.length === 1 ? '' : 's'} configured for this provider</p>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary" onclick="configModelsForProvider('${selectedProviderId}')">
+                            <span class="codicon codicon-settings"></span> Models
+                        </button>
+                        <button class="btn btn-primary" onclick="addAccountForProvider('${selectedProviderId}')">
+                            <span class="codicon codicon-add"></span> Add Account
+                        </button>
+                    </div>
                 </div>
-                <div class="content-actions">
-                    <button class="btn btn-ghost" onclick="configModelsForProvider('${selectedProviderId}')">
-                        <span class="codicon codicon-settings"></span> Config Models
-                    </button>
-                    <button class="btn btn-primary" onclick="addAccountForProvider('${selectedProviderId}')">
-                        <span class="codicon codicon-add"></span> Add
-                    </button>
+
+                ${renderAntigravityNotice()}
+
+                <div class="account-cards">
+                    ${providerAccounts.length > 0 
+                        ? providerAccounts.map(renderAccountCard).join('')
+                        : `<div class="empty-state" style="grid-column: 1 / -1;">
+                            <span class="empty-state-icon codicon codicon-account"></span>
+                            <div class="empty-state-title">No Accounts Configured</div>
+                            <p class="empty-state-description">You haven't added any accounts or API keys for ${provider ? provider.name : selectedProviderId} yet. Add one to start using this provider.</p>
+                            <button class="btn btn-primary" onclick="addAccountForProvider('${selectedProviderId}')">
+                                <span class="codicon codicon-add"></span> Add First Account
+                            </button>
+                           </div>`
+                    }
                 </div>
-            </div>
-
-            ${renderAntigravityNotice()}
-
-            <div class="account-cards">
-                ${providerAccounts.length > 0 
-                    ? providerAccounts.map(renderAccountCard).join('')
-                    : `<div class="empty-state">
-                        <div class="empty-state-title">No Accounts</div>
-                        <p class="empty-state-description">You haven't added any accounts for ${provider ? provider.name : selectedProviderId} yet.</p>
-                        <button class="btn btn-primary" onclick="addAccountForProvider('${selectedProviderId}')">Add First Account</button>
-                       </div>`
-                }
             </div>
         </div>
     `;
@@ -154,43 +156,45 @@ function renderAccountCard(account) {
     const quotaState = accountQuotaStates.find(s => s.accountId === account.id);
     const isLimited = quotaState && quotaState.quotaExceeded;
     
+    // Determine avatar initials
+    const initials = (account.displayName || account.email || account.provider || 'A').substring(0, 2).toUpperCase();
+    
     return `
-        <div class="account-card-simple ${isDefault ? 'active' : ''} ${isLimited ? 'quota-limited' : ''}">
-            <div class="account-card-top">
-                <div class="account-avatar">
-                    ${(account.displayName || 'A')[0]}
-                </div>
-                <div class="account-info-compact">
-                    <div class="account-name-row">
-                        <span class="account-name">${account.displayName}</span>
-                        ${isDefault ? '<span class="badge badge-primary">Default</span>' : ''}
-                        <span class="badge badge-muted">${account.authType}</span>
-                    </div>
-                    <div class="account-email-compact">${account.email || 'API Key Account'}</div>
+        <div class="account-card-modern ${isDefault ? 'active' : ''}">
+            <div class="account-card-header">
+                <div class="account-avatar-modern">${initials}</div>
+                <div class="account-badges">
+                    ${isDefault ? '<span class="badge badge-primary">Active Default</span>' : ''}
+                    <span class="badge badge-muted">${account.authType === 'oauth' ? 'OAuth' : 'API Key'}</span>
                 </div>
             </div>
 
+            <div class="account-details">
+                <div class="account-name">${account.displayName || 'Unnamed Account'}</div>
+                <div class="account-email">${account.email || account.id}</div>
+            </div>
+
             ${isLimited ? `
-                <div class="quota-badge-compact">
+                <div class="quota-notice" style="margin-bottom: 20px; padding: 12px; margin-top: -8px;">
                     <span class="codicon codicon-warning"></span>
-                    <span>Quota Limited - Resets in <span class="quota-countdown-compact" data-reset-at="${quotaState.quotaResetAt}">...</span></span>
+                    <span style="font-size: 12px;">Quota Limited - Resets in <span class="quota-countdown-compact" data-reset-at="${quotaState.quotaResetAt}">...</span></span>
                 </div>
             ` : ''}
 
-            <div class="account-actions-compact">
+            <div class="account-actions">
                 ${!isDefault ? `
-                    <button class="btn-action btn-use" onclick="setDefaultAccount('${account.id}')">
-                        <span class="codicon codicon-check"></span> Set as Default
+                    <button class="btn btn-ghost btn-full" onclick="setDefaultAccount('${account.id}')">
+                        <span class="codicon codicon-check"></span> Set Active
                     </button>
                 ` : `
-                    <button class="btn-action btn-use" disabled style="opacity: 0.5; cursor: default;">
-                        <span class="codicon codicon-star-full"></span> Current Default
+                    <button class="btn btn-secondary btn-full" disabled style="opacity: 0.6; cursor: not-allowed;">
+                        <span class="codicon codicon-star-full"></span> Currently Active
                     </button>
                 `}
-                <button class="btn-action" title="Details" onclick="showAccountDetails('${account.id}')">
+                <button class="btn-action-icon" title="View Details" onclick="showAccountDetails('${account.id}')">
                     <span class="codicon codicon-info"></span>
                 </button>
-                <button class="btn-action btn-delete" title="Delete" onclick="confirmDeleteAccount('${account.id}')">
+                <button class="btn-action-icon danger" title="Remove Account" onclick="confirmDeleteAccount('${account.id}')">
                     <span class="codicon codicon-trash"></span>
                 </button>
             </div>
@@ -202,11 +206,11 @@ function renderAntigravityNotice() {
     if (selectedProviderId !== 'antigravity' || !antigravityQuota) return '';
     
     return `
-        <div class="quota-badge-compact" style="margin-bottom: 20px; padding: 12px;">
-            <span class="codicon codicon-info"></span>
-            <div style="flex: 1">
-                <strong>Global Quota Notice:</strong> ${antigravityQuota.modelName || 'Gemini'} quota resets in 
-                <span class="quota-countdown" data-reset-at="${antigravityQuota.resetAt}">...</span>
+        <div class="quota-notice">
+            <span class="quota-notice-icon codicon codicon-info"></span>
+            <div class="quota-notice-text">
+                <strong>Global Quota Notice:</strong> The quota for ${antigravityQuota.modelName || 'Gemini models'} will reset in 
+                <span class="quota-countdown" data-reset-at="${antigravityQuota.resetAt}">...</span>.
             </div>
         </div>
     `;
@@ -214,6 +218,9 @@ function renderAntigravityNotice() {
 
 // Helpers
 function getProviderIcon(providerId) {
+    if (providerImageUris[providerId]) {
+        return `<img src="${providerImageUris[providerId]}" style="width: 16px; height: 16px; object-fit: contain;">`;
+    }
     const icons = {
         antigravity: "🌌",
         codex: "🧠",
@@ -225,7 +232,9 @@ function getProviderIcon(providerId) {
         deepinfra: "🚀",
         openai: "🤖",
         mistral: "🌪️",
-        compatible: "🧩"
+        compatible: "🧩",
+        geminicli: "✨",
+        qwencli: "🤖"
     };
     return icons[providerId] || "⚙️";
 }
@@ -246,7 +255,7 @@ function setDefaultAccount(id) {
 
 function confirmDeleteAccount(id) {
     const account = accounts.find(a => a.id === id);
-    if (confirm(`Are you sure you want to delete account "${account.displayName}"?`)) {
+    if (confirm(`Are you sure you want to remove the account "${account.displayName}"?\nThis action cannot be undone.`)) {
         vscode.postMessage({ command: "deleteAccount", accountId: id });
     }
 }
@@ -280,24 +289,31 @@ function showAddApiKeyModal(providerId) {
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="form-label">Display Name</label>
-                        <input type="text" id="add-display-name" class="form-input" placeholder="e.g. Work Account">
+                        <input type="text" id="add-display-name" class="form-input" placeholder="e.g., Personal, Work, Project X" autofocus>
                     </div>
                     <div class="form-group">
                         <label class="form-label">API Key</label>
-                        <input type="password" id="add-api-key" class="form-input" placeholder="sk-...">
+                        <input type="password" id="add-api-key" class="form-input" placeholder="Enter your secret API key">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Endpoint (Optional)</label>
-                        <input type="text" id="add-endpoint" class="form-input" placeholder="https://api.example.com/v1">
+                        <label class="form-label">Custom Endpoint (Optional)</label>
+                        <input type="text" id="add-endpoint" class="form-input" placeholder="https://api.your-proxy.com/v1">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-                    <button class="btn btn-primary" onclick="submitApiKeyAccount('${providerId}')">Add Account</button>
+                    <button class="btn btn-primary" onclick="submitApiKeyAccount('${providerId}')">
+                        <span class="codicon codicon-add"></span> Add Account
+                    </button>
                 </div>
             </div>
         </div>
     `;
+
+    setTimeout(() => {
+        const input = document.getElementById("add-display-name");
+        if (input) input.focus();
+    }, 100);
 }
 
 function submitApiKeyAccount(providerId) {
@@ -306,7 +322,7 @@ function submitApiKeyAccount(providerId) {
     const endpoint = document.getElementById("add-endpoint").value;
 
     if (!displayName || !apiKey) {
-        showToast("Name and API Key are required", "error");
+        showToast("Display Name and API Key are required", "error");
         return;
     }
 
@@ -328,15 +344,27 @@ function showToast(message, type = "info") {
     const container = document.getElementById("toast-container");
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
+    
+    let icon = 'info';
+    if (type === 'success') icon = 'pass';
+    if (type === 'error') icon = 'error';
+    
     toast.innerHTML = `
-        <span class="codicon codicon-${type === 'success' ? 'check' : type === 'error' ? 'error' : 'info'}"></span>
-        <span>${message}</span>
+        <span class="codicon codicon-${icon}" style="font-size: 18px;"></span>
+        <span style="flex: 1;">${message}</span>
+        <button class="modal-close" style="width: 24px; height: 24px;" onclick="this.parentElement.remove()">
+            <span class="codicon codicon-close" style="font-size: 12px;"></span>
+        </button>
     `;
+    
     container.appendChild(toast);
+    
     setTimeout(() => {
-        toast.style.opacity = "0";
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+        if (toast.parentElement) {
+            toast.style.animation = 'toastSlideOut 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards';
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, 4000);
 }
 
 // Communication from Host
@@ -345,6 +373,12 @@ window.addEventListener("message", event => {
     switch (message.command) {
         case "updateAccounts":
             accounts = message.accounts || [];
+            if (message.antigravityQuota !== undefined) {
+                antigravityQuota = message.antigravityQuota;
+            }
+            if (message.accountQuotaStates !== undefined) {
+                accountQuotaStates = message.accountQuotaStates;
+            }
             renderPage();
             break;
         case "showToast":
@@ -357,6 +391,10 @@ window.addEventListener("message", event => {
             } else {
                 accountQuotaStates.push(message.state);
             }
+            renderPage();
+            break;
+        case "updateAntigravityQuota":
+            antigravityQuota = message.notice;
             renderPage();
             break;
     }
@@ -398,33 +436,35 @@ function _showAccountDetails(id) {
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label">Account ID</label>
-                        <input type="text" class="form-input" value="${account.id}" readonly>
-                    </div>
-                    <div class="form-group">
                         <label class="form-label">Display Name</label>
                         <input type="text" class="form-input" value="${account.displayName}" readonly>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Provider</label>
-                        <input type="text" class="form-input" value="${account.provider}" readonly>
+                        <input type="text" class="form-input" value="${providers.find(p => p.id === account.provider)?.name || account.provider}" readonly>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Auth Type</label>
-                        <input type="text" class="form-input" value="${account.authType}" readonly>
+                        <label class="form-label">Account ID</label>
+                        <input type="text" class="form-input" value="${account.id}" readonly style="font-family: monospace; font-size: 12px;">
+                    </div>
+                    <div class="form-group" style="display: flex; gap: 16px;">
+                        <div style="flex: 1;">
+                            <label class="form-label">Auth Type</label>
+                            <span class="badge badge-muted">${account.authType.toUpperCase()}</span>
+                        </div>
+                        <div style="flex: 1;">
+                            <label class="form-label">Status</label>
+                            <span class="badge ${account.status === 'active' ? 'badge-primary' : 'badge-muted'}">${account.status.toUpperCase()}</span>
+                        </div>
                     </div>
                     ${account.email ? `
                     <div class="form-group">
                         <label class="form-label">Email</label>
                         <input type="text" class="form-input" value="${account.email}" readonly>
                     </div>` : ''}
-                    <div class="form-group">
-                        <label class="form-label">Status</label>
-                        <div class="badge ${account.status === 'active' ? 'badge-primary' : 'badge-muted'}">${account.status}</div>
-                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary" onclick="closeModal()">Close</button>
+                    <button class="btn btn-primary" onclick="closeModal()">Done</button>
                 </div>
             </div>
         </div>
@@ -440,11 +480,10 @@ window.confirmDeleteAccount = confirmDeleteAccount;
 window.showAccountDetails = _showAccountDetails;
 window.addAccountForProvider = addAccountForProvider;
 window.showAddAccountModal = () => {
-    // Show a modal to select provider first if none selected
     if (selectedProviderId) {
         addAccountForProvider(selectedProviderId);
     } else {
-        showToast("Select a provider first", "info");
+        showToast("Please select a provider from the sidebar first.", "info");
     }
 };
 window.submitApiKeyAccount = submitApiKeyAccount;
