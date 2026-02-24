@@ -10,6 +10,8 @@ import { Logger } from "../utils/logger";
 import { AccountManager } from "./accountManager";
 import type { OAuthCredentials } from "./types";
 
+const CODEX_PROVIDER = "codex";
+
 /**
  * Adapter to sync accounts from various sources
  */
@@ -128,7 +130,7 @@ export class AccountSyncAdapter {
 	 */
 	async syncCodexAccount(): Promise<void> {
 		try {
-			const stored = await ApiKeyManager.getApiKey("codex");
+			const stored = await ApiKeyManager.getApiKey(CODEX_PROVIDER);
 			if (!stored) {
 				return;
 			}
@@ -138,11 +140,15 @@ export class AccountSyncAdapter {
 				refresh_token: string;
 				email?: string;
 				expires_at: string;
+				account_id?: string;
+				organization_id?: string;
+				project_id?: string;
+				organizations?: unknown[];
 			};
 
 			// Check whether this account already exists
 			const existingAccounts =
-				this.accountManager.getAccountsByProvider("codex");
+				this.accountManager.getAccountsByProvider(CODEX_PROVIDER);
 			const existingByEmail = existingAccounts.find(
 				(acc) => acc.email === authData.email,
 			);
@@ -158,6 +164,15 @@ export class AccountSyncAdapter {
 					existingByEmail.id,
 					credentials,
 				);
+				await this.accountManager.updateAccount(existingByEmail.id, {
+					metadata: {
+						...(existingByEmail.metadata || {}),
+						accountId: authData.account_id,
+						organizationId: authData.organization_id,
+						projectId: authData.project_id,
+						organizations: authData.organizations,
+					},
+				});
 				Logger.debug(`Updated Codex account: ${authData.email}`);
 			} else {
 				// Add a new account
@@ -169,10 +184,16 @@ export class AccountSyncAdapter {
 				};
 
 				await this.accountManager.addOAuthAccount(
-					"codex",
+					CODEX_PROVIDER,
 					displayName,
 					authData.email || "",
 					credentials,
+					{
+						accountId: authData.account_id,
+						organizationId: authData.organization_id,
+						projectId: authData.project_id,
+						organizations: authData.organizations,
+					},
 				);
 				Logger.info(`Synced Codex account: ${displayName}`);
 			}
@@ -229,7 +250,7 @@ export class AccountSyncAdapter {
 		// Sync active accounts back to ApiKeyManager for compatibility
 		const allProviders = [
 			ProviderKey.Antigravity,
-			ProviderKey.Codex,
+			CODEX_PROVIDER,
 			...providers,
 		];
 		for (const provider of allProviders) {
@@ -271,13 +292,29 @@ export class AccountSyncAdapter {
 			);
 		} else if (
 			"accessToken" in activeCredentials &&
-			provider === ProviderKey.Codex
+			provider === CODEX_PROVIDER
 		) {
 			// Codex requires special format
 			const account = this.accountManager.getActiveAccount(provider);
+			const accountMetadata = account?.metadata || {};
+			const accountIdFromAccount =
+				typeof accountMetadata.accountId === "string"
+					? accountMetadata.accountId
+					: undefined;
+			const organizationIdFromAccount =
+				typeof accountMetadata.organizationId === "string"
+					? accountMetadata.organizationId
+					: undefined;
+			const projectIdFromAccount =
+				typeof accountMetadata.projectId === "string"
+					? accountMetadata.projectId
+					: undefined;
+			const organizationsFromAccount = Array.isArray(accountMetadata.organizations)
+				? (accountMetadata.organizations as unknown[])
+				: undefined;
 
 			// Get existing data to preserve account_id, organization_id, etc.
-			const existingData = await ApiKeyManager.getApiKey("codex");
+			const existingData = await ApiKeyManager.getApiKey(CODEX_PROVIDER);
 			let existingParsed: Record<string, unknown> = {};
 			if (existingData) {
 				try {
@@ -292,19 +329,21 @@ export class AccountSyncAdapter {
 				access_token: activeCredentials.accessToken,
 				refresh_token: activeCredentials.refreshToken,
 				email: account?.email || "",
-				// IMPORTANT: Preserve these fields from existing storage
 				account_id:
-					(existingParsed.account_id as string) || account?.metadata?.accountId,
-				organization_id: existingParsed.organization_id as string,
-				project_id: existingParsed.project_id as string,
-				organizations: existingParsed.organizations as unknown[],
+					accountIdFromAccount || (existingParsed.account_id as string),
+				organization_id:
+					organizationIdFromAccount ||
+					(existingParsed.organization_id as string),
+				project_id:
+					projectIdFromAccount || (existingParsed.project_id as string),
+				organizations:
+					organizationsFromAccount ||
+					(existingParsed.organizations as unknown[]),
 				expires_at: activeCredentials.expiresAt,
 				timestamp: Date.now(),
 			};
-			Logger.info(
-				"[accountSync] Preserving Codex account/org data during sync",
-			);
-			await ApiKeyManager.setApiKey("codex", JSON.stringify(authData));
+			Logger.info("[accountSync] Syncing Codex account/org/project metadata");
+			await ApiKeyManager.setApiKey(CODEX_PROVIDER, JSON.stringify(authData));
 		}
 	}
 

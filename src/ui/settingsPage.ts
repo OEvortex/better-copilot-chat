@@ -28,10 +28,19 @@ type LoadBalanceStrategy = "round-robin" | "quota-aware" | "failover";
  * Manage the Copilot ++ settings page via webview
  */
 export class SettingsPage {
+	private static readonly LOAD_BALANCE_STRATEGY_STORAGE_KEY =
+		"chp.settings.loadBalanceStrategies";
+	private static readonly VALID_LOAD_BALANCE_STRATEGIES: LoadBalanceStrategy[] = [
+		"round-robin",
+		"quota-aware",
+		"failover",
+	];
 	private static currentPanel: vscode.WebviewPanel | undefined;
+	private static context: vscode.ExtensionContext;
 	private static accountManager: AccountManager;
+	private static strategiesLoaded = false;
 
-	// Store strategies in memory (can be extended to persist)
+	// Store strategies in memory (persisted to globalState)
 	private static loadBalanceStrategies: Record<string, LoadBalanceStrategy> =
 		{};
 
@@ -50,10 +59,13 @@ export class SettingsPage {
 		// Lấy AccountManager instance
 		try {
 			SettingsPage.accountManager = AccountManager.getInstance();
+			await SettingsPage.accountManager.waitUntilReady();
 		} catch {
 			vscode.window.showErrorMessage("Account Manager not initialized");
 			return;
 		}
+
+		await SettingsPage.ensureStrategiesLoaded();
 
 		// Tạo webview panel mới
 		const panel = vscode.window.createWebviewPanel(
@@ -176,18 +188,7 @@ export class SettingsPage {
 			},
 		});
 
-		// Initialize the page
-		const _initScript = `
-            if (typeof initializeSettingsPage === 'function') {
-                initializeSettingsPage({
-                    providers: ${JSON.stringify(providers)},
-                    loadBalanceSettings: ${JSON.stringify(loadBalanceSettings)},
-                    loadBalanceStrategies: ${JSON.stringify(loadBalanceStrategies)}
-                });
-            }
-        `;
-
-		// Post a message to trigger initialization
+		// Post a second message to handle webview scripts that initialize a bit later
 		setTimeout(() => {
 			webview.postMessage({
 				command: "updateState",
@@ -242,6 +243,7 @@ export class SettingsPage {
 				providerId,
 				enabled,
 			);
+			await SettingsPage.sendStateUpdate(webview);
 
 			webview.postMessage({
 				command: "showToast",
@@ -266,8 +268,13 @@ export class SettingsPage {
 		webview: vscode.Webview,
 	): Promise<void> {
 		try {
-			// Store strategy (can be extended to persist to storage)
+			if (!SettingsPage.isValidStrategy(strategy)) {
+				throw new Error(`Invalid load balance strategy: ${strategy}`);
+			}
+
 			SettingsPage.loadBalanceStrategies[providerId] = strategy;
+			await SettingsPage.saveStrategiesToStorage();
+			await SettingsPage.sendStateUpdate(webview);
 
 			// TODO: Implement actual strategy change in AccountManager if needed
 			// await SettingsPage.accountManager.setLoadBalanceStrategy(providerId, strategy);
@@ -284,6 +291,46 @@ export class SettingsPage {
 				type: "error",
 			});
 		}
+	}
+
+	private static isValidStrategy(
+		strategy: unknown,
+	): strategy is LoadBalanceStrategy {
+		return SettingsPage.VALID_LOAD_BALANCE_STRATEGIES.includes(
+			strategy as LoadBalanceStrategy,
+		);
+	}
+
+	private static normalizeStrategy(strategy: unknown): LoadBalanceStrategy {
+		if (SettingsPage.isValidStrategy(strategy)) {
+			return strategy;
+		}
+		return "round-robin";
+	}
+
+	private static async ensureStrategiesLoaded(): Promise<void> {
+		if (SettingsPage.strategiesLoaded) {
+			return;
+		}
+
+		const stored = SettingsPage.context.globalState.get<
+			Record<string, unknown>
+		>(SettingsPage.LOAD_BALANCE_STRATEGY_STORAGE_KEY, {});
+
+		const normalized: Record<string, LoadBalanceStrategy> = {};
+		for (const [providerId, rawStrategy] of Object.entries(stored || {})) {
+			normalized[providerId] = SettingsPage.normalizeStrategy(rawStrategy);
+		}
+
+		SettingsPage.loadBalanceStrategies = normalized;
+		SettingsPage.strategiesLoaded = true;
+	}
+
+	private static async saveStrategiesToStorage(): Promise<void> {
+		await SettingsPage.context.globalState.update(
+			SettingsPage.LOAD_BALANCE_STRATEGY_STORAGE_KEY,
+			SettingsPage.loadBalanceStrategies,
+		);
 	}
 
 	/**

@@ -15,6 +15,12 @@ export {
 	storeThoughtSignature,
 } from "../providers/antigravity/handler";
 export type { AntigravityModel } from "../providers/antigravity/types";
+export {
+	CodexAuth,
+	codexLoginCommand,
+	doCodexLoginForNewAccount,
+} from "../providers/codex/codexAuth";
+export { CodexHandler } from "../providers/codex/codexHandler";
 export { MiniMaxWizard } from "../providers/minimax/minimaxWizard";
 export { MistralHandler } from "../providers/mistral/mistralHandler";
 export { MoonshotWizard } from "../providers/moonshot/moonshotWizard";

@@ -31,6 +31,7 @@ const STORAGE_VERSION = 1;
 export class AccountManager {
 	private static instance: AccountManager;
 	private context: vscode.ExtensionContext;
+	private loadPromise: Promise<void> | null = null;
 	private accounts = new Map<string, Account>();
 	private activeAccounts: ActiveAccounts = {};
 	private routingConfig: AccountRoutingConfig = {};
@@ -47,6 +48,14 @@ export class AccountManager {
 				supportsMultiAccount: true,
 				supportsOAuth: true,
 				supportsApiKey: false,
+			},
+		],
+		[
+			ProviderKey.Codex,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: true,
+				supportsApiKey: true,
 			},
 		],
 		[
@@ -198,7 +207,8 @@ export class AccountManager {
 	static initialize(context: vscode.ExtensionContext): AccountManager {
 		if (!AccountManager.instance) {
 			AccountManager.instance = new AccountManager(context);
-			AccountManager.instance.loadFromStorage();
+			AccountManager.instance.loadPromise =
+				AccountManager.instance.loadFromStorage();
 			Logger.info("AccountManager initialized");
 		}
 		return AccountManager.instance;
@@ -693,9 +703,21 @@ export class AccountManager {
 	 * Get load balance enabled state for provider
 	 */
 	getLoadBalanceEnabled(provider: string): boolean {
-		// Default to true for antigravity to enable automatic account switching
-		const defaultValue = provider === ProviderKey.Antigravity;
-		return this.routingConfig[provider]?.loadBalanceEnabled ?? defaultValue;
+		return (
+			this.routingConfig[provider]?.loadBalanceEnabled ??
+			this.getDefaultLoadBalanceEnabled(provider)
+		);
+	}
+
+	/**
+	 * Wait until initial storage load completes
+	 */
+	async waitUntilReady(): Promise<void> {
+		if (!this.loadPromise) {
+			return;
+		}
+		await this.loadPromise;
+		this.loadPromise = null;
 	}
 
 	/**
@@ -714,15 +736,28 @@ export class AccountManager {
 	 * Ensure provider routing config exists
 	 */
 	private ensureProviderRoutingConfig(provider: string): ProviderRoutingConfig {
+		const defaultLoadBalance = this.getDefaultLoadBalanceEnabled(provider);
 		if (!this.routingConfig[provider]) {
 			this.routingConfig[provider] = {
 				modelAssignments: {},
-				loadBalanceEnabled: false,
+				loadBalanceEnabled: defaultLoadBalance,
 			};
 		} else if (!this.routingConfig[provider].modelAssignments) {
 			this.routingConfig[provider].modelAssignments = {};
 		}
+		if (typeof this.routingConfig[provider].loadBalanceEnabled !== "boolean") {
+			this.routingConfig[provider].loadBalanceEnabled = defaultLoadBalance;
+		}
 		return this.routingConfig[provider];
+	}
+
+	/**
+	 * Default load balance state for provider
+	 */
+	private getDefaultLoadBalanceEnabled(provider: string): boolean {
+		return !!(
+			provider === ProviderKey.Antigravity || provider === ProviderKey.Codex
+		);
 	}
 
 	/**

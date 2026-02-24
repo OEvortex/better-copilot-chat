@@ -41,6 +41,7 @@ export class AccountManagerPage {
 	/** Available providers */
 	private static readonly providers: ProviderInfo[] = [
 		{ id: "antigravity", name: "Antigravity (Google)", authType: "oauth" },
+		{ id: "codex", name: "Codex (OpenAI)", authType: "oauth" },
 		{ id: "zhipu", name: "ZhipuAI (GLM Coding Plan)", authType: "apiKey" },
 	];
 

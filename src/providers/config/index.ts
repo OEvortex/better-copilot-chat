@@ -3,6 +3,7 @@ import antigravity from "./antigravity.json";
 import blackbox from "./blackbox.json";
 import chatjimmy from "./chatjimmy.json";
 import chutes from "./chutes.json";
+import codex from "./codex.json";
 import deepinfra from "./deepinfra.json";
 import deepseek from "./deepseek.json";
 import geminicli from "./geminicli.json";
@@ -25,6 +26,7 @@ const providers = {
 	minimax,
 	moonshot,
 	deepseek,
+	codex,
 	nvidia,
 	antigravity,
 	chatjimmy,

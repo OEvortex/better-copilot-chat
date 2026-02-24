@@ -592,6 +592,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 							options,
 							progress,
 							token,
+							account.id,
 						);
 					} else {
 						await this.openaiHandler.handleRequest(
@@ -608,6 +609,17 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 					this.lastUsedAccountByModel.set(model.id, account.id);
 
 					if (switchedAccount) {
+						if (loadBalanceEnabled) {
+							const switched = await this.accountManager.switchAccount(
+								effectiveProviderKey,
+								account.id,
+							);
+							if (!switched) {
+								Logger.warn(
+									`[${effectiveProviderKey}] Failed to persist automatic account switch to ${account.displayName}`,
+								);
+							}
+						}
 						Logger.info(
 							`[${effectiveProviderKey}] Saving account "${account.displayName}" as preferred for model ${model.id}`,
 						);

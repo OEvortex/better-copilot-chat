@@ -54,9 +54,9 @@
             }
         },
         {
-            "id": "gemini-3-pro-high",
-            "name": "Gemini 3 Pro High",
-            "tooltip": "Gemini 3 Pro với chế độ chất lượng cao",
+            "id": "gemini-3.1-pro-high",
+            "name": "Gemini 3.1 Pro High",
+            "tooltip": "Gemini 3.1 Pro High - chế độ chất lượng cao",
             "sdkMode": "anthropic",
             "maxInputTokens": 936000,
             "maxOutputTokens": 64000,
@@ -78,9 +78,9 @@
             }
         },
         {
-            "id": "gemini-3-pro-low",
-            "name": "Gemini 3 Pro Low",
-            "tooltip": "Gemini 3 Pro với chế độ tiết kiệm chi phí",
+            "id": "gemini-3.1-pro-low",
+            "name": "Gemini 3.1 Pro Low",
+            "tooltip": "Gemini 3.1 Pro Low - chế độ tiết kiệm chi phí",
             "sdkMode": "anthropic",
             "maxInputTokens": 936000,
             "maxOutputTokens": 64000,

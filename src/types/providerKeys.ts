@@ -1,6 +1,7 @@
 export enum ProviderKey {
 	Antigravity = "antigravity",
 	Chutes = "chutes",
+	Codex = "codex",
 	DeepInfra = "deepinfra",
 	DeepSeek = "deepseek",
 	GeminiCli = "geminicli",
