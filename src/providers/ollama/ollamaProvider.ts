@@ -112,7 +112,7 @@ export class OllamaProvider
 				id: model.id,
 				name: model.id,
 				tooltip: `${model.id} by Ollama`,
-				family: "ollama",
+				family: "Ollama",
 				version: "1.0.0",
 				maxInputTokens: contextLength - maxOutput,
 				maxOutputTokens: maxOutput,

@@ -180,7 +180,7 @@ export class AntigravityProvider
 						id: model.id,
 						name: model.name,
 						vendor: "chp.antigravity",
-						family: "antigravity",
+						family: "Antigravity",
 						version: "1.0",
 						maxInputTokens: model.maxInputTokens,
 						maxOutputTokens: model.maxOutputTokens,

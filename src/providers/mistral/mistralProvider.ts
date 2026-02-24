@@ -33,6 +33,19 @@ export class MistralProvider
 {
 	private readonly mistralHandler: MistralHandler;
 
+	/**
+	 * Override: Add explicit family property for Mistral models
+	 */
+	protected override modelConfigToInfo(
+		model: ModelConfig,
+	): LanguageModelChatInformation {
+		const baseInfo = super.modelConfigToInfo(model);
+		return {
+			...baseInfo,
+			family: "Mistral", // Explicitly set family to Mistral for all models under this provider
+		};
+	}
+
 	constructor(
 		context: vscode.ExtensionContext,
 		providerKey: string,

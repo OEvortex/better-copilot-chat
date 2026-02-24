@@ -104,7 +104,7 @@ export class BlackboxProvider
                 id: model.id,
                 name: model.name,
                 tooltip: `${model.name} by Blackbox AI`,
-                family: "blackbox",
+                family: "Blackbox AI",
                 version: "1.0.0",
                 maxInputTokens,
                 maxOutputTokens,

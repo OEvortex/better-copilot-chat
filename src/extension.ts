@@ -18,6 +18,7 @@ import { KiloProvider } from "./providers/kilo/provider";
 import { LightningAIProvider } from "./providers/lightningai/provider";
 import { MiniMaxProvider } from "./providers/minimax/minimaxProvider";
 import { MistralProvider } from "./providers/mistral/mistralProvider";
+import { MoonshotProvider } from "./providers/moonshot/moonshotProvider";
 import { NvidiaProvider } from "./providers/nvidia";
 import { OllamaProvider } from "./providers/ollama";
 import { OpenCodeProvider } from "./providers/opencode/opencodeProvider";
@@ -62,6 +63,7 @@ const registeredProviders: Record<
 	| CodexProvider
 	| DeepInfraProvider
 	| MistralProvider
+	| MoonshotProvider
 	| NvidiaProvider
 	| BlackboxProvider
 > = {};
@@ -121,8 +123,7 @@ async function activateProviders(
 					| KiloProvider
 					| OllamaProvider
 					| DeepInfraProvider
-					| MistralProvider
-					| NvidiaProvider
+					| MistralProvider				| MoonshotProvider					| NvidiaProvider
 					| BlackboxProvider;
 				let disposables: vscode.Disposable[];
 
@@ -233,8 +234,15 @@ async function activateProviders(
 						providerConfig,
 					);
 					provider = result.provider as unknown as GenericModelProvider;
-					disposables = result.disposables as unknown as vscode.Disposable[];
-				} else if (providerKey === "nvidia") {
+					disposables = result.disposables as unknown as vscode.Disposable[];			} else if (providerKey === "moonshot") {
+				// Use specialized provider for Moonshot AI (family support + multi-key management)
+				const result = MoonshotProvider.createAndActivate(
+					context,
+					providerKey,
+					providerConfig,
+				);
+				provider = result.provider as unknown as GenericModelProvider;
+				disposables = result.disposables as unknown as vscode.Disposable[];				} else if (providerKey === "nvidia") {
 					// Use specialized provider for NVIDIA NIM (OpenAI-compatible + model discovery + 40 RPM throttle)
 					const result = NvidiaProvider.createAndActivate(
 						context,

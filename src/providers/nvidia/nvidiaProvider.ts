@@ -71,6 +71,19 @@ export class NvidiaProvider
 {
 	private readonly usageTracker = new NvidiaUsageTracker();
 
+	/**
+	 * Override: Add explicit family property for NVIDIA models
+	 */
+	protected override modelConfigToInfo(
+		model: ModelConfig,
+	): LanguageModelChatInformation {
+		const baseInfo = super.modelConfigToInfo(model);
+		return {
+			...baseInfo,
+			family: "Nvidia",
+		};
+	}
+
 	private async getDiscoveryApiKey(
 		silent: boolean,
 	): Promise<string | undefined> {

@@ -141,7 +141,7 @@ export class CodexProvider
 						id: model.id,
 						name: model.name,
 						vendor: "chp.codex",
-						family: "codex",
+						family: "Codex",
 						version: "1.0",
 						maxInputTokens: model.maxInputTokens,
 						maxOutputTokens: model.maxOutputTokens,

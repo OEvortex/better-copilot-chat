@@ -183,7 +183,7 @@ export class OpenCodeProvider
 				id: modelId,
 				name: m.name || modelId,
 				tooltip: m.description || `${modelId} by OpenCode`,
-				family: "opencode",
+				family: "OpenCode",
 				version: "1.0.0",
 				maxInputTokens,
 				maxOutputTokens,
@@ -261,8 +261,8 @@ export class OpenCodeProvider
 
 					return {
 						id: modelId,
-						name: modelId,
-						tooltip: `${modelId} by OpenCode`,
+						name: m.name || modelId,
+						tooltip: `${m.name || modelId} by OpenCode`,
 						maxInputTokens,
 						maxOutputTokens,
 						model: modelId,

@@ -184,7 +184,7 @@ export class LightningAIProvider
 				id: modelId,
 				name: m.name || modelId,
 				tooltip: m.description || `${modelId} by Lightning AI`,
-				family: "lightningai",
+				family: "Lightning AI",
 				version: "1.0.0",
 				maxInputTokens,
 				maxOutputTokens,

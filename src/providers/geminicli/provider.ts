@@ -154,7 +154,7 @@ export class GeminiCliProvider
 			detail: this.providerConfig.displayName,
 			tooltip:
 				model.tooltip || `${model.name} via ${this.providerConfig.displayName}`,
-			family: "geminicli",
+			family: "Gemini CLI",
 			maxInputTokens: maxInputTokens,
 			maxOutputTokens: maxOutputTokens,
 			version: model.id,

@@ -82,7 +82,7 @@ export class KiloProvider
 			const baseInfo = this.modelConfigToInfo(m);
 			return {
 				...baseInfo,
-				family: "kilo",
+				family: "Kilo AI",
 			};
 		});
 

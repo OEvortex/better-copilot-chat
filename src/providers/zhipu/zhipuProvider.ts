@@ -253,7 +253,7 @@ export class ZhipuProvider
 					id: m.id,
 					name: modelMeta.name,
 					tooltip: `${m.id} by ZhipuAI`,
-					family: "zhipu",
+					family: "ZhipuAI",
 					version: "1.0.0",
 					maxInputTokens: modelMeta.maxInputTokens,
 					maxOutputTokens: modelMeta.maxOutputTokens,
@@ -331,7 +331,7 @@ export class ZhipuProvider
 				try {
 					const configContent = fs.readFileSync(this.configFilePath, "utf8");
 					existingConfig = JSON.parse(configContent);
-				} catch {
+				} catch (err) {
 					existingConfig = {
 						displayName: "ZhipuAI",
 						baseUrl: this.getBaseUrl(),

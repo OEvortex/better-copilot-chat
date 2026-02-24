@@ -231,7 +231,7 @@ export class DeepInfraProvider
 				id: modelId,
 				name: modelId,
 				tooltip: metadata.description || `DeepInfra model: ${modelId}`,
-				family: "deepinfra",
+				family: "DeepInfra",
 				version: "1.0.0",
 				maxInputTokens,
 				maxOutputTokens,

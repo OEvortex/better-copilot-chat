@@ -165,7 +165,7 @@ export class ChutesProvider
 				id: modelId,
 				name: modelId,
 				tooltip: `${modelId} by Chutes`,
-				family: "chutes",
+				family: "Chutes",
 				version: "1.0.0",
 				maxInputTokens,
 				maxOutputTokens,
