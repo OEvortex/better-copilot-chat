@@ -121,6 +121,7 @@ export class AntigravityProvider
 			this.cachedModels = models.map((m) => {
 				// Find override for this model
 				const override = modelOverrides.find((o) => o.id === m.id);
+				const effectiveSdkMode = override?.sdkMode || 'anthropic';
 
 				// Calculate context window split: 200K+ = 32K output, <200K = 16K output
 				const totalContext = m.maxTokens || 200000;
@@ -143,7 +144,7 @@ export class AntigravityProvider
 					tooltip: `${m.displayName} - Antigravity`,
 					maxInputTokens: maxInput,
 					maxOutputTokens: maxOutput,
-					sdkMode: "openai" as const,
+					sdkMode: effectiveSdkMode,
 					capabilities: { toolCalling: true, imageInput: true },
 				};
 

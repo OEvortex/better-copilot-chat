@@ -11,8 +11,8 @@ let providers = [];
 let antigravityQuota = null;
 let codexRateLimits = [];
 let accountQuotaStates = [];
-let providerImageUris = {};
 let selectedProviderId = null;
+let accountSearchQuery = "";
 
 // Initialization
 function initializeAccountManager(
@@ -28,7 +28,7 @@ function initializeAccountManager(
     antigravityQuota = initialAntigravityQuota;
     codexRateLimits = initialCodexRateLimits || [];
     accountQuotaStates = initialAccountQuotaStates || [];
-    providerImageUris = initialProviderImageUris || {};
+    void initialProviderImageUris;
 
     // Auto-select first provider if none selected
     if (!selectedProviderId && providers.length > 0) {
@@ -63,7 +63,7 @@ function renderTopBar() {
         <div class="topbar">
             <div class="topbar-title">
                 <span class="topbar-title-text">Account Manager</span>
-                <span class="topbar-subtitle">Configure your AI providers and models</span>
+                <span class="topbar-subtitle">Manage AI provider accounts and routing</span>
             </div>
             <div class="topbar-actions">
                 <button class="btn btn-ghost" onclick="refreshAccounts()">
@@ -80,16 +80,16 @@ function renderSidebar() {
             <div class="sidebar-header">Providers</div>
             <div class="provider-list">
                 ${providers.map(p => {
-                    const count = accounts.filter(a => a.provider === p.id).length;
-                    const isActive = selectedProviderId === p.id;
-                    return `
+        const count = accounts.filter(a => a.provider === p.id).length;
+        const isActive = selectedProviderId === p.id;
+        return `
                         <div class="provider-item ${isActive ? 'active' : ''}" onclick="selectProvider('${p.id}')">
                             <span class="provider-item-icon">${getProviderIcon(p.id)}</span>
                             <span class="provider-item-name">${p.name}</span>
                             ${count > 0 ? `<span class="provider-item-count">${count}</span>` : ''}
                         </div>
                     `;
-                }).join('')}
+    }).join('')}
             </div>
         </div>
     `;
@@ -112,13 +112,25 @@ function renderContent() {
 
     const provider = providers.find(p => p.id === selectedProviderId);
     const providerAccounts = accounts.filter(a => a.provider === selectedProviderId);
+    const filteredAccounts = providerAccounts.filter(account => {
+        if (!accountSearchQuery) {
+            return true;
+        }
+        const q = accountSearchQuery.toLowerCase();
+        return (
+            (account.displayName || "").toLowerCase().includes(q) ||
+            (account.email || "").toLowerCase().includes(q) ||
+            (account.id || "").toLowerCase().includes(q)
+        );
+    });
 
+    const escapedProviderName = escapeHtml(provider ? provider.name : selectedProviderId);
     return `
         <div class="content">
             <div class="content-scrollable">
                 <div class="content-header">
                     <div>
-                        <h2 class="content-title">${provider ? provider.name : selectedProviderId}</h2>
+                        <h2 class="content-title">${escapedProviderName}</h2>
                         <p class="content-subtitle">${providerAccounts.length} account${providerAccounts.length === 1 ? '' : 's'} configured for this provider</p>
                     </div>
                     <div style="display: flex; gap: 12px;">
@@ -131,20 +143,36 @@ function renderContent() {
                     </div>
                 </div>
 
+                <div class="filter-row">
+                    <div class="search-box">
+                        <span class="codicon codicon-search"></span>
+                        <input
+                            type="text"
+                            class="search-input"
+                            placeholder="Search accounts by name, email, or ID"
+                            value="${escapeHtml(accountSearchQuery)}"
+                            oninput="setAccountSearch(this.value)"
+                        >
+                    </div>
+                    <span class="result-count">${filteredAccounts.length} shown</span>
+                </div>
+
                 ${renderAntigravityNotice()}
 
-                <div class="account-cards">
-                    ${providerAccounts.length > 0 
-                        ? providerAccounts.map(renderAccountCard).join('')
-                        : `<div class="empty-state" style="grid-column: 1 / -1;">
+                <div class="account-list">
+                    ${filteredAccounts.length > 0
+            ? filteredAccounts.map(renderAccountCard).join('')
+            : `<div class="empty-state" style="grid-column: 1 / -1;">
                             <span class="empty-state-icon codicon codicon-account"></span>
-                            <div class="empty-state-title">No Accounts Configured</div>
-                            <p class="empty-state-description">You haven't added any accounts or API keys for ${provider ? provider.name : selectedProviderId} yet. Add one to start using this provider.</p>
+                            <div class="empty-state-title">${providerAccounts.length === 0 ? "No Accounts Configured" : "No Matching Accounts"}</div>
+                            <p class="empty-state-description">${providerAccounts.length === 0
+                                ? `Add your first account for ${escapedProviderName} to get started.`
+                                : "Try another search term or clear the filter."}</p>
                             <button class="btn btn-primary" onclick="addAccountForProvider('${selectedProviderId}')">
-                                <span class="codicon codicon-add"></span> Add First Account
+                                <span class="codicon codicon-add"></span> ${providerAccounts.length === 0 ? "Add First Account" : "Add Account"}
                             </button>
                            </div>`
-                    }
+        }
                 </div>
             </div>
         </div>
@@ -155,40 +183,46 @@ function renderAccountCard(account) {
     const isDefault = account.isDefault;
     const quotaState = accountQuotaStates.find(s => s.accountId === account.id);
     const isLimited = quotaState && quotaState.quotaExceeded;
-    
+
     // Determine avatar initials
     const initials = (account.displayName || account.email || account.provider || 'A').substring(0, 2).toUpperCase();
-    
+    const providerName = escapeHtml(providers.find(p => p.id === account.provider)?.name || account.provider || "Unknown");
+    const displayName = escapeHtml(account.displayName || 'Unnamed Account');
+    const secondary = escapeHtml(account.email || account.id || "");
+
     return `
-        <div class="account-card-modern ${isDefault ? 'active' : ''}">
-            <div class="account-card-header">
+        <div class="account-item ${isDefault ? 'active' : ''}">
+            <div class="account-item-main">
                 <div class="account-avatar-modern">${initials}</div>
-                <div class="account-badges">
-                    ${isDefault ? '<span class="badge badge-primary">Active Default</span>' : ''}
-                    <span class="badge badge-muted">${account.authType === 'oauth' ? 'OAuth' : 'API Key'}</span>
+                <div class="account-details">
+                    <div class="account-name-row">
+                        <div class="account-name">${displayName}</div>
+                        ${isDefault ? '<span class="badge badge-primary">Default</span>' : ''}
+                        <span class="badge badge-muted">${account.authType === 'oauth' ? 'OAuth' : 'API Key'}</span>
+                    </div>
+                    <div class="account-meta">
+                        <span>${secondary}</span>
+                        <span class="meta-sep">•</span>
+                        <span>${providerName}</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="account-details">
-                <div class="account-name">${account.displayName || 'Unnamed Account'}</div>
-                <div class="account-email">${account.email || account.id}</div>
-            </div>
-
             ${isLimited ? `
-                <div class="quota-notice" style="margin-bottom: 20px; padding: 12px; margin-top: -8px;">
+                <div class="quota-notice compact">
                     <span class="codicon codicon-warning"></span>
                     <span style="font-size: 12px;">Quota Limited - Resets in <span class="quota-countdown-compact" data-reset-at="${quotaState.quotaResetAt}">...</span></span>
                 </div>
             ` : ''}
 
-            <div class="account-actions">
+            <div class="account-actions inline">
                 ${!isDefault ? `
-                    <button class="btn btn-ghost btn-full" onclick="setDefaultAccount('${account.id}')">
+                    <button class="btn btn-ghost" onclick="setDefaultAccount('${account.id}')">
                         <span class="codicon codicon-check"></span> Set Active
                     </button>
                 ` : `
-                    <button class="btn btn-secondary btn-full" disabled style="opacity: 0.6; cursor: not-allowed;">
-                        <span class="codicon codicon-star-full"></span> Currently Active
+                    <button class="btn btn-secondary" disabled style="opacity: 0.7; cursor: not-allowed;">
+                        <span class="codicon codicon-star-full"></span> Active
                     </button>
                 `}
                 <button class="btn-action-icon" title="View Details" onclick="showAccountDetails('${account.id}')">
@@ -202,14 +236,29 @@ function renderAccountCard(account) {
     `;
 }
 
+function setAccountSearch(query) {
+    accountSearchQuery = query || "";
+    renderPage();
+}
+
+function escapeHtml(value) {
+    return (value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function renderAntigravityNotice() {
     if (selectedProviderId !== 'antigravity' || !antigravityQuota) return '';
-    
+    const modelName = escapeHtml(antigravityQuota.modelName || 'Gemini models');
+
     return `
         <div class="quota-notice">
             <span class="quota-notice-icon codicon codicon-info"></span>
             <div class="quota-notice-text">
-                <strong>Global Quota Notice:</strong> The quota for ${antigravityQuota.modelName || 'Gemini models'} will reset in 
+                <strong>Global Quota Notice:</strong> The quota for ${modelName} will reset in 
                 <span class="quota-countdown" data-reset-at="${antigravityQuota.resetAt}">...</span>.
             </div>
         </div>
@@ -218,25 +267,22 @@ function renderAntigravityNotice() {
 
 // Helpers
 function getProviderIcon(providerId) {
-    if (providerImageUris[providerId]) {
-        return `<img src="${providerImageUris[providerId]}" style="width: 16px; height: 16px; object-fit: contain;">`;
-    }
     const icons = {
-        antigravity: "🌌",
-        codex: "🧠",
-        zhipu: "💠",
-        deepseek: "🔍",
-        moonshot: "🌙",
-        minimax: "🔷",
-        kilo: "⚖️",
-        deepinfra: "🚀",
-        openai: "🤖",
-        mistral: "🌪️",
-        compatible: "🧩",
-        geminicli: "✨",
-        qwencli: "🤖"
+        antigravity: "<span class=\"codicon codicon-globe\"></span>",
+        codex: "<span class=\"codicon codicon-symbol-method\"></span>",
+        zhipu: "<span class=\"codicon codicon-symbol-key\"></span>",
+        deepseek: "<span class=\"codicon codicon-search\"></span>",
+        moonshot: "<span class=\"codicon codicon-circle-large-outline\"></span>",
+        minimax: "<span class=\"codicon codicon-layers\"></span>",
+        kilo: "<span class=\"codicon codicon-dashboard\"></span>",
+        deepinfra: "<span class=\"codicon codicon-rocket\"></span>",
+        openai: "<span class=\"codicon codicon-hubot\"></span>",
+        mistral: "<span class=\"codicon codicon-symbol-event\"></span>",
+        compatible: "<span class=\"codicon codicon-settings-gear\"></span>",
+        geminicli: "<span class=\"codicon codicon-terminal\"></span>",
+        qwencli: "<span class=\"codicon codicon-terminal\"></span>"
     };
-    return icons[providerId] || "⚙️";
+    return icons[providerId] || "<span class=\"codicon codicon-settings-gear\"></span>";
 }
 
 // Actions
@@ -275,13 +321,14 @@ function addAccountForProvider(id) {
 
 function showAddApiKeyModal(providerId) {
     const provider = providers.find(p => p.id === providerId);
+    const providerName = escapeHtml(provider?.name || providerId);
     const container = document.getElementById("modal-container");
-    
+
     container.innerHTML = `
         <div class="modal-overlay" onclick="closeModal(event)">
             <div class="modal" onclick="event.stopPropagation()">
                 <div class="modal-header">
-                    <span class="modal-title">Add ${provider.name} Account</span>
+                    <span class="modal-title">Add ${providerName} Account</span>
                     <button class="modal-close" onclick="closeModal()">
                         <span class="codicon codicon-close"></span>
                     </button>
@@ -344,11 +391,11 @@ function showToast(message, type = "info") {
     const container = document.getElementById("toast-container");
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
-    
+
     let icon = 'info';
     if (type === 'success') icon = 'pass';
     if (type === 'error') icon = 'error';
-    
+
     toast.innerHTML = `
         <span class="codicon codicon-${icon}" style="font-size: 18px;"></span>
         <span style="flex: 1;">${message}</span>
@@ -356,9 +403,9 @@ function showToast(message, type = "info") {
             <span class="codicon codicon-close" style="font-size: 12px;"></span>
         </button>
     `;
-    
+
     container.appendChild(toast);
-    
+
     setTimeout(() => {
         if (toast.parentElement) {
             toast.style.animation = 'toastSlideOut 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards';
@@ -406,13 +453,13 @@ setInterval(() => {
     elements.forEach(el => {
         const resetAt = parseInt(el.getAttribute('data-reset-at'));
         if (isNaN(resetAt)) return;
-        
+
         const remaining = resetAt - Date.now();
         if (remaining <= 0) {
             el.textContent = 'Ready';
             return;
         }
-        
+
         const seconds = Math.floor(remaining / 1000);
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
@@ -423,7 +470,13 @@ setInterval(() => {
 function _showAccountDetails(id) {
     const account = accounts.find(a => a.id === id);
     if (!account) return;
-    
+    const providerName = escapeHtml(providers.find(p => p.id === account.provider)?.name || account.provider || "");
+    const displayName = escapeHtml(account.displayName || "");
+    const accountId = escapeHtml(account.id || "");
+    const authType = escapeHtml((account.authType || "").toUpperCase());
+    const status = escapeHtml((account.status || "").toUpperCase());
+    const email = escapeHtml(account.email || "");
+
     const container = document.getElementById("modal-container");
     container.innerHTML = `
         <div class="modal-overlay" onclick="closeModal(event)">
@@ -437,30 +490,30 @@ function _showAccountDetails(id) {
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="form-label">Display Name</label>
-                        <input type="text" class="form-input" value="${account.displayName}" readonly>
+                        <input type="text" class="form-input" value="${displayName}" readonly>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Provider</label>
-                        <input type="text" class="form-input" value="${providers.find(p => p.id === account.provider)?.name || account.provider}" readonly>
+                        <input type="text" class="form-input" value="${providerName}" readonly>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Account ID</label>
-                        <input type="text" class="form-input" value="${account.id}" readonly style="font-family: monospace; font-size: 12px;">
+                        <input type="text" class="form-input" value="${accountId}" readonly style="font-family: monospace; font-size: 12px;">
                     </div>
                     <div class="form-group" style="display: flex; gap: 16px;">
                         <div style="flex: 1;">
                             <label class="form-label">Auth Type</label>
-                            <span class="badge badge-muted">${account.authType.toUpperCase()}</span>
+                            <span class="badge badge-muted">${authType}</span>
                         </div>
                         <div style="flex: 1;">
                             <label class="form-label">Status</label>
-                            <span class="badge ${account.status === 'active' ? 'badge-primary' : 'badge-muted'}">${account.status.toUpperCase()}</span>
+                            <span class="badge ${account.status === 'active' ? 'badge-primary' : 'badge-muted'}">${status}</span>
                         </div>
                     </div>
                     ${account.email ? `
                     <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input type="text" class="form-input" value="${account.email}" readonly>
+                        <input type="text" class="form-input" value="${email}" readonly>
                     </div>` : ''}
                 </div>
                 <div class="modal-footer">
@@ -474,6 +527,7 @@ function _showAccountDetails(id) {
 // Global Exposure
 window.initializeAccountManager = initializeAccountManager;
 window.selectProvider = selectProvider;
+window.setAccountSearch = setAccountSearch;
 window.refreshAccounts = refreshAccounts;
 window.setDefaultAccount = setDefaultAccount;
 window.confirmDeleteAccount = confirmDeleteAccount;
