@@ -20,14 +20,8 @@ import {
 } from "../../accounts";
 import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import { Logger } from "../../utils/logger";
-import { RateLimiter } from "../../utils/rateLimiter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { QwenOAuthManager } from "./auth";
-
-// NOTE: antigravity-style per-model cooldown manager was removed —
-// Qwen provider no longer keeps an internal cooldown state. Rate-limit
-// errors are still detected and surfaced, but there is no automatic
-// per-model backoff managed inside this provider.
 
 class ThinkingBlockParser {
 	private inThinkingBlock = false;
@@ -71,19 +65,6 @@ export class QwenCliProvider
 	extends GenericModelProvider
 	implements LanguageModelChatProvider
 {
-	private isRateLimitError(error: unknown): boolean {
-		if (!(error instanceof Error)) {
-			return false;
-		}
-		const msg = error.message;
-		return (
-			msg.includes("HTTP 429") ||
-			msg.includes("Rate limited") ||
-			msg.includes("Quota exceeded") ||
-			msg.includes("429")
-		);
-	}
-
 	static override createAndActivate(
 		context: vscode.ExtensionContext,
 		providerKey: string,
@@ -280,12 +261,7 @@ export class QwenCliProvider
 			},
 		};
 
-		try {	
-			// Apply rate limiting: 2 requests per 1 second
-			await RateLimiter.getInstance(this.providerKey, 2, 1000).throttle(
-				this.providerConfig.displayName,
-			);
-
+		try {
 			// Try to use managed accounts first (load balancing if configured)
 			const accountManager = AccountManager.getInstance();
 			const accounts = accountManager.getAccountsByProvider("qwencli");
@@ -401,12 +377,6 @@ export class QwenCliProvider
 						continue;
 					}
 
-					// If rate limited and load balancing enabled, try next account
-					if (this.isRateLimitError(result.error) && loadBalanceEnabled) {
-						switchedAccount = true;
-						continue;
-					}
-
 					// Other errors -> rethrow
 					if (result.error) {
 						throw result.error;
@@ -468,11 +438,6 @@ export class QwenCliProvider
 					token,
 				);
 				return;
-			}
-
-			// If we got a rate limit error, surface it (no internal cooldown/backoff)
-			if (this.isRateLimitError(error)) {
-				throw new Error("Rate limited: please try again later");
 			}
 
 			throw error;

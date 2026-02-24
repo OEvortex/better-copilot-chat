@@ -30,7 +30,6 @@ export class GeminiCliProvider
 	implements LanguageModelChatProvider
 {
 	private readonly geminiHandler: GeminiHandler;
-	private readonly cooldowns = new Map<string, number>();
 
 	// Gemini CLI uses 1M context for most models
 	private static readonly DEFAULT_CONTEXT_LENGTH = 1000000;
@@ -43,28 +42,6 @@ export class GeminiCliProvider
 	) {
 		super(context, providerKey, providerConfig);
 		this.geminiHandler = new GeminiHandler(providerConfig.displayName);
-	}
-
-	private isInCooldown(modelId: string): boolean {
-		const until = this.cooldowns.get(modelId);
-		return typeof until === "number" && Date.now() < until;
-	}
-
-	private setCooldown(modelId: string, ms = 10000): void {
-		this.cooldowns.set(modelId, Date.now() + ms);
-	}
-
-	private isRateLimitError(error: unknown): boolean {
-		if (!(error instanceof Error)) {
-			return false;
-		}
-		const msg = error.message;
-		return (
-			msg.includes("HTTP 429") ||
-			msg.includes("Rate limited") ||
-			msg.includes("Quota exceeded") ||
-			msg.includes("429")
-		);
 	}
 
 	static override createAndActivate(
@@ -218,10 +195,6 @@ export class GeminiCliProvider
 		}
 
 		try {
-			if (this.isInCooldown(model.id)) {
-				throw new Error("Rate limited: please try again later");
-			}
-
 			// Try managed accounts first
 			const accountManager = AccountManager.getInstance();
 			const accounts = accountManager.getAccountsByProvider("geminicli");
@@ -325,11 +298,6 @@ export class GeminiCliProvider
 						continue;
 					}
 
-					if (this.isRateLimitError(result.error) && loadBalanceEnabled) {
-						switchedAccount = true;
-						continue;
-					}
-
 					if (result.error) {
 						throw result.error;
 					}
@@ -389,12 +357,6 @@ export class GeminiCliProvider
 					accessToken,
 				);
 				return;
-			}
-
-			// If we got a rate limit error, set short cooldown and surface a friendly error
-			if (this.isRateLimitError(error)) {
-				this.setCooldown(model.id, 10000);
-				throw new Error("Rate limited: please try again in a few seconds");
 			}
 
 			throw error;

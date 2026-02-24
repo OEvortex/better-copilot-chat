@@ -4,8 +4,6 @@ import { AccountQuotaCache } from "../../accounts/accountQuotaCache";
 import type { ModelConfig } from "../../types/sharedTypes";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
-import { QuotaNotificationManager } from "../../utils/quotaNotificationManager";
-import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { TokenTelemetryTracker } from "../../utils/tokenTelemetryTracker";
 import { OpenAIStreamProcessor } from "../openai/openaiStreamProcessor";
@@ -16,19 +14,10 @@ import {
 	type GeminiContent,
 	type GeminiPayload,
 	type GeminiRequest,
-	type QuotaState,
-	RateLimitAction,
 } from "./types";
 
 export const DEFAULT_BASE_URLS = ["https://cloudcode-pa.googleapis.com"];
 export const DEFAULT_USER_AGENT = "gemini-cli/1.0.0";
-const RATE_LIMIT_MAX_RETRIES = 5;
-const RATE_LIMIT_BASE_DELAY_MS = 1000;
-const RATE_LIMIT_MAX_DELAY_MS = 30000;
-const QUOTA_BACKOFF_BASE_MS = 1000;
-const QUOTA_BACKOFF_MAX_MS = 30 * 60 * 1000;
-export const QUOTA_EXHAUSTED_THRESHOLD_MS = 10 * 60 * 1000;
-export const QUOTA_COOLDOWN_WAIT_MAX_MS = 2 * 60 * 1000;
 
 const GEMINI_UNSUPPORTED_FIELDS = new Set([
 	"$ref",
@@ -94,7 +83,6 @@ export function categorizeHttpStatus(statusCode: number): ErrorCategory {
 			return ErrorCategory.AuthError;
 		case 402:
 		case 403:
-		case 429:
 			return ErrorCategory.QuotaError;
 		case 404:
 			return ErrorCategory.NotFound;
@@ -146,180 +134,6 @@ export function isPermissionDeniedError(
 		/* Ignore JSON parse errors */
 	}
 	return false;
-}
-
-function parseSecondsDuration(duration: string): number | null {
-	const match = duration.match(/^(\d+(?:\.\d+)?)s$/);
-	return match ? Math.round(parseFloat(match[1]) * 1000) : null;
-}
-
-function parseDurationFormat(duration: string): number | null {
-	const simpleSeconds = parseSecondsDuration(duration);
-	if (simpleSeconds !== null) {
-		return simpleSeconds;
-	}
-	let totalMs = 0;
-	const hourMatch = duration.match(/(\d+)h/);
-	const minMatch = duration.match(/(\d+)m/);
-	const secMatch = duration.match(/(\d+(?:\.\d+)?)s/);
-	if (hourMatch) {
-		totalMs += parseInt(hourMatch[1], 10) * 60 * 60 * 1000;
-	}
-	if (minMatch) {
-		totalMs += parseInt(minMatch[1], 10) * 60 * 1000;
-	}
-	if (secMatch) {
-		totalMs += Math.round(parseFloat(secMatch[1]) * 1000);
-	}
-	return totalMs > 0 ? totalMs : null;
-}
-
-export function parseQuotaRetryDelay(errorBody: string): number | null {
-	try {
-		const parsed = JSON.parse(errorBody);
-		const details =
-			parsed?.error?.details ||
-			(Array.isArray(parsed) ? parsed[0]?.error?.details : null);
-		if (!details) {
-			return null;
-		}
-		for (const detail of details) {
-			if (
-				detail["@type"] === "type.googleapis.com/google.rpc.RetryInfo" &&
-				detail.retryDelay
-			) {
-				const d = parseSecondsDuration(detail.retryDelay);
-				if (d !== null && d > 0) {
-					return d;
-				}
-			}
-			if (
-				detail["@type"] === "type.googleapis.com/google.rpc.ErrorInfo" &&
-				detail.metadata?.quotaResetDelay
-			) {
-				const d = parseDurationFormat(detail.metadata.quotaResetDelay);
-				if (d !== null && d > 0) {
-					return d;
-				}
-			}
-		}
-	} catch {
-		/* Ignore JSON parse errors */
-	}
-	return null;
-}
-
-export function sleepWithCancellation(
-	ms: number,
-	token: vscode.CancellationToken,
-): Promise<void> {
-	return new Promise((resolve) => {
-		if (ms <= 0) {
-			resolve();
-			return;
-		}
-		const timeout = setTimeout(resolve, ms);
-		const disposable = token.onCancellationRequested(() => {
-			clearTimeout(timeout);
-			resolve();
-		});
-		setTimeout(() => disposable.dispose(), ms + 100);
-	});
-}
-
-export class QuotaStateManager {
-	private static instance: QuotaStateManager;
-	private modelStates = new Map<string, QuotaState>();
-	static getInstance(): QuotaStateManager {
-		if (!QuotaStateManager.instance) {
-			QuotaStateManager.instance = new QuotaStateManager();
-		}
-		return QuotaStateManager.instance;
-	}
-
-	markQuotaExceeded(modelId: string, retryAfterMs?: number): void {
-		const existing = this.modelStates.get(modelId) || {
-			isExhausted: false,
-			resetsAt: 0,
-			lastUpdated: 0,
-			exceeded: false,
-			nextRecoverAt: 0,
-			backoffLevel: 0,
-		};
-		let cooldown = QUOTA_BACKOFF_BASE_MS * 2 ** (existing.backoffLevel || 0);
-		if (cooldown > QUOTA_BACKOFF_MAX_MS) {
-			cooldown = QUOTA_BACKOFF_MAX_MS;
-		}
-		const actualCooldown =
-			retryAfterMs && retryAfterMs > cooldown ? retryAfterMs : cooldown;
-		this.modelStates.set(modelId, {
-			isExhausted: true,
-			resetsAt: Date.now() + actualCooldown,
-			lastUpdated: Date.now(),
-			exceeded: true,
-			nextRecoverAt: Date.now() + actualCooldown,
-			backoffLevel: (existing.backoffLevel || 0) + 1,
-			lastError: `Quota exceeded, retry after ${Math.round(actualCooldown / 1000)}s`,
-		});
-	}
-
-	clearQuotaExceeded(modelId: string): void {
-		const existing = this.modelStates.get(modelId);
-		if (existing) {
-			existing.exceeded = false;
-			existing.backoffLevel = 0;
-			existing.lastError = undefined;
-		}
-	}
-
-	isInCooldown(modelId: string): boolean {
-		const state = this.modelStates.get(modelId);
-		if (!state || !state.exceeded) {
-			return false;
-		}
-		if (Date.now() >= (state.nextRecoverAt || 0)) {
-			this.clearQuotaExceeded(modelId);
-			return false;
-		}
-		return true;
-	}
-
-	getRemainingCooldown(modelId: string): number {
-		const state = this.modelStates.get(modelId);
-		if (!state || !state.exceeded) {
-			return 0;
-		}
-		const remaining = (state.nextRecoverAt || 0) - Date.now();
-		return remaining > 0 ? remaining : 0;
-	}
-}
-
-export class RateLimitRetrier {
-	private retryCount = 0;
-	async handleRateLimit(
-		hasNextUrl: boolean,
-		errorBody: string,
-		token: vscode.CancellationToken,
-	): Promise<RateLimitAction> {
-		if (hasNextUrl) {
-			return RateLimitAction.Continue;
-		}
-		if (this.retryCount >= RATE_LIMIT_MAX_RETRIES) {
-			return RateLimitAction.MaxExceeded;
-		}
-		let delay = RATE_LIMIT_BASE_DELAY_MS * 2 ** this.retryCount;
-		const serverDelay = parseQuotaRetryDelay(errorBody);
-		if (serverDelay !== null) {
-			delay = Math.min(serverDelay + 500, RATE_LIMIT_MAX_DELAY_MS);
-		} else if (delay > RATE_LIMIT_MAX_DELAY_MS) {
-			delay = RATE_LIMIT_MAX_DELAY_MS;
-		}
-		this.retryCount++;
-		await sleepWithCancellation(delay, token);
-		return token.isCancellationRequested
-			? RateLimitAction.MaxExceeded
-			: RateLimitAction.Retry;
-	}
 }
 
 function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
@@ -1129,9 +943,7 @@ class FromIRTranslator {
 }
 
 export class GeminiHandler {
-	private readonly quotaManager = QuotaStateManager.getInstance();
 	private readonly accountQuotaCache = AccountQuotaCache.getInstance();
-	private readonly quotaNotificationManager = new QuotaNotificationManager();
 	private readonly fromIRTranslator = new FromIRTranslator();
 	private cacheUpdateTimers = new Map<string, NodeJS.Timeout>();
 	private pendingCacheUpdates = new Map<string, () => Promise<void>>();
@@ -1151,11 +963,6 @@ export class GeminiHandler {
 		accountId?: string,
 		loadBalanceEnabled?: boolean,
 	): Promise<void> {
-		// Apply rate limiting: 2 requests per 1 second
-		await RateLimiter.getInstance("geminicli", 2, 1000).throttle(
-			this.displayName,
-		);
-
 		const authToken =
 			accessToken || (await GeminiOAuthManager.getInstance().getAccessToken());
 		if (!authToken) {
@@ -1163,49 +970,6 @@ export class GeminiHandler {
 		}
 		const resolvedModel = modelConfig.model || model.id;
 		const effectiveAccountId = accountId || "default-gemini";
-		const quotaKey = `${effectiveAccountId}:${resolvedModel}`;
-
-		if (this.quotaManager.isInCooldown(quotaKey)) {
-			const remaining = this.quotaManager.getRemainingCooldown(quotaKey);
-			if (remaining > 5000) {
-				this.quotaNotificationManager.notifyQuotaExceeded(
-					remaining,
-					resolvedModel,
-					accountId,
-					this.displayName,
-				);
-			}
-			if (remaining > QUOTA_COOLDOWN_WAIT_MAX_MS) {
-				this.debouncedCacheUpdate(
-					`quota-${effectiveAccountId}`,
-					() =>
-						this.accountQuotaCache.markQuotaExceeded(
-							effectiveAccountId,
-							"gemini",
-							{
-								accountName: this.displayName,
-								resetDelayMs: remaining,
-								affectedModel: resolvedModel,
-								error: "Quota cooldown exceeds max wait threshold",
-							},
-						),
-					50,
-				);
-				await this.quotaNotificationManager.notifyQuotaTooLong(
-					remaining,
-					resolvedModel,
-					accountId,
-					this.displayName,
-				);
-				throw new Error(
-					`Quota wait too long (${this.quotaNotificationManager.formatDuration(remaining)}). Please add another account or try again later.`,
-				);
-			}
-			await sleepWithCancellation(remaining, token);
-			if (token.isCancellationRequested) {
-				throw new vscode.CancellationError();
-			}
-		}
 
 		// IMPORTANT: some tiers require a project, and some accounts need to be "loaded" via loadCodeAssist
 		// before generate/stream works reliably.
@@ -1225,7 +989,6 @@ export class GeminiHandler {
 		const cancelListener = token.onCancellationRequested(() =>
 			abortController.abort(),
 		);
-		const retrier = new RateLimitRetrier();
 		progress.report(new vscode.LanguageModelTextPart(""));
 		let lastStatus = 0,
 			lastBody = "",
@@ -1248,8 +1011,6 @@ export class GeminiHandler {
 						abortController,
 					);
 					if (result.success) {
-						this.quotaManager.clearQuotaExceeded(quotaKey);
-						this.quotaNotificationManager.clearQuotaCountdown();
 						this.debouncedCacheUpdate(
 							`success-${effectiveAccountId}`,
 							() =>
@@ -1306,68 +1067,11 @@ export class GeminiHandler {
 					if (category === ErrorCategory.QuotaError) {
 						lastStatus = result.status || 0;
 						lastBody = result.body || "";
-						const quotaDelay = parseQuotaRetryDelay(lastBody);
-						this.quotaManager.markQuotaExceeded(
-							quotaKey,
-							quotaDelay || undefined,
-						);
-						const cooldownRemaining =
-							this.quotaManager.getRemainingCooldown(quotaKey);
-						if (cooldownRemaining > 5000) {
-							this.quotaNotificationManager.notifyQuotaExceeded(
-								cooldownRemaining,
-								resolvedModel,
-								effectiveAccountId,
-								this.displayName,
-							);
-						}
-						this.debouncedCacheUpdate(
-							`quota-${effectiveAccountId}`,
-							() =>
-								this.accountQuotaCache.markQuotaExceeded(
-									effectiveAccountId,
-									"gemini",
-									{
-										accountName: this.displayName,
-										resetDelayMs: quotaDelay || cooldownRemaining,
-										affectedModel: resolvedModel,
-										error: `HTTP ${lastStatus}: Quota exceeded`,
-									},
-								),
-							50,
-						);
-						if (cooldownRemaining > QUOTA_COOLDOWN_WAIT_MAX_MS) {
-							await this.quotaNotificationManager.notifyQuotaTooLong(
-								cooldownRemaining,
-								resolvedModel,
-								effectiveAccountId,
-								this.displayName,
-							);
-							throw new Error(
-								`Quota wait too long (${this.quotaNotificationManager.formatDuration(cooldownRemaining)}). Please add another account or try again later.`,
-							);
-						}
-						if (quotaDelay && quotaDelay > QUOTA_EXHAUSTED_THRESHOLD_MS) {
-							throw new Error(
-								`Account quota exhausted (quota resets in ${this.quotaNotificationManager.formatDuration(quotaDelay)}). Please wait or use a different account.`,
-							);
-						}
 						if (idx + 1 < baseUrls.length) {
 							continue;
 						}
-						if (loadBalanceEnabled !== false) {
-							const action = await retrier.handleRateLimit(
-								false,
-								lastBody,
-								token,
-							);
-							if (action === RateLimitAction.Retry) {
-								idx--;
-								continue;
-							}
-						}
 						throw new Error(
-							`Quota exceeded${quotaDelay ? ` (quota resets in ${this.quotaNotificationManager.formatDuration(quotaDelay)})` : ""}: ${lastBody || `HTTP ${result.status}`}`,
+							lastBody || `HTTP ${result.status} ${result.statusText}`,
 						);
 					}
 					if (
@@ -1399,7 +1103,6 @@ export class GeminiHandler {
 					if (
 						error instanceof Error &&
 						(error.message.startsWith("Quota exceeded") ||
-							error.message.startsWith("Rate limited") ||
 							error.message.startsWith("HTTP") ||
 							error.message.startsWith("Authentication failed"))
 					) {
@@ -1415,10 +1118,7 @@ export class GeminiHandler {
 				}
 			}
 			if (lastStatus !== 0) {
-				const delay = parseQuotaRetryDelay(lastBody);
-				throw new Error(
-					`HTTP ${lastStatus}${delay ? ` (quota resets in ${this.quotaNotificationManager.formatDuration(delay)})` : ""}: ${lastBody}`,
-				);
+				throw new Error(`HTTP ${lastStatus}: ${lastBody}`);
 			}
 			if (lastError) {
 				throw lastError;
@@ -1575,17 +1275,6 @@ export class GeminiHandler {
 			});
 		}
 		return { success: true };
-	}
-
-	isInCooldown(modelId: string, accountId?: string): boolean {
-		return this.quotaManager.isInCooldown(
-			`${accountId || "default-gemini"}:${modelId}`,
-		);
-	}
-	getRemainingCooldown(modelId: string, accountId?: string): number {
-		return this.quotaManager.getRemainingCooldown(
-			`${accountId || "default-gemini"}:${modelId}`,
-		);
 	}
 
 	private debouncedCacheUpdate(

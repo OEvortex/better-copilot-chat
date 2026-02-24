@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 ## [0.2.3] - 2026-02-24
 
 ### Added
-- **New Model Support in `globalContextLengthManager.ts`**:
+
+**Model Support Expansions:**
+- **New Models in `globalContextLengthManager.ts`**:
   - **Gemma 3 Models**: 128K total context (114K input / 16K output)
     - `gemma-3`, `gemma-3-pro`, `gemma-3-flash`, `gemma-3-4b`, etc.
   - **Llama 3.2 Series**: 128K total context (114K input / 16K output)
@@ -13,111 +15,96 @@ All notable changes to this project will be documented in this file.
   - **DeepSeek Models**: 160K total context (147K input / 16K output)
     - `deepseek-r1`, `deepseek-tng`, `deepseek-v3-1`, `deepseek-v3.2`
   - **GLM-4.5 Special Case**: 128K total context with 32K output (98K input)
-    - Different from standard 128K models which have 16K output
   - **MiniMax M2.5**: 256K total context (229K input / 32K output)
-- **Token Count Standardization**: All token calculations now use 1K = 1024 tokens (was incorrectly using 1000)
-  - Updated all constants in `globalContextLengthManager.ts` and provider files
-  - Fixed FIXED_128K, FIXED_256K, FIXED_64K, and all model-specific constants
-- **New Model Support in `globalContextLengthManager.ts`**:
-  - **Gemma 3 Models**: 128K total context (114K input / 16K output)
-    - `gemma-3`, `gemma-3-pro`, `gemma-3-flash`, `gemma-3-4b`, etc.
-  - **Llama 3.2 Series**: 128K total context (114K input / 16K output)
-    - `llama-3-2-1b`, `llama-3-2-3b`, and all Llama 3.2 variants
-  - **DeepSeek Models**: 160K total context (147K input / 16K output)
-    - `deepseek-r1`, `deepseek-tng`, `deepseek-v3-1`, `deepseek-v3.2`
-  - **GLM-4.5 Special Case**: 128K total context with 32K output (98K input)
-    - Different from standard 128K models which have 16K output
-  - **MiniMax M2.5**: 256K total context (229K input / 32K output)
-- **Token Count Standardization**: All token calculations now use 1K = 1024 tokens (was incorrectly using 1000)
-  - Updated all constants in `globalContextLengthManager.ts` and provider files
-  - Fixed FIXED_128K, FIXED_256K, FIXED_64K, and all model-specific constants
-- **NVIDIA NIM Provider**: Added new NVIDIA NIM provider with OpenAI SDK compatibility.
+
+- **NVIDIA NIM Provider**: New OpenAI SDK-compatible provider
   - Configured at `https://integrate.api.nvidia.com/v1`
   - Rate limit: 40 requests per minute
-  - Supports dynamic model discovery via `/models` endpoint
-  - Includes retry logic for rate limit and server errors
-- **Devstral Model Support**: Added token limit handling for Devstral-2 and Devstral-small-2 models.
-  - 256K total context (224K input / 32K output)
-- **ChatJimmy FIM Support**: Added new ChatJimmy provider for Fill-In-the-Middle (FIM) completions.
-  - Implemented `chatjimmyFimHandler.ts` for handling FIM requests to ChatJimmy API.
-  - ChatJimmy is a public API that doesn't require authentication.
-- **Ollama Dynamic Model Fetching**: Ollama provider now fetches available models dynamically from the `/v1/models` endpoint.
-  - Added `types.ts` for OpenAI-compatible model response types.
-  - Automatic capability detection (tool calling, vision) from model metadata tags.
-  - Graceful fallback to static configuration if API is unavailable or rate-limited.
-  - 10-second timeout to prevent hanging during model discovery.
-- **Universal Reasoning Content Support**: All OpenAI SDK providers now support `reasoning_content` by default.
-  - Removed `reasoning_effort` parameter from all providers for cleaner API integration
-  - Thinking content automatically detected and reported to VS Code for all providers
-  - Works out of the box without configuration for: OpenAI, OpenCode, Blackbox, Chutes, DeepInfra, HuggingFace, LightningAI, Zenmux, Ollama, Compatible providers
-  - Simplified message handling with automatic `reasoning_content` field support
+  - Dynamic model discovery via `/models` endpoint with retry logic
+
+- **Devstral Model Support**: 256K context (224K input / 32K output)
+
+- **ChatJimmy FIM Support**: New provider for Fill-In-the-Middle (FIM) completions
+  - Implemented `chatjimmyFimHandler.ts` for FIM requests
+  - Public API without authentication
+
+- **Ollama Dynamic Model Fetching**: Fetches available models from `/v1/models` endpoint
+  - Automatic capability detection (tool calling, vision) from metadata tags
+  - Graceful fallback to static configuration with 10-second timeout
+
+- **Universal Reasoning Content Support**: All OpenAI SDK providers now support `reasoning_content` by default
+  - Works out of the box for: OpenAI, OpenCode, Blackbox, Chutes, DeepInfra, HuggingFace, LightningAI, Zenmux, Ollama, Compatible providers
+  - Thinking content automatically detected and reported to VS Code
+
 - **Gemini CLI Provider Enhancements**:
-  - Added `gemini-3.1-pro-preview` model to Gemini CLI provider
-  - Gemini CLI provider now respects global token limits from `globalContextLengthManager.ts`
-  - Added `isGemini2Model()` helper function for Gemini 2 model detection
-  - Updated `isGemini3Model()` to include Gemini 3.1 variants
-- **Gemini CLI Web Search Tool**: Added new `google_web_search` tool for Gemini CLI provider
-  - Uses Google's "web-search" utility model via Gemini CLI OAuth credentials
+  - Added `gemini-3.1-pro-preview` model
+  - Now respects global token limits from `globalContextLengthManager.ts`
+  - Added `isGemini2Model()` and updated `isGemini3Model()` helper functions
+
+- **Gemini CLI Web Search Tool**: New `google_web_search` tool
+  - Uses Google's "web-search" utility model via Gemini CLI OAuth
   - Returns synthesized answers with citations and source URIs
-  - Registered as `chp_google_web_search` in the tool registry
-  - Works with existing Gemini CLI authentication (no separate API key needed)
+  - Registered as `chp_google_web_search`
+
+**Core Improvements:**
+- **Token Count Standardization**: All token calculations now use 1K = 1024 tokens (fixed from 1000)
+  - Updated all constants in `globalContextLengthManager.ts` and provider files
+  - Fixed `FIXED_128K`, `FIXED_256K`, `FIXED_64K`, and model-specific constants
 
 ### Changed
+
+**Model Detection & Configuration:**
 - **Refactored Model Detection Functions**:
   - Consolidated `isMinimaxModel()` and `isMinimaxM25Model()` into single function
-    - Now matches all MiniMax M2 series: `minimax-m2`, `minimax-m2.1`, `minimax-m2-5`, etc.
-  - Updated `isKimiModel()` to match all Kimi K2 series: `kimi-k2`, `kimi-k2.1`, `kimi-k2.5`, etc.
-    - `isKimiK25Model()` remains separate for vision capability detection
+  - Now matches all MiniMax M2 series: `minimax-m2`, `minimax-m2.1`, `minimax-m2-5`, etc.
+  - Updated `isKimiModel()` to match all Kimi K2 series: `kimi-k2`, `kimi-k2.1`, `kimi-k2.5`
+  - `isKimiK25Model()` remains separate for vision capability detection
   - All M2/K2 series models use 256K context with 32K output
-- **Chutes Provider**: Updated to use `resolveGlobalTokenLimits()` from `globalContextLengthManager.ts`
+
+- **Provider Token Defaults**: All providers now use 1K=1024 token calculations
+  - Updated: `blackbox`, `chutes`, `deepinfra`, `huggingface`, `lightningai`, `nvidia`, `ollama`, `opencode`, `zenmux`
+
+- **Chutes Provider**: Refactored to use `resolveGlobalTokenLimits()`
   - Removed local token threshold constants
-  - Now properly handles GLM-5, GLM-4.6, GLM-4.7 with 256K context
+  - Properly handles GLM-5, GLM-4.6, GLM-4.7 with 256K context
+
 - **Zhipu Provider**: Simplified to use `resolveGlobalTokenLimits()` for all GLM models
   - Removed hardcoded model metadata lookup table
   - GLM-4.5 correctly gets 128K/32K, GLM-4.6/4.7/5 get 256K/32K
-- **Provider Token Defaults**: Updated all providers to use 1K=1024 token calculations
-  - Fixed `blackbox`, `chutes`, `deepinfra`, `huggingface`, `lightningai`, `nvidia`, `ollama`, `opencode`, `zenmux`
-- **Refactored Model Detection Functions**:
-  - Consolidated `isMinimaxModel()` and `isMinimaxM25Model()` into single function
-    - Now matches all MiniMax M2 series: `minimax-m2`, `minimax-m2.1`, `minimax-m2-5`, etc.
-  - Updated `isKimiModel()` to match all Kimi K2 series: `kimi-k2`, `kimi-k2.1`, `kimi-k2.5`, etc.
-    - `isKimiK25Model()` remains separate for vision capability detection
-  - All M2/K2 series models use 256K context with 32K output
-- **Chutes Provider**: Updated to use `resolveGlobalTokenLimits()` from `globalContextLengthManager.ts`
-  - Removed local token threshold constants
-  - Now properly handles GLM-5, GLM-4.6, GLM-4.7 with 256K context
-- **Zhipu Provider**: Simplified to use `resolveGlobalTokenLimits()` for all GLM models
-  - Removed hardcoded model metadata lookup table
-  - GLM-4.5 correctly gets 128K/32K, GLM-4.6/4.7/5 get 256K/32K
-- **Provider Token Defaults**: Updated all providers to use 1K=1024 token calculations
-  - Fixed `blackbox`, `chutes`, `deepinfra`, `huggingface`, `lightningai`, `nvidia`, `ollama`, `opencode`, `zenmux`
-- **Gemini Model Token Limits**: Updated token limits for all Gemini models:
+
+- **Gemini Model Token Limits**: Updated all Gemini models
   - Gemini 3 / 3.1 models: 1M total context → 936K input / 64K output
   - Gemini 2.5 models: 1M total context → 968K input / 32K output
   - Gemini 2 models: 1M total context → 968K input / 32K output
-- **Blackbox Free Models**: Updated Blackbox provider to support free models without requiring API key.
-  - Added `supportsApiKey` property to ProviderConfig type
-  - Models now use default API key ("xxx") for free access
+
+- **Blackbox Free Models**: Support for free models without API key
+  - Added `supportsApiKey` property to `ProviderConfig` type
+  - Free models use default API key ("xxx")
   - All model names updated with "(free)" suffix
 
 ### Fixed
-- **ChatJimmy Response Parsing**: Fixed JSON stream parsing errors by converting ChatJimmy plain-text responses into OpenAI-compatible SSE format.
-  - Added `stripChatJimmyStats()` to remove `<|stats|>...</|stats|>` metadata blocks.
-  - Added `buildChatJimmyCompletionSse()` to wrap response text in proper JSON SSE format.
-  - Updated `getBody()` to handle ChatJimmy FIM responses specially for chat-lib compatibility.
-- **ChatJimmy API Key Check**: Fixed API key validation to skip authentication check for ChatJimmy (public API).
-- **Gemini Web Search Tool**: Improved response parsing to handle wrapped Gemini API response payloads and multiple content parts.
-  - Added shared parsing helpers in handler.ts for reuse across Gemini CLI provider and search tool.
-  - Removed deprecated web-search model alias fallback chain.
-  - Simplified to return raw content without source formatting.
-  - Removed fallback to non-grounded search when web search fails.
-- **Blackbox Duplicate Tool Calls**: Fixed issue where each tool was being called twice in Blackbox provider.
+
+- **ChatJimmy Response Parsing**: Fixed JSON stream parsing errors by converting ChatJimmy plain-text responses into OpenAI-compatible SSE format
+  - Added `stripChatJimmyStats()` to remove `<|stats|>...</|stats|>` metadata blocks
+  - Added `buildChatJimmyCompletionSse()` to wrap response text in proper JSON SSE format
+  - Updated `getBody()` to handle ChatJimmy FIM responses for chat-lib compatibility
+
+- **ChatJimmy API Key Check**: Fixed API key validation to skip authentication for public API
+
+- **ChatJimmy Cancellation Token**: Fixed AbortSignal usage in ChatJimmy FIM handler for proper request cancellation
+
+- **Gemini Web Search Tool**: Improved response parsing to handle wrapped Gemini API response payloads
+  - Added shared parsing helpers in handler.ts for reuse across Gemini CLI provider and search tool
+  - Removed deprecated web-search model alias fallback chain
+  - Simplified to return raw content without source formatting
+
+- **Blackbox Duplicate Tool Calls**: Fixed issue where each tool was being called twice in Blackbox provider
   - Added deduplication logic using event key tracking (`tool_call_{name}_{index}_{argsLength}`)
   - Events Set cleared at start of each request
 
 ### Removed
-- **Delegate to Agent Tool**: Removed the `delegateToAgent` tool as it was never fully functional and had issues with VS Code command execution.
-- **ChatJimmy Cancellation Token**: Fixed AbortSignal usage in ChatJimmy FIM handler for proper request cancellation.
+
+- **Delegate to Agent Tool**: Removed the `delegateToAgent` tool as it was never fully functional and had issues with VS Code command execution
 
 ## [0.2.2] - 2026-02-15
 
@@ -148,64 +135,49 @@ All notable changes to this project will be documented in this file.
 
 - **CLI Participants**: Removed `@gemini` and `@claude` chat participants and the entire CLI spawner infrastructure (`src/cli/`).
   - These CLI-based chat participants were deprecated in favor of direct API providers.
+  
 - **Codex Provider**: Removed the entire Codex provider (`src/providers/codex/`) including:
   - `CodexProvider`, `CodexHandler`, `CodexAuth`, and related types
   - Related commands: `chp.codex.login`, `chp.codex.logout`, `chp.codex.selectWorkspace`
   - Related prompts: `codex_default_instructions.txt`, `codex_vscode_tools_instructions.txt`, `gpt_5_codex_instructions.txt`
   - This removes the GPT-5/OpenAI Codex integration
 
----
-
 ### Added
 
 - **Zhipu Dynamic Model Discovery**: Zhipu provider now fetches model lists dynamically from Zhipu API endpoints and updates model metadata accordingly.
-- **Zhipu Plan Selection**: Added `chp.zhipu.plan` setting and wizard support to switch between:
-    - `coding` → `/api/coding/paas/v4`
-    - `normal` → `/api/paas/v4`
-- **Zhipu Thinking Controls**: Added configurable thinking controls for Zhipu chat completions:
-    - `chp.zhipu.thinking`: `enabled` / `disabled` / `auto`
-    - `chp.zhipu.clearThinking`: controls `clear_thinking` behavior for cross-turn reasoning context
-- **Hardcoded Zhipu Flash Models**: Added fallback hardcoded models to ensure availability even if omitted by API listing:
-    - `glm-4.7-flash` (free)
-    - `glm-4.7-flashx` (paid version of flash)
 
----
+- **Zhipu Plan Selection**: Added `chp.zhipu.plan` setting and wizard support:
+  - `coding` → `/api/coding/paas/v4`
+  - `normal` → `/api/paas/v4`
+
+- **Zhipu Thinking Controls**: Added configurable thinking controls for Zhipu chat completions:
+  - `chp.zhipu.thinking`: `enabled` / `disabled` / `auto`
+  - `chp.zhipu.clearThinking`: controls `clear_thinking` behavior for cross-turn reasoning context
+
+- **Hardcoded Zhipu Flash Models**: Added fallback hardcoded models for continuous availability:
+  - `glm-4.7-flash` (free)
+  - `glm-4.7-flashx` (paid version of flash)
+
+- **Improved Token Counting Accuracy**: Enhanced token counting for VS Code chat message parts (`LanguageModelTextPart`, `LanguageModelToolCallPart`, `LanguageModelToolResultPart`, `LanguageModelPromptTsxPart`)
+  - Robust fallbacks for tokenizer operations to prevent undefined/zero token counts
+  - Token telemetry recording for Compatible custom SSE handler
+  - Enhanced system message token counting with array-based content support
+  - Safe optional chaining with null coalescing
 
 ### Changed
 
 - **Zhipu SDK Routing**: Switched Zhipu model request handling to OpenAI-compatible mode for chat completion requests.
+
 - **Zhipu Config Refresh Behavior**: Dynamic config synchronization now keeps OpenAI-compatible model definitions and applies thinking-related extra body parameters when appropriate.
-
----
-
-### Added
-
-- **Improved token counting accuracy for VS Code chat message parts** (`LanguageModelTextPart`, `LanguageModelToolCallPart`, `LanguageModelToolResultPart`, `LanguageModelPromptTsxPart`)
-- **Robust fallbacks for tokenizer operations** to prevent undefined/zero token counts
-- **Token telemetry recording** for Compatible custom SSE handler to ensure proper usage meter updates
-- **Enhanced system message token counting** to support array-based content
-- **Safe optional chaining with null coalescing** for tokenizer operations
-
----
 
 ### Fixed
 
-- **Fixed context window meter showing 0% for providers** by implementing proper token counting for structured message parts
-- **Resolved token counting issues** in CompatibleProvider custom SSE flow
-- **Corrected potential undefined access** in tokenizer operations that could cause zero token counts
-
----
-
-### Changed
-
+- **Context Window Meter**: Fixed showing 0% for providers by implementing proper token counting for structured message parts
+- **Token Counting Issues**: Resolved token counting issues in CompatibleProvider custom SSE flow
+- **Tokenizer Operations**: Corrected potential undefined access in tokenizer operations that could cause zero token counts
 - **Refactored token counting logic** in `src/utils/tokenCounter.ts` to handle VS Code language model parts explicitly
 - **Updated `countMessagesTokens`** to properly handle array-based message content
 - **Modified CompatibleProvider** to capture and report final usage statistics from stream responses
-
----
-
-### Security
-
 - **Added proper null-safety checks** in token counting operations
 
 ## [0.2.0] - 2026-02-10

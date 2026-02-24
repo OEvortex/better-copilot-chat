@@ -216,22 +216,6 @@ export enum ErrorCategory {
 	Transient = "transient",
 }
 
-export enum RateLimitAction {
-	Continue = "continue",
-	Retry = "retry",
-	MaxExceeded = "max_exceeded",
-}
-
-export interface QuotaState {
-	isExhausted: boolean;
-	resetsAt: number;
-	lastUpdated: number;
-	exceeded?: boolean;
-	nextRecoverAt?: number;
-	backoffLevel?: number;
-	lastError?: string;
-}
-
 export interface GeminiOAuthCredentials {
 	access_token: string;
 	refresh_token: string;
