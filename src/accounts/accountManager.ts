@@ -178,6 +178,30 @@ export class AccountManager {
 				supportsApiKey: true,
 			},
 		],
+		[
+			ProviderKey.LightningAI,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
+			ProviderKey.Ollama,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
+			ProviderKey.Zenmux,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
 		// Register CLI OAuth providers so they can be managed via AccountManager
 		[
 			ProviderKey.QwenCli,

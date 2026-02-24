@@ -54,6 +54,9 @@ const GEMINI_UNSUPPORTED_FIELDS = new Set([
 	"strict",
 	"input_examples",
 	"examples",
+	// Remove 'value' field as it causes proto parsing errors when it contains arrays
+	// with 'type' fields inside (e.g., {value: [{type: "string", ...}]})
+	"value",
 ]);
 
 const MODEL_ALIASES: Record<string, string> = {
@@ -110,8 +113,30 @@ function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
 		if (!s) {
 			return;
 		}
+		if (Array.isArray(s.type)) {
+			const typeCandidates = s.type.filter((t) => t !== "null");
+			const preferredType = typeCandidates.find(
+				(t) => typeof t === "string" && t.trim() !== "",
+			);
+			s.type = preferredType ?? "object";
+		}
+		if (s.nullable === true) {
+			delete s.nullable;
+		}
 		if (Array.isArray(s.properties)) {
-			s.properties = {};
+			const mapped: Record<string, unknown> = {};
+			for (const item of s.properties) {
+				if (!item || typeof item !== "object") {
+					continue;
+				}
+				const entry = item as Record<string, unknown>;
+				const name = entry.name ?? entry.key;
+				const value = entry.value ?? entry.schema ?? entry.property;
+				if (typeof name === "string" && value && typeof value === "object") {
+					mapped[name] = value;
+				}
+			}
+			s.properties = mapped;
 		}
 		if (Array.isArray(s.items)) {
 			const firstItem = s.items[0];

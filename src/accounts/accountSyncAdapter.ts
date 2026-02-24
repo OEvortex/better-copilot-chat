@@ -231,16 +231,117 @@ export class AccountSyncAdapter {
 	}
 
 	/**
+	 * Sync Gemini CLI account from local file
+	 */
+	async syncGeminiCliAccount(): Promise<void> {
+		try {
+			// Try to load from GeminiOAuthManager's logic
+			const { GeminiOAuthManager } = await import("../providers/geminicli/auth.js");
+			const oauthManager = GeminiOAuthManager.getInstance();
+			
+			// We can't access private methods, but we can try to use a similar logic
+			// or just check if the account exists in AccountManager
+			const existingAccounts = this.accountManager.getAccountsByProvider(ProviderKey.GeminiCli);
+			if (existingAccounts.length === 0) {
+				// Try to get credentials once to see if they exist
+				try {
+					const { accessToken, baseURL } = await oauthManager.ensureAuthenticated();
+					if (accessToken) {
+						await this.accountManager.addOAuthAccount(
+							ProviderKey.GeminiCli,
+							"Gemini CLI (Local)",
+							"",
+							{
+								accessToken,
+								refreshToken: "",
+								expiresAt: "",
+								tokenType: "",
+							},
+							{ source: "cli", baseURL }
+						);
+						Logger.info("Synced Gemini CLI account from local credentials");
+					}
+				} catch {
+					// Ignore if not logged in
+				}
+			}
+		} catch (error) {
+			Logger.debug("Failed to sync Gemini CLI account:", error);
+		}
+	}
+
+	/**
+	 * Sync Qwen CLI account from local file
+	 */
+	async syncQwenCliAccount(): Promise<void> {
+		try {
+			const { QwenOAuthManager } = await import("../providers/qwencli/auth.js");
+			const oauthManager = QwenOAuthManager.getInstance();
+			
+			const existingAccounts = this.accountManager.getAccountsByProvider(ProviderKey.QwenCli);
+			if (existingAccounts.length === 0) {
+				try {
+					const { accessToken, baseURL } = await oauthManager.ensureAuthenticated();
+					if (accessToken) {
+						await this.accountManager.addOAuthAccount(
+							ProviderKey.QwenCli,
+							"Qwen CLI (Local)",
+							"",
+							{
+								accessToken,
+								refreshToken: "",
+								expiresAt: "",
+								tokenType: "",
+							},
+							{ source: "cli", baseURL }
+						);
+						Logger.info("Synced Qwen CLI account from local credentials");
+					}
+				} catch {
+					// Ignore
+				}
+			}
+		} catch (error) {
+			Logger.debug("Failed to sync Qwen CLI account:", error);
+		}
+	}
+
+	/**
 	 * Sync all accounts from ApiKeyManager
 	 */
 	async syncAllAccounts(): Promise<void> {
-		const providers = ["zhipu", "moonshot", "minimax", "deepseek"];
+		const providers = [
+			ProviderKey.Zhipu,
+			ProviderKey.Moonshot,
+			ProviderKey.MiniMax,
+			ProviderKey.MiniMaxCoding,
+			ProviderKey.DeepSeek,
+			ProviderKey.DeepInfra,
+			ProviderKey.Kimi,
+			ProviderKey.OpenAI,
+			ProviderKey.Mistral,
+			ProviderKey.Huggingface,
+			ProviderKey.Nvidia,
+			ProviderKey.Blackbox,
+			ProviderKey.Chutes,
+			ProviderKey.OpenCode,
+			ProviderKey.LightningAI,
+			ProviderKey.Ollama,
+			ProviderKey.Zenmux,
+			ProviderKey.Compatible,
+		];
 
 		// Sync Antigravity (OAuth)
 		await this.syncAntigravityAccount();
 
 		// Sync Codex (OAuth)
 		await this.syncCodexAccount();
+
+		// Sync Gemini CLI (OAuth via Local CLI)
+		await this.syncGeminiCliAccount();
+
+		// Sync Qwen CLI (OAuth via Local CLI)
+		await this.syncQwenCliAccount();
 
 		// Sync API Key providers
 		for (const provider of providers) {

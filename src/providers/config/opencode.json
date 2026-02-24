@@ -283,7 +283,7 @@
             "id": "minimax-m2.5",
             "name": "minimax-m2.5",
             "tooltip": "minimax-m2.5 by OpenCode",
-            "maxInputTokens": 229376,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "minimax-m2.5",
             "capabilities": {
@@ -295,7 +295,7 @@
             "id": "minimax-m2.5-free",
             "name": "minimax-m2.5-free",
             "tooltip": "minimax-m2.5-free by OpenCode",
-            "maxInputTokens": 229376,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "minimax-m2.5-free",
             "capabilities": {
@@ -307,7 +307,7 @@
             "id": "minimax-m2.1",
             "name": "minimax-m2.1",
             "tooltip": "minimax-m2.1 by OpenCode",
-            "maxInputTokens": 229376,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "minimax-m2.1",
             "capabilities": {
@@ -319,7 +319,7 @@
             "id": "minimax-m2.1-free",
             "name": "minimax-m2.1-free",
             "tooltip": "minimax-m2.1-free by OpenCode",
-            "maxInputTokens": 229376,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "minimax-m2.1-free",
             "capabilities": {

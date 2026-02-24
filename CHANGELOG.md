@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.5] - 2026-02-24
+
+### Added
+
+**Universal Multi-Account Support:**
+- **Full Provider Coverage**: Expanded the Account Manager to support all 22 integrated providers.
+  - Added multi-account support for Lightning AI, Ollama, Zenmux, MiniMax Coding, Kimi, OpenAI, Mistral, Hugging Face, Blackbox, Chutes, and OpenCode.
+- **Enhanced Account Synchronization**: 
+  - Automatically syncs Gemini CLI credentials from `~/.gemini/oauth_creds.json` into the Account Manager on startup.
+  - Automatically syncs Qwen CLI credentials from `~/.qwen/oauth_creds.json` into the Account Manager on startup.
+  - Improved `AccountSyncAdapter` to handle all supported API key providers (Zhipu, DeepSeek, etc.) ensuring backward compatibility with existing API key storage.
+
+### Changed
+
+**Account Management UI/UX:**
+- **Improved Account Manager Page**: Updated the WebView interface to include all supported providers in the "Add Account" list.
+- **Standardized Display Names**: Consistent and clear provider naming across the `AccountUI` QuickPick menus and the main Account Manager page.
+- **Robust Syncing**: `AccountSyncAdapter` now ensures that active accounts in the manager are always mirrored back to the legacy `ApiKeyManager` for seamless transition.
+
 ## [0.2.4] - 2026-02-24
 
 ### Added

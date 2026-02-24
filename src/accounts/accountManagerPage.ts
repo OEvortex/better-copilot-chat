@@ -42,7 +42,26 @@ export class AccountManagerPage {
 	private static readonly providers: ProviderInfo[] = [
 		{ id: "antigravity", name: "Antigravity (Google)", authType: "oauth" },
 		{ id: "codex", name: "Codex (OpenAI)", authType: "oauth" },
-		{ id: "zhipu", name: "ZhipuAI (GLM Coding Plan)", authType: "apiKey" },
+		{ id: "zhipu", name: "ZhipuAI", authType: "apiKey" },
+		{ id: "deepseek", name: "DeepSeek", authType: "apiKey" },
+		{ id: "moonshot", name: "Moonshot", authType: "apiKey" },
+		{ id: "minimax", name: "MiniMax", authType: "apiKey" },
+		{ id: "minimax-coding", name: "MiniMax Coding", authType: "apiKey" },
+		{ id: "kimi", name: "Kimi", authType: "apiKey" },
+		{ id: "openai", name: "OpenAI", authType: "apiKey" },
+		{ id: "mistral", name: "Mistral", authType: "apiKey" },
+		{ id: "huggingface", name: "Hugging Face", authType: "apiKey" },
+		{ id: "deepinfra", name: "DeepInfra", authType: "apiKey" },
+		{ id: "nvidia", name: "NVIDIA NIM", authType: "apiKey" },
+		{ id: "blackbox", name: "Blackbox", authType: "apiKey" },
+		{ id: "chutes", name: "Chutes", authType: "apiKey" },
+		{ id: "opencode", name: "OpenCode", authType: "apiKey" },
+		{ id: "lightningai", name: "Lightning AI", authType: "apiKey" },
+		{ id: "ollama", name: "Ollama", authType: "apiKey" },
+		{ id: "zenmux", name: "Zenmux", authType: "apiKey" },
+		{ id: "geminicli", name: "Gemini CLI", authType: "oauth" },
+		{ id: "qwencli", name: "Qwen CLI", authType: "oauth" },
+		{ id: "compatible", name: "Compatible (Custom)", authType: "apiKey" },
 	];
 
 	private constructor() {

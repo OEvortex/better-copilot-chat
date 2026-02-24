@@ -643,7 +643,7 @@
             "id": "minimax-minimax-m2",
             "name": "MiniMax: MiniMax M2",
             "tooltip": "MiniMax: MiniMax M2 by Zenmux",
-            "maxInputTokens": 229376,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "minimax/minimax-m2",
             "capabilities": {
@@ -1051,7 +1051,7 @@
             "id": "minimax-minimax-m2-1",
             "name": "MiniMax: MiniMax M2.1",
             "tooltip": "MiniMax: MiniMax M2.1 by Zenmux",
-            "maxInputTokens": 229376,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "minimax/minimax-m2.1",
             "capabilities": {
@@ -1099,7 +1099,7 @@
             "id": "minimax-minimax-m2-her",
             "name": "MiniMax: MiniMax M2-her",
             "tooltip": "MiniMax: MiniMax M2-her by Zenmux",
-            "maxInputTokens": 229376,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "minimax/minimax-m2-her",
             "capabilities": {
@@ -1207,7 +1207,7 @@
             "id": "minimax-minimax-m2-5",
             "name": "MiniMax: MiniMax M2.5",
             "tooltip": "MiniMax: MiniMax M2.5 by Zenmux",
-            "maxInputTokens": 229376,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "minimax/minimax-m2.5",
             "capabilities": {
@@ -1231,7 +1231,7 @@
             "id": "minimax-minimax-m2-5-lightning",
             "name": "MiniMax: MiniMax M2.5 highspeed",
             "tooltip": "MiniMax: MiniMax M2.5 highspeed by Zenmux",
-            "maxInputTokens": 229376,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "minimax/minimax-m2.5-lightning",
             "capabilities": {

@@ -64,18 +64,6 @@
             }
         },
         {
-            "id": "unsloth-gemma-3-27b-it",
-            "name": "unsloth/gemma-3-27b-it",
-            "tooltip": "unsloth/gemma-3-27b-it by Chutes",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "unsloth/gemma-3-27b-it",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "qwen-qwen3-235b-a22b-instruct-2507-tee",
             "name": "Qwen/Qwen3-235B-A22B-Instruct-2507-TEE",
             "tooltip": "Qwen/Qwen3-235B-A22B-Instruct-2507-TEE by Chutes",
@@ -85,6 +73,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "unsloth-gemma-3-27b-it",
+            "name": "unsloth/gemma-3-27b-it",
+            "tooltip": "unsloth/gemma-3-27b-it by Chutes",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "unsloth/gemma-3-27b-it",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         },
         {
@@ -124,18 +124,6 @@
             }
         },
         {
-            "id": "xiaomimimo-mimo-v2-flash-tee",
-            "name": "XiaomiMiMo/MiMo-V2-Flash-TEE",
-            "tooltip": "XiaomiMiMo/MiMo-V2-Flash-TEE by Chutes",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "XiaomiMiMo/MiMo-V2-Flash-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "zai-org-glm-5-tee",
             "name": "zai-org/GLM-5-TEE",
             "tooltip": "zai-org/GLM-5-TEE by Chutes",
@@ -157,6 +145,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
+            }
+        },
+        {
+            "id": "xiaomimimo-mimo-v2-flash-tee",
+            "name": "XiaomiMiMo/MiMo-V2-Flash-TEE",
+            "tooltip": "XiaomiMiMo/MiMo-V2-Flash-TEE by Chutes",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "XiaomiMiMo/MiMo-V2-Flash-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
             }
         },
         {
@@ -259,7 +259,7 @@
             "id": "minimaxai-minimax-m2-5-tee",
             "name": "MiniMaxAI/MiniMax-M2.5-TEE",
             "tooltip": "MiniMaxAI/MiniMax-M2.5-TEE by Chutes",
-            "maxInputTokens": 229376,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "MiniMaxAI/MiniMax-M2.5-TEE",
             "capabilities": {
@@ -376,6 +376,18 @@
             }
         },
         {
+            "id": "qwen-qwen3-next-80b-a3b-instruct",
+            "name": "Qwen/Qwen3-Next-80B-A3B-Instruct",
+            "tooltip": "Qwen/Qwen3-Next-80B-A3B-Instruct by Chutes",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "Qwen/Qwen3-Next-80B-A3B-Instruct",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
             "id": "tngtech-deepseek-r1t-chimera",
             "name": "tngtech/DeepSeek-R1T-Chimera",
             "tooltip": "tngtech/DeepSeek-R1T-Chimera by Chutes",
@@ -418,18 +430,6 @@
             "maxInputTokens": 147456,
             "maxOutputTokens": 16384,
             "model": "deepseek-ai/DeepSeek-V3.2-Speciale-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "qwen-qwen3-next-80b-a3b-instruct",
-            "name": "Qwen/Qwen3-Next-80B-A3B-Instruct",
-            "tooltip": "Qwen/Qwen3-Next-80B-A3B-Instruct by Chutes",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "Qwen/Qwen3-Next-80B-A3B-Instruct",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -484,18 +484,6 @@
             }
         },
         {
-            "id": "qwen-qwen2-5-vl-32b-instruct",
-            "name": "Qwen/Qwen2.5-VL-32B-Instruct",
-            "tooltip": "Qwen/Qwen2.5-VL-32B-Instruct by Chutes",
-            "maxInputTokens": 1024,
-            "maxOutputTokens": 15360,
-            "model": "Qwen/Qwen2.5-VL-32B-Instruct",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "qwen-qwen2-5-72b-instruct",
             "name": "Qwen/Qwen2.5-72B-Instruct",
             "tooltip": "Qwen/Qwen2.5-72B-Instruct by Chutes",
@@ -505,6 +493,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen2-5-vl-32b-instruct",
+            "name": "Qwen/Qwen2.5-VL-32B-Instruct",
+            "tooltip": "Qwen/Qwen2.5-VL-32B-Instruct by Chutes",
+            "maxInputTokens": 1024,
+            "maxOutputTokens": 15360,
+            "model": "Qwen/Qwen2.5-VL-32B-Instruct",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         },
         {
@@ -556,24 +556,24 @@
             }
         },
         {
-            "id": "unsloth-gemma-3-4b-it",
-            "name": "unsloth/gemma-3-4b-it",
-            "tooltip": "unsloth/gemma-3-4b-it by Chutes",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "unsloth/gemma-3-4b-it",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "rednote-hilab-dots-ocr",
             "name": "rednote-hilab/dots.ocr",
             "tooltip": "rednote-hilab/dots.ocr by Chutes",
             "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
             "model": "rednote-hilab/dots.ocr",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "unsloth-gemma-3-4b-it",
+            "name": "unsloth/gemma-3-4b-it",
+            "tooltip": "unsloth/gemma-3-4b-it by Chutes",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "unsloth/gemma-3-4b-it",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
