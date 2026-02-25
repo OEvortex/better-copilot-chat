@@ -181,28 +181,8 @@
                 "category": "Copilot ++"
             },
             {
-                "command": "chp.mistral.refreshStatus",
-                "title": "Refresh Mistral AI Status",
-                "category": "Copilot ++"
-            },
-            {
                 "command": "chp.ollama.setApiKey",
                 "title": "Configure Ollama Cloud",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.copilot.refreshStatus",
-                "title": "Refresh Copilot ++ Status",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.qwencli.login",
-                "title": "Qwen CLI Login (OAuth)",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.geminicli.login",
-                "title": "Gemini CLI Login (OAuth)",
                 "category": "Copilot ++"
             },
             {

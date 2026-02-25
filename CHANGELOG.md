@@ -67,6 +67,15 @@ All notable changes to this project will be documented in this file.
   - Deleted copilotOverview.ts, copilotOverview.js, and copilotOverview.css files.
   - Provider configuration is available in the Settings page.
 
+- **OAuth Login Commands Removed**: Removed OAuth login commands that were not working.
+  - Removed `chp.geminicli.login` (Gemini CLI Login)
+  - Removed `chp.qwencli.login` (Qwen CLI Login)
+  - OAuth authentication is available in the Settings page via the "Run Wizard" button.
+
+- **Refresh Status Commands Removed**: Removed status refresh commands that don't work.
+  - Removed `chp.copilot.refreshStatus` (Refresh Copilot ++ Status)
+  - Removed `chp.mistral.refreshStatus` (Refresh Mistral AI Status)
+
 ### Changed
 
 **New AI Provider Integration & Multi-Account:**

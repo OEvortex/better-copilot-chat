@@ -508,24 +508,24 @@
             }
         },
         {
-            "id": "qwen-qwen2-5-coder-32b-instruct",
-            "name": "Qwen/Qwen2.5-Coder-32B-Instruct",
-            "tooltip": "Qwen/Qwen2.5-Coder-32B-Instruct by Chutes",
-            "maxInputTokens": 16384,
-            "maxOutputTokens": 16384,
-            "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "miromind-ai-mirothinker-v1-5-235b",
             "name": "miromind-ai/MiroThinker-v1.5-235B",
             "tooltip": "miromind-ai/MiroThinker-v1.5-235B by Chutes",
             "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
             "model": "miromind-ai/MiroThinker-v1.5-235B",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen2-5-coder-32b-instruct",
+            "name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+            "tooltip": "Qwen/Qwen2.5-Coder-32B-Instruct by Chutes",
+            "maxInputTokens": 16384,
+            "maxOutputTokens": 16384,
+            "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
