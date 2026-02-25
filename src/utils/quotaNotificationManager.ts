@@ -1,10 +1,9 @@
 /*---------------------------------------------------------------------------------------------
  *  Quota Notification Manager
- *  Manages quota countdown timers, status bar messages, and account manager updates.
+ *  Manages quota countdown timers and status bar messages.
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from "vscode";
-import { AccountManagerPage } from "../accounts/accountManagerPage";
 
 const QUOTA_NOTICE_DEDUP_MS = 30000;
 const QUOTA_COUNTDOWN_LONG_UPDATE_MS = 60000;
@@ -33,7 +32,6 @@ export class QuotaNotificationManager {
 		}
 
 		this.startQuotaCountdown(delayMs, modelName, accountId, accountName);
-		this.updateAccountManagerQuota(delayMs, modelName, accountId, accountName);
 
 		const now = Date.now();
 		if (now - this.lastQuotaNoticeAt < QUOTA_NOTICE_DEDUP_MS) {
@@ -67,14 +65,14 @@ export class QuotaNotificationManager {
 		const selection = await vscode.window.showWarningMessage(
 			message,
 			"Add Account",
-			"Open Account Manager",
+			"Open Settings",
 			"Dismiss",
 		);
 
 		if (selection === "Add Account") {
 			await vscode.commands.executeCommand("chp.antigravity.login");
-		} else if (selection === "Open Account Manager") {
-			await vscode.commands.executeCommand("chp.accounts.openManager");
+		} else if (selection === "Open Settings") {
+			await vscode.commands.executeCommand("chp.openSettings");
 		}
 	}
 
@@ -145,33 +143,9 @@ export class QuotaNotificationManager {
 		this.quotaCountdownModel = undefined;
 		this.quotaCountdownAccountId = undefined;
 		this.quotaCountdownAccountName = undefined;
-		this.updateAccountManagerQuota(0, "");
 	}
 
-	/**
-	 * Update account manager with quota information
-	 */
-	private updateAccountManagerQuota(
-		delayMs: number,
-		modelName: string,
-		accountId?: string,
-		accountName?: string,
-	): void {
-		try {
-			if (delayMs <= 0) {
-				AccountManagerPage.updateAntigravityQuotaNotice(null);
-				return;
-			}
-			AccountManagerPage.updateAntigravityQuotaNotice({
-				resetAt: Date.now() + delayMs,
-				modelName: modelName || undefined,
-				accountId: accountId || this.quotaCountdownAccountId,
-				accountName: accountName || this.quotaCountdownAccountName,
-			});
-		} catch (_error) {
-			// Silently ignore quota notice update failures
-		}
-	}
+
 
 	/**
 	 * Format countdown in milliseconds to human-readable string

@@ -57,6 +57,11 @@ All notable changes to this project will be documented in this file.
 
 - **Non-Existent Command Removed**: Removed `chp.showAntigravityQuota` command from package.json since it was never implemented.
 
+- **Account Manager UI Removed**: Removed the standalone Account Manager webview page.
+  - All provider configuration is now handled through the Settings page.
+  - Removed commands `chp.accounts.openManager` and `chp.accounts.manage`.
+  - Account management features (API keys, OAuth, quota tracking) remain functional via Settings.
+
 ### Changed
 
 **New AI Provider Integration & Multi-Account:**

@@ -418,7 +418,7 @@ export class CodexHandler {
 					)
 					.then((selection) => {
 						if (selection === "Manage Accounts") {
-							vscode.commands.executeCommand("chp.accounts.openManager");
+							vscode.commands.executeCommand("chp.openSettings");
 						}
 					});
 			} else if (otherAccounts.length > 0) {
@@ -432,7 +432,7 @@ export class CodexHandler {
 					)
 					.then(async (selection) => {
 						if (selection === "Switch Account") {
-							vscode.commands.executeCommand("chp.accounts.openManager");
+							vscode.commands.executeCommand("chp.openSettings");
 						} else if (selection === "Enable Auto-Switch") {
 							await accountManager.setLoadBalanceEnabled("codex", true);
 							vscode.window.showInformationMessage(

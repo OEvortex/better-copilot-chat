@@ -95,7 +95,8 @@ export class AccountUI {
 
 		switch (selected.label) {
 			case "$(window) Open Account Manager":
-				await vscode.commands.executeCommand("chp.accounts.openManager");
+			case "$(settings-gear) Settings":
+				await vscode.commands.executeCommand("chp.openSettings");
 				break;
 			case "$(add) Add New Account":
 				await this.showAddAccountFlow();
@@ -836,8 +837,8 @@ export class AccountUI {
 				return;
 			}
 
-			if (selected.label === "$(settings-gear) Open Account Manager") {
-				await vscode.commands.executeCommand("chp.accounts.openManager");
+			if (selected.label === "$(settings-gear) Open Account Manager" || selected.label === "$(settings-gear) Settings") {
+				await vscode.commands.executeCommand("chp.openSettings");
 				return;
 			}
 
@@ -1044,14 +1045,14 @@ export function registerAccountCommands(
 		}),
 	);
 
-	// Command to open Account Manager Page (WebView)
-	disposables.push(
-		vscode.commands.registerCommand("chp.accounts.openManager", async () => {
-			const { AccountManagerPage } = await import("./accountManagerPage.js");
-			const page = AccountManagerPage.getInstance();
-			await page.show();
-		}),
-	);
+	// Command to open Account Manager Page (WebView) - Removed, use Settings instead
+	// disposables.push(
+	// 	vscode.commands.registerCommand("chp.accounts.openManager", async () => {
+	// 		const { AccountManagerPage } = await import("./accountManagerPage.js");
+	// 		const page = AccountManagerPage.getInstance();
+	// 		await page.show();
+	// 	}),
+	// );
 
 	// Command Quick Switch - Fast switch with one click
 	disposables.push(

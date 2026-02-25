@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 export * from "./accountManager";
-export * from "./accountManagerPage";
 export * from "./accountQuotaCache";
 export * from "./accountSyncAdapter";
 export * from "./accountUI";

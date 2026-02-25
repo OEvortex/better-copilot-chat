@@ -258,16 +258,6 @@
                 "icon": "$(file-symlink-file)"
             },
             {
-                "command": "chp.accounts.manage",
-                "title": "Manage Accounts",
-                "category": "Copilot ++"
-            },
-            {
-                "command": "chp.accounts.openManager",
-                "title": "Open Account Manager",
-                "category": "Copilot ++"
-            },
-            {
                 "command": "chp.accounts.add",
                 "title": "Add Account",
                 "category": "Copilot ++"

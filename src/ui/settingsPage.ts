@@ -118,7 +118,7 @@ export class SettingsPage {
 						);
 						break;
 					case "openAccountManager":
-						await vscode.commands.executeCommand("chp.accounts.openManager");
+						await vscode.commands.executeCommand("chp.openSettings");
 						break;
 					case "openProviderSettings":
 						await SettingsPage.handleOpenProviderSettings(message.providerId);
