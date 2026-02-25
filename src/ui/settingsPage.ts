@@ -7,6 +7,7 @@ import * as vscode from "vscode";
 import { AccountManager } from "../accounts/accountManager";
 import type { ApiKeyCredentials } from "../accounts/types";
 import { ProviderRegistry } from "../utils/providerRegistry";
+import { ProviderWizard } from "../utils/providerWizard";
 import settingsPageCss from "./settingsPage.css?raw";
 import settingsPageJs from "./settingsPage.js?raw";
 
@@ -393,14 +394,25 @@ export class SettingsPage {
 		providerId: string,
 		webview: vscode.Webview,
 	): Promise<void> {
-		const wizardCommand = `chp.${providerId}.configWizard`;
 		try {
-			await vscode.commands.executeCommand(wizardCommand);
+			// Get provider config to determine wizard capabilities
+			const config = ProviderRegistry.getProvider(providerId);
+			if (!config) {
+				throw new Error("Provider not found");
+			}
+			// Use the generic ProviderWizard which works for any provider
+			await ProviderWizard.startWizard({
+				providerKey: providerId,
+				displayName: config.displayName,
+				supportsApiKey: config.features.supportsApiKey,
+				supportsBaseUrl: config.features.supportsBaseUrl,
+			});
 		} catch {
+			// Fallback to opening VS Code settings if wizard fails
 			await SettingsPage.handleOpenProviderSettings(providerId);
 			webview.postMessage({
 				command: "showToast",
-				message: `No wizard for ${providerId}. Opened settings instead.`,
+				message: `Wizard unavailable for ${providerId}. Opened settings instead.`,
 				type: "success",
 			});
 		}

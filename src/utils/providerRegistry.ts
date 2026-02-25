@@ -118,11 +118,17 @@ function resolveCategory(
 
 function getDefaultFeatures(providerId: string): ProviderMetadata["features"] {
 	const accountConfig = AccountManager.getProviderConfig(providerId);
+	// OAuth providers (antigravity, codex, qwencli, geminicli) don't support baseUrl
+	const isOAuthProvider =
+		providerId === ProviderKey.Antigravity ||
+		providerId === ProviderKey.Codex ||
+		providerId === ProviderKey.QwenCli ||
+		providerId === ProviderKey.GeminiCli;
 	return {
 		supportsApiKey: accountConfig.supportsApiKey,
 		supportsOAuth: accountConfig.supportsOAuth,
 		supportsMultiAccount: accountConfig.supportsMultiAccount,
-		supportsBaseUrl: providerId !== ProviderKey.Compatible,
+		supportsBaseUrl: !isOAuthProvider && providerId !== ProviderKey.Compatible,
 		supportsConfigWizard: true,
 	};
 }

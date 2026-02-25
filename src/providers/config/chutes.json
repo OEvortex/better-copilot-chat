@@ -220,24 +220,24 @@
             }
         },
         {
-            "id": "deepseek-ai-deepseek-v3-1-terminus-tee",
-            "name": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
-            "tooltip": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE by Chutes",
-            "maxInputTokens": 147456,
-            "maxOutputTokens": 16384,
-            "model": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "deepseek-ai-deepseek-v3-1-tee",
             "name": "deepseek-ai/DeepSeek-V3.1-TEE",
             "tooltip": "deepseek-ai/DeepSeek-V3.1-TEE by Chutes",
             "maxInputTokens": 147456,
             "maxOutputTokens": 16384,
             "model": "deepseek-ai/DeepSeek-V3.1-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-ai-deepseek-v3-1-terminus-tee",
+            "name": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
+            "tooltip": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE by Chutes",
+            "maxInputTokens": 147456,
+            "maxOutputTokens": 16384,
+            "model": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -340,18 +340,6 @@
             }
         },
         {
-            "id": "zai-org-glm-4-7-fp8",
-            "name": "zai-org/GLM-4.7-FP8",
-            "tooltip": "zai-org/GLM-4.7-FP8 by Chutes",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "zai-org/GLM-4.7-FP8",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "zai-org-glm-4-6v",
             "name": "zai-org/GLM-4.6V",
             "tooltip": "zai-org/GLM-4.6V by Chutes",
@@ -361,6 +349,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
+            }
+        },
+        {
+            "id": "zai-org-glm-4-7-fp8",
+            "name": "zai-org/GLM-4.7-FP8",
+            "tooltip": "zai-org/GLM-4.7-FP8 by Chutes",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "zai-org/GLM-4.7-FP8",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
             }
         },
         {
