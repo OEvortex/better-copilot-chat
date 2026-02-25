@@ -29,6 +29,22 @@ All notable changes to this project will be documented in this file.
   - "Run Wizard" button launches the Codex OAuth login flow for token-based authentication.
 - **Fixed Base URL**: Codex uses the fixed endpoint `https://chatgpt.com/backend-api/codex` - Base URL configuration is not available.
 
+**Antigravity Provider Enhancements:**
+- **OAuth Login Wizard**: Antigravity now has "Run Wizard" button in settings panel that launches the Google Cloud OAuth login flow.
+- **OAuth Category**: Antigravity appears in "OAuth Required" section of settings.
+
+**OpenAI/Anthropic Compatible Provider:**
+- **Full Configuration Support**: Compatible provider now supports API key, Base URL, and endpoint configuration in settings panel.
+- **Endpoint Options**: Added endpoint dropdown with options for OpenAI, Anthropic, or Custom endpoint.
+- **Mixed SDK Mode**: Properly marked as "mixed" SDK mode since it supports both OpenAI and Anthropic compatible models.
+
+**Ollama Description Update:**
+- Updated description to clarify it uses Ollama's OpenAI compatible API: "Ollama - use Ollama's OpenAI compatible API (v1/chat/completions)"
+
+**Dynamic Default Base URL:**
+- All providers now display their default base URL in settings panel when no custom URL is configured.
+- Base URLs are automatically loaded from each provider's JSON config file.
+
 ### Removed
 
 - **Save Button from OAuth Providers**: Removed the Save button from OAuth-only providers in the settings panel since they don't require API key configuration.
@@ -38,6 +54,8 @@ All notable changes to this project will be documented in this file.
   - Antigravity, Qwen CLI, Gemini CLI - these use OAuth authentication and don't support custom base URLs.
   - Blackbox, ChatJimmy - these work without any configuration.
   - Codex - uses fixed default URL `https://chatgpt.com/backend-api/codex`.
+
+- **Non-Existent Command Removed**: Removed `chp.showAntigravityQuota` command from package.json since it was never implemented.
 
 ### Changed
 

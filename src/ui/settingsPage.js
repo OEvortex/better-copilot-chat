@@ -431,6 +431,13 @@ function getEndpointOptions(providerId) {
             { label: "minimax.io (Global)", value: "minimax.io" },
         ];
     }
+    if (providerId === "compatible") {
+        return [
+            { label: "OpenAI (https://api.openai.com/v1)", value: "https://api.openai.com/v1" },
+            { label: "Anthropic (https://api.anthropic.com)", value: "https://api.anthropic.com" },
+            { label: "Custom Endpoint", value: "custom" },
+        ];
+    }
     return [];
 }
 

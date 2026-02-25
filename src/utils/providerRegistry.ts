@@ -48,7 +48,7 @@ const providerDescriptionMap: Record<string, string> = {
 	zenmux: "Zenmux endpoint integration",
 	qwencli: "Qwen CLI OAuth provider",
 	geminicli: "Gemini CLI OAuth provider",
-	ollama: "Ollama local or hosted compatible endpoint",
+	ollama: "Ollama - use Ollama's OpenAI compatible API (v1/chat/completions)",
 	compatible: "Custom OpenAI/Anthropic compatible models",
 };
 
@@ -84,6 +84,11 @@ function toProviderKey(providerId: string): ProviderKey | undefined {
 }
 
 function getSdkMode(providerId: string): "openai" | "anthropic" | "mixed" {
+	// Compatible provider supports both OpenAI and Anthropic compatible models
+	if (providerId === ProviderKey.Compatible) {
+		return "mixed";
+	}
+
 	const providerConfig = (
 		configProviders as Record<string, { models: ModelConfig[] }>
 	)[providerId];
@@ -106,7 +111,19 @@ function resolveCategory(
 	providerId: string,
 	features: ProviderMetadata["features"],
 ): ProviderCategory {
+	// Special cases: Codex and Antigravity are OAuth providers even though they support API key
+	const isOAuthProvider =
+		providerId === ProviderKey.Codex ||
+		providerId === ProviderKey.Antigravity ||
+		providerId === ProviderKey.QwenCli ||
+		providerId === ProviderKey.GeminiCli;
+
 	if (features.supportsOAuth && !features.supportsApiKey) {
+		return ProviderCategory.OAuth;
+	}
+
+	// Force Codex and Antigravity to OAuth category
+	if (isOAuthProvider && features.supportsOAuth) {
 		return ProviderCategory.OAuth;
 	}
 
@@ -133,11 +150,13 @@ function getDefaultFeatures(providerId: string): ProviderMetadata["features"] {
 	// Special cases for OAuth providers with login wizards
 	const isCodex = providerId === ProviderKey.Codex;
 	const isAntigravity = providerId === ProviderKey.Antigravity;
+	// Compatible provider - supports API key and base URL for custom endpoints
+	const isCompatible = providerId === ProviderKey.Compatible;
 	return {
-		supportsApiKey: (accountConfig.supportsApiKey && !isNoConfigProvider) || isCodex,
+		supportsApiKey: (accountConfig.supportsApiKey && !isNoConfigProvider) || isCodex || isCompatible,
 		supportsOAuth: accountConfig.supportsOAuth || isCodex || isAntigravity,
 		supportsMultiAccount: accountConfig.supportsMultiAccount,
-		supportsBaseUrl: !isNoConfigProvider && providerId !== ProviderKey.Compatible && !isCodex && !isAntigravity,
+		supportsBaseUrl: !isNoConfigProvider && !isCodex && !isAntigravity,
 		supportsConfigWizard: !isNoConfigProvider || isCodex || isAntigravity,
 	};
 }
@@ -165,6 +184,7 @@ export function getAllProviders(): ProviderMetadata[] {
 				description: providerDescriptionMap[providerId],
 				icon: providerIconMap[providerId] || "🤖",
 				settingsPrefix: `chp.${providerId}`,
+				baseUrl: providerConfig.baseUrl,
 				features,
 				order: providerOrderMap[providerId] || 999,
 			};
@@ -181,6 +201,7 @@ export function getAllProviders(): ProviderMetadata[] {
 			description: providerDescriptionMap.compatible,
 			icon: providerIconMap.compatible,
 			settingsPrefix: "chp.compatibleModels",
+			baseUrl: "",
 			features: getDefaultFeatures(ProviderKey.Compatible),
 			order: providerOrderMap.compatible,
 		});

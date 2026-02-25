@@ -56,6 +56,7 @@ export interface ProviderMetadata {
 	description?: string;
 	icon?: string;
 	settingsPrefix?: string;
+	baseUrl?: string;
 	features: ProviderFeatureFlags;
 	order: number;
 }

@@ -580,18 +580,6 @@
             }
         },
         {
-            "id": "rednote-hilab-dots-ocr",
-            "name": "rednote-hilab/dots.ocr",
-            "tooltip": "rednote-hilab/dots.ocr by Chutes",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "rednote-hilab/dots.ocr",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "nousresearch-deephermes-3-mistral-24b-preview",
             "name": "NousResearch/DeepHermes-3-Mistral-24B-Preview",
             "tooltip": "NousResearch/DeepHermes-3-Mistral-24B-Preview by Chutes",
@@ -616,15 +604,15 @@
             }
         },
         {
-            "id": "qwen-qwen3guard-gen-0-6b",
-            "name": "Qwen/Qwen3Guard-Gen-0.6B",
-            "tooltip": "Qwen/Qwen3Guard-Gen-0.6B by Chutes",
-            "maxInputTokens": 16384,
+            "id": "rednote-hilab-dots-ocr",
+            "name": "rednote-hilab/dots.ocr",
+            "tooltip": "rednote-hilab/dots.ocr by Chutes",
+            "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
-            "model": "Qwen/Qwen3Guard-Gen-0.6B",
+            "model": "rednote-hilab/dots.ocr",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
@@ -634,6 +622,18 @@
             "maxInputTokens": 1024,
             "maxOutputTokens": 15360,
             "model": "unsloth/Llama-3.2-1B-Instruct",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen3guard-gen-0-6b",
+            "name": "Qwen/Qwen3Guard-Gen-0.6B",
+            "tooltip": "Qwen/Qwen3Guard-Gen-0.6B by Chutes",
+            "maxInputTokens": 16384,
+            "maxOutputTokens": 16384,
+            "model": "Qwen/Qwen3Guard-Gen-0.6B",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false

@@ -259,7 +259,7 @@ export class SettingsPage {
 				supportsBaseUrl: config.features.supportsBaseUrl,
 				supportsConfigWizard: config.features.supportsConfigWizard,
 				hasApiKey: !!activeApiKey,
-				baseUrl: configSection.get<string>(`${config.id}.baseUrl`, "").trim(),
+				baseUrl: configSection.get<string>(`${config.id}.baseUrl`, "").trim() || config.baseUrl || "",
 				endpoint: SettingsPage.getEndpointSetting(config.id, configSection),
 			};
 		}));
@@ -275,6 +275,9 @@ export class SettingsPage {
 		}
 		if (providerId === "minimax") {
 			return config.get<string>("minimax.endpoint", "minimaxi.com");
+		}
+		if (providerId === "compatible") {
+			return config.get<string>("compatible.endpoint", "https://api.openai.com/v1");
 		}
 		return "";
 	}
@@ -318,6 +321,12 @@ export class SettingsPage {
 				} else if (providerId === "minimax") {
 					await config.update(
 						"minimax.endpoint",
+						payload.endpoint,
+						vscode.ConfigurationTarget.Global,
+					);
+				} else if (providerId === "compatible") {
+					await config.update(
+						"compatible.endpoint",
 						payload.endpoint,
 						vscode.ConfigurationTarget.Global,
 					);
