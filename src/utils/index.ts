@@ -31,11 +31,33 @@ export { ApiKeyManager } from "./apiKeyManager";
 export { CompatibleModelManager } from "./compatibleModelManager";
 export { CompletionLogger } from "./completionLogger";
 export { ConfigManager } from "./configManager";
+export {
+	getDefaultMaxOutputTokensForContext,
+	isDeepSeekModel,
+	isGemini2Model,
+	isGemini3Model,
+	isGemini25Model,
+	isGlm45Model,
+	isGlmModel,
+	isGpt4oModel,
+	isGpt5Model,
+	isGpt41Model,
+	isGptModel,
+	isKimiK25Model,
+	isKimiModel,
+	isLlama32Model,
+	isMingFlashOmniModel,
+	isMinimaxModel,
+	isVisionGptModel,
+	resolveGlobalCapabilities,
+	resolveGlobalTokenLimits,
+} from "./globalContextLengthManager";
 export { JsonSchemaProvider } from "./jsonSchemaProvider";
 export { KnownProviderConfig, KnownProviders } from "./knownProviders";
 export { Logger } from "./logger";
 export { MCPWebSearchClient } from "./mcpWebSearchClient";
 export { ModelInfoCache } from "./modelInfoCache";
+export { ProviderRegistry } from "./providerRegistry";
 export { RateLimiter } from "./rateLimiter";
 export {
 	formatRateLimitDisplay,
@@ -47,30 +69,9 @@ export { RetryManager } from "./retryManager";
 export { StatusLogger } from "./statusLogger";
 export { TokenCounter } from "./tokenCounter";
 export {
-	isMinimaxModel,
-	isKimiModel,
-	isKimiK25Model,
-	isGptModel,
-	isVisionGptModel,
-	isGpt5Model,
-	isGpt41Model,
-	isGpt4oModel,
-	isGemini3Model,
-	isGemini25Model,
-	isGemini2Model,
-	isMingFlashOmniModel,
-	isGlm45Model,
-	isGlmModel,
-	isDeepSeekModel,
-	isLlama32Model,
-	getDefaultMaxOutputTokensForContext,
-	resolveGlobalCapabilities,
-	resolveGlobalTokenLimits,
-} from "./globalContextLengthManager";
-export {
-	TokenTelemetryTracker,
-	type TokenTelemetryEvent,
 	type TokenResponseMetrics,
-	type TokenUsageSummary
+	type TokenTelemetryEvent,
+	TokenTelemetryTracker,
+	type TokenUsageSummary,
 } from "./tokenTelemetryTracker";
 export { VersionManager } from "./versionManager";

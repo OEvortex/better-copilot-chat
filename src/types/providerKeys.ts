@@ -23,3 +23,39 @@ export enum ProviderKey {
 	Zhipu = "zhipu",
 	Compatible = "compatible",
 }
+
+/**
+ * Provider category for unified settings organization
+ */
+export enum ProviderCategory {
+	OpenAI = "openai",
+	Anthropic = "anthropic",
+	OAuth = "oauth",
+}
+
+/**
+ * Provider feature flags used by unified settings UI
+ */
+export interface ProviderFeatureFlags {
+	supportsApiKey: boolean;
+	supportsOAuth: boolean;
+	supportsMultiAccount: boolean;
+	supportsBaseUrl: boolean;
+	supportsConfigWizard: boolean;
+}
+
+/**
+ * Provider metadata for unified settings and configuration wizard
+ */
+export interface ProviderMetadata {
+	id: string;
+	key?: ProviderKey;
+	displayName: string;
+	category: ProviderCategory;
+	sdkMode?: "openai" | "anthropic" | "mixed";
+	description?: string;
+	icon?: string;
+	settingsPrefix?: string;
+	features: ProviderFeatureFlags;
+	order: number;
+}

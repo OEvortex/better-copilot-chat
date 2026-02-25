@@ -8,6 +8,7 @@ let settingsState = {
 	providers: [],
 	loadBalanceSettings: {},
 	loadBalanceStrategies: {},
+	providerSearchQuery: "",
 	loading: true,
 };
 
@@ -52,6 +53,7 @@ function renderPage() {
 	app.innerHTML = `
         ${renderHeader()}
         ${renderLoadBalanceSection()}
+	${renderProviderCatalogSection()}
         ${renderAdvancedSection()}
         ${renderInfoSection()}
     `;
@@ -115,6 +117,174 @@ function renderLoadBalanceSection() {
     `;
 }
 
+function renderProviderCatalogSection() {
+	const providers = settingsState.providers || [];
+	const query = (settingsState.providerSearchQuery || "").trim().toLowerCase();
+	const filteredProviders = providers.filter((provider) => {
+		if (!query) {
+			return true;
+		}
+		return (
+			provider.id.toLowerCase().includes(query) ||
+			provider.displayName.toLowerCase().includes(query) ||
+			(provider.description || "").toLowerCase().includes(query)
+		);
+	});
+
+	const grouped = groupProvidersByCategory(filteredProviders);
+	const hasResults = filteredProviders.length > 0;
+
+	return `
+        <div class="settings-section">
+            <h2 class="section-title">
+                🧩 Provider Configuration
+                <span class="badge">Unified</span>
+            </h2>
+            <div class="provider-catalog-toolbar">
+                <input
+                    class="provider-search-input"
+                    id="provider-search-input"
+                    type="text"
+                    placeholder="Search provider by name, id, or description"
+                    value="${escapeHtml(settingsState.providerSearchQuery || "")}" />
+            </div>
+            ${
+							hasResults
+								? Object.entries(grouped)
+										.map(
+											([category, categoryProviders]) => `
+                    <div class="provider-category-group">
+                        <h3 class="provider-category-title">${getCategoryLabel(category)}</h3>
+                        <div class="provider-list-grid">
+                            ${categoryProviders.map((provider) => renderProviderCatalogItem(provider)).join("")}
+                        </div>
+                    </div>
+                `,
+										)
+										.join("")
+								: `<div class="empty-state compact"><p>No providers match your search.</p></div>`
+						}
+        </div>
+    `;
+}
+
+function renderProviderCatalogItem(provider) {
+	const accountCount = provider.accountCount || 0;
+	const capabilityBadges = [
+		provider.supportsApiKey ? "API Key" : null,
+		provider.supportsOAuth ? "OAuth" : null,
+		provider.supportsBaseUrl ? "Base URL" : null,
+	]
+		.filter(Boolean)
+		.map((badge) => `<span class="account-badge">${badge}</span>`)
+		.join("");
+
+	return `
+        <div class="provider-catalog-item" data-provider-item="${provider.id}">
+            <div class="provider-catalog-head">
+                <div class="provider-title-wrap">
+					<div class="provider-icon">${escapeHtml(provider.icon || "🤖")}</div>
+                    <div>
+                        <h4>${escapeHtml(provider.displayName)}</h4>
+						<p>${escapeHtml(provider.description || "AI model provider")}</p>
+                    </div>
+                </div>
+                <span class="account-badge">👤 ${accountCount}</span>
+            </div>
+            <div class="provider-capabilities">${capabilityBadges}</div>
+			${renderProviderEditor(provider)}
+            <div class="provider-actions">
+                <button class="action-button secondary compact" onclick="openProviderSettings('${provider.id}')">
+                    Open Settings
+                </button>
+                ${
+									provider.supportsConfigWizard
+										? `<button class="action-button compact" onclick="runProviderWizard('${provider.id}')">Run Wizard</button>`
+										: ""
+								}
+            </div>
+        </div>
+    `;
+}
+
+function renderProviderEditor(provider) {
+	const endpointOptions = getEndpointOptions(provider.id);
+	const endpointField = endpointOptions.length
+		? `
+			<div class="provider-editor-field">
+				<label for="provider-endpoint-${provider.id}">Endpoint</label>
+				<select id="provider-endpoint-${provider.id}">
+					${endpointOptions
+						.map(
+							(option) => `
+						<option value="${option.value}" ${provider.endpoint === option.value ? "selected" : ""}>${option.label}</option>
+					`,
+						)
+						.join("")}
+				</select>
+			</div>
+		`
+		: "";
+
+	const apiKeyField = provider.supportsApiKey
+		? `
+			<div class="provider-editor-field">
+				<label for="provider-apikey-${provider.id}">API Key</label>
+				<input
+					id="provider-apikey-${provider.id}"
+					type="password"
+					placeholder="${provider.hasApiKey ? "Stored (enter to replace / leave blank to keep)" : "Enter API key"}" />
+			</div>
+		`
+		: "";
+
+	const baseUrlField = provider.supportsBaseUrl
+		? `
+			<div class="provider-editor-field">
+				<label for="provider-baseurl-${provider.id}">Base URL</label>
+				<input
+					id="provider-baseurl-${provider.id}"
+					type="text"
+					value="${escapeHtml(provider.baseUrl || "")}"
+					placeholder="Leave empty to use default" />
+			</div>
+		`
+		: "";
+
+	return `
+		<div class="provider-editor-grid" data-provider-editor="${provider.id}">
+			${apiKeyField}
+			${baseUrlField}
+			${endpointField}
+			<div class="provider-editor-actions">
+				<button class="action-button compact" onclick="saveProviderSettings('${provider.id}')">
+					Save
+				</button>
+			</div>
+		</div>
+	`;
+}
+
+function groupProvidersByCategory(providers) {
+	return providers.reduce((acc, provider) => {
+		const category = provider.category || "other";
+		if (!acc[category]) {
+			acc[category] = [];
+		}
+		acc[category].push(provider);
+		return acc;
+	}, {});
+}
+
+function getCategoryLabel(category) {
+	const labels = {
+		openai: "OpenAI SDK",
+		anthropic: "Anthropic SDK",
+		oauth: "OAuth Required",
+	};
+	return labels[category] || "Other";
+}
+
 /**
  * Render a provider card
  */
@@ -131,7 +301,7 @@ function renderProviderCard(provider) {
         <div class="settings-card" data-provider="${provider.id}">
             <div class="card-header">
                 <div class="card-title">
-                    <div class="provider-icon">${getProviderIcon(provider.id)}</div>
+					<div class="provider-icon">${escapeHtml(provider.icon || "🤖")}</div>
                     <h3>${escapeHtml(provider.displayName)}</h3>
                 </div>
                 <span class="status-indicator ${statusClass}">
@@ -140,7 +310,7 @@ function renderProviderCard(provider) {
                 </span>
             </div>
             <div class="card-description">
-                ${getProviderDescription(provider.id)}
+				${escapeHtml(provider.description || "AI model provider")}
             </div>
             <div class="account-info">
                 <span class="account-badge">
@@ -244,37 +414,71 @@ function renderInfoSection() {
     `;
 }
 
-/**
- * Get provider icon
- */
-function getProviderIcon(providerId) {
-	const icons = {
-		antigravity: "",
-		codex: "🤖",
-		zhipu: "🧠",
-		moonshot: "🌙",
-		minimax: "",
-		deepseek: "",
-		compatible: "",
-	};
-	return icons[providerId] || "🤖";
+function getEndpointOptions(providerId) {
+	if (providerId === "zhipu") {
+		return [
+			{ label: "open.bigmodel.cn (CN)", value: "open.bigmodel.cn" },
+			{ label: "api.z.ai (Global)", value: "api.z.ai" },
+		];
+	}
+	if (providerId === "minimax") {
+		return [
+			{ label: "minimaxi.com (CN)", value: "minimaxi.com" },
+			{ label: "minimax.io (Global)", value: "minimax.io" },
+		];
+	}
+	return [];
 }
 
-/**
- * Get provider description
- */
-function getProviderDescription(providerId) {
-	const descriptions = {
-		antigravity:
-			"Google Cloud Code powered AI models with OAuth authentication",
-		codex: "OpenAI Codex models with OAuth authentication",
-		zhipu: "ZhipuAI GLM models with Coding Plan support",
-		moonshot: "MoonshotAI Kimi models for coding assistance",
-		minimax: "MiniMax models with Coding Plan features",
-		deepseek: "DeepSeek AI models for code generation",
-		compatible: "OpenAI/Anthropic compatible custom models",
-	};
-	return descriptions[providerId] || "AI model provider";
+function _saveProviderSettings(providerId) {
+	const provider = (settingsState.providers || []).find(
+		(p) => p.id === providerId,
+	);
+	if (!provider) {
+		return;
+	}
+
+	const apiKeyInput = document.getElementById(`provider-apikey-${providerId}`);
+	const baseUrlInput = document.getElementById(
+		`provider-baseurl-${providerId}`,
+	);
+	const endpointInput = document.getElementById(
+		`provider-endpoint-${providerId}`,
+	);
+
+	const payload = {};
+	if (provider.supportsApiKey && apiKeyInput) {
+		const nextApiKey = (apiKeyInput.value || "").trim();
+		if (nextApiKey) {
+			payload.apiKey = nextApiKey;
+		}
+	}
+	if (provider.supportsBaseUrl && baseUrlInput) {
+		payload.baseUrl = baseUrlInput.value;
+	}
+	if (endpointInput) {
+		payload.endpoint = endpointInput.value;
+	}
+
+	vscode.postMessage({
+		command: "saveProviderSettings",
+		providerId,
+		payload,
+	});
+}
+
+function _openProviderSettings(providerId) {
+	vscode.postMessage({
+		command: "openProviderSettings",
+		providerId,
+	});
+}
+
+function _runProviderWizard(providerId) {
+	vscode.postMessage({
+		command: "runProviderWizard",
+		providerId,
+	});
 }
 
 /**
@@ -338,23 +542,6 @@ function _refreshSettings() {
 }
 
 /**
- * Update card status indicator
- */
-function _updateCardStatus(providerId, enabled) {
-	const card = document.querySelector(`[data-provider="${providerId}"]`);
-	if (!card) return;
-
-	const statusIndicator = card.querySelector(".status-indicator");
-	if (statusIndicator) {
-		statusIndicator.className = `status-indicator ${enabled ? "enabled" : "disabled"}`;
-		statusIndicator.innerHTML = `
-            <span class="status-dot"></span>
-            ${enabled ? "Enabled" : "Disabled"}
-        `;
-	}
-}
-
-/**
  * Show toast notification
  */
 function showToast(message, type = "success") {
@@ -383,7 +570,14 @@ function showToast(message, type = "success") {
  * Attach event listeners
  */
 function attachEventListeners() {
-	// Add any additional event listeners here
+	const searchInput = document.getElementById("provider-search-input");
+	if (searchInput) {
+		searchInput.addEventListener("input", (event) => {
+			const target = event.target;
+			settingsState.providerSearchQuery = target?.value || "";
+			renderPage();
+		});
+	}
 }
 
 /**
@@ -425,7 +619,10 @@ window.initializeSettingsPage = _initializeSettingsPage;
 window.handleToggleChange = _handleToggleChange;
 window.handleStrategyChange = _handleStrategyChange;
 window.openAccountManager = _openAccountManager;
+window.openProviderSettings = _openProviderSettings;
 window.refreshSettings = _refreshSettings;
+window.runProviderWizard = _runProviderWizard;
+window.saveProviderSettings = _saveProviderSettings;
 
 // Ask extension for current state when the page loads
 window.addEventListener("DOMContentLoaded", () => {

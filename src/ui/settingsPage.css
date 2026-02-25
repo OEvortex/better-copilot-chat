@@ -63,6 +63,137 @@ body {
 	margin-bottom: 28px;
 }
 
+.provider-catalog-toolbar {
+	margin-bottom: 14px;
+}
+
+.provider-search-input {
+	width: 100%;
+	padding: 8px 10px;
+	border-radius: 6px;
+	border: 1px solid var(--vscode-input-border);
+	background-color: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	outline: none;
+}
+
+.provider-search-input:focus {
+	border-color: var(--vscode-focusBorder);
+	box-shadow: 0 0 0 1px var(--vscode-focusBorder);
+}
+
+.provider-category-group {
+	margin-bottom: 18px;
+}
+
+.provider-category-title {
+	margin: 0 0 10px 0;
+	font-size: 0.95em;
+	font-weight: 600;
+	color: var(--vscode-descriptionForeground);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.provider-list-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+	gap: 12px;
+}
+
+.provider-catalog-item {
+	background-color: var(--card-bg);
+	border: 1px solid var(--card-border);
+	border-radius: 8px;
+	padding: 12px;
+}
+
+.provider-catalog-item:hover {
+	border-color: var(--accent-color);
+}
+
+.provider-catalog-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.provider-title-wrap {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+}
+
+.provider-title-wrap h4 {
+	margin: 0;
+	font-size: 0.98em;
+	font-weight: 600;
+}
+
+.provider-title-wrap p {
+	margin: 2px 0 0 0;
+	font-size: 0.86em;
+	color: var(--vscode-descriptionForeground);
+}
+
+.provider-capabilities {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-bottom: 10px;
+}
+
+.provider-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.provider-editor-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 10px;
+	margin-bottom: 10px;
+	padding: 10px;
+	border: 1px dashed var(--card-border);
+	border-radius: 6px;
+}
+
+.provider-editor-field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.provider-editor-field label {
+	font-size: 0.82em;
+	color: var(--vscode-descriptionForeground);
+	font-weight: 500;
+}
+
+.provider-editor-field input,
+.provider-editor-field select {
+	padding: 6px 8px;
+	border-radius: 6px;
+	border: 1px solid var(--vscode-input-border);
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	outline: none;
+}
+
+.provider-editor-field input:focus,
+.provider-editor-field select:focus {
+	border-color: var(--vscode-focusBorder);
+	box-shadow: 0 0 0 1px var(--vscode-focusBorder);
+}
+
+.provider-editor-actions {
+	display: flex;
+	align-items: end;
+}
+
 .section-title {
 	font-size: 1.2em;
 	font-weight: 600;
@@ -387,6 +518,10 @@ body {
 	color: var(--vscode-descriptionForeground);
 }
 
+.empty-state.compact {
+	padding: 16px;
+}
+
 .empty-state .empty-icon {
 	font-size: 3em;
 	margin-bottom: 16px;
@@ -417,6 +552,11 @@ body {
 	transition: all 0.2s ease;
 	background-color: var(--vscode-button-background);
 	color: var(--vscode-button-foreground);
+}
+
+.action-button.compact {
+	padding: 6px 10px;
+	font-size: 0.85em;
 }
 
 .action-button:hover {

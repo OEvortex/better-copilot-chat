@@ -5,6 +5,8 @@
 
 import * as vscode from "vscode";
 import { AccountManager } from "../accounts/accountManager";
+import type { ApiKeyCredentials } from "../accounts/types";
+import { ProviderRegistry } from "../utils/providerRegistry";
 import settingsPageCss from "./settingsPage.css?raw";
 import settingsPageJs from "./settingsPage.js?raw";
 
@@ -14,8 +16,20 @@ import settingsPageJs from "./settingsPage.js?raw";
 interface ProviderInfo {
 	id: string;
 	displayName: string;
+	category: string;
+	sdkMode?: string;
+	icon?: string;
+	description?: string;
+	settingsPrefix?: string;
 	accountCount: number;
 	supportsLoadBalance: boolean;
+	supportsApiKey: boolean;
+	supportsOAuth: boolean;
+	supportsBaseUrl: boolean;
+	supportsConfigWizard: boolean;
+	hasApiKey: boolean;
+	baseUrl: string;
+	endpoint: string;
 }
 
 /**
@@ -30,11 +44,8 @@ type LoadBalanceStrategy = "round-robin" | "quota-aware" | "failover";
 export class SettingsPage {
 	private static readonly LOAD_BALANCE_STRATEGY_STORAGE_KEY =
 		"chp.settings.loadBalanceStrategies";
-	private static readonly VALID_LOAD_BALANCE_STRATEGIES: LoadBalanceStrategy[] = [
-		"round-robin",
-		"quota-aware",
-		"failover",
-	];
+	private static readonly VALID_LOAD_BALANCE_STRATEGIES: LoadBalanceStrategy[] =
+		["round-robin", "quota-aware", "failover"];
 	private static currentPanel: vscode.WebviewPanel | undefined;
 	private static context: vscode.ExtensionContext;
 	private static accountManager: AccountManager;
@@ -107,6 +118,22 @@ export class SettingsPage {
 					case "openAccountManager":
 						await vscode.commands.executeCommand("chp.accounts.openManager");
 						break;
+					case "openProviderSettings":
+						await SettingsPage.handleOpenProviderSettings(message.providerId);
+						break;
+					case "runProviderWizard":
+						await SettingsPage.handleRunProviderWizard(
+							message.providerId,
+							panel.webview,
+						);
+						break;
+					case "saveProviderSettings":
+						await SettingsPage.handleSaveProviderSettings(
+							message.providerId,
+							message.payload,
+							panel.webview,
+						);
+						break;
 					case "refresh":
 						await SettingsPage.sendStateUpdate(panel.webview);
 						break;
@@ -167,7 +194,7 @@ export class SettingsPage {
 	 * Send state update to webview
 	 */
 	private static async sendStateUpdate(webview: vscode.Webview): Promise<void> {
-		const providers = SettingsPage.getProvidersInfo();
+		const providers = await SettingsPage.getProvidersInfo();
 		const loadBalanceSettings: Record<string, boolean> = {};
 		const loadBalanceStrategies: Record<string, string> = {};
 
@@ -204,30 +231,179 @@ export class SettingsPage {
 	/**
 	 * Get providers info for display
 	 */
-	private static getProvidersInfo(): ProviderInfo[] {
-		const providerConfigs: Array<{ id: string; displayName: string }> = [
-			{ id: "antigravity", displayName: "Antigravity (Google Cloud Code)" },
-			{ id: "codex", displayName: "Codex (OpenAI Codex)" },
-			{ id: "zhipu", displayName: "ZhipuAI (GLM)" },
-			{ id: "moonshot", displayName: "MoonshotAI (Kimi)" },
-			{ id: "minimax", displayName: "MiniMax" },
-			{ id: "deepseek", displayName: "DeepSeek" },
-			{ id: "deepinfra", displayName: "DeepInfra" },
-			{ id: "nvidia", displayName: "NVIDIA NIM" },
-			{ id: "compatible", displayName: "OpenAI/Anthropic Compatible" },
-		];
+	private static async getProvidersInfo(): Promise<ProviderInfo[]> {
+		const providerConfigs = ProviderRegistry.getAllProviders();
+		const configSection = vscode.workspace.getConfiguration("chp");
 
-		return providerConfigs.map((config) => {
+		return Promise.all(providerConfigs.map(async (config) => {
 			const accounts = SettingsPage.accountManager.getAccountsByProvider(
+				config.id,
+			);
+			const activeApiKey = await SettingsPage.accountManager.getActiveApiKey(
 				config.id,
 			);
 			return {
 				id: config.id,
 				displayName: config.displayName,
+				category: config.category,
+				sdkMode: config.sdkMode,
+				icon: config.icon,
+				description: config.description,
+				settingsPrefix: config.settingsPrefix,
 				accountCount: accounts.length,
 				supportsLoadBalance: AccountManager.supportsMultiAccount(config.id),
+				supportsApiKey: config.features.supportsApiKey,
+				supportsOAuth: config.features.supportsOAuth,
+				supportsBaseUrl: config.features.supportsBaseUrl,
+				supportsConfigWizard: config.features.supportsConfigWizard,
+				hasApiKey: !!activeApiKey,
+				baseUrl: configSection.get<string>(`${config.id}.baseUrl`, "").trim(),
+				endpoint: SettingsPage.getEndpointSetting(config.id, configSection),
 			};
-		});
+		}));
+	}
+
+	private static getEndpointSetting(
+		providerId: string,
+		configSection?: vscode.WorkspaceConfiguration,
+	): string {
+		const config = configSection || vscode.workspace.getConfiguration("chp");
+		if (providerId === "zhipu") {
+			return config.get<string>("zhipu.endpoint", "open.bigmodel.cn");
+		}
+		if (providerId === "minimax") {
+			return config.get<string>("minimax.endpoint", "minimaxi.com");
+		}
+		return "";
+	}
+
+	private static async handleSaveProviderSettings(
+		providerId: string,
+		payload: { apiKey?: string; baseUrl?: string; endpoint?: string },
+		webview: vscode.Webview,
+	): Promise<void> {
+		try {
+			const provider = ProviderRegistry.getProvider(providerId);
+			if (!provider) {
+				throw new Error(`Unknown provider: ${providerId}`);
+			}
+
+			const config = vscode.workspace.getConfiguration("chp");
+
+			if (provider.features.supportsApiKey && payload.apiKey !== undefined) {
+				await SettingsPage.upsertProviderApiKey(
+					providerId,
+					provider.displayName,
+					payload.apiKey,
+				);
+			}
+
+			if (provider.features.supportsBaseUrl && payload.baseUrl !== undefined) {
+				await config.update(
+					`${providerId}.baseUrl`,
+					payload.baseUrl.trim(),
+					vscode.ConfigurationTarget.Global,
+				);
+			}
+
+			if (payload.endpoint !== undefined) {
+				if (providerId === "zhipu") {
+					await config.update(
+						"zhipu.endpoint",
+						payload.endpoint,
+						vscode.ConfigurationTarget.Global,
+					);
+				} else if (providerId === "minimax") {
+					await config.update(
+						"minimax.endpoint",
+						payload.endpoint,
+						vscode.ConfigurationTarget.Global,
+					);
+				}
+			}
+
+			await SettingsPage.sendStateUpdate(webview);
+			webview.postMessage({
+				command: "showToast",
+				message: `${provider.displayName} settings saved`,
+				type: "success",
+			});
+		} catch (error) {
+			webview.postMessage({
+				command: "showToast",
+				message: `Failed to save settings: ${error}`,
+				type: "error",
+			});
+		}
+	}
+
+	private static async upsertProviderApiKey(
+		providerId: string,
+		displayName: string,
+		apiKeyRaw: string,
+	): Promise<void> {
+		const apiKey = apiKeyRaw.trim();
+		const activeAccount = SettingsPage.accountManager.getActiveAccount(providerId);
+
+		if (!apiKey) {
+			if (activeAccount?.authType === "apiKey") {
+				await SettingsPage.accountManager.removeAccount(activeAccount.id);
+			}
+			return;
+		}
+
+		if (activeAccount?.authType === "apiKey") {
+			const existing = await SettingsPage.accountManager.getCredentials(
+				activeAccount.id,
+			);
+			const previous =
+				existing && "apiKey" in existing
+					? existing
+					: ({ apiKey } as ApiKeyCredentials);
+			const updated: ApiKeyCredentials = {
+				...previous,
+				apiKey,
+			};
+			await SettingsPage.accountManager.updateCredentials(activeAccount.id, updated);
+			return;
+		}
+
+		const added = await SettingsPage.accountManager.addApiKeyAccount(
+			providerId,
+			`${displayName} API Key`,
+			apiKey,
+		);
+		if (!added.success || !added.account) {
+			throw new Error(added.error || "Failed to create API key account");
+		}
+		await SettingsPage.accountManager.switchAccount(providerId, added.account.id);
+	}
+
+	private static async handleOpenProviderSettings(
+		providerId: string,
+	): Promise<void> {
+		const query = `chp.${providerId}`;
+		await vscode.commands.executeCommand(
+			"workbench.action.openSettings",
+			query,
+		);
+	}
+
+	private static async handleRunProviderWizard(
+		providerId: string,
+		webview: vscode.Webview,
+	): Promise<void> {
+		const wizardCommand = `chp.${providerId}.configWizard`;
+		try {
+			await vscode.commands.executeCommand(wizardCommand);
+		} catch {
+			await SettingsPage.handleOpenProviderSettings(providerId);
+			webview.postMessage({
+				command: "showToast",
+				message: `No wizard for ${providerId}. Opened settings instead.`,
+				type: "success",
+			});
+		}
 	}
 
 	/**
