@@ -6,7 +6,32 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-**New AI Provider Integration:**
+**Simplified Provider Settings:**
+- **Unified Provider Catalog**: New streamlined settings panel showing all 22+ providers in one place with search functionality.
+- **SDK-Based Categories**: Providers now organized by SDK type for easier navigation:
+  - `openai` - Providers using OpenAI SDK (OpenAI, Claude, DeepSeek, etc.)
+  - `anthropic` - Providers using Anthropic SDK
+  - `oauth` - OAuth-only providers (Gemini CLI, Qwen CLI, etc.)
+- **In-Panel Provider Configuration**: Direct editing of API key, Base URL, and endpoint directly in the settings panel without needing to open VS Code settings.
+
+**No-Configuration Providers:**
+- **Blackbox AI**: Now works without API key configuration - ready to use out of the box.
+- **ChatJimmy**: Free public API provider - no authentication required.
+
+**Universal Wizard Support:**
+- **Run Wizard for All Providers**: Fixed the wizard button to work for ALL providers (previously only worked for zhipu, minimax, lightningai).
+  - Now uses generic ProviderWizard that adapts to each provider's capabilities.
+  - OAuth providers (antigravity, codex, qwencli, geminicli) and no-config providers (blackbox, chatjimmy) hide the wizard button since they don't need configuration.
+
+### Removed
+
+- **Base URL Field from OAuth Providers**: Removed Base URL field from settings for OAuth-only providers:
+  - Antigravity, Codex, Qwen CLI, Gemini CLI - these use OAuth authentication and don't support custom base URLs.
+  - Blackbox, ChatJimmy - these work without any configuration.
+
+### Changed
+
+**New AI Provider Integration & Multi-Account:**
 - **Kilo AI Provider**: Added comprehensive support for Kilo AI (`https://api.kilo.ai/api/gateway`).
   - Implemented dynamic model fetching from `/models` endpoint to automatically keep configurations up-to-date.
   - Full integration with OpenAI-compatible streaming and tool calling.
@@ -45,12 +70,19 @@ All notable changes to this project will be documented in this file.
   - Dynamic model fetching now defaults to tool calling enabled for all Ollama models (unless explicitly marked as `no_tool_calling`).
   - Resolves issue where tool calling capability was not being detected from the Ollama API response.
 
-**Codex Token Limits:**
-- **Corrected Codex Model Context Windows**: Fixed token limits for all Codex GPT model variants.
+- **Codex Token Limits**: Fixed token limits for all Codex GPT model variants.
   - All Codex GPT models now correctly configured with 400K context window (409,600 tokens) and 64K output (65,536 tokens).
   - Input tokens correctly calculated as 344,064 (409,600 - 65,536) using binary units (1K = 1024).
 
-**Tool Calling & API Reliability:**
+- **Schema Sanitization**: Resolved critical 400 `INVALID_ARGUMENT` errors in Antigravity and Gemini CLI providers by implementing strict tool schema cleaning.
+  - Automatically filters the `required` property array to only include existing fields.
+  - Sanitizes property names and tool names to strictly match Gemini's naming requirements (`[a-zA-Z0-9_-]`).
+  - Fixed recursion logic error that incorrectly processed property maps as schemas.
+- **Improved Tool Call Stability**: Enhanced handling for models with large numbers of tool definitions (60+ tools) to ensure protocol compliance.
+- **XML-Style Tool Parsing**: Added support for XML-style `<function_calls>` blocks in the Antigravity stream processor for better compatibility with newer Gemini models.
+- **Message Balancing**: Implemented automatic balancing of function calls and responses in message history to prevent "parts mismatch" errors.
+
+## [0.2.4] - 2026-02-24
 - **Robust Schema Sanitization**: Resolved critical 400 `INVALID_ARGUMENT` errors in Antigravity and Gemini CLI providers by implementing strict tool schema cleaning.
   - Automatically filters the `required` property array to only include existing fields.
   - Sanitizes property names and tool names to strictly match Gemini's naming requirements (`[a-zA-Z0-9_-]`).

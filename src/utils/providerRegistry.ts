@@ -41,7 +41,8 @@ const providerDescriptionMap: Record<string, string> = {
 	mistral: "Mistral AI model endpoints",
 	chutes: "Chutes AI endpoint integration",
 	opencode: "OpenCode endpoint integration",
-	blackbox: "Blackbox AI endpoint integration",
+	blackbox: "Blackbox AI - works without API key",
+	chatjimmy: "ChatJimmy - free public API, no auth required",
 	huggingface: "Hugging Face Router endpoint integration",
 	lightningai: "LightningAI endpoint integration",
 	zenmux: "Zenmux endpoint integration",
@@ -64,6 +65,7 @@ const providerIconMap: Record<string, string> = {
 	chutes: "📦",
 	opencode: "🧩",
 	blackbox: "⬛",
+	chatjimmy: "💬",
 	huggingface: "🤗",
 	lightningai: "⚡",
 	zenmux: "🧬",
@@ -118,18 +120,22 @@ function resolveCategory(
 
 function getDefaultFeatures(providerId: string): ProviderMetadata["features"] {
 	const accountConfig = AccountManager.getProviderConfig(providerId);
-	// OAuth providers (antigravity, codex, qwencli, geminicli) don't support baseUrl
-	const isOAuthProvider =
+	// Providers that don't need any configuration (no API key, no base URL)
+	// - OAuth providers: antigravity, codex, qwencli, geminicli (use OAuth)
+	// - No-config providers: blackbox, chatjimmy (work without any auth)
+	const isNoConfigProvider =
 		providerId === ProviderKey.Antigravity ||
 		providerId === ProviderKey.Codex ||
 		providerId === ProviderKey.QwenCli ||
-		providerId === ProviderKey.GeminiCli;
+		providerId === ProviderKey.GeminiCli ||
+		providerId === ProviderKey.Blackbox ||
+		providerId === "chatjimmy";
 	return {
-		supportsApiKey: accountConfig.supportsApiKey,
+		supportsApiKey: accountConfig.supportsApiKey && !isNoConfigProvider,
 		supportsOAuth: accountConfig.supportsOAuth,
 		supportsMultiAccount: accountConfig.supportsMultiAccount,
-		supportsBaseUrl: !isOAuthProvider && providerId !== ProviderKey.Compatible,
-		supportsConfigWizard: true,
+		supportsBaseUrl: !isNoConfigProvider && providerId !== ProviderKey.Compatible,
+		supportsConfigWizard: !isNoConfigProvider,
 	};
 }
 
