@@ -1310,6 +1310,18 @@
                 "toolCalling": true,
                 "imageInput": true
             }
+        },
+        {
+            "id": "qwen-qwen3-5-flash",
+            "name": "Qwen: Qwen3.5-flash",
+            "tooltip": "Qwen: Qwen3.5-flash by Zenmux",
+            "maxInputTokens": 991232,
+            "maxOutputTokens": 32768,
+            "model": "qwen/qwen3.5-flash",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
         }
     ]
 }

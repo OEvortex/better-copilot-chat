@@ -27,6 +27,7 @@ import {
 	TokenCounter,
 } from "./utils";
 import { CompatibleModelManager } from "./utils/compatibleModelManager";
+import { StatusBarManager, LeaderElectionService } from "./status";
 
 /**
  * Global variables - Store registered provider instances for cleanup on extension uninstall
@@ -135,6 +136,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	try {
 		Logger.initialize("Copilot ++"); // Initialize log manager
 		StatusLogger.initialize("GitHub Copilot Models Provider Status"); // Initialize high-frequency status log manager
+		LeaderElectionService.initialize(context); // Initialize leader election service for status bars
 		CompletionLogger.initialize("Copilot ++Inline Completion"); // Initialize high-frequency inline completion log manager
 
 		const isDevelopment =
@@ -161,6 +163,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		AccountManager.initialize(context);
 		// Initialize Account Quota Cache
 		AccountQuotaCache.initialize(context);
+		// Initialize Status Bar Manager (includes quota and token usage status bars)
+		StatusBarManager.initializeAll(context);
 		const accountDisposables = registerAccountCommands(context);
 		context.subscriptions.push(...accountDisposables);
 		// Initialize account sync adapter and sync existing accounts
@@ -501,6 +505,7 @@ export function deactivate() {
 		}
 
 		ConfigManager.dispose(); // Clean up configuration manager
+		LeaderElectionService.stop(); // Clean up leader election service
 		StatusLogger.dispose(); // Clean up status logger
 		CompletionLogger.dispose(); // Clean up inline completion logger
 		Logger.dispose(); // Dispose Logger only when extension is destroyed

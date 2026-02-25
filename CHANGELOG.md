@@ -22,6 +22,15 @@ All notable changes to this project will be documented in this file.
 - **Auto-Config Updates**: When new models are fetched from the API, they're automatically merged into the provider's config file for persistence.
 - **Non-Blocking UI**: Model fetching is asynchronous and doesn't block the extension from loading.
 
+**Antigravity Status Bar:**
+- **Quota Display in Status Bar**: Added Antigravity (Cloud Code) quota status bar showing remaining quota for Gemini and Claude models.
+  - Separate status and bar items for Gemini Claude quotas.
+  - Color-coded display: Red when <10%, Orange when <30%, Green when >=30%.
+  - Click to refresh and view detailed quota in QuickPick.
+  - Shows model-specific quota information with reset times.
+- **Leader Election**: Implemented master instance election to ensure only one VS Code instance runs periodic status updates.
+- **User Activity Detection**: Pauses background status updates when user is inactive (30 min timeout).
+
 ### Changed
 
 - **Faster Startup**: Extension now returns static config models immediately during startup (silent mode) for faster initialization.
