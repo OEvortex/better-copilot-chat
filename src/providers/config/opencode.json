@@ -136,6 +136,18 @@
             }
         },
         {
+            "id": "gpt-5.3-codex",
+            "name": "gpt-5.3-codex",
+            "tooltip": "gpt-5.3-codex by OpenCode",
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
+            "model": "gpt-5.3-codex",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
             "id": "gpt-5.2",
             "name": "gpt-5.2",
             "tooltip": "gpt-5.2 by OpenCode",
@@ -325,30 +337,6 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
-            }
-        },
-        {
-            "id": "alpha-gpt-5.3-codex",
-            "name": "alpha-gpt-5.3-codex",
-            "tooltip": "alpha-gpt-5.3-codex by OpenCode",
-            "maxInputTokens": 344064,
-            "maxOutputTokens": 65536,
-            "model": "alpha-gpt-5.3-codex",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "alpha-gpt-5.4",
-            "name": "alpha-gpt-5.4",
-            "tooltip": "alpha-gpt-5.4 by OpenCode",
-            "maxInputTokens": 344064,
-            "maxOutputTokens": 65536,
-            "model": "alpha-gpt-5.4",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
             }
         },
         {

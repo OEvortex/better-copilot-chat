@@ -8,8 +8,8 @@
             "name": "GPT-5.3 Codex",
             "model": "gpt-5.3-codex",
             "tooltip": "GPT-5.3 Codex",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -20,8 +20,8 @@
             "name": "GPT-5.3 Codex (Low Reasoning)",
             "model": "gpt-5.3-codex",
             "tooltip": "GPT-5.3 Codex with low reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -32,8 +32,8 @@
             "name": "GPT-5.3 Codex (Medium Reasoning)",
             "model": "gpt-5.3-codex",
             "tooltip": "GPT-5.3 Codex with medium reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -44,8 +44,8 @@
             "name": "GPT-5.3 Codex (High Reasoning)",
             "model": "gpt-5.3-codex",
             "tooltip": "GPT-5.3 Codex with high reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -56,8 +56,8 @@
             "name": "GPT-5.3 Codex (XHigh Reasoning)",
             "model": "gpt-5.3-codex",
             "tooltip": "GPT-5.3 Codex with xhigh reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -68,8 +68,8 @@
             "name": "GPT-5.2 Codex",
             "model": "gpt-5.2-codex",
             "tooltip": "GPT-5.2 Codex",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -80,8 +80,8 @@
             "name": "GPT-5.2 Codex (Low Reasoning)",
             "model": "gpt-5.2-codex",
             "tooltip": "GPT-5.2 Codex with low reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -92,8 +92,8 @@
             "name": "GPT-5.2 Codex (Medium Reasoning)",
             "model": "gpt-5.2-codex",
             "tooltip": "GPT-5.2 Codex with medium reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -104,8 +104,8 @@
             "name": "GPT-5.2 Codex (High Reasoning)",
             "model": "gpt-5.2-codex",
             "tooltip": "GPT-5.2 Codex with high reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -116,8 +116,8 @@
             "name": "GPT-5.2 Codex (XHigh Reasoning)",
             "model": "gpt-5.2-codex",
             "tooltip": "GPT-5.2 Codex with xhigh reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -128,8 +128,8 @@
             "name": "GPT-5.2",
             "model": "gpt-5.2",
             "tooltip": "GPT-5.2",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -140,8 +140,8 @@
             "name": "GPT-5.2 (Low Reasoning)",
             "model": "gpt-5.2",
             "tooltip": "GPT-5.2 with low reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -152,8 +152,8 @@
             "name": "GPT-5.2 (Medium Reasoning)",
             "model": "gpt-5.2",
             "tooltip": "GPT-5.2 with medium reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -164,8 +164,8 @@
             "name": "GPT-5.2 (High Reasoning)",
             "model": "gpt-5.2",
             "tooltip": "GPT-5.2 with high reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -176,8 +176,8 @@
             "name": "GPT-5.2 (XHigh Reasoning)",
             "model": "gpt-5.2",
             "tooltip": "GPT-5.2 with xhigh reasoning effort",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -188,8 +188,8 @@
             "name": "GPT-5.1 Codex Mini",
             "model": "gpt-5.1-codex-mini",
             "tooltip": "GPT-5.1 Codex Mini",
-            "maxInputTokens": 400000,
-            "maxOutputTokens": 128000,
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true

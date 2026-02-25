@@ -1,5 +1,5 @@
 /**
- * Account Manager Page JavaScript - Ultra Modern Refactor
+ * Account Manager Page JavaScript - Clean Modern UI
  */
 
 // VS Code API
@@ -85,7 +85,7 @@ function renderSidebar() {
         return `
                         <div class="provider-item ${isActive ? 'active' : ''}" onclick="selectProvider('${p.id}')">
                             <span class="provider-item-icon">${getProviderIcon(p.id)}</span>
-                            <span class="provider-item-name">${p.name}</span>
+                            <span class="provider-item-name">${escapeHtml(p.name)}</span>
                             ${count > 0 ? `<span class="provider-item-count">${count}</span>` : ''}
                         </div>
                     `;
@@ -113,9 +113,7 @@ function renderContent() {
     const provider = providers.find(p => p.id === selectedProviderId);
     const providerAccounts = accounts.filter(a => a.provider === selectedProviderId);
     const filteredAccounts = providerAccounts.filter(account => {
-        if (!accountSearchQuery) {
-            return true;
-        }
+        if (!accountSearchQuery) return true;
         const q = accountSearchQuery.toLowerCase();
         return (
             (account.displayName || "").toLowerCase().includes(q) ||
@@ -131,11 +129,11 @@ function renderContent() {
                 <div class="content-header">
                     <div>
                         <h2 class="content-title">${escapedProviderName}</h2>
-                        <p class="content-subtitle">${providerAccounts.length} account${providerAccounts.length === 1 ? '' : 's'} configured for this provider</p>
+                        <p class="content-subtitle">${providerAccounts.length} account${providerAccounts.length === 1 ? '' : 's'} configured</p>
                     </div>
-                    <div style="display: flex; gap: 12px;">
+                    <div style="display: flex; gap: 8px;">
                         <button class="btn btn-secondary" onclick="configModelsForProvider('${selectedProviderId}')">
-                            <span class="codicon codicon-settings"></span> Models
+                            <span class="codicon codicon-settings-gear"></span> Models
                         </button>
                         <button class="btn btn-primary" onclick="addAccountForProvider('${selectedProviderId}')">
                             <span class="codicon codicon-add"></span> Add Account
@@ -149,12 +147,12 @@ function renderContent() {
                         <input
                             type="text"
                             class="search-input"
-                            placeholder="Search accounts by name, email, or ID"
+                            placeholder="Search accounts..."
                             value="${escapeHtml(accountSearchQuery)}"
                             oninput="setAccountSearch(this.value)"
                         >
                     </div>
-                    <span class="result-count">${filteredAccounts.length} shown</span>
+                    <span class="result-count">${filteredAccounts.length} of ${providerAccounts.length}</span>
                 </div>
 
                 ${renderAntigravityNotice()}
@@ -162,15 +160,15 @@ function renderContent() {
                 <div class="account-list">
                     ${filteredAccounts.length > 0
             ? filteredAccounts.map(renderAccountCard).join('')
-            : `<div class="empty-state" style="grid-column: 1 / -1;">
+            : `<div class="empty-state">
                             <span class="empty-state-icon codicon codicon-account"></span>
-                            <div class="empty-state-title">${providerAccounts.length === 0 ? "No Accounts Configured" : "No Matching Accounts"}</div>
+                            <div class="empty-state-title">${providerAccounts.length === 0 ? "No Accounts Yet" : "No Matching Accounts"}</div>
                             <p class="empty-state-description">${providerAccounts.length === 0
-                                ? `Add your first account for ${escapedProviderName} to get started.`
-                                : "Try another search term or clear the filter."}</p>
-                            <button class="btn btn-primary" onclick="addAccountForProvider('${selectedProviderId}')">
-                                <span class="codicon codicon-add"></span> ${providerAccounts.length === 0 ? "Add First Account" : "Add Account"}
-                            </button>
+                ? `Add your first ${escapedProviderName} account to get started.`
+                : "Try a different search term."}</p>
+                            ${providerAccounts.length === 0 ? `<button class="btn btn-primary" onclick="addAccountForProvider('${selectedProviderId}')">
+                                <span class="codicon codicon-add"></span> Add Account
+                            </button>` : ''}
                            </div>`
         }
                 </div>
@@ -184,7 +182,6 @@ function renderAccountCard(account) {
     const quotaState = accountQuotaStates.find(s => s.accountId === account.id);
     const isLimited = quotaState && quotaState.quotaExceeded;
 
-    // Determine avatar initials
     const initials = (account.displayName || account.email || account.provider || 'A').substring(0, 2).toUpperCase();
     const providerName = escapeHtml(providers.find(p => p.id === account.provider)?.name || account.provider || "Unknown");
     const displayName = escapeHtml(account.displayName || 'Unnamed Account');
@@ -202,7 +199,7 @@ function renderAccountCard(account) {
                     </div>
                     <div class="account-meta">
                         <span>${secondary}</span>
-                        <span class="meta-sep">•</span>
+                        <span class="meta-sep">·</span>
                         <span>${providerName}</span>
                     </div>
                 </div>
@@ -211,7 +208,7 @@ function renderAccountCard(account) {
             ${isLimited ? `
                 <div class="quota-notice compact">
                     <span class="codicon codicon-warning"></span>
-                    <span style="font-size: 12px;">Quota Limited - Resets in <span class="quota-countdown-compact" data-reset-at="${quotaState.quotaResetAt}">...</span></span>
+                    <span class="quota-notice-text">Quota exceeded — resets in <span class="quota-countdown-compact" data-reset-at="${quotaState.quotaResetAt}">...</span></span>
                 </div>
             ` : ''}
 
@@ -221,14 +218,14 @@ function renderAccountCard(account) {
                         <span class="codicon codicon-check"></span> Set Active
                     </button>
                 ` : `
-                    <button class="btn btn-secondary" disabled style="opacity: 0.7; cursor: not-allowed;">
+                    <button class="btn btn-secondary" disabled style="opacity: 0.6; cursor: default;">
                         <span class="codicon codicon-star-full"></span> Active
                     </button>
                 `}
-                <button class="btn-action-icon" title="View Details" onclick="showAccountDetails('${account.id}')">
+                <button class="btn-action-icon" title="Details" onclick="showAccountDetails('${account.id}')">
                     <span class="codicon codicon-info"></span>
                 </button>
-                <button class="btn-action-icon danger" title="Remove Account" onclick="confirmDeleteAccount('${account.id}')">
+                <button class="btn-action-icon danger" title="Remove" onclick="confirmDeleteAccount('${account.id}')">
                     <span class="codicon codicon-trash"></span>
                 </button>
             </div>
@@ -258,7 +255,7 @@ function renderAntigravityNotice() {
         <div class="quota-notice">
             <span class="quota-notice-icon codicon codicon-info"></span>
             <div class="quota-notice-text">
-                <strong>Global Quota Notice:</strong> The quota for ${modelName} will reset in 
+                <strong>Quota Notice:</strong> ${modelName} resets in
                 <span class="quota-countdown" data-reset-at="${antigravityQuota.resetAt}">...</span>.
             </div>
         </div>
@@ -274,15 +271,25 @@ function getProviderIcon(providerId) {
         deepseek: "<span class=\"codicon codicon-search\"></span>",
         moonshot: "<span class=\"codicon codicon-circle-large-outline\"></span>",
         minimax: "<span class=\"codicon codicon-layers\"></span>",
+        "minimax-coding": "<span class=\"codicon codicon-code\"></span>",
+        kimi: "<span class=\"codicon codicon-sparkle\"></span>",
         kilo: "<span class=\"codicon codicon-dashboard\"></span>",
-        deepinfra: "<span class=\"codicon codicon-rocket\"></span>",
         openai: "<span class=\"codicon codicon-hubot\"></span>",
         mistral: "<span class=\"codicon codicon-symbol-event\"></span>",
+        huggingface: "<span class=\"codicon codicon-heart\"></span>",
+        deepinfra: "<span class=\"codicon codicon-rocket\"></span>",
+        nvidia: "<span class=\"codicon codicon-chip\"></span>",
+        blackbox: "<span class=\"codicon codicon-shield\"></span>",
+        chutes: "<span class=\"codicon codicon-zap\"></span>",
+        opencode: "<span class=\"codicon codicon-terminal-bash\"></span>",
+        lightningai: "<span class=\"codicon codicon-lightbulb\"></span>",
+        ollama: "<span class=\"codicon codicon-server\"></span>",
+        zenmux: "<span class=\"codicon codicon-split-horizontal\"></span>",
         compatible: "<span class=\"codicon codicon-settings-gear\"></span>",
         geminicli: "<span class=\"codicon codicon-terminal\"></span>",
         qwencli: "<span class=\"codicon codicon-terminal\"></span>"
     };
-    return icons[providerId] || "<span class=\"codicon codicon-settings-gear\"></span>";
+    return icons[providerId] || "<span class=\"codicon codicon-plug\"></span>";
 }
 
 // Actions
@@ -301,7 +308,7 @@ function setDefaultAccount(id) {
 
 function confirmDeleteAccount(id) {
     const account = accounts.find(a => a.id === id);
-    if (confirm(`Are you sure you want to remove the account "${account.displayName}"?\nThis action cannot be undone.`)) {
+    if (confirm(`Are you sure you want to remove "${account.displayName}"?\nThis cannot be undone.`)) {
         vscode.postMessage({ command: "deleteAccount", accountId: id });
     }
 }
@@ -397,9 +404,9 @@ function showToast(message, type = "info") {
     if (type === 'error') icon = 'error';
 
     toast.innerHTML = `
-        <span class="codicon codicon-${icon}" style="font-size: 18px;"></span>
-        <span style="flex: 1;">${message}</span>
-        <button class="modal-close" style="width: 24px; height: 24px;" onclick="this.parentElement.remove()">
+        <span class="codicon codicon-${icon}" style="font-size: 16px;"></span>
+        <span style="flex: 1; font-size: 13px;">${message}</span>
+        <button class="modal-close" onclick="this.parentElement.remove()">
             <span class="codicon codicon-close" style="font-size: 12px;"></span>
         </button>
     `;
@@ -408,8 +415,8 @@ function showToast(message, type = "info") {
 
     setTimeout(() => {
         if (toast.parentElement) {
-            toast.style.animation = 'toastSlideOut 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards';
-            setTimeout(() => toast.remove(), 300);
+            toast.style.animation = 'toastSlideOut 0.25s ease forwards';
+            setTimeout(() => toast.remove(), 250);
         }
     }, 4000);
 }

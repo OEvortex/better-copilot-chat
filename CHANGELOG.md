@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.5] - 2026-02-24
+## [0.2.5] - 2026-02-25
 
 ### Added
 
@@ -39,6 +39,16 @@ All notable changes to this project will be documented in this file.
 - **Control Hub Updates**: Added missing providers (Kilo, Zenmux, etc.) to the Copilot Usage overview panel to track their token usage effectively.
 
 ### Fixed
+
+**Tool Calling & API Reliability:**
+- **Ollama Tool Calling Support**: Fixed issue where all Ollama models were reporting tool calling as disabled.
+  - Dynamic model fetching now defaults to tool calling enabled for all Ollama models (unless explicitly marked as `no_tool_calling`).
+  - Resolves issue where tool calling capability was not being detected from the Ollama API response.
+
+**Codex Token Limits:**
+- **Corrected Codex Model Context Windows**: Fixed token limits for all Codex GPT model variants.
+  - All Codex GPT models now correctly configured with 400K context window (409,600 tokens) and 64K output (65,536 tokens).
+  - Input tokens correctly calculated as 344,064 (409,600 - 65,536) using binary units (1K = 1024).
 
 **Tool Calling & API Reliability:**
 - **Robust Schema Sanitization**: Resolved critical 400 `INVALID_ARGUMENT` errors in Antigravity and Gemini CLI providers by implementing strict tool schema cleaning.

@@ -100,9 +100,12 @@ export class OllamaProvider
 			const maxOutput =
 				model.metadata?.max_tokens || DEFAULT_MAX_OUTPUT_TOKENS;
 
-			// Detect capabilities from model metadata or ID patterns
+			// Most modern Ollama models support tool calling
+			// Only disable if explicitly marked as not supporting it
 			const hasToolCalling =
-				model.metadata?.tags?.includes("tool_calling") ?? false;
+				model.metadata?.tags?.includes("tool_calling") ??
+				!model.metadata?.tags?.includes("no_tool_calling");
+
 			const hasImageInput =
 				model.metadata?.tags?.includes("vision") ||
 				model.id.toLowerCase().includes("vl") ||

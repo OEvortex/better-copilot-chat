@@ -89,7 +89,7 @@
         },
         {
             "id": "anthropic-claude-sonnet-4-6",
-            "name": "Anthropic: Claude Sonnet 4.6 (new)",
+            "name": "Anthropic: Claude Sonnet 4.6",
             "tooltip": "Sonnet 4.6 is Anthropic's most capable Sonnet-class model yet, with frontier performance across coding, agents, and professional work. It excels at iterative development, complex codebase navigation, end-to-end project management with memory, polished document creation, and confident computer use for web QA and workflow automation.",
             "maxInputTokens": 967232,
             "maxOutputTokens": 32768,
@@ -124,12 +124,12 @@
             }
         },
         {
-            "id": "openai-gpt-5-2-codex",
-            "name": "OpenAI: GPT-5.2-Codex",
-            "tooltip": "GPT-5.2-Codex is an upgraded version of GPT-5.1-Codex optimized for software engineering and coding workflows. It is designed for both interactive development sessions and long, independent execution of complex engineering tasks. The model supports building projects from scratch, feature development, debugging, large-scale refactoring, and code review. Compared to GPT-5.1-Codex, 5.2-Codex is more steerable, adheres closely to developer instructions, and produces cleaner, higher-quality code outputs. Reasoning effort can be adjusted with the `reasoning.effort` parameter. Read the [docs here](https://openrouter.ai/docs/use-cases/reasoning-tokens#reasoning-effort-level)\n\nCodex integrates into developer environments including the CLI, IDE extensions, GitHub, and cloud tasks. It adapts reasoning effort dynamically—providing fast responses for small tasks while sustaining extended multi-hour runs for large projects. The model is trained to perform structured code reviews, catching critical flaws by reasoning over dependencies and validating behavior against tests. It also supports multimodal inputs such as images or screenshots for UI development and integrates tool use for search, dependency installation, and environment setup. Codex is intended specifically for agentic coding applications.",
+            "id": "openai-gpt-5-3-codex",
+            "name": "OpenAI: GPT-5.3-Codex (new)",
+            "tooltip": "GPT-5.3-Codex is OpenAI’s most advanced agentic coding model, combining the frontier software engineering performance of GPT-5.2-Codex with the broader reasoning and professional knowledge capabilities of GPT-5.2. It achieves state-of-the-art results on SWE-Bench Pro and strong performance on Terminal-Bench 2.0 and OSWorld-Verified, reflecting improved multi-language coding, terminal proficiency, and real-world computer-use skills. The model is optimized for long-running, tool-using workflows and supports interactive steering during execution, making it suitable for complex development tasks, debugging, deployment, and iterative product work.\n\nBeyond coding, GPT-5.3-Codex performs strongly on structured knowledge-work benchmarks such as GDPval, supporting tasks like document drafting, spreadsheet analysis, slide creation, and operational research across domains. It is trained with enhanced cybersecurity awareness, including vulnerability identification capabilities, and deployed with additional safeguards for high-risk use cases. Compared to prior Codex models, it is more token-efficient and approximately 25% faster, targeting professional end-to-end workflows that span reasoning, execution, and computer interaction.",
             "maxInputTokens": 344064,
             "maxOutputTokens": 65536,
-            "model": "openai/gpt-5.2-codex",
+            "model": "openai/gpt-5.3-codex",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -178,6 +178,18 @@
             "maxInputTokens": 223232,
             "maxOutputTokens": 32768,
             "model": "x-ai/grok-code-fast-1",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "aion-labs-aion-2-0",
+            "name": "AionLabs: Aion-2.0",
+            "tooltip": "Aion-2.0 is a variant of DeepSeek V3.2 optimized for immersive roleplaying and storytelling. It is particularly strong at introducing tension, crises, and conflict into stories, making narratives feel more engaging. It also handles mature and darker themes with more nuance and depth.",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "aion-labs/aion-2.0",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -349,6 +361,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "openai-gpt-5-2-codex",
+            "name": "OpenAI: GPT-5.2-Codex",
+            "tooltip": "GPT-5.2-Codex is an upgraded version of GPT-5.1-Codex optimized for software engineering and coding workflows. It is designed for both interactive development sessions and long, independent execution of complex engineering tasks. The model supports building projects from scratch, feature development, debugging, large-scale refactoring, and code review. Compared to GPT-5.1-Codex, 5.2-Codex is more steerable, adheres closely to developer instructions, and produces cleaner, higher-quality code outputs. Reasoning effort can be adjusted with the `reasoning.effort` parameter. Read the [docs here](https://openrouter.ai/docs/use-cases/reasoning-tokens#reasoning-effort-level)\n\nCodex integrates into developer environments including the CLI, IDE extensions, GitHub, and cloud tasks. It adapts reasoning effort dynamically—providing fast responses for small tasks while sustaining extended multi-hour runs for large projects. The model is trained to perform structured code reviews, catching critical flaws by reasoning over dependencies and validating behavior against tests. It also supports multimodal inputs such as images or screenshots for UI development and integrates tool use for search, dependency installation, and environment setup. Codex is intended specifically for agentic coding applications.",
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
+            "model": "openai/gpt-5.2-codex",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         },
         {

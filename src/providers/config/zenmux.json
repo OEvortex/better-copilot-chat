@@ -1144,6 +1144,18 @@
             }
         },
         {
+            "id": "openai-gpt-5-3-codex",
+            "name": "OpenAI: GPT-5.3-Codex",
+            "tooltip": "OpenAI: GPT-5.3-Codex by Zenmux",
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
+            "model": "openai/gpt-5.3-codex",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
             "id": "stepfun-step-3-5-flash-free",
             "name": "StepFun: Step 3.5 Flash (Free)",
             "tooltip": "StepFun: Step 3.5 Flash (Free) by Zenmux",
