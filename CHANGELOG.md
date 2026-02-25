@@ -62,6 +62,11 @@ All notable changes to this project will be documented in this file.
   - Removed commands `chp.accounts.openManager` and `chp.accounts.manage`.
   - Account management features (API keys, OAuth, quota tracking) remain functional via Settings.
 
+- **Copilot Overview Page Removed**: Removed the Overview webview page and its command.
+  - Removed `chp.copilot.openOverview` command from package.json.
+  - Deleted copilotOverview.ts, copilotOverview.js, and copilotOverview.css files.
+  - Provider configuration is available in the Settings page.
+
 ### Changed
 
 **New AI Provider Integration & Multi-Account:**

@@ -28,7 +28,6 @@ import { ZhipuProvider } from "./providers/zhipu/zhipuProvider";
 import { registerAllTools } from "./tools";
 import { ProviderKey } from "./types/providerKeys";
 import {
-	registerCopilotOverviewCommand,
 	registerSettingsPageCommand,
 } from "./ui";
 import {
@@ -337,13 +336,6 @@ async function activateCompatibleProvider(
 		Logger.error("Failed to register compatible provider:", error);
 	}
 
-	// Register unified Copilot Overview command
-	try {
-		const copilotOverviewCmd = registerCopilotOverviewCommand(context);
-		registeredDisposables.push(copilotOverviewCmd);
-	} catch (e) {
-		Logger.warn("Failed to register Copilot Overview command", e);
-	}
 }
 
 /**
