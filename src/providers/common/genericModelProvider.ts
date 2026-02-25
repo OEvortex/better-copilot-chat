@@ -511,32 +511,21 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 			);
 		}
 
-		// Original logic: check API key and build model list
-		const apiKey = await ApiKeyManager.getApiKey(this.providerKey);
-		if (!apiKey) {
-			// If silent mode (e.g. extension startup), do not trigger user interaction, return empty list directly
-			if (options.silent) {
-				return [];
-			}
-			// In non-silent mode, trigger API key setup directly
-			await vscode.commands.executeCommand(`chp.${this.providerKey}.setApiKey`);
-			// Re-check API key
-			const newApiKey = await ApiKeyManager.getApiKey(this.providerKey);
-			if (!newApiKey) {
-				// If user cancels setup or setup fails, return empty list
-				return [];
-			}
-		}
-
-		// Start with static config models
+		// Always return static config models first - no API key required for model listing
+		// This allows providers to be registered with VS Code immediately without configuration
 		let models = this.providerConfig.models.map((model) =>
 			this.modelConfigToInfo(model),
 		);
 
-		// Try to fetch models from API dynamically in background (only in non-silent mode to avoid startup delays)
-		// This updates the model list asynchronously without blocking the response
-		if (!options.silent && this.shouldFetchModelsFromApi() && apiKey) {
-			this.fetchAndUpdateModelsAsync(apiKey);
+		// Try to fetch more models from API dynamically in background
+		// Only attempt if we have a valid baseUrl (not needed for no-config providers)
+		if (this.shouldFetchModelsFromApi()) {
+			// Try to get API key silently - won't prompt user
+			const apiKey = await ApiKeyManager.getApiKey(this.providerKey);
+			if (apiKey && !options.silent) {
+				// Fetch additional models from API in background (non-blocking)
+				this.fetchAndUpdateModelsAsync(apiKey);
+			}
 		}
 
 		// Read user's last selected model and mark as default (only if memory is enabled and provider matches)

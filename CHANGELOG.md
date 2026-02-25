@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+**Automatic Provider Registration (No Configuration Required):**
+- **Providers Auto-Register with VS Code**: All providers now automatically register with VS Code's language model system immediately upon extension activation, without requiring any API key or configuration.
+  - Static models from config files are available right away.
+  - Users can see all available models without entering API keys.
+  - API key is only required when actually making requests to the provider.
+- **Works Offline**: Provider models are visible even without network connectivity (using static config).
+
 **Automatic Dynamic Model Fetching:**
 - **All Providers Now Auto-Fetch Models**: When a provider is configured with an API key, the extension now automatically fetches the latest available models from the provider's `/models` API endpoint.
   - Works with all providers using `GenericModelProvider` (Zhipu, MiniMax, Moonshot, DeepSeek, DeepInfra, Mistral, HuggingFace, Ollama, and more).
