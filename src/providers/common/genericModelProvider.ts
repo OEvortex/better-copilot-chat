@@ -12,6 +12,8 @@ import type {
 	ProvideLanguageModelChatResponseOptions,
 } from "vscode";
 import * as vscode from "vscode";
+import * as fs from "fs/promises";
+import * as path from "path";
 import { AccountManager } from "../../accounts";
 import type { Account } from "../../accounts/types";
 import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
@@ -247,6 +249,224 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 		return info;
 	}
 
+	/**
+	 * Fetch models dynamically from the provider's API endpoint
+	 * Returns the fetched models or empty array if the request fails
+	 */
+	protected async fetchModelsFromApi(apiKey: string): Promise<LanguageModelChatInformation[]> {
+		try {
+			const baseUrl = this.providerConfig.baseUrl;
+			const modelsUrl = `${baseUrl}/models`;
+			Logger.debug(`[${this.providerKey}] Fetching models from: ${modelsUrl}`);
+
+			const abortController = new AbortController();
+			const timeoutId = setTimeout(() => abortController.abort(), 15000); // 15 second timeout
+
+			const ext = vscode.extensions.getExtension("OEvortex.better-copilot-chat");
+			const extVersion = ext?.packageJSON?.version ?? "unknown";
+			const vscodeVersion = vscode.version;
+			const userAgent = `better-copilot-chat/${extVersion} VSCode/${vscodeVersion}`;
+
+			const resp = await fetch(modelsUrl, {
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+					"User-Agent": userAgent,
+				},
+				signal: abortController.signal,
+			});
+
+			clearTimeout(timeoutId);
+
+			if (!resp.ok) {
+				const text = await resp.text();
+				Logger.warn(
+					`[${this.providerKey}] Failed to fetch models: ${resp.status} ${resp.statusText}`,
+				);
+				return [];
+			}
+
+			const parsed = await resp.json();
+			const models = this.parseApiModelsResponse(parsed);
+			Logger.info(`[${this.providerKey}] Successfully fetched ${models.length} models from API`);
+			return models;
+		} catch (err) {
+			if (err instanceof Error && err.name === "AbortError") {
+				Logger.warn(`[${this.providerKey}] Model fetch timeout (15s). Using pre-configured models.`);
+			} else {
+				Logger.warn(
+					`[${this.providerKey}] Error fetching models from API:`,
+					err instanceof Error ? err.message : String(err),
+				);
+			}
+			return [];
+		}
+	}
+
+	/**
+	 * Parse the API response and convert to LanguageModelChatInformation
+	 * Subclasses can override this to handle provider-specific response formats
+	 */
+	protected parseApiModelsResponse(resp: unknown): LanguageModelChatInformation[] {
+		// Default implementation for OpenAI-compatible /v1/models response
+		// Format: { data: [{ id: string, ... }] }
+		const data = resp as { data?: Array<{ id: string; object?: string }> };
+		if (!data.data || !Array.isArray(data.data)) {
+			Logger.warn(`[${this.providerKey}] Invalid API response format`);
+			return [];
+		}
+
+		return data.data
+			.filter((m) => m.object === "model") // Only include model objects, not deployments
+			.map((m) => ({
+				id: m.id,
+				name: this.formatModelName(m.id),
+				detail: this.providerConfig.displayName,
+				tooltip: `${m.id} via ${this.providerConfig.displayName}`,
+				family: this.providerKey,
+				maxInputTokens: 128000, // Default, will be improved
+				maxOutputTokens: 16384,
+				version: "1.0",
+				capabilities: {
+					toolCalling: true,
+					imageInput: false,
+				},
+			}));
+	}
+
+	/**
+	 * Format model ID into a display name
+	 */
+	protected formatModelName(modelId: string): string {
+		// Convert model IDs like "meta-llama/Llama-3.1-70B-Instruct" to "Llama 3.1 70B Instruct"
+		return modelId
+			.split(/[/:-]/)
+			.map((part) => part.trim())
+			.filter((part) => part.length > 0 && !part.match(/^v\d+$/))
+			.join(" ");
+	}
+
+	/**
+	 * Get the config file path for this provider
+	 */
+	protected getConfigFilePath(): string | undefined {
+		// Look for the provider config file in the extension
+		const configPath = path.join(
+			this.context.extensionPath,
+			"src",
+			"providers",
+			"config",
+			`${this.providerKey}.json`,
+		);
+		try {
+			// Use synchronous check for existence as it's faster for this use case
+			const fsSync = require("fs");
+			if (fsSync.existsSync(configPath)) {
+				return configPath;
+			}
+		} catch {}
+		return undefined;
+	}
+
+	/**
+	 * Update the provider's config file with new models
+	 * This allows automatic model list updates
+	 */
+	protected async updateConfigFileAsync(models: LanguageModelChatInformation[]): Promise<void> {
+		const configPath = this.getConfigFilePath();
+		if (!configPath) {
+			Logger.debug(`[${this.providerKey}] No config file found to update`);
+			return;
+		}
+
+		// Run in background using async fs
+		this.writeConfigInBackground(configPath, models);
+	}
+
+	/**
+	 * Write config file in background (non-blocking)
+	 */
+	private writeConfigInBackground(configPath: string, models: LanguageModelChatInformation[]): void {
+		// Use async fs operations to avoid blocking
+		(async () => {
+			try {
+				// Read existing config
+				let existingConfig: ProviderConfig;
+				try {
+					const configContent = await fs.readFile(configPath, "utf8");
+					existingConfig = JSON.parse(configContent);
+				} catch {
+					existingConfig = {
+						displayName: this.providerConfig.displayName,
+						baseUrl: this.providerConfig.baseUrl,
+						apiKeyTemplate: this.providerConfig.apiKeyTemplate,
+						models: [],
+					};
+				}
+
+				// Merge with existing static models, avoiding duplicates
+				const existingModelIds = new Set(existingConfig.models.map((m) => m.id));
+				const newModels: ModelConfig[] = models.map((m) => ({
+					id: m.id,
+					name: m.name || m.id,
+					tooltip: m.tooltip || m.id,
+					maxInputTokens: m.maxInputTokens,
+					maxOutputTokens: m.maxOutputTokens,
+					capabilities: {
+						toolCalling: Boolean(m.capabilities?.toolCalling ?? true),
+						imageInput: Boolean(m.capabilities?.imageInput ?? false),
+					},
+				}));
+
+				// Add new models that don't already exist
+				for (const newModel of newModels) {
+					if (!existingModelIds.has(newModel.id)) {
+						existingConfig.models.push(newModel);
+					}
+				}
+
+				// Write back to config file
+				await fs.writeFile(
+					configPath,
+					JSON.stringify(existingConfig, null, 4),
+					"utf8",
+				);
+				Logger.info(`[${this.providerKey}] Auto-updated config with ${newModels.length} new models`);
+			} catch (err) {
+				Logger.warn(`[${this.providerKey}] Background config update failed:`, err instanceof Error ? err.message : String(err));
+			}
+		})();
+	}
+
+	/**
+	 * Check if dynamic model fetching is enabled for this provider
+	 * Can be overridden by subclasses
+	 */
+	protected shouldFetchModelsFromApi(): boolean {
+		// Only fetch if we have a valid baseUrl
+		return !!this.providerConfig.baseUrl && this.providerConfig.baseUrl.startsWith("http");
+	}
+
+	/**
+	 * Fetch models from API and update cache + config file asynchronously (non-blocking)
+	 */
+	protected fetchAndUpdateModelsAsync(apiKey: string): void {
+		(async () => {
+			try {
+				const apiModels = await this.fetchModelsFromApi(apiKey);
+				if (apiModels.length > 0) {
+					Logger.debug(`[${this.providerKey}] Updating with ${apiModels.length} models from API`);
+					// Update config file in background
+					await this.updateConfigFileAsync(apiModels);
+					// Fire event to notify VS Code that models are available
+					this._onDidChangeLanguageModelChatInformation.fire();
+				}
+			} catch (err) {
+				Logger.debug(`[${this.providerKey}] Background model fetch failed:`, err instanceof Error ? err.message : String(err));
+			}
+		})();
+	}
+
 	async provideLanguageModelChatInformation(
 		options: { silent: boolean },
 		_token: CancellationToken,
@@ -292,8 +512,8 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 		}
 
 		// Original logic: check API key and build model list
-		const hasApiKey = await ApiKeyManager.hasValidApiKey(this.providerKey);
-		if (!hasApiKey) {
+		const apiKey = await ApiKeyManager.getApiKey(this.providerKey);
+		if (!apiKey) {
 			// If silent mode (e.g. extension startup), do not trigger user interaction, return empty list directly
 			if (options.silent) {
 				return [];
@@ -301,18 +521,23 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 			// In non-silent mode, trigger API key setup directly
 			await vscode.commands.executeCommand(`chp.${this.providerKey}.setApiKey`);
 			// Re-check API key
-			const hasApiKeyAfterSet = await ApiKeyManager.hasValidApiKey(
-				this.providerKey,
-			);
-			if (!hasApiKeyAfterSet) {
+			const newApiKey = await ApiKeyManager.getApiKey(this.providerKey);
+			if (!newApiKey) {
 				// If user cancels setup or setup fails, return empty list
 				return [];
 			}
 		}
-		// Convert models in configuration to VS Code format
+
+		// Start with static config models
 		let models = this.providerConfig.models.map((model) =>
 			this.modelConfigToInfo(model),
 		);
+
+		// Try to fetch models from API dynamically in background (only in non-silent mode to avoid startup delays)
+		// This updates the model list asynchronously without blocking the response
+		if (!options.silent && this.shouldFetchModelsFromApi() && apiKey) {
+			this.fetchAndUpdateModelsAsync(apiKey);
+		}
 
 		// Read user's last selected model and mark as default (only if memory is enabled and provider matches)
 		const rememberLastModel = ConfigManager.getRememberLastModel();
@@ -331,7 +556,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 		// Asynchronously cache results (non-blocking)
 		try {
 			const apiKeyHash = await this.getApiKeyHash();
-			this.updateModelCacheAsync(apiKeyHash);
+			this.updateModelCacheAsync(apiKeyHash, models);
 		} catch (err) {
 			Logger.warn(`[${this.providerKey}] Cache saving failed:`, err);
 		}
@@ -341,19 +566,24 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 
 	/**
 	 * Update model cache asynchronously (non-blocking)
+	 * @param apiKeyHash The API key hash for cache validation
+	 * @param models Optional models to cache (defaults to static config models)
 	 */
-	protected updateModelCacheAsync(apiKeyHash: string): void {
+	protected updateModelCacheAsync(apiKeyHash: string, models?: LanguageModelChatInformation[]): void {
 		// Use Promise to execute in background, do not wait for result
 		(async () => {
 			try {
-				let models = this.providerConfig.models.map((model) =>
-					this.modelConfigToInfo(model),
-				);
-				models = this.dedupeModelInfos(models);
+				let modelsToCache = models;
+				if (!modelsToCache) {
+					modelsToCache = this.providerConfig.models.map((model) =>
+						this.modelConfigToInfo(model),
+					);
+				}
+				modelsToCache = this.dedupeModelInfos(modelsToCache);
 
 				await this.modelInfoCache?.cacheModels(
 					this.providerKey,
-					models,
+					modelsToCache,
 					apiKeyHash,
 				);
 			} catch (err) {

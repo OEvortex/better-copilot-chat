@@ -299,7 +299,7 @@ export class CompatibleProvider extends GenericModelProvider {
 	 * Override: Update model cache asynchronously
 	 * Need to correctly set detail field to display SDK mode
 	 */
-	protected override updateModelCacheAsync(apiKeyHash: string): void {
+	protected override updateModelCacheAsync(apiKeyHash: string, models?: LanguageModelChatInformation[]): void {
 		(async () => {
 			try {
 				const currentConfig = this.providerConfig;

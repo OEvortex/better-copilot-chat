@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.6] - 2026-02-26
+
+### Added
+
+**Automatic Dynamic Model Fetching:**
+- **All Providers Now Auto-Fetch Models**: When a provider is configured with an API key, the extension now automatically fetches the latest available models from the provider's `/models` API endpoint.
+  - Works with all providers using `GenericModelProvider` (Zhipu, MiniMax, Moonshot, DeepSeek, DeepInfra, Mistral, HuggingFace, Ollama, and more).
+  - No need to manually add models to configuration files - they're fetched automatically.
+  - Falls back to pre-configured models if API call fails (network issues, rate limiting, etc.).
+- **Background Model Updates**: Model fetching happens in the background when user opens the chat to avoid delaying extension startup.
+- **Auto-Config Updates**: When new models are fetched from the API, they're automatically merged into the provider's config file for persistence.
+- **Non-Blocking UI**: Model fetching is asynchronous and doesn't block the extension from loading.
+
+### Changed
+
+- **Faster Startup**: Extension now returns static config models immediately during startup (silent mode) for faster initialization.
+- **Improved Model Discovery**: In non-silent mode (when user interacts with chat), models are fetched from the API in the background and the model list is automatically refreshed.
+
 ## [0.2.5] - 2026-02-25
 
 ### Added

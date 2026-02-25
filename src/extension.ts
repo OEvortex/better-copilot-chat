@@ -6,25 +6,12 @@ import { AccountManager,
 } from "./accounts";
 import { InlineCompletionShim } from "./copilot/inlineCompletionShim";
 import { AntigravityProvider } from "./providers/antigravity/provider";
-import { BlackboxProvider } from "./providers/blackbox";
-import { ChutesProvider } from "./providers/chutes/chutesProvider";
 import { CodexProvider } from "./providers/codex/codexProvider";
-import { GenericModelProvider } from "./providers/common/genericModelProvider";
 import { CompatibleProvider } from "./providers/compatible/compatibleProvider";
-import { DeepInfraProvider } from "./providers/deepinfra/deepinfraProvider";
-import { GeminiCliProvider } from "./providers/geminicli/provider";
-import { HuggingfaceProvider } from "./providers/huggingface/provider";
-import { KiloProvider } from "./providers/kilo/provider";
-import { LightningAIProvider } from "./providers/lightningai/provider";
-import { MiniMaxProvider } from "./providers/minimax/minimaxProvider";
-import { MistralProvider } from "./providers/mistral/mistralProvider";
-import { MoonshotProvider } from "./providers/moonshot/moonshotProvider";
-import { NvidiaProvider } from "./providers/nvidia";
-import { OllamaProvider } from "./providers/ollama";
-import { OpenCodeProvider } from "./providers/opencode/opencodeProvider";
-import { QwenCliProvider } from "./providers/qwencli/provider";
-import { ZenmuxProvider } from "./providers/zenmux/provider";
-import { ZhipuProvider } from "./providers/zhipu/zhipuProvider";
+import {
+	registerProvidersFromConfig,
+	type RegisteredProvider,
+} from "./providers/providerRegistry";
 import { registerAllTools } from "./tools";
 import { ProviderKey } from "./types/providerKeys";
 import {
@@ -44,40 +31,18 @@ import { CompatibleModelManager } from "./utils/compatibleModelManager";
 /**
  * Global variables - Store registered provider instances for cleanup on extension uninstall
  */
-const registeredProviders: Record<
-	string,
-	| GenericModelProvider
-	| ZhipuProvider
-	| MiniMaxProvider
-	| ChutesProvider
-	| ZenmuxProvider
-	| OpenCodeProvider
-	| LightningAIProvider
-	| QwenCliProvider
-	| GeminiCliProvider
-	| HuggingfaceProvider
-	| OllamaProvider
-	| CompatibleProvider
-	| AntigravityProvider
-	| CodexProvider
-	| DeepInfraProvider
-	| MistralProvider
-	| MoonshotProvider
-	| NvidiaProvider
-	| BlackboxProvider
-> = {};
+const registeredProviders: Record<string, RegisteredProvider> = {};
 const registeredDisposables: vscode.Disposable[] = [];
 
 // Inline completion provider instance (using lightweight Shim, lazy loading real completion engine)
 let inlineCompletionProvider: InlineCompletionShim | undefined;
 
 /**
- * Activate providers - dynamic registration based on config file (parallel optimized version)
+ * Activate providers - dynamic registration based on config file using registry pattern
  */
 async function activateProviders(
 	context: vscode.ExtensionContext,
 ): Promise<void> {
-	const startTime = Date.now();
 	const configProvider = ConfigManager.getConfigProvider();
 
 	if (!configProvider) {
@@ -90,223 +55,16 @@ async function activateProviders(
 	// Set extension path (for tokenizer initialization)
 	TokenCounter.setExtensionPath(context.extensionPath);
 
-	// Skip Codex here because it is registered separately with a specialized provider (CodexProvider)
-	const providerEntries = Object.entries(configProvider).filter(
-		([providerKey]) => providerKey !== ProviderKey.Codex,
+	// Register all providers using the registry (excludes Codex which is registered separately)
+	const result = await registerProvidersFromConfig(
+		context,
+		configProvider,
+		[ProviderKey.Codex], // Exclude Codex - registered separately with specialized provider
 	);
 
-	Logger.info(
-		`⏱️ Starting parallel registration of ${providerEntries.length} providers...`,
-	);
-
-	// Register all providers in parallel to improve performance
-	const registrationPromises = providerEntries.map(
-		async ([providerKey, providerConfig]) => {
-			try {
-				Logger.trace(
-					`Registering provider: ${providerConfig.displayName} (${providerKey})`,
-				);
-				const providerStartTime = Date.now();
-
-				let provider:
-					| GenericModelProvider
-					| ZhipuProvider
-					| MiniMaxProvider
-					| ChutesProvider
-					| ZenmuxProvider
-					| OpenCodeProvider
-					| LightningAIProvider
-					| QwenCliProvider
-					| GeminiCliProvider
-					| HuggingfaceProvider
-					| KiloProvider
-					| OllamaProvider
-					| DeepInfraProvider
-					| MistralProvider				| MoonshotProvider					| NvidiaProvider
-					| BlackboxProvider;
-				let disposables: vscode.Disposable[];
-
-				if (providerKey === "zhipu") {
-					// Use specialized provider for zhipu (config wizard function)
-					const result = ZhipuProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider;
-					disposables = result.disposables;
-				} else if (providerKey === "minimax") {
-					// Use specialized provider for minimax (multi-key management and config wizard)
-					const result = MiniMaxProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider;
-					disposables = result.disposables;
-				} else if (providerKey === "chutes") {
-					// Use specialized provider for chutes (global request limit tracking)
-					const result = ChutesProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider;
-					disposables = result.disposables;
-				} else if (providerKey === "zenmux") {
-					// Use specialized provider for zenmux (dynamic model fetching)
-					const result = ZenmuxProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider;
-					disposables = result.disposables;
-				} else if (providerKey === "lightningai") {
-					// Use specialized provider for lightningai (dynamic model fetching)
-					const result = LightningAIProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider as unknown as GenericModelProvider;
-					disposables = result.disposables;
-				} else if (providerKey === "opencode") {
-					// Use specialized provider for opencode (dedicated error handling and status)
-					const result = OpenCodeProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider;
-					disposables = result.disposables;
-				} else if (providerKey === "qwencli") {
-					// Use specialized provider for qwencli (OAuth via CLI)
-					const result = QwenCliProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider;
-					disposables = result.disposables;
-				} else if (providerKey === "geminicli") {
-					// Use specialized provider for geminicli (OAuth via CLI)
-					const result = GeminiCliProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider;
-					disposables = result.disposables;
-				} else if (providerKey === "huggingface") {
-					// Use specialized provider for huggingface (dedicated Hugging Face Router integration)
-					const result = HuggingfaceProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider as unknown as GenericModelProvider;
-					disposables = result.disposables as unknown as vscode.Disposable[];
-				} else if (providerKey === "kilo") {
-					// Use specialized provider for kilo (dynamic model fetching)
-					const result = KiloProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider;
-					disposables = result.disposables;
-				} else if (providerKey === "deepinfra") {
-					// Use specialized provider for DeepInfra (OpenAI-compatible endpoints)
-					const result = DeepInfraProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider as unknown as GenericModelProvider;
-					disposables = result.disposables as unknown as vscode.Disposable[];
-				} else if (providerKey === "mistral") {
-					// Use specialized provider for Mistral AI (OpenAI-compatible endpoints)
-					const result = MistralProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider as unknown as GenericModelProvider;
-					disposables = result.disposables as unknown as vscode.Disposable[];			} else if (providerKey === "moonshot") {
-				// Use specialized provider for Moonshot AI (family support + multi-key management)
-				const result = MoonshotProvider.createAndActivate(
-					context,
-					providerKey,
-					providerConfig,
-				);
-				provider = result.provider as unknown as GenericModelProvider;
-				disposables = result.disposables as unknown as vscode.Disposable[];				} else if (providerKey === "nvidia") {
-					// Use specialized provider for NVIDIA NIM (OpenAI-compatible + model discovery + 40 RPM throttle)
-					const result = NvidiaProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider as unknown as GenericModelProvider;
-					disposables = result.disposables as unknown as vscode.Disposable[];
-				} else if (providerKey === "ollama") {
-					// Use specialized provider for Ollama Cloud (OpenAI-compatible endpoints)
-					const result = OllamaProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider as unknown as GenericModelProvider;
-					disposables = result.disposables as unknown as vscode.Disposable[];
-				} else if (providerKey === "blackbox") {
-					// Use specialized provider for Blackbox AI (OpenAI-compatible with custom headers)
-					const result = BlackboxProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider as unknown as GenericModelProvider;
-					disposables = result.disposables as unknown as vscode.Disposable[];
-				} else {
-					// Other providers use generic provider (supports automatic selection based on sdkMode)
-					const result = GenericModelProvider.createAndActivate(
-						context,
-						providerKey,
-						providerConfig,
-					);
-					provider = result.provider;
-					disposables = result.disposables;
-				}
-
-				const providerTime = Date.now() - providerStartTime;
-				Logger.info(
-					`${providerConfig.displayName} provider registered successfully (time: ${providerTime}ms)`,
-				);
-				return { providerKey, provider, disposables };
-			} catch (error) {
-				Logger.error(`Failed to register provider ${providerKey}:`, error);
-				return null;
-			}
-		},
-	);
-
-	// Wait for all provider registrations to complete
-	const results = await Promise.all(registrationPromises);
-
-	// Collect successfully registered providers
-	for (const result of results) {
-		if (result) {
-			registeredProviders[result.providerKey] = result.provider;
-			registeredDisposables.push(...result.disposables);
-		}
-	}
-
-	const totalTime = Date.now() - startTime;
-	const successCount = results.filter((r) => r !== null).length;
-	Logger.info(
-		`⏱️ Provider registration completed: ${successCount}/${providerEntries.length} successful (total time: ${totalTime}ms)`,
-	);
+	// Store registered providers and disposables
+	Object.assign(registeredProviders, result.providers);
+	registeredDisposables.push(...result.disposables);
 }
 
 /**
