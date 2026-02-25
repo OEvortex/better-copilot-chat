@@ -5,52 +5,52 @@ const vscode = acquireVsCodeApi();
 
 // State management
 let settingsState = {
-	providers: [],
-	loadBalanceSettings: {},
-	loadBalanceStrategies: {},
-	providerSearchQuery: "",
-	loading: true,
+    providers: [],
+    loadBalanceSettings: {},
+    loadBalanceStrategies: {},
+    providerSearchQuery: "",
+    loading: true,
 };
 
 // Available load balance strategies
 const LOAD_BALANCE_STRATEGIES = [
-	{
-		id: "round-robin",
-		name: "Round Robin",
-		description: "Distribute requests evenly across accounts",
-	},
-	{
-		id: "quota-aware",
-		name: "Quota Aware",
-		description: "Prioritize accounts with more remaining quota",
-	},
-	{
-		id: "failover",
-		name: "Failover Only",
-		description: "Use primary account, switch on errors",
-	},
+    {
+        id: "round-robin",
+        name: "Round Robin",
+        description: "Distribute requests evenly across accounts",
+    },
+    {
+        id: "quota-aware",
+        name: "Quota Aware",
+        description: "Prioritize accounts with more remaining quota",
+    },
+    {
+        id: "failover",
+        name: "Failover Only",
+        description: "Use primary account, switch on errors",
+    },
 ];
 
 /**
  * Initialize the settings page
  */
 function _initializeSettingsPage(initialData) {
-	settingsState = {
-		...settingsState,
-		...initialData,
-		loading: false,
-	};
-	renderPage();
+    settingsState = {
+        ...settingsState,
+        ...initialData,
+        loading: false,
+    };
+    renderPage();
 }
 
 /**
  * Render the entire page
  */
 function renderPage() {
-	const app = document.getElementById("app");
-	if (!app) return;
+    const app = document.getElementById("app");
+    if (!app) return;
 
-	app.innerHTML = `
+    app.innerHTML = `
         ${renderHeader()}
         ${renderLoadBalanceSection()}
 	${renderProviderCatalogSection()}
@@ -58,14 +58,14 @@ function renderPage() {
         ${renderInfoSection()}
     `;
 
-	attachEventListeners();
+    attachEventListeners();
 }
 
 /**
  * Render header section
  */
 function renderHeader() {
-	return `
+    return `
         <div class="settings-header">
             <h1>
                 <span class="icon"></span>
@@ -80,13 +80,13 @@ function renderHeader() {
  * Render load balance section
  */
 function renderLoadBalanceSection() {
-	const providers = settingsState.providers || [];
+    const providers = settingsState.providers || [];
 
-	// Filter providers that have accounts
-	const providersWithAccounts = providers.filter((p) => p.accountCount > 0);
+    // Filter providers that have accounts
+    const providersWithAccounts = providers.filter((p) => p.accountCount > 0);
 
-	if (providersWithAccounts.length === 0) {
-		return `
+    if (providersWithAccounts.length === 0) {
+        return `
             <div class="settings-section">
                 <h2 class="section-title">
                     ⚖️ Load Balance Settings
@@ -102,9 +102,9 @@ function renderLoadBalanceSection() {
                 </div>
             </div>
         `;
-	}
+    }
 
-	return `
+    return `
         <div class="settings-section">
             <h2 class="section-title">
                 ⚖️ Load Balance Settings
@@ -118,23 +118,23 @@ function renderLoadBalanceSection() {
 }
 
 function renderProviderCatalogSection() {
-	const providers = settingsState.providers || [];
-	const query = (settingsState.providerSearchQuery || "").trim().toLowerCase();
-	const filteredProviders = providers.filter((provider) => {
-		if (!query) {
-			return true;
-		}
-		return (
-			provider.id.toLowerCase().includes(query) ||
-			provider.displayName.toLowerCase().includes(query) ||
-			(provider.description || "").toLowerCase().includes(query)
-		);
-	});
+    const providers = settingsState.providers || [];
+    const query = (settingsState.providerSearchQuery || "").trim().toLowerCase();
+    const filteredProviders = providers.filter((provider) => {
+        if (!query) {
+            return true;
+        }
+        return (
+            provider.id.toLowerCase().includes(query) ||
+            provider.displayName.toLowerCase().includes(query) ||
+            (provider.description || "").toLowerCase().includes(query)
+        );
+    });
 
-	const grouped = groupProvidersByCategory(filteredProviders);
-	const hasResults = filteredProviders.length > 0;
+    const grouped = groupProvidersByCategory(filteredProviders);
+    const hasResults = filteredProviders.length > 0;
 
-	return `
+    return `
         <div class="settings-section">
             <h2 class="section-title">
                 🧩 Provider Configuration
@@ -148,11 +148,10 @@ function renderProviderCatalogSection() {
                     placeholder="Search provider by name, id, or description"
                     value="${escapeHtml(settingsState.providerSearchQuery || "")}" />
             </div>
-            ${
-							hasResults
-								? Object.entries(grouped)
-										.map(
-											([category, categoryProviders]) => `
+            ${hasResults
+            ? Object.entries(grouped)
+                .map(
+                    ([category, categoryProviders]) => `
                     <div class="provider-category-group">
                         <h3 class="provider-category-title">${getCategoryLabel(category)}</h3>
                         <div class="provider-list-grid">
@@ -160,26 +159,26 @@ function renderProviderCatalogSection() {
                         </div>
                     </div>
                 `,
-										)
-										.join("")
-								: `<div class="empty-state compact"><p>No providers match your search.</p></div>`
-						}
+                )
+                .join("")
+            : `<div class="empty-state compact"><p>No providers match your search.</p></div>`
+        }
         </div>
     `;
 }
 
 function renderProviderCatalogItem(provider) {
-	const accountCount = provider.accountCount || 0;
-	const capabilityBadges = [
-		provider.supportsApiKey ? "API Key" : null,
-		provider.supportsOAuth ? "OAuth" : null,
-		provider.supportsBaseUrl ? "Base URL" : null,
-	]
-		.filter(Boolean)
-		.map((badge) => `<span class="account-badge">${badge}</span>`)
-		.join("");
+    const accountCount = provider.accountCount || 0;
+    const capabilityBadges = [
+        provider.supportsApiKey ? "API Key" : null,
+        provider.supportsOAuth ? "OAuth" : null,
+        provider.supportsBaseUrl ? "Base URL" : null,
+    ]
+        .filter(Boolean)
+        .map((badge) => `<span class="account-badge">${badge}</span>`)
+        .join("");
 
-	return `
+    return `
         <div class="provider-catalog-item" data-provider-item="${provider.id}">
             <div class="provider-catalog-head">
                 <div class="provider-title-wrap">
@@ -197,37 +196,36 @@ function renderProviderCatalogItem(provider) {
                 <button class="action-button secondary compact" onclick="openProviderSettings('${provider.id}')">
                     Open Settings
                 </button>
-                ${
-									provider.supportsConfigWizard
-										? `<button class="action-button compact" onclick="runProviderWizard('${provider.id}')">Run Wizard</button>`
-										: ""
-								}
+                ${provider.supportsConfigWizard
+            ? `<button class="action-button compact" onclick="runProviderWizard('${provider.id}')">Run Wizard</button>`
+            : ""
+        }
             </div>
         </div>
     `;
 }
 
 function renderProviderEditor(provider) {
-	const endpointOptions = getEndpointOptions(provider.id);
-	const endpointField = endpointOptions.length
-		? `
+    const endpointOptions = getEndpointOptions(provider.id);
+    const endpointField = endpointOptions.length
+        ? `
 			<div class="provider-editor-field">
 				<label for="provider-endpoint-${provider.id}">Endpoint</label>
 				<select id="provider-endpoint-${provider.id}">
 					${endpointOptions
-						.map(
-							(option) => `
+            .map(
+                (option) => `
 						<option value="${option.value}" ${provider.endpoint === option.value ? "selected" : ""}>${option.label}</option>
 					`,
-						)
-						.join("")}
+            )
+            .join("")}
 				</select>
 			</div>
 		`
-		: "";
+        : "";
 
-	const apiKeyField = provider.supportsApiKey
-		? `
+    const apiKeyField = provider.supportsApiKey
+        ? `
 			<div class="provider-editor-field">
 				<label for="provider-apikey-${provider.id}">API Key</label>
 				<input
@@ -236,10 +234,10 @@ function renderProviderEditor(provider) {
 					placeholder="${provider.hasApiKey ? "Stored (enter to replace / leave blank to keep)" : "Enter API key"}" />
 			</div>
 		`
-		: "";
+        : "";
 
-	const baseUrlField = provider.supportsBaseUrl
-		? `
+    const baseUrlField = provider.supportsBaseUrl
+        ? `
 			<div class="provider-editor-field">
 				<label for="provider-baseurl-${provider.id}">Base URL</label>
 				<input
@@ -249,55 +247,61 @@ function renderProviderEditor(provider) {
 					placeholder="Leave empty to use default" />
 			</div>
 		`
-		: "";
+        : "";
 
-	return `
-		<div class="provider-editor-grid" data-provider-editor="${provider.id}">
-			${apiKeyField}
-			${baseUrlField}
-			${endpointField}
+    const saveButton = provider.supportsApiKey
+        ? `
 			<div class="provider-editor-actions">
 				<button class="action-button compact" onclick="saveProviderSettings('${provider.id}')">
 					Save
 				</button>
 			</div>
+		`
+        : "";
+
+    return `
+		<div class="provider-editor-grid" data-provider-editor="${provider.id}">
+			${apiKeyField}
+			${baseUrlField}
+			${endpointField}
+			${saveButton}
 		</div>
 	`;
 }
 
 function groupProvidersByCategory(providers) {
-	return providers.reduce((acc, provider) => {
-		const category = provider.category || "other";
-		if (!acc[category]) {
-			acc[category] = [];
-		}
-		acc[category].push(provider);
-		return acc;
-	}, {});
+    return providers.reduce((acc, provider) => {
+        const category = provider.category || "other";
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(provider);
+        return acc;
+    }, {});
 }
 
 function getCategoryLabel(category) {
-	const labels = {
-		openai: "OpenAI SDK",
-		anthropic: "Anthropic SDK",
-		oauth: "OAuth Required",
-	};
-	return labels[category] || "Other";
+    const labels = {
+        openai: "OpenAI SDK",
+        anthropic: "Anthropic SDK",
+        oauth: "OAuth Required",
+    };
+    return labels[category] || "Other";
 }
 
 /**
  * Render a provider card
  */
 function renderProviderCard(provider) {
-	const isEnabled = settingsState.loadBalanceSettings[provider.id] || false;
-	const currentStrategy =
-		settingsState.loadBalanceStrategies[provider.id] || "round-robin";
-	const accountCount = provider.accountCount || 0;
-	const statusClass = isEnabled ? "enabled" : "disabled";
-	const statusText = isEnabled ? "Enabled" : "Disabled";
-	const canEnable = accountCount >= 2;
+    const isEnabled = settingsState.loadBalanceSettings[provider.id] || false;
+    const currentStrategy =
+        settingsState.loadBalanceStrategies[provider.id] || "round-robin";
+    const accountCount = provider.accountCount || 0;
+    const statusClass = isEnabled ? "enabled" : "disabled";
+    const statusText = isEnabled ? "Enabled" : "Disabled";
+    const canEnable = accountCount >= 2;
 
-	return `
+    return `
         <div class="settings-card" data-provider="${provider.id}">
             <div class="card-header">
                 <div class="card-title">
@@ -341,14 +345,14 @@ function renderProviderCard(provider) {
  * Render strategy selector
  */
 function renderStrategySelector(providerId, currentStrategy) {
-	return `
+    return `
         <div class="strategy-container">
             <div class="strategy-label">
                 <span class="label-text">Load Balance Strategy</span>
             </div>
             <div class="strategy-options">
                 ${LOAD_BALANCE_STRATEGIES.map(
-									(strategy) => `
+        (strategy) => `
                     <label class="strategy-option ${currentStrategy === strategy.id ? "selected" : ""}">
                         <input type="radio" 
                                name="strategy-${providerId}" 
@@ -361,7 +365,7 @@ function renderStrategySelector(providerId, currentStrategy) {
                         </div>
                     </label>
                 `,
-								).join("")}
+    ).join("")}
             </div>
         </div>
     `;
@@ -371,7 +375,7 @@ function renderStrategySelector(providerId, currentStrategy) {
  * Render advanced section
  */
 function renderAdvancedSection() {
-	return `
+    return `
         <div class="settings-section">
             <h2 class="section-title">
                 Quick Actions
@@ -392,7 +396,7 @@ function renderAdvancedSection() {
  * Render info section
  */
 function renderInfoSection() {
-	return `
+    return `
         <div class="divider"></div>
         <div class="info-box">
             <span class="info-icon"></span>
@@ -415,203 +419,203 @@ function renderInfoSection() {
 }
 
 function getEndpointOptions(providerId) {
-	if (providerId === "zhipu") {
-		return [
-			{ label: "open.bigmodel.cn (CN)", value: "open.bigmodel.cn" },
-			{ label: "api.z.ai (Global)", value: "api.z.ai" },
-		];
-	}
-	if (providerId === "minimax") {
-		return [
-			{ label: "minimaxi.com (CN)", value: "minimaxi.com" },
-			{ label: "minimax.io (Global)", value: "minimax.io" },
-		];
-	}
-	return [];
+    if (providerId === "zhipu") {
+        return [
+            { label: "open.bigmodel.cn (CN)", value: "open.bigmodel.cn" },
+            { label: "api.z.ai (Global)", value: "api.z.ai" },
+        ];
+    }
+    if (providerId === "minimax") {
+        return [
+            { label: "minimaxi.com (CN)", value: "minimaxi.com" },
+            { label: "minimax.io (Global)", value: "minimax.io" },
+        ];
+    }
+    return [];
 }
 
 function _saveProviderSettings(providerId) {
-	const provider = (settingsState.providers || []).find(
-		(p) => p.id === providerId,
-	);
-	if (!provider) {
-		return;
-	}
+    const provider = (settingsState.providers || []).find(
+        (p) => p.id === providerId,
+    );
+    if (!provider) {
+        return;
+    }
 
-	const apiKeyInput = document.getElementById(`provider-apikey-${providerId}`);
-	const baseUrlInput = document.getElementById(
-		`provider-baseurl-${providerId}`,
-	);
-	const endpointInput = document.getElementById(
-		`provider-endpoint-${providerId}`,
-	);
+    const apiKeyInput = document.getElementById(`provider-apikey-${providerId}`);
+    const baseUrlInput = document.getElementById(
+        `provider-baseurl-${providerId}`,
+    );
+    const endpointInput = document.getElementById(
+        `provider-endpoint-${providerId}`,
+    );
 
-	const payload = {};
-	if (provider.supportsApiKey && apiKeyInput) {
-		const nextApiKey = (apiKeyInput.value || "").trim();
-		if (nextApiKey) {
-			payload.apiKey = nextApiKey;
-		}
-	}
-	if (provider.supportsBaseUrl && baseUrlInput) {
-		payload.baseUrl = baseUrlInput.value;
-	}
-	if (endpointInput) {
-		payload.endpoint = endpointInput.value;
-	}
+    const payload = {};
+    if (provider.supportsApiKey && apiKeyInput) {
+        const nextApiKey = (apiKeyInput.value || "").trim();
+        if (nextApiKey) {
+            payload.apiKey = nextApiKey;
+        }
+    }
+    if (provider.supportsBaseUrl && baseUrlInput) {
+        payload.baseUrl = baseUrlInput.value;
+    }
+    if (endpointInput) {
+        payload.endpoint = endpointInput.value;
+    }
 
-	vscode.postMessage({
-		command: "saveProviderSettings",
-		providerId,
-		payload,
-	});
+    vscode.postMessage({
+        command: "saveProviderSettings",
+        providerId,
+        payload,
+    });
 }
 
 function _openProviderSettings(providerId) {
-	vscode.postMessage({
-		command: "openProviderSettings",
-		providerId,
-	});
+    vscode.postMessage({
+        command: "openProviderSettings",
+        providerId,
+    });
 }
 
 function _runProviderWizard(providerId) {
-	vscode.postMessage({
-		command: "runProviderWizard",
-		providerId,
-	});
+    vscode.postMessage({
+        command: "runProviderWizard",
+        providerId,
+    });
 }
 
 /**
  * Handle toggle change
  */
 function _handleToggleChange(providerId, enabled) {
-	// Update local state
-	settingsState.loadBalanceSettings[providerId] = enabled;
+    // Update local state
+    settingsState.loadBalanceSettings[providerId] = enabled;
 
-	// Send message to extension
-	vscode.postMessage({
-		command: "setLoadBalance",
-		providerId: providerId,
-		enabled: enabled,
-	});
+    // Send message to extension
+    vscode.postMessage({
+        command: "setLoadBalance",
+        providerId: providerId,
+        enabled: enabled,
+    });
 
-	// Re-render to show/hide strategy selector
-	renderPage();
-	showToast(
-		enabled ? "Load balancing enabled" : "Load balancing disabled",
-		"success",
-	);
+    // Re-render to show/hide strategy selector
+    renderPage();
+    showToast(
+        enabled ? "Load balancing enabled" : "Load balancing disabled",
+        "success",
+    );
 }
 
 /**
  * Handle strategy change
  */
 function _handleStrategyChange(providerId, strategy) {
-	// Update local state
-	settingsState.loadBalanceStrategies[providerId] = strategy;
+    // Update local state
+    settingsState.loadBalanceStrategies[providerId] = strategy;
 
-	// Send message to extension
-	vscode.postMessage({
-		command: "setLoadBalanceStrategy",
-		providerId: providerId,
-		strategy: strategy,
-	});
+    // Send message to extension
+    vscode.postMessage({
+        command: "setLoadBalanceStrategy",
+        providerId: providerId,
+        strategy: strategy,
+    });
 
-	// Update UI
-	renderPage();
-	showToast(`Strategy changed to ${strategy}`, "success");
+    // Update UI
+    renderPage();
+    showToast(`Strategy changed to ${strategy}`, "success");
 }
 
 /**
  * Open account manager
  */
 function _openAccountManager() {
-	vscode.postMessage({
-		command: "openAccountManager",
-	});
+    vscode.postMessage({
+        command: "openAccountManager",
+    });
 }
 
 /**
  * Refresh settings
  */
 function _refreshSettings() {
-	vscode.postMessage({
-		command: "refresh",
-	});
-	showToast("Refreshing settings...", "success");
+    vscode.postMessage({
+        command: "refresh",
+    });
+    showToast("Refreshing settings...", "success");
 }
 
 /**
  * Show toast notification
  */
 function showToast(message, type = "success") {
-	// Remove existing toast
-	const existingToast = document.querySelector(".toast");
-	if (existingToast) {
-		existingToast.remove();
-	}
+    // Remove existing toast
+    const existingToast = document.querySelector(".toast");
+    if (existingToast) {
+        existingToast.remove();
+    }
 
-	const toast = document.createElement("div");
-	toast.className = `toast ${type}`;
-	toast.innerHTML = `
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
         <span>${type === "success" ? "OK" : "NO"}</span>
         <span>${escapeHtml(message)}</span>
     `;
-	document.body.appendChild(toast);
+    document.body.appendChild(toast);
 
-	// Auto remove after 3 seconds
-	setTimeout(() => {
-		toast.style.animation = "slideIn 0.3s ease reverse";
-		setTimeout(() => toast.remove(), 300);
-	}, 3000);
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = "slideIn 0.3s ease reverse";
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 /**
  * Attach event listeners
  */
 function attachEventListeners() {
-	const searchInput = document.getElementById("provider-search-input");
-	if (searchInput) {
-		searchInput.addEventListener("input", (event) => {
-			const target = event.target;
-			settingsState.providerSearchQuery = target?.value || "";
-			renderPage();
-		});
-	}
+    const searchInput = document.getElementById("provider-search-input");
+    if (searchInput) {
+        searchInput.addEventListener("input", (event) => {
+            const target = event.target;
+            settingsState.providerSearchQuery = target?.value || "";
+            renderPage();
+        });
+    }
 }
 
 /**
  * Escape HTML to prevent XSS
  */
 function escapeHtml(text) {
-	if (!text) return "";
-	const map = {
-		"&": "&amp;",
-		"<": "&lt;",
-		">": "&gt;",
-		'"': "&quot;",
-		"'": "&#039;",
-	};
-	return String(text).replace(/[&<>"']/g, (char) => map[char]);
+    if (!text) return "";
+    const map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;",
+    };
+    return String(text).replace(/[&<>"']/g, (char) => map[char]);
 }
 
 /**
  * Handle messages from extension
  */
 window.addEventListener("message", (event) => {
-	const message = event.data;
-	switch (message.command) {
-		case "updateState":
-			settingsState = {
-				...settingsState,
-				...message.data,
-			};
-			renderPage();
-			break;
-		case "showToast":
-			showToast(message.message, message.type);
-			break;
-	}
+    const message = event.data;
+    switch (message.command) {
+        case "updateState":
+            settingsState = {
+                ...settingsState,
+                ...message.data,
+            };
+            renderPage();
+            break;
+        case "showToast":
+            showToast(message.message, message.type);
+            break;
+    }
 });
 
 // Expose handlers for inline HTML event attributes
@@ -626,7 +630,7 @@ window.saveProviderSettings = _saveProviderSettings;
 
 // Ask extension for current state when the page loads
 window.addEventListener("DOMContentLoaded", () => {
-	vscode.postMessage({
-		command: "refresh",
-	});
+    vscode.postMessage({
+        command: "refresh",
+    });
 });

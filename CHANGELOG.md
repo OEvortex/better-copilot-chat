@@ -21,13 +21,23 @@ All notable changes to this project will be documented in this file.
 **Universal Wizard Support:**
 - **Run Wizard for All Providers**: Fixed the wizard button to work for ALL providers (previously only worked for zhipu, minimax, lightningai).
   - Now uses generic ProviderWizard that adapts to each provider's capabilities.
-  - OAuth providers (antigravity, codex, qwencli, geminicli) and no-config providers (blackbox, chatjimmy) hide the wizard button since they don't need configuration.
+  - No-config providers (blackbox, chatjimmy) hide the wizard button since they don't need configuration.
+
+**Codex Provider Enhancements:**
+- **Dual Authentication Support**: Codex now supports both API key and OAuth authentication methods.
+  - Users can configure API key directly in the settings panel.
+  - "Run Wizard" button launches the Codex OAuth login flow for token-based authentication.
+- **Fixed Base URL**: Codex uses the fixed endpoint `https://chatgpt.com/backend-api/codex` - Base URL configuration is not available.
 
 ### Removed
 
+- **Save Button from OAuth Providers**: Removed the Save button from OAuth-only providers in the settings panel since they don't require API key configuration.
+  - Antigravity, Qwen CLI, Gemini CLI - these use OAuth authentication only.
+
 - **Base URL Field from OAuth Providers**: Removed Base URL field from settings for OAuth-only providers:
-  - Antigravity, Codex, Qwen CLI, Gemini CLI - these use OAuth authentication and don't support custom base URLs.
+  - Antigravity, Qwen CLI, Gemini CLI - these use OAuth authentication and don't support custom base URLs.
   - Blackbox, ChatJimmy - these work without any configuration.
+  - Codex - uses fixed default URL `https://chatgpt.com/backend-api/codex`.
 
 ### Changed
 
