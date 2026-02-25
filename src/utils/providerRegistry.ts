@@ -121,24 +121,24 @@ function resolveCategory(
 function getDefaultFeatures(providerId: string): ProviderMetadata["features"] {
 	const accountConfig = AccountManager.getProviderConfig(providerId);
 	// Providers that don't need any configuration (no API key, no base URL)
-	// - OAuth providers: antigravity, qwencli, geminicli (use OAuth)
+	// - OAuth providers: qwencli, geminicli (use OAuth)
 	// - No-config providers: blackbox, chatjimmy (work without any auth)
 	// - Codex: supports both OAuth and API key (special case)
+	// - Antigravity: OAuth-only but has login wizard
 	const isNoConfigProvider =
-		providerId === ProviderKey.Antigravity ||
 		providerId === ProviderKey.QwenCli ||
 		providerId === ProviderKey.GeminiCli ||
 		providerId === ProviderKey.Blackbox ||
 		providerId === "chatjimmy";
-	// Codex is a special case - supports both API key and OAuth, with config wizard
-	// Codex uses a fixed base URL (https://chatgpt.com/backend-api/codex)
+	// Special cases for OAuth providers with login wizards
 	const isCodex = providerId === ProviderKey.Codex;
+	const isAntigravity = providerId === ProviderKey.Antigravity;
 	return {
 		supportsApiKey: (accountConfig.supportsApiKey && !isNoConfigProvider) || isCodex,
-		supportsOAuth: accountConfig.supportsOAuth || isCodex,
+		supportsOAuth: accountConfig.supportsOAuth || isCodex || isAntigravity,
 		supportsMultiAccount: accountConfig.supportsMultiAccount,
-		supportsBaseUrl: !isNoConfigProvider && providerId !== ProviderKey.Compatible && !isCodex,
-		supportsConfigWizard: !isNoConfigProvider || isCodex,
+		supportsBaseUrl: !isNoConfigProvider && providerId !== ProviderKey.Compatible && !isCodex && !isAntigravity,
+		supportsConfigWizard: !isNoConfigProvider || isCodex || isAntigravity,
 	};
 }
 

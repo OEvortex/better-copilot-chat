@@ -226,11 +226,6 @@
                 "category": "Copilot ++"
             },
             {
-                "command": "chp.showAntigravityQuota",
-                "title": "Show Antigravity Quota & Models",
-                "category": "Copilot ++"
-            },
-            {
                 "command": "chp.codex.login",
                 "title": "Codex Login (OpenAI OAuth)",
                 "category": "Copilot ++"
