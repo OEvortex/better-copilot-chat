@@ -322,7 +322,28 @@ export class AntigravityStreamProcessor {
 		modelConfig: ModelConfig,
 		progress: vscode.Progress<vscode.LanguageModelResponsePart2>,
 	): void {
-		if (part.thought === true) {
+		// Debug: Log all parts to see what we're receiving
+		console.log("Antigravity: Received part:", JSON.stringify(part, null, 2));
+
+		// Track for debugging
+		const hasFunctionCall =
+			part.functionCall !== undefined && part.functionCall !== null;
+		const hasFunctionResponse =
+			part.functionResponse !== undefined && part.functionResponse !== null;
+		const hasText = typeof part.text === "string";
+		const hasThought = part.thought === true;
+		const hasThoughtSignature = typeof part.thoughtSignature === "string";
+		const isGeminiThinkingPart =
+			hasThoughtSignature &&
+			typeof part.text === "string" &&
+			!hasFunctionCall &&
+			!hasFunctionResponse;
+		console.log(
+			`Antigravity: Part has functionCall=${hasFunctionCall}, text=${hasText}, thought=${hasThought}, thoughtSignature=${hasThoughtSignature}`,
+		);
+
+		// Render explicit thought parts and Gemini-style thoughtSignature text as VS Code thinking.
+		if (part.thought === true || isGeminiThinkingPart) {
 			if (
 				modelConfig.outputThinking !== false &&
 				typeof part.text === "string"
@@ -330,6 +351,9 @@ export class AntigravityStreamProcessor {
 				if (!this.currentThinkingId) {
 					this.currentThinkingId = createCallId();
 				}
+				// Debug: Log that we received a thought part
+				console.log("Antigravity: Received thought part:", part.text);
+
 				this.thinkingBuffer += part.text;
 				this.hasThinkingContent = true;
 				this.flushThinkingBufferIfNeeded(progress);
@@ -508,6 +532,11 @@ export class AntigravityStreamProcessor {
 			return text.replace(/<thinking>[\s\S]*?<\/thinking>/g, "");
 		}
 
+		// Debug: Log input text
+		if (text.includes("<thinking>") || text.includes("</thinking>")) {
+			console.log("Antigravity: Found thinking tags in text:", text);
+		}
+
 		let result = "";
 		let remaining = this.thinkingTagBuffer + text;
 		this.thinkingTagBuffer = "";
@@ -521,6 +550,7 @@ export class AntigravityStreamProcessor {
 						if (!this.currentThinkingId) {
 							this.currentThinkingId = this.generateThinkingId();
 						}
+						console.log("Antigravity: Processing thinking content:", thinkingContent.substring(0, 100));
 						this.thinkingBuffer += thinkingContent;
 						this.hasThinkingContent = true;
 					}
@@ -541,6 +571,7 @@ export class AntigravityStreamProcessor {
 			} else {
 				const openIdx = remaining.indexOf("<thinking>");
 				if (openIdx !== -1) {
+					console.log("Antigravity: Found <thinking> tag at index:", openIdx);
 					result += remaining.slice(0, openIdx);
 					this.isInsideThinkingTag = true;
 					if (!this.currentThinkingId) {
@@ -636,6 +667,7 @@ export class AntigravityStreamProcessor {
 		text: string,
 		progress: vscode.Progress<vscode.LanguageModelResponsePart2>,
 	): void {
+		console.log("Antigravity: enqueueThinking called with text length:", text.length);
 		this.thinkingQueue += text;
 		this.thinkingProgress = progress;
 		this.markActivity(); // Đánh dấu activity khi có thinking content
@@ -648,11 +680,13 @@ export class AntigravityStreamProcessor {
 	}
 
 	private flushThinkingChunk(): void {
+		console.log("Antigravity: flushThinkingChunk called, queue length:", this.thinkingQueue.length, "thinkingId:", this.currentThinkingId);
 		if (
 			this.thinkingQueue.length === 0 ||
 			!this.thinkingProgress ||
 			!this.currentThinkingId
 		) {
+			console.log("Antigravity: flushThinkingChunk early return");
 			return;
 		}
 		const chunkSize = Math.min(
@@ -661,6 +695,7 @@ export class AntigravityStreamProcessor {
 		);
 		const chunk = this.thinkingQueue.slice(0, chunkSize);
 		this.thinkingQueue = this.thinkingQueue.slice(chunkSize);
+		console.log("Antigravity: Reporting thinking chunk:", chunk.substring(0, 50));
 		this.thinkingProgress.report(
 			new vscode.LanguageModelThinkingPart(chunk, this.currentThinkingId),
 		);

@@ -531,6 +531,7 @@ export class DeepInfraProvider
 
 			// Store tool call IDs by index
 			const toolCallIds = new Map<number, string>();
+			const processedToolCallEvents = new Set<string>();
 
 			stream.on("chunk", (chunk: OpenAI.Chat.ChatCompletionChunk) => {
 				if (token.isCancellationRequested) {
@@ -594,6 +595,15 @@ export class DeepInfraProvider
 				if (token.isCancellationRequested) {
 					return;
 				}
+
+				const eventKey = `tool_call_${event.name}_${event.index}_${event.arguments?.length ?? 0}`;
+				if (processedToolCallEvents.has(eventKey)) {
+					Logger.trace(
+						`[DeepInfra] Skip duplicate tool call event: ${event.name} (index: ${event.index})`,
+					);
+					return;
+				}
+				processedToolCallEvents.add(eventKey);
 				// Finalize thinking before tool calls
 				if (currentThinkingId) {
 					try {

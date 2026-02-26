@@ -64,18 +64,6 @@
             }
         },
         {
-            "id": "chutesai-mistral-small-3-1-24b-instruct-2503",
-            "name": "chutesai/Mistral-Small-3.1-24B-Instruct-2503",
-            "tooltip": "chutesai/Mistral-Small-3.1-24B-Instruct-2503 by Chutes",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "chutesai/Mistral-Small-3.1-24B-Instruct-2503",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "openai-gpt-oss-120b-tee",
             "name": "openai/gpt-oss-120b-TEE",
             "tooltip": "openai/gpt-oss-120b-TEE by Chutes",
@@ -109,6 +97,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "chutesai-mistral-small-3-1-24b-instruct-2503",
+            "name": "chutesai/Mistral-Small-3.1-24B-Instruct-2503",
+            "tooltip": "chutesai/Mistral-Small-3.1-24B-Instruct-2503 by Chutes",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "chutesai/Mistral-Small-3.1-24B-Instruct-2503",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         },
         {
@@ -184,24 +184,24 @@
             }
         },
         {
-            "id": "qwen-qwen3-coder-next-tee",
-            "name": "Qwen/Qwen3-Coder-Next-TEE",
-            "tooltip": "Qwen/Qwen3-Coder-Next-TEE by Chutes",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "Qwen/Qwen3-Coder-Next-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "xiaomimimo-mimo-v2-flash-tee",
             "name": "XiaomiMiMo/MiMo-V2-Flash-TEE",
             "tooltip": "XiaomiMiMo/MiMo-V2-Flash-TEE by Chutes",
             "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
             "model": "XiaomiMiMo/MiMo-V2-Flash-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen3-coder-next-tee",
+            "name": "Qwen/Qwen3-Coder-Next-TEE",
+            "tooltip": "Qwen/Qwen3-Coder-Next-TEE by Chutes",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "Qwen/Qwen3-Coder-Next-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -220,24 +220,24 @@
             }
         },
         {
-            "id": "tngtech-deepseek-tng-r1t2-chimera",
-            "name": "tngtech/DeepSeek-TNG-R1T2-Chimera",
-            "tooltip": "tngtech/DeepSeek-TNG-R1T2-Chimera by Chutes",
-            "maxInputTokens": 147456,
-            "maxOutputTokens": 16384,
-            "model": "tngtech/DeepSeek-TNG-R1T2-Chimera",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "deepseek-ai-deepseek-v3-1-terminus-tee",
             "name": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
             "tooltip": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE by Chutes",
             "maxInputTokens": 147456,
             "maxOutputTokens": 16384,
             "model": "deepseek-ai/DeepSeek-V3.1-Terminus-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "tngtech-deepseek-tng-r1t2-chimera",
+            "name": "tngtech/DeepSeek-TNG-R1T2-Chimera",
+            "tooltip": "tngtech/DeepSeek-TNG-R1T2-Chimera by Chutes",
+            "maxInputTokens": 147456,
+            "maxOutputTokens": 16384,
+            "model": "tngtech/DeepSeek-TNG-R1T2-Chimera",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -292,12 +292,12 @@
             }
         },
         {
-            "id": "zai-org-glm-4-6-fp8",
-            "name": "zai-org/GLM-4.6-FP8",
-            "tooltip": "zai-org/GLM-4.6-FP8 by Chutes",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "zai-org/GLM-4.6-FP8",
+            "id": "deepseek-ai-deepseek-v3",
+            "name": "deepseek-ai/DeepSeek-V3",
+            "tooltip": "deepseek-ai/DeepSeek-V3 by Chutes",
+            "maxInputTokens": 147456,
+            "maxOutputTokens": 16384,
+            "model": "deepseek-ai/DeepSeek-V3",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -316,18 +316,6 @@
             }
         },
         {
-            "id": "deepseek-ai-deepseek-v3",
-            "name": "deepseek-ai/DeepSeek-V3",
-            "tooltip": "deepseek-ai/DeepSeek-V3 by Chutes",
-            "maxInputTokens": 147456,
-            "maxOutputTokens": 16384,
-            "model": "deepseek-ai/DeepSeek-V3",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "qwen-qwen2-5-vl-72b-instruct-tee",
             "name": "Qwen/Qwen2.5-VL-72B-Instruct-TEE",
             "tooltip": "Qwen/Qwen2.5-VL-72B-Instruct-TEE by Chutes",
@@ -337,6 +325,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
+            }
+        },
+        {
+            "id": "zai-org-glm-4-6-fp8",
+            "name": "zai-org/GLM-4.6-FP8",
+            "tooltip": "zai-org/GLM-4.6-FP8 by Chutes",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "zai-org/GLM-4.6-FP8",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
             }
         },
         {
@@ -376,18 +376,6 @@
             }
         },
         {
-            "id": "deepseek-ai-deepseek-r1-distill-llama-70b",
-            "name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-            "tooltip": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B by Chutes",
-            "maxInputTokens": 147456,
-            "maxOutputTokens": 16384,
-            "model": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "qwen-qwen3-next-80b-a3b-instruct",
             "name": "Qwen/Qwen3-Next-80B-A3B-Instruct",
             "tooltip": "Qwen/Qwen3-Next-80B-A3B-Instruct by Chutes",
@@ -400,12 +388,24 @@
             }
         },
         {
-            "id": "qwen-qwen2-5-72b-instruct",
-            "name": "Qwen/Qwen2.5-72B-Instruct",
-            "tooltip": "Qwen/Qwen2.5-72B-Instruct by Chutes",
-            "maxInputTokens": 16384,
+            "id": "deepseek-ai-deepseek-r1-distill-llama-70b",
+            "name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+            "tooltip": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B by Chutes",
+            "maxInputTokens": 147456,
             "maxOutputTokens": 16384,
-            "model": "Qwen/Qwen2.5-72B-Instruct",
+            "model": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen-qwen3-30b-a3b",
+            "name": "Qwen/Qwen3-30B-A3B",
+            "tooltip": "Qwen/Qwen3-30B-A3B by Chutes",
+            "maxInputTokens": 24576,
+            "maxOutputTokens": 16384,
+            "model": "Qwen/Qwen3-30B-A3B",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -424,12 +424,12 @@
             }
         },
         {
-            "id": "qwen-qwen3-30b-a3b",
-            "name": "Qwen/Qwen3-30B-A3B",
-            "tooltip": "Qwen/Qwen3-30B-A3B by Chutes",
-            "maxInputTokens": 24576,
+            "id": "qwen-qwen2-5-72b-instruct",
+            "name": "Qwen/Qwen2.5-72B-Instruct",
+            "tooltip": "Qwen/Qwen2.5-72B-Instruct by Chutes",
+            "maxInputTokens": 16384,
             "maxOutputTokens": 16384,
-            "model": "Qwen/Qwen3-30B-A3B",
+            "model": "Qwen/Qwen2.5-72B-Instruct",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -484,24 +484,24 @@
             }
         },
         {
+            "id": "unsloth-gemma-3-12b-it",
+            "name": "unsloth/gemma-3-12b-it",
+            "tooltip": "unsloth/gemma-3-12b-it by Chutes",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "unsloth/gemma-3-12b-it",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
             "id": "miromind-ai-mirothinker-v1-5-235b",
             "name": "miromind-ai/MiroThinker-v1.5-235B",
             "tooltip": "miromind-ai/MiroThinker-v1.5-235B by Chutes",
             "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
             "model": "miromind-ai/MiroThinker-v1.5-235B",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "qwen-qwen2-5-coder-32b-instruct",
-            "name": "Qwen/Qwen2.5-Coder-32B-Instruct",
-            "tooltip": "Qwen/Qwen2.5-Coder-32B-Instruct by Chutes",
-            "maxInputTokens": 16384,
-            "maxOutputTokens": 16384,
-            "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -520,27 +520,15 @@
             }
         },
         {
-            "id": "unsloth-gemma-3-12b-it",
-            "name": "unsloth/gemma-3-12b-it",
-            "tooltip": "unsloth/gemma-3-12b-it by Chutes",
-            "maxInputTokens": 114688,
+            "id": "qwen-qwen2-5-coder-32b-instruct",
+            "name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+            "tooltip": "Qwen/Qwen2.5-Coder-32B-Instruct by Chutes",
+            "maxInputTokens": 16384,
             "maxOutputTokens": 16384,
-            "model": "unsloth/gemma-3-12b-it",
+            "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "unsloth-gemma-3-4b-it",
-            "name": "unsloth/gemma-3-4b-it",
-            "tooltip": "unsloth/gemma-3-4b-it by Chutes",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "unsloth/gemma-3-4b-it",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
+                "imageInput": false
             }
         },
         {
@@ -553,6 +541,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "unsloth-gemma-3-4b-it",
+            "name": "unsloth/gemma-3-4b-it",
+            "tooltip": "unsloth/gemma-3-4b-it by Chutes",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "unsloth/gemma-3-4b-it",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         },
         {

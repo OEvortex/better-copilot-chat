@@ -64,7 +64,19 @@ export function transformSseLine(
 			| { parts?: Array<Record<string, unknown>> }
 			| undefined;
 		for (const part of content?.parts || []) {
-			if (part.thought === true) {
+			const hasThoughtSignature = typeof part.thoughtSignature === "string";
+			const hasFunctionCall =
+				part.functionCall !== undefined && part.functionCall !== null;
+			const hasFunctionResponse =
+				part.functionResponse !== undefined && part.functionResponse !== null;
+			const isGeminiThinkingPart =
+				hasThoughtSignature &&
+				typeof part.text === "string" &&
+				!hasFunctionCall &&
+				!hasFunctionResponse;
+
+			// Render explicit thought parts and Gemini-style thoughtSignature text as thinking.
+			if (part.thought === true || isGeminiThinkingPart) {
 				if (typeof part.text === "string" && part.text.length > 0) {
 					onThinking(part.text);
 					if (part.thoughtSignature) {
