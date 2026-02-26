@@ -84,6 +84,47 @@ export class NvidiaProvider
 		};
 	}
 
+	protected override parseApiModelsResponse(resp: unknown): LanguageModelChatInformation[] {
+		const parsed = resp as NvidiaModelsResponse;
+		const models = parsed.data || parsed.models || [];
+
+		return models.map((model) => {
+			const metadata = model.metadata || {};
+			const modalities =
+				model.input_modalities ||
+				metadata.input_modalities ||
+				metadata.modalities ||
+				[];
+
+			const detectedVision = Array.isArray(modalities)
+				? modalities.includes("image")
+				: false;
+
+			const contextLength =
+				model.context_length ||
+				metadata.context_length ||
+				DEFAULT_CONTEXT_LENGTH;
+
+			const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+				model.id,
+				contextLength,
+			);
+
+			return {
+				id: model.id,
+				name: model.id,
+				tooltip: `${model.id} by NVIDIA NIM`,
+				family: "Nvidia",
+				version: "1.0",
+				maxInputTokens,
+				maxOutputTokens,
+				capabilities: resolveGlobalCapabilities(model.id, {
+					detectedImageInput: detectedVision,
+				}),
+			} as LanguageModelChatInformation;
+		});
+	}
+
 	private async getDiscoveryApiKey(
 		silent: boolean,
 	): Promise<string | undefined> {
@@ -166,41 +207,6 @@ export class NvidiaProvider
 		} finally {
 			clearTimeout(timeoutId);
 		}
-	}
-
-	private mapModelToConfig(model: NvidiaModelItem): ModelConfig {
-		const metadata = model.metadata || {};
-		const modalities =
-			model.input_modalities ||
-			metadata.input_modalities ||
-			metadata.modalities ||
-			[];
-
-		const detectedVision = Array.isArray(modalities)
-			? modalities.includes("image")
-			: false;
-
-		const contextLength =
-			model.context_length ||
-			metadata.context_length ||
-			DEFAULT_CONTEXT_LENGTH;
-
-		const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
-			model.id,
-			contextLength,
-		);
-
-		return {
-			id: model.id,
-			name: model.id,
-			tooltip: `${model.id} by NVIDIA NIM`,
-			model: model.id,
-			maxInputTokens,
-			maxOutputTokens,
-			capabilities: resolveGlobalCapabilities(model.id, {
-				detectedImageInput: detectedVision,
-			}),
-		};
 	}
 
 	private syncProviderModels(models: NvidiaModelItem[]): void {

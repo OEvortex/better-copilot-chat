@@ -56,11 +56,11 @@ async function activateProviders(
 	// Set extension path (for tokenizer initialization)
 	TokenCounter.setExtensionPath(context.extensionPath);
 
-	// Register all providers using the registry (excludes Codex which is registered separately)
+	// Register all providers using the registry (excludes Codex and Antigravity which are registered separately)
 	const result = await registerProvidersFromConfig(
 		context,
 		configProvider,
-		[ProviderKey.Codex], // Exclude Codex - registered separately with specialized provider
+		[ProviderKey.Codex, ProviderKey.Antigravity], // Exclude Codex and Antigravity - registered separately with specialized provider
 	);
 
 	// Store registered providers and disposables

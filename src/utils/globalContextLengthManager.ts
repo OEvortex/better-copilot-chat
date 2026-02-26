@@ -5,6 +5,10 @@ export interface ResolveTokenLimitsOptions {
 }
 
 const DEFAULT_MIN_RESERVED_INPUT_TOKENS = 1024;
+// Claude models: 200K total context (1k=1024), 32K output / 168K input
+const CLAUDE_TOTAL_TOKENS = 200 * 1024; // 204800
+const CLAUDE_MAX_INPUT_TOKENS = CLAUDE_TOTAL_TOKENS - 32 * 1024; // 172032
+const CLAUDE_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
 // Devstral models: 256K total context (1k=1024), 32K output
 const DEVSTRAL_MAX_INPUT_TOKENS = 256 * 1024 - 32 * 1024; // 229376
 const DEVSTRAL_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
@@ -116,6 +120,12 @@ export function isGpt5Model(modelId: string): boolean {
 
 export function isGptModel(modelId: string): boolean {
 	return /gpt/i.test(modelId);
+}
+
+export function isClaudeModel(modelId: string): boolean {
+	// Matches all Claude models: claude-3, claude-3.5, claude-4, etc.
+	// Also matches provider-prefixed ids like anthropic/claude-3, etc.
+	return /claude[-_]?/i.test(modelId);
 }
 
 export function isKimiK25Model(modelId: string): boolean {
@@ -270,6 +280,14 @@ export function resolveGlobalTokenLimits(
 		};
 	}
 
+	// Claude models: 200K total context, 32K output
+	if (isClaudeModel(modelId)) {
+		return {
+			maxInputTokens: CLAUDE_MAX_INPUT_TOKENS,
+			maxOutputTokens: CLAUDE_MAX_OUTPUT_TOKENS,
+		};
+	}
+
 	// Kimi K2 series: 256K total context, 32K output
 	if (isKimiModel(modelId)) {
 		return {
@@ -317,8 +335,11 @@ export function resolveGlobalCapabilities(
 	return {
 		// User request: all models should support tools
 		toolCalling: true,
-	// User request: Kimi 2.5 and GPT models should support vision (excluding gpt-oss)
+	// User request: Claude, Kimi 2.5 and GPT models should support vision (excluding gpt-oss)
 	imageInput:
-		detectedImageInput || isKimiK25Model(modelId) || isVisionGptModel(modelId),
+		detectedImageInput ||
+		isClaudeModel(modelId) ||
+		isKimiK25Model(modelId) ||
+		isVisionGptModel(modelId),
 	};
 }

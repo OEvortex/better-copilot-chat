@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+**Claude Model Support:**
+- **200K Context Window**: All Claude models now have 200,000 token max window (168K input / 32K output).
+- **Vision Support**: All Claude models now support image input for multimodal conversations.
+
 **Load Balancing System for All API Providers:**
 - **Multi-API Key Support**: Users can now add multiple API keys per provider and enable load balancing to distribute requests across all configured keys.
 - **3 Load Balancing Strategies**:
@@ -40,6 +44,11 @@ All notable changes to this project will be documented in this file.
   - Shows model-specific quota information with reset times.
 - **Leader Election**: Implemented master instance election to ensure only one VS Code instance runs periodic status updates.
 - **User Activity Detection**: Pauses background status updates when user is inactive (30 min timeout).
+
+### Fixed
+
+- **Ollama Vision Capabilities**: Fixed an issue where Ollama models (like `kimi-k2.5`) were not correctly reporting vision capabilities. Now uses the centralized `resolveGlobalCapabilities` for consistent capability detection across all providers.
+- **NVIDIA Auto-Registration**: Fixed an issue where the NVIDIA provider was not automatically registering with VS Code on startup without an API key. It now correctly inherits the background-fetching logic from `GenericModelProvider`.
 
 ### Changed
 
