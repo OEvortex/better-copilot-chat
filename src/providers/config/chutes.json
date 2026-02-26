@@ -208,24 +208,24 @@
             }
         },
         {
-            "id": "tngtech-deepseek-tng-r1t2-chimera",
-            "name": "tngtech/DeepSeek-TNG-R1T2-Chimera",
-            "tooltip": "tngtech/DeepSeek-TNG-R1T2-Chimera by Chutes",
-            "maxInputTokens": 147456,
-            "maxOutputTokens": 16384,
-            "model": "tngtech/DeepSeek-TNG-R1T2-Chimera",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "minimaxai-minimax-m2-5-tee",
             "name": "MiniMaxAI/MiniMax-M2.5-TEE",
             "tooltip": "MiniMaxAI/MiniMax-M2.5-TEE by Chutes",
             "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "MiniMaxAI/MiniMax-M2.5-TEE",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "tngtech-deepseek-tng-r1t2-chimera",
+            "name": "tngtech/DeepSeek-TNG-R1T2-Chimera",
+            "tooltip": "tngtech/DeepSeek-TNG-R1T2-Chimera by Chutes",
+            "maxInputTokens": 147456,
+            "maxOutputTokens": 16384,
+            "model": "tngtech/DeepSeek-TNG-R1T2-Chimera",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -508,18 +508,6 @@
             }
         },
         {
-            "id": "unsloth-gemma-3-12b-it",
-            "name": "unsloth/gemma-3-12b-it",
-            "tooltip": "unsloth/gemma-3-12b-it by Chutes",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "unsloth/gemma-3-12b-it",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "qwen-qwen3-14b",
             "name": "Qwen/Qwen3-14B",
             "tooltip": "Qwen/Qwen3-14B by Chutes",
@@ -529,6 +517,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "unsloth-gemma-3-12b-it",
+            "name": "unsloth/gemma-3-12b-it",
+            "tooltip": "unsloth/gemma-3-12b-it by Chutes",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "unsloth/gemma-3-12b-it",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         },
         {

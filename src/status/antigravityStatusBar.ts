@@ -85,7 +85,26 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
         return '▰'.repeat(filled) + '▱'.repeat(5 - filled);
     }
 
+    protected override updateStatusBarUI(data: AntigravityQuotaData): void {
+        if (!this.statusBarItem) return;
+
+        // Set text and tooltip from base
+        this.statusBarItem.text = this.getDisplayText(data);
+        this.statusBarItem.tooltip = this.generateTooltip(data);
+
+        // Apply custom quota styling
+        const minQuota = this.getMinQuota(data);
+        if (minQuota !== undefined) {
+            this.applyQuotaStyle(minQuota);
+        } else {
+            this.statusBarItem.backgroundColor = undefined;
+            this.statusBarItem.color = undefined;
+        }
+    }
+
     private applyQuotaStyle(quota: number): void {
+        if (!this.statusBarItem) return;
+        
         if (quota < 10) {
             this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
             this.statusBarItem.color = new vscode.ThemeColor('statusBarItem.errorForeground');
@@ -125,46 +144,72 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
     protected generateTooltip(data: AntigravityQuotaData): vscode.MarkdownString {
         const md = new vscode.MarkdownString();
         md.supportHtml = true;
-        md.appendMarkdown('### 📂 Antigravity Quota\n\n');
+        
+        // Header with icon and title
+        md.appendMarkdown(`<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+<span style="font-size: 16px;">☁️</span>
+<span style="font-size: 14px; font-weight: 600;">Antigravity Quota</span>
+</div>`);
 
         if (data.email) {
-            md.appendMarkdown(`**Account:** \`${data.email}\`\n\n`);
+            md.appendMarkdown(`<div style="margin-bottom: 8px;">
+<span style="color: #8b949e;">Account:</span> <code>${data.email}</code>
+</div>`);
         }
 
-        md.appendMarkdown('---\n');
-        md.appendMarkdown('#### 📊 Usage\n\n');
+        md.appendMarkdown('<hr style="border: none; border-top: 1px solid #30363d; margin: 8px 0;">');
+        
+        // Usage section
+        md.appendMarkdown('<div style="margin-bottom: 8px;"><strong>📊 Usage</strong></div>');
 
         if (data.geminiQuota !== undefined) {
             const bar = this.getCompactBar(data.geminiQuota);
-            const status = data.geminiQuota >= 30 ? '✅' : data.geminiQuota >= 10 ? '⚠️' : '❌';
-            md.appendMarkdown(`**Gemini:** ${bar} **${data.geminiQuota}%** ${status}\n\n`);
+            const color = data.geminiQuota >= 30 ? '#3fb950' : data.geminiQuota >= 10 ? '#d29922' : '#f85149';
+            const bgColor = data.geminiQuota >= 30 ? '#238636' : data.geminiQuota >= 10 ? '#9e6a03' : '#da3633';
+            md.appendMarkdown(`<div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
+<span style="color: #58a6ff; font-weight: 500;">🌙 Gemini</span>
+<span style="font-family: monospace; background: ${bgColor}; color: white; padding: 2px 6px; border-radius: 4px;">${bar} ${data.geminiQuota}%</span>
+</div>`);
         }
 
         if (data.claudeQuota !== undefined) {
             const bar = this.getCompactBar(data.claudeQuota);
-            const status = data.claudeQuota >= 30 ? '✅' : data.claudeQuota >= 10 ? '⚠️' : '❌';
-            md.appendMarkdown(`**Claude:** ${bar} **${data.claudeQuota}%** ${status}\n\n`);
+            const bgColor = data.claudeQuota >= 30 ? '#238636' : data.claudeQuota >= 10 ? '#9e6a03' : '#da3633';
+            md.appendMarkdown(`<div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
+<span style="color: #58a6ff; font-weight: 500;">🤖 Claude</span>
+<span style="font-family: monospace; background: ${bgColor}; color: white; padding: 2px 6px; border-radius: 4px;">${bar} ${data.claudeQuota}%</span>
+</div>`);
         }
 
         if (data.modelQuotas && data.modelQuotas.length > 0) {
-            md.appendMarkdown('---\n');
-            md.appendMarkdown('#### 📑 Models\n\n');
+            md.appendMarkdown('<hr style="border: none; border-top: 1px solid #30363d; margin: 8px 0;">');
+            md.appendMarkdown('<div style="margin-bottom: 8px;"><strong>📑 Models</strong></div>');
+            
+            md.appendMarkdown('<table style="width: 100%; border-collapse: collapse; font-size: 12px;">');
+            md.appendMarkdown('<tr style="color: #8b949e; text-align: left;"><th style="padding: 4px;">Model</th><th style="padding: 4px;">Quota</th></tr>');
 
             for (const model of data.modelQuotas.slice(0, 5)) {
                 const pct = Math.round(model.remainingFraction * 100);
                 const bar = this.getCompactBar(pct);
-                const status = pct >= 30 ? '🟢' : pct >= 10 ? '🟡' : '🔴';
-                md.appendMarkdown(`${status} ${model.displayName}: ${bar} ${pct}%\n`);
+                const color = pct >= 30 ? '#3fb950' : pct >= 10 ? '#d29922' : '#f85149';
+                
+                md.appendMarkdown(`<tr>
+<td style="padding: 4px; color: #c9d1d9;">${model.displayName}</td>
+<td style="padding: 4px;"><code style="color: ${color};">${bar} ${pct}%</code></td>
+</tr>`);
             }
+            md.appendMarkdown('</table>');
             
             if (data.modelQuotas.length > 5) {
-                md.appendMarkdown(`\n*+${data.modelQuotas.length - 5} more models*\n`);
+                md.appendMarkdown(`<div style="color: #8b949e; font-size: 11px; margin-top: 4px;">+${data.modelQuotas.length - 5} more models</div>`);
             }
         }
 
         const lastUpdated = new Date(data.lastUpdated);
-        md.appendMarkdown('\n---\n');
-        md.appendMarkdown(`*Updated: ${lastUpdated.toLocaleTimeString()} • Click for details*\n`);
+        md.appendMarkdown(`<div style="color: #8b949e; font-size: 11px; margin-top: 8px;">
+⏰ Updated: ${lastUpdated.toLocaleTimeString()} • Click for details
+</div>`);
+        
         return md;
     }
 
@@ -368,7 +413,9 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
             await super.executeApiQuery(isManualRefresh);
         } catch (error) {
             StatusLogger.error(`[${this.config.logPrefix}] Refresh failed`, error);
-            this.statusBarItem.text = '$(cloud) Antigravity: ERR';
+            if (this.statusBarItem) {
+                this.statusBarItem.text = '$(cloud) Antigravity: ERR';
+            }
         }
     }
 
