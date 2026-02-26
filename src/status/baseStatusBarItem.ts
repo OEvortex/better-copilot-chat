@@ -66,7 +66,7 @@ export abstract class BaseStatusBarItem<T> {
     protected initialized = false;
 
     protected readonly MIN_DELAYED_UPDATE_INTERVAL = 30000;
-    protected readonly CACHE_UPDATE_INTERVAL = 10000;
+    protected readonly CACHE_UPDATE_INTERVAL: number = 10000;
     protected readonly HIGH_USAGE_THRESHOLD = 80;
 
     constructor(config: BaseStatusBarItemConfig) {
