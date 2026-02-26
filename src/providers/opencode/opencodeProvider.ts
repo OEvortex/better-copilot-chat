@@ -160,7 +160,7 @@ export class OpenCodeProvider
 		try {
 			models = await this.fetchModels(apiKey);
 			// Auto-update config file in background (non-blocking)
-			this.updateConfigFileAsync(models);
+			this.updateOpenCodeConfigFile(models);
 		} catch (err) {
 			Logger.warn("[OpenCode] Failed to fetch models, using cached config");
 			return this.providerConfig.models.map(m => this.modelConfigToInfo(m));
@@ -240,7 +240,7 @@ export class OpenCodeProvider
 	/**
 	 * Update config file asynchronously in background
 	 */
-	private updateConfigFileAsync(models: OpenCodeModelItem[]): void {
+	private updateOpenCodeConfigFile(models: OpenCodeModelItem[]): void {
 		(async () => {
 			try {
 				if (!fs.existsSync(this.configFilePath)) {

@@ -36,10 +36,14 @@ All notable changes to this project will be documented in this file.
 - **Auto-Config Updates**: When new models are fetched from the API, they're automatically merged into the provider's config file for persistence.
 - **Non-Blocking UI**: Model fetching is asynchronous and doesn't block the extension from loading.
 
-**Antigravity Status Bar:**
+**Antigravity UI Enhancements:**
+- **Visual Pacing Bar**: Redesigned status bar with a dynamic pacing indicator `[▰▰▰┃▮▮▯┃▱▱▱]` (inspired by `copilot-pacer`).
+- **Intelligent Pacing**: Added logic to track usage relative to the time of day, showing if you are "On track" or "Over budget".
+- **GitHub-Style Tooltip**: Updated quota tooltip with a structured layout, including account details and model usage tables (inspired by `mcp_github_get_commit`).
+- **Request Summary**: Added a professional request summary footer in chat responses with short request IDs and metadata.
 - **Quota Display in Status Bar**: Added Antigravity (Cloud Code) quota status bar showing remaining quota for Gemini and Claude models.
   - Separate status and bar items for Gemini Claude quotas.
-  - Color-coded display: Red when <10%, Orange when <30%, Green when >=30%.
+  - Color-coded display: Red when <10% or over budget, Orange when <30% or slightly over pace, Green when >=30% and on track.
   - Click to refresh and view detailed quota in QuickPick.
   - Shows model-specific quota information with reset times.
 - **Leader Election**: Implemented master instance election to ensure only one VS Code instance runs periodic status updates.
@@ -47,6 +51,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **TypeScript Type Compatibility**: Fixed type errors where several provider implementations had private `updateConfigFileAsync` methods that conflicted with the base class `GenericModelProvider`'s protected method signature. Renamed provider-specific methods to unique names (e.g., `updateOpenCodeConfigFile`, `updateZhipuConfigFile`, etc.) to resolve the type incompatibility.
 - **Ollama Vision Capabilities**: Fixed an issue where Ollama models (like `kimi-k2.5`) were not correctly reporting vision capabilities. Now uses the centralized `resolveGlobalCapabilities` for consistent capability detection across all providers.
 - **NVIDIA Auto-Registration**: Fixed an issue where the NVIDIA provider was not automatically registering with VS Code on startup without an API key. It now correctly inherits the background-fetching logic from `GenericModelProvider`.
 

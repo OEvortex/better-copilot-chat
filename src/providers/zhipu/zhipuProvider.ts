@@ -243,7 +243,7 @@ export class ZhipuProvider
 			const models = this.mergeHardcodedModels(apiModels);
 
 			// Auto-update config file in background (non-blocking)
-			this.updateConfigFileAsync(models);
+			this.updateZhipuConfigFile(models);
 
 			// Map API models to LanguageModelChatInformation
 			const infos = models.map((m) => {
@@ -297,7 +297,7 @@ export class ZhipuProvider
 	/**
 	 * Update config file asynchronously in background
 	 */
-	private updateConfigFileAsync(models: ZhipuAPIModel[]): void {
+	private updateZhipuConfigFile(models: ZhipuAPIModel[]): void {
 		(async () => {
 			try {
 				if (!fs.existsSync(this.configFilePath)) {

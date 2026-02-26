@@ -404,6 +404,12 @@ export class AntigravityHandler {
                                 ),
                             50
                         );
+                        
+                        // Report request summary in mcp_github_get_commit style
+                        const shortId = payload.requestId.split('-').pop()?.slice(0, 7) || payload.requestId.slice(0, 7);
+                        const summary = `\n\n---\n### 📂 Request: \`${shortId}\` • **${model.name}**\n*Account: ${this.displayName} • ${new Date().toLocaleTimeString()}*\n`;
+                        progress.report(new vscode.LanguageModelTextPart(summary));
+
                         try {
                             const promptTokens = await TokenCounter.getInstance().countMessagesTokens(
                                 model,

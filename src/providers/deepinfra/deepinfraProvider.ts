@@ -177,7 +177,7 @@ export class DeepInfraProvider
 		let models = await this.fetchModels(apiKey);
 
 		if (models.length > 0) {
-			this.updateConfigFileAsync(models);
+			this.updateDeepInfraConfigFile(models);
 		}
 
 		// If API fetch fails or returns no models, fall back to pre-configured models
@@ -375,7 +375,7 @@ export class DeepInfraProvider
 	/**
 	 * Update config file asynchronously in background
 	 */
-	private updateConfigFileAsync(models: DeepInfraModelItem[]): void {
+	private updateDeepInfraConfigFile(models: DeepInfraModelItem[]): void {
 		(async () => {
 			try {
 				if (!fs.existsSync(this.configFilePath)) {

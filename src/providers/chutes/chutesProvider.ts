@@ -143,7 +143,7 @@ export class ChutesProvider
 		const { models } = await this.fetchModels(apiKey);
 
 		// Auto-update config file in background (non-blocking)
-		this.updateConfigFileAsync(models);
+		this.updateChutesConfigFile(models);
 
 		const infos: LanguageModelChatInformation[] = models.map((m) => {
 			const modalities = m.input_modalities ?? [];
@@ -243,7 +243,7 @@ export class ChutesProvider
 	/**
 	 * Update config file asynchronously in background
 	 */
-	private updateConfigFileAsync(models: ChutesModelItem[]): void {
+	private updateChutesConfigFile(models: ChutesModelItem[]): void {
 		// Execute in background, do not wait for result
 		(async () => {
 			try {

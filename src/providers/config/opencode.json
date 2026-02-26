@@ -7,96 +7,96 @@
             "id": "claude-opus-4-6",
             "name": "claude-opus-4-6",
             "tooltip": "claude-opus-4-6 by OpenCode",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "claude-opus-4-6",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
             "id": "claude-opus-4-5",
             "name": "claude-opus-4-5",
             "tooltip": "claude-opus-4-5 by OpenCode",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "claude-opus-4-5",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
             "id": "claude-opus-4-1",
             "name": "claude-opus-4-1",
             "tooltip": "claude-opus-4-1 by OpenCode",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "claude-opus-4-1",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
             "id": "claude-sonnet-4-6",
             "name": "claude-sonnet-4-6",
             "tooltip": "claude-sonnet-4-6 by OpenCode",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "claude-sonnet-4-6",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
             "id": "claude-sonnet-4-5",
             "name": "claude-sonnet-4-5",
             "tooltip": "claude-sonnet-4-5 by OpenCode",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "claude-sonnet-4-5",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
             "id": "claude-sonnet-4",
             "name": "claude-sonnet-4",
             "tooltip": "claude-sonnet-4 by OpenCode",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "claude-sonnet-4",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
             "id": "claude-3-5-haiku",
             "name": "claude-3-5-haiku",
             "tooltip": "claude-3-5-haiku by OpenCode",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "claude-3-5-haiku",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
             "id": "claude-haiku-4-5",
             "name": "claude-haiku-4-5",
             "tooltip": "claude-haiku-4-5 by OpenCode",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "claude-haiku-4-5",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {

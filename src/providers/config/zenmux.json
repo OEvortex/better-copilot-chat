@@ -55,8 +55,8 @@
             "id": "anthropic-claude-opus-4",
             "name": "Anthropic: Claude Opus 4",
             "tooltip": "Anthropic: Claude Opus 4 by Zenmux",
-            "maxInputTokens": 183616,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "anthropic/claude-opus-4",
             "capabilities": {
                 "toolCalling": true,
@@ -139,8 +139,8 @@
             "id": "anthropic-claude-3-5-haiku",
             "name": "Anthropic: Claude 3.5 Haiku",
             "tooltip": "Anthropic: Claude 3.5 Haiku by Zenmux",
-            "maxInputTokens": 183616,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "anthropic/claude-3.5-haiku",
             "capabilities": {
                 "toolCalling": true,
@@ -163,8 +163,8 @@
             "id": "anthropic-claude-3-7-sonnet",
             "name": "Anthropic: Claude 3.7 Sonnet",
             "tooltip": "Anthropic: Claude 3.7 Sonnet by Zenmux",
-            "maxInputTokens": 183616,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "anthropic/claude-3.7-sonnet",
             "capabilities": {
                 "toolCalling": true,
@@ -187,8 +187,8 @@
             "id": "anthropic-claude-opus-4-1",
             "name": "Anthropic: Claude Opus 4.1",
             "tooltip": "Anthropic: Claude Opus 4.1 by Zenmux",
-            "maxInputTokens": 183616,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "anthropic/claude-opus-4.1",
             "capabilities": {
                 "toolCalling": true,
@@ -199,7 +199,7 @@
             "id": "anthropic-claude-sonnet-4",
             "name": "Anthropic: Claude Sonnet 4",
             "tooltip": "Anthropic: Claude Sonnet 4 by Zenmux",
-            "maxInputTokens": 967232,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "anthropic/claude-sonnet-4",
             "capabilities": {
@@ -571,7 +571,7 @@
             "id": "anthropic-claude-sonnet-4-5",
             "name": "Anthropic: Claude Sonnet 4.5",
             "tooltip": "Anthropic: Claude Sonnet 4.5 by Zenmux",
-            "maxInputTokens": 967232,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "anthropic/claude-sonnet-4.5",
             "capabilities": {
@@ -583,8 +583,8 @@
             "id": "anthropic-claude-haiku-4-5",
             "name": "Anthropic: Claude Haiku 4.5",
             "tooltip": "Anthropic: Claude Haiku 4.5 by Zenmux",
-            "maxInputTokens": 183616,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "anthropic/claude-haiku-4.5",
             "capabilities": {
                 "toolCalling": true,
@@ -835,8 +835,8 @@
             "id": "anthropic-claude-opus-4-5",
             "name": "Anthropic: Claude Opus 4.5",
             "tooltip": "Anthropic: Claude Opus 4.5 by Zenmux",
-            "maxInputTokens": 183616,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
             "model": "anthropic/claude-opus-4.5",
             "capabilities": {
                 "toolCalling": true,
@@ -1303,7 +1303,7 @@
             "id": "anthropic-claude-sonnet-4-6",
             "name": "Anthropic: Claude Sonnet 4.6",
             "tooltip": "Anthropic: Claude Sonnet 4.6 by Zenmux",
-            "maxInputTokens": 967232,
+            "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
             "model": "anthropic/claude-sonnet-4.6",
             "capabilities": {

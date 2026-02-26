@@ -75,25 +75,75 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
         return '';
     }
 
+    private renderBlock(width: number, fillRatio: number, fillChar: string, emptyChar: string): string {
+        if (width <= 0) { return ''; }
+        const filled = Math.round(Math.max(0, Math.min(width, fillRatio * width)));
+        return fillChar.repeat(filled) + emptyChar.repeat(width - filled);
+    }
+
+    private calculatePacing(percentage: number): { progressBar: string, buffer: number } {
+        const usedRequests = 100 - percentage;
+        const now = new Date();
+        
+        // Assuming daily limit for Antigravity (24h cycle)
+        const totalMinutesInDay = 24 * 60;
+        const currentMinute = now.getHours() * 60 + now.getMinutes();
+        
+        const OUTSIDE_WIDTH = 6;
+        const LENS_INNER_WIDTH = 4;
+        
+        const pastRatio_time = currentMinute / totalMinutesInDay;
+        const pastChars = Math.round(pastRatio_time * OUTSIDE_WIDTH);
+        const futureChars = OUTSIDE_WIDTH - pastChars;
+        
+        const endOfTodayQuota = (currentMinute / totalMinutesInDay) * 100;
+        
+        let pastRatio = 0, lensRatio = 0, futureRatio = 0;
+        
+        if (usedRequests <= endOfTodayQuota) {
+            // On track
+            pastRatio = usedRequests / (endOfTodayQuota || 1);
+            lensRatio = 0;
+            futureRatio = 0;
+        } else {
+            // Over budget
+            pastRatio = 1;
+            lensRatio = 1;
+            futureRatio = (usedRequests - endOfTodayQuota) / (100 - endOfTodayQuota || 1);
+        }
+        
+        // Simplified lens-style bar
+        const pastStr = this.renderBlock(pastChars, pastRatio, "▰", "▱");
+        const lensStr = `┃${this.renderBlock(LENS_INNER_WIDTH, usedRequests > endOfTodayQuota ? 1 : usedRequests / (endOfTodayQuota || 1), "▮", "▯")}┃`;
+        const futureStr = this.renderBlock(futureChars, futureRatio, "▰", "▱");
+        
+        return {
+            progressBar: `${pastStr}${lensStr}${futureStr}`,
+            buffer: endOfTodayQuota - usedRequests
+        };
+    }
+
     private updateSeparateStatusBars(data: AntigravityQuotaData): void {
         const tooltip = this.generateTooltip(data);
 
         if (data.geminiQuota !== undefined) {
-            const geminiText = `$(arrow-up) Gemini: ${data.geminiQuota}%  `;
+            const { progressBar, buffer } = this.calculatePacing(data.geminiQuota);
+            const geminiText = `$(arrow-up) Gemini ${progressBar} ${data.geminiQuota}%  `;
             this.geminiStatusBarItem.text = geminiText;
             this.geminiStatusBarItem.tooltip = tooltip;
-            this.applyQuotaStyle(this.geminiStatusBarItem, data.geminiQuota);
+            this.applyQuotaStyle(this.geminiStatusBarItem, data.geminiQuota, buffer);
             this.geminiStatusBarItem.show();
         } else {
             this.geminiStatusBarItem.hide();
         }
 
         if (data.claudeQuota !== undefined) {
+            const { progressBar, buffer } = this.calculatePacing(data.claudeQuota);
             const prefix = data.geminiQuota !== undefined ? '' : '$(arrow-up) ';
-            const claudeText = `${prefix}Claude: ${data.claudeQuota}%`;
+            const claudeText = `${prefix}Claude ${progressBar} ${data.claudeQuota}%`;
             this.claudeStatusBarItem.text = claudeText;
             this.claudeStatusBarItem.tooltip = tooltip;
-            this.applyQuotaStyle(this.claudeStatusBarItem, data.claudeQuota);
+            this.applyQuotaStyle(this.claudeStatusBarItem, data.claudeQuota, buffer);
             this.claudeStatusBarItem.show();
         } else {
             this.claudeStatusBarItem.hide();
@@ -104,14 +154,14 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
         }
     }
 
-    private applyQuotaStyle(item: vscode.StatusBarItem, quota: number): void {
-        if (quota < 10) {
+    private applyQuotaStyle(item: vscode.StatusBarItem, quota: number, buffer: number): void {
+        if (buffer < -10 || quota < 10) {
             item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
             item.color = new vscode.ThemeColor('statusBarItem.errorForeground');
             return;
         }
 
-        if (quota < 30) {
+        if (buffer < 0 || quota < 30) {
             item.backgroundColor = undefined;
             item.color = new vscode.ThemeColor('charts.orange');
             return;
@@ -144,45 +194,55 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
     protected generateTooltip(data: AntigravityQuotaData): vscode.MarkdownString {
         const md = new vscode.MarkdownString();
         md.supportHtml = true;
-        md.appendMarkdown('#### $(cloud) Antigravity Quota\n\n');
+        md.appendMarkdown('### 📂 Antigravity Quota Details\n\n');
 
         if (data.email) {
-            md.appendMarkdown(`**Account:** ${data.email}\n\n`);
+            md.appendMarkdown(`**Account:** \`${data.email}\`\n\n`);
+        }
+
+        if (data.projectId) {
+            md.appendMarkdown(`**Project:** \`${data.projectId}\`\n\n`);
         }
 
         md.appendMarkdown('---\n');
-        md.appendMarkdown('**Summary:**\n\n');
+        md.appendMarkdown('#### 📊 Usage Summary\n\n');
 
         if (data.geminiQuota !== undefined) {
-            const geminiEmoji = this.getStatusEmoji(data.geminiQuota);
-            md.appendMarkdown(`${geminiEmoji} **Gemini:** ${data.geminiQuota}% remaining\n\n`);
+            const { progressBar, buffer } = this.calculatePacing(data.geminiQuota);
+            const status = buffer >= 0 ? '✅ On track' : '🔥 Over budget';
+            md.appendMarkdown(`**Gemini:** ${progressBar} **${data.geminiQuota}%** remaining (${status})\n\n`);
         }
 
         if (data.claudeQuota !== undefined) {
-            const claudeEmoji = this.getStatusEmoji(data.claudeQuota);
-            md.appendMarkdown(`${claudeEmoji} **Claude:** ${data.claudeQuota}% remaining\n\n`);
+            const { progressBar, buffer } = this.calculatePacing(data.claudeQuota);
+            const status = buffer >= 0 ? '✅ On track' : '🔥 Over budget';
+            md.appendMarkdown(`**Claude:** ${progressBar} **${data.claudeQuota}%** remaining (${status})\n\n`);
         }
 
         if (data.modelQuotas && data.modelQuotas.length > 0) {
             md.appendMarkdown('---\n');
-            md.appendMarkdown('**Model Details:**\n\n');
+            md.appendMarkdown('#### 📑 Model Details\n\n');
+            md.appendMarkdown('| Status | Model Name | Remaining | Reset Time |\n');
+            md.appendMarkdown('| :--- | :--- | :--- | :--- |\n');
 
             for (const model of data.modelQuotas) {
                 const pct = Math.round(model.remainingFraction * 100);
                 const emoji = this.getStatusEmoji(pct);
-                let resetInfo = '';
+                const statusIcon = pct >= 50 ? '🟢' : pct >= 20 ? '🟡' : '🔴';
+                
+                let resetInfo = 'N/A';
                 if (model.resetTime) {
                     const resetDate = new Date(model.resetTime);
-                    resetInfo = ` *(resets: ${resetDate.toLocaleString()})*`;
+                    resetInfo = resetDate.toLocaleTimeString();
                 }
-                md.appendMarkdown(`${emoji} **${model.displayName}:** ${pct}%${resetInfo}\n\n`);
+                
+                md.appendMarkdown(`| ${statusIcon} | ${model.displayName} | **${pct}%** | ${resetInfo} |\n`);
             }
         }
 
         const lastUpdated = new Date(data.lastUpdated);
-        md.appendMarkdown('---\n');
-        md.appendMarkdown(`*Last updated: ${lastUpdated.toLocaleTimeString()}*\n\n`);
-        md.appendMarkdown('*Click to refresh*\n');
+        md.appendMarkdown('\n---\n');
+        md.appendMarkdown(`*Last updated: ${lastUpdated.toLocaleTimeString()} • Click to refresh*\n`);
         return md;
     }
 

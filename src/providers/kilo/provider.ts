@@ -100,7 +100,7 @@ export class KiloProvider
 		try {
 			const result = await this.fetchModels(apiKey);
 			if (result.models && result.models.length > 0) {
-				await this.updateConfigFileAsync(result.models);
+				await this.updateKiloConfigFile(result.models);
 			}
 		} catch (err) {
 			Logger.trace("[Kilo] Background model refresh failed:", err);
@@ -132,7 +132,7 @@ export class KiloProvider
 		return { models: parsed.data ?? [] };
 	}
 
-	private async updateConfigFileAsync(models: KiloModelItem[]): Promise<void> {
+	private async updateKiloConfigFile(models: KiloModelItem[]): Promise<void> {
 		try {
 			const modelConfigs: ModelConfig[] = models.map((m) => {
 				const modalities = m.architecture?.input_modalities ?? [];

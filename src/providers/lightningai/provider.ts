@@ -159,7 +159,7 @@ export class LightningAIProvider
 		try {
 			models = await this.fetchModels(apiKey);
 			// Auto-update config file in background (non-blocking)
-			this.updateConfigFileAsync(models);
+			this.updateLightningAIConfigFile(models);
 		} catch (err) {
 			Logger.warn("[LightningAI] Failed to fetch models, using cached config");
 			return this.providerConfig.models.map(m => this.modelConfigToInfo(m));
@@ -239,7 +239,7 @@ export class LightningAIProvider
 	/**
 	 * Update config file asynchronously in background
 	 */
-	private updateConfigFileAsync(models: LightningAIModelItem[]): void {
+	private updateLightningAIConfigFile(models: LightningAIModelItem[]): void {
 		(async () => {
 			try {
 				if (!fs.existsSync(this.configFilePath)) {
