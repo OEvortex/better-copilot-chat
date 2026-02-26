@@ -209,50 +209,12 @@ export class NvidiaProvider
 		}
 	}
 
-	private syncProviderModels(models: NvidiaModelItem[]): void {
-		if (!models || models.length === 0) {
-			return;
-		}
-		const mappedModels = models.map((m) => this.mapModelToConfig(m));
-		this.cachedProviderConfig = {
-			...this.cachedProviderConfig,
-			models: mappedModels,
-		};
-	}
-
 	override async provideLanguageModelChatInformation(
 		options: { silent: boolean },
 		token: CancellationToken,
 	): Promise<LanguageModelChatInformation[]> {
-		const apiKey = await this.getDiscoveryApiKey(options.silent ?? true);
-		if (!apiKey) {
-			if (this.providerConfig.models && this.providerConfig.models.length > 0) {
-				return this.providerConfig.models.map((m) => this.modelConfigToInfo(m));
-			}
-			return [];
-		}
-
-		try {
-			const models = await this.fetchModels(apiKey);
-			if (models.length > 0) {
-				this.syncProviderModels(models);
-			}
-
-			const infos = this.providerConfig.models.map((m) =>
-				this.modelConfigToInfo(m),
-			);
-			const dedupedInfos = this.dedupeModelInfos(infos);
-			this._chatEndpoints = dedupedInfos.map((info) => ({
-				model: info.id,
-				modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens,
-			}));
-			return dedupedInfos;
-		} catch (error) {
-			Logger.error(
-				`[NVIDIA] Failed to provide model information: ${error instanceof Error ? error.message : String(error)}`,
-			);
-			return this.providerConfig.models.map((m) => this.modelConfigToInfo(m));
-		}
+		// Use parent implementation - static models registered on startup, dynamic fetch in background
+		return super.provideLanguageModelChatInformation(options, token);
 	}
 
 	override async provideLanguageModelChatResponse(
