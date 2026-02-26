@@ -51,19 +51,8 @@ const CONFIG: StatusBarItemConfig = {
 };
 
 export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuotaData> {
-    private geminiStatusBarItem: vscode.StatusBarItem;
-    private claudeStatusBarItem: vscode.StatusBarItem;
-
     constructor() {
         super(CONFIG);
-
-        this.geminiStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 98);
-        this.geminiStatusBarItem.name = 'Antigravity Gemini Quota';
-        this.geminiStatusBarItem.command = 'chp.showAntigravityQuota';
-
-        this.claudeStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 97);
-        this.claudeStatusBarItem.name = 'Antigravity Claude Quota';
-        this.claudeStatusBarItem.command = 'chp.showAntigravityQuota';
     }
 
     protected override async shouldShowStatusBar(): Promise<boolean> {
@@ -71,104 +60,46 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
     }
 
     protected getDisplayText(data: AntigravityQuotaData): string {
-        this.updateSeparateStatusBars(data);
-        return '';
-    }
-
-    private renderBlock(width: number, fillRatio: number, fillChar: string, emptyChar: string): string {
-        if (width <= 0) { return ''; }
-        const filled = Math.round(Math.max(0, Math.min(width, fillRatio * width)));
-        return fillChar.repeat(filled) + emptyChar.repeat(width - filled);
-    }
-
-    private calculatePacing(percentage: number): { progressBar: string, buffer: number } {
-        const usedRequests = 100 - percentage;
-        const now = new Date();
-        
-        // Assuming daily limit for Antigravity (24h cycle)
-        const totalMinutesInDay = 24 * 60;
-        const currentMinute = now.getHours() * 60 + now.getMinutes();
-        
-        const OUTSIDE_WIDTH = 6;
-        const LENS_INNER_WIDTH = 4;
-        
-        const pastRatio_time = currentMinute / totalMinutesInDay;
-        const pastChars = Math.round(pastRatio_time * OUTSIDE_WIDTH);
-        const futureChars = OUTSIDE_WIDTH - pastChars;
-        
-        const endOfTodayQuota = (currentMinute / totalMinutesInDay) * 100;
-        
-        let pastRatio = 0, lensRatio = 0, futureRatio = 0;
-        
-        if (usedRequests <= endOfTodayQuota) {
-            // On track
-            pastRatio = usedRequests / (endOfTodayQuota || 1);
-            lensRatio = 0;
-            futureRatio = 0;
-        } else {
-            // Over budget
-            pastRatio = 1;
-            lensRatio = 1;
-            futureRatio = (usedRequests - endOfTodayQuota) / (100 - endOfTodayQuota || 1);
+        // Calculate combined quota (use the minimum of gemini and claude to show the limiting factor)
+        const minQuota = this.getMinQuota(data);
+        if (minQuota === undefined) {
+            return '$(cloud) Antigravity';
         }
         
-        // Simplified lens-style bar
-        const pastStr = this.renderBlock(pastChars, pastRatio, "▰", "▱");
-        const lensStr = `┃${this.renderBlock(LENS_INNER_WIDTH, usedRequests > endOfTodayQuota ? 1 : usedRequests / (endOfTodayQuota || 1), "▮", "▯")}┃`;
-        const futureStr = this.renderBlock(futureChars, futureRatio, "▰", "▱");
-        
-        return {
-            progressBar: `${pastStr}${lensStr}${futureStr}`,
-            buffer: endOfTodayQuota - usedRequests
-        };
+        // Compact progress bar (just 5 chars)
+        const bar = this.getCompactBar(minQuota);
+        return `$(cloud) ${bar} ${minQuota}%`;
     }
 
-    private updateSeparateStatusBars(data: AntigravityQuotaData): void {
-        const tooltip = this.generateTooltip(data);
-
-        if (data.geminiQuota !== undefined) {
-            const { progressBar, buffer } = this.calculatePacing(data.geminiQuota);
-            const geminiText = `$(arrow-up) Gemini ${progressBar} ${data.geminiQuota}%  `;
-            this.geminiStatusBarItem.text = geminiText;
-            this.geminiStatusBarItem.tooltip = tooltip;
-            this.applyQuotaStyle(this.geminiStatusBarItem, data.geminiQuota, buffer);
-            this.geminiStatusBarItem.show();
-        } else {
-            this.geminiStatusBarItem.hide();
-        }
-
-        if (data.claudeQuota !== undefined) {
-            const { progressBar, buffer } = this.calculatePacing(data.claudeQuota);
-            const prefix = data.geminiQuota !== undefined ? '' : '$(arrow-up) ';
-            const claudeText = `${prefix}Claude ${progressBar} ${data.claudeQuota}%`;
-            this.claudeStatusBarItem.text = claudeText;
-            this.claudeStatusBarItem.tooltip = tooltip;
-            this.applyQuotaStyle(this.claudeStatusBarItem, data.claudeQuota, buffer);
-            this.claudeStatusBarItem.show();
-        } else {
-            this.claudeStatusBarItem.hide();
-        }
-
-        if (this.statusBarItem) {
-            this.statusBarItem.hide();
-        }
+    private getMinQuota(data: AntigravityQuotaData): number | undefined {
+        const quotas: number[] = [];
+        if (data.geminiQuota !== undefined) quotas.push(data.geminiQuota);
+        if (data.claudeQuota !== undefined) quotas.push(data.claudeQuota);
+        if (quotas.length === 0) return undefined;
+        return Math.min(...quotas);
     }
 
-    private applyQuotaStyle(item: vscode.StatusBarItem, quota: number, buffer: number): void {
-        if (buffer < -10 || quota < 10) {
-            item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
-            item.color = new vscode.ThemeColor('statusBarItem.errorForeground');
+    private getCompactBar(percentage: number): string {
+        // Simple 5-char bar: ▰▰▰▱▱
+        const filled = Math.round(percentage / 20);
+        return '▰'.repeat(filled) + '▱'.repeat(5 - filled);
+    }
+
+    private applyQuotaStyle(quota: number): void {
+        if (quota < 10) {
+            this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+            this.statusBarItem.color = new vscode.ThemeColor('statusBarItem.errorForeground');
             return;
         }
 
-        if (buffer < 0 || quota < 30) {
-            item.backgroundColor = undefined;
-            item.color = new vscode.ThemeColor('charts.orange');
+        if (quota < 30) {
+            this.statusBarItem.backgroundColor = undefined;
+            this.statusBarItem.color = new vscode.ThemeColor('charts.orange');
             return;
         }
 
-        item.backgroundColor = undefined;
-        item.color = new vscode.ThemeColor('charts.green');
+        this.statusBarItem.backgroundColor = undefined;
+        this.statusBarItem.color = new vscode.ThemeColor('charts.green');
     }
 
     private getStatusIndicator(percentage: number): string {
@@ -194,56 +125,53 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
     protected generateTooltip(data: AntigravityQuotaData): vscode.MarkdownString {
         const md = new vscode.MarkdownString();
         md.supportHtml = true;
-        md.appendMarkdown('### 📂 Antigravity Quota Details\n\n');
+        md.appendMarkdown('### 📂 Antigravity Quota\n\n');
 
         if (data.email) {
             md.appendMarkdown(`**Account:** \`${data.email}\`\n\n`);
         }
 
-        if (data.projectId) {
-            md.appendMarkdown(`**Project:** \`${data.projectId}\`\n\n`);
-        }
-
         md.appendMarkdown('---\n');
-        md.appendMarkdown('#### 📊 Usage Summary\n\n');
+        md.appendMarkdown('#### 📊 Usage\n\n');
 
         if (data.geminiQuota !== undefined) {
-            const { progressBar, buffer } = this.calculatePacing(data.geminiQuota);
-            const status = buffer >= 0 ? '✅ On track' : '🔥 Over budget';
-            md.appendMarkdown(`**Gemini:** ${progressBar} **${data.geminiQuota}%** remaining (${status})\n\n`);
+            const bar = this.getCompactBar(data.geminiQuota);
+            const status = data.geminiQuota >= 30 ? '✅' : data.geminiQuota >= 10 ? '⚠️' : '❌';
+            md.appendMarkdown(`**Gemini:** ${bar} **${data.geminiQuota}%** ${status}\n\n`);
         }
 
         if (data.claudeQuota !== undefined) {
-            const { progressBar, buffer } = this.calculatePacing(data.claudeQuota);
-            const status = buffer >= 0 ? '✅ On track' : '🔥 Over budget';
-            md.appendMarkdown(`**Claude:** ${progressBar} **${data.claudeQuota}%** remaining (${status})\n\n`);
+            const bar = this.getCompactBar(data.claudeQuota);
+            const status = data.claudeQuota >= 30 ? '✅' : data.claudeQuota >= 10 ? '⚠️' : '❌';
+            md.appendMarkdown(`**Claude:** ${bar} **${data.claudeQuota}%** ${status}\n\n`);
         }
 
         if (data.modelQuotas && data.modelQuotas.length > 0) {
             md.appendMarkdown('---\n');
-            md.appendMarkdown('#### 📑 Model Details\n\n');
-            md.appendMarkdown('| Status | Model Name | Remaining | Reset Time |\n');
-            md.appendMarkdown('| :--- | :--- | :--- | :--- |\n');
+            md.appendMarkdown('#### 📑 Models\n\n');
 
-            for (const model of data.modelQuotas) {
+            for (const model of data.modelQuotas.slice(0, 5)) {
                 const pct = Math.round(model.remainingFraction * 100);
-                const emoji = this.getStatusEmoji(pct);
-                const statusIcon = pct >= 50 ? '🟢' : pct >= 20 ? '🟡' : '🔴';
-                
-                let resetInfo = 'N/A';
-                if (model.resetTime) {
-                    const resetDate = new Date(model.resetTime);
-                    resetInfo = resetDate.toLocaleTimeString();
-                }
-                
-                md.appendMarkdown(`| ${statusIcon} | ${model.displayName} | **${pct}%** | ${resetInfo} |\n`);
+                const bar = this.getCompactBar(pct);
+                const status = pct >= 30 ? '🟢' : pct >= 10 ? '🟡' : '🔴';
+                md.appendMarkdown(`${status} ${model.displayName}: ${bar} ${pct}%\n`);
+            }
+            
+            if (data.modelQuotas.length > 5) {
+                md.appendMarkdown(`\n*+${data.modelQuotas.length - 5} more models*\n`);
             }
         }
 
         const lastUpdated = new Date(data.lastUpdated);
         md.appendMarkdown('\n---\n');
-        md.appendMarkdown(`*Last updated: ${lastUpdated.toLocaleTimeString()} • Click to refresh*\n`);
+        md.appendMarkdown(`*Updated: ${lastUpdated.toLocaleTimeString()} • Click for details*\n`);
         return md;
+    }
+
+    private renderBlock(width: number, fillRatio: number, fillChar: string, emptyChar: string): string {
+        if (width <= 0) { return ''; }
+        const filled = Math.round(Math.max(0, Math.min(width, fillRatio * width)));
+        return fillChar.repeat(filled) + emptyChar.repeat(width - filled);
     }
 
     protected async performApiQuery(): Promise<{ success: boolean; data?: AntigravityQuotaData; error?: string }> {
@@ -440,24 +368,14 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
             await super.executeApiQuery(isManualRefresh);
         } catch (error) {
             StatusLogger.error(`[${this.config.logPrefix}] Refresh failed`, error);
-
-            if (this.geminiStatusBarItem) {
-                this.geminiStatusBarItem.text = `$(arrow-up) Gemini: ERR`;
-            }
-            if (this.claudeStatusBarItem) {
-                this.claudeStatusBarItem.text = `Claude: ERR`;
-            }
+            this.statusBarItem.text = '$(cloud) Antigravity: ERR';
         }
     }
 
     private showRefreshingState(): void {
-        if (this.geminiStatusBarItem) {
-            this.geminiStatusBarItem.text = `$(sync~spin) Gemini: Refreshing...  `;
-            this.geminiStatusBarItem.tooltip = 'Refreshing quota data...';
-        }
-        if (this.claudeStatusBarItem) {
-            this.claudeStatusBarItem.text = `$(sync~spin) Claude: Refreshing...`;
-            this.claudeStatusBarItem.tooltip = 'Refreshing quota data...';
+        if (this.statusBarItem) {
+            this.statusBarItem.text = '$(sync~spin) Antigravity...';
+            this.statusBarItem.tooltip = 'Refreshing quota data...';
         }
     }
 
