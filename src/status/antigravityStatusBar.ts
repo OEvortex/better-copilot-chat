@@ -51,6 +51,9 @@ const CONFIG: StatusBarItemConfig = {
 };
 
 export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuotaData> {
+    // Override cache interval to 5 minutes
+    protected readonly CACHE_UPDATE_INTERVAL = 5 * 60 * 1000;
+
     constructor() {
         super(CONFIG);
     }
@@ -66,7 +69,7 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
             return '$(cloud) Antigravity';
         }
         
-        // Compact progress bar (just 5 chars)
+        // Compact 5-char progress bar
         const bar = this.getCompactBar(minQuota);
         return `$(cloud) ${bar} ${minQuota}%`;
     }
@@ -80,7 +83,7 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
     }
 
     private getCompactBar(percentage: number): string {
-        // Simple 5-char bar: ▰▰▰▱▱
+        // 5-char bar: ▰▰▰▱▱
         const filled = Math.round(percentage / 20);
         return '▰'.repeat(filled) + '▱'.repeat(5 - filled);
     }
@@ -183,26 +186,23 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
 
         if (data.modelQuotas && data.modelQuotas.length > 0) {
             md.appendMarkdown('<hr style="border: none; border-top: 1px solid #30363d; margin: 8px 0;">');
-            md.appendMarkdown('<div style="margin-bottom: 8px;"><strong>📑 Models</strong></div>');
+            md.appendMarkdown('<div style="margin-bottom: 8px;"><strong>📑 All Models (' + data.modelQuotas.length + ')</strong></div>');
             
             md.appendMarkdown('<table style="width: 100%; border-collapse: collapse; font-size: 12px;">');
             md.appendMarkdown('<tr style="color: #8b949e; text-align: left;"><th style="padding: 4px;">Model</th><th style="padding: 4px;">Quota</th></tr>');
 
-            for (const model of data.modelQuotas.slice(0, 5)) {
+            for (const model of data.modelQuotas) {
                 const pct = Math.round(model.remainingFraction * 100);
                 const bar = this.getCompactBar(pct);
                 const color = pct >= 30 ? '#3fb950' : pct >= 10 ? '#d29922' : '#f85149';
+                const bgColor = pct >= 30 ? '#238636' : pct >= 10 ? '#9e6a03' : '#da3633';
                 
                 md.appendMarkdown(`<tr>
 <td style="padding: 4px; color: #c9d1d9;">${model.displayName}</td>
-<td style="padding: 4px;"><code style="color: ${color};">${bar} ${pct}%</code></td>
+<td style="padding: 4px;"><code style="background: ${bgColor}; color: white; padding: 2px 6px; border-radius: 4px;">${bar} ${pct}%</code></td>
 </tr>`);
             }
             md.appendMarkdown('</table>');
-            
-            if (data.modelQuotas.length > 5) {
-                md.appendMarkdown(`<div style="color: #8b949e; font-size: 11px; margin-top: 4px;">+${data.modelQuotas.length - 5} more models</div>`);
-            }
         }
 
         const lastUpdated = new Date(data.lastUpdated);
@@ -366,7 +366,7 @@ export class AntigravityStatusBar extends ProviderStatusBarItem<AntigravityQuota
         }
 
         const dataAge = Date.now() - this.lastStatusData.timestamp;
-        const CACHE_EXPIRY_THRESHOLD = 5 * 60 * 1000;
+        const CACHE_EXPIRY_THRESHOLD = 5 * 60 * 1000; // 5 minutes
 
         if (dataAge > CACHE_EXPIRY_THRESHOLD) {
             StatusLogger.debug(

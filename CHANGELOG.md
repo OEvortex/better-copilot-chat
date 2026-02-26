@@ -46,6 +46,8 @@ All notable changes to this project will be documented in this file.
   - Color-coded display: Red when <10% or over budget, Orange when <30% or slightly over pace, Green when >=30% and on track.
   - Click to refresh and view detailed quota in QuickPick.
   - Shows model-specific quota information with reset times.
+  - **All Models Display**: Tooltip now shows all available models (no 5-model limit) with colored quota badges.
+  - **Real-time Refresh**: Status bar always fetches fresh data on click (no caching).
 - **Leader Election**: Implemented master instance election to ensure only one VS Code instance runs periodic status updates.
 - **User Activity Detection**: Pauses background status updates when user is inactive (30 min timeout).
 
