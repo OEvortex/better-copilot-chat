@@ -224,18 +224,6 @@ function renderProviderEditor(provider) {
 		`
         : "";
 
-    const apiKeyField = provider.supportsApiKey
-        ? `
-			<div class="provider-editor-field">
-				<label for="provider-apikey-${provider.id}">API Key</label>
-				<input
-					id="provider-apikey-${provider.id}"
-					type="password"
-					placeholder="${provider.hasApiKey ? "Stored (enter to replace / leave blank to keep)" : "Enter API key"}" />
-			</div>
-		`
-        : "";
-
     const baseUrlField = provider.supportsBaseUrl
         ? `
 			<div class="provider-editor-field">
@@ -249,7 +237,12 @@ function renderProviderEditor(provider) {
 		`
         : "";
 
-    const saveButton = provider.supportsApiKey
+    // Render multiple API keys section
+    const apiKeysSection = provider.supportsApiKey
+        ? renderApiKeysSection(provider)
+        : "";
+
+    const saveButton = provider.supportsBaseUrl || endpointOptions.length
         ? `
 			<div class="provider-editor-actions">
 				<button class="action-button compact" onclick="saveProviderSettings('${provider.id}')">
@@ -261,12 +254,92 @@ function renderProviderEditor(provider) {
 
     return `
 		<div class="provider-editor-grid" data-provider-editor="${provider.id}">
-			${apiKeyField}
+			${apiKeysSection}
 			${baseUrlField}
 			${endpointField}
 			${saveButton}
 		</div>
 	`;
+}
+
+function renderApiKeysSection(provider) {
+    const apiKeys = provider.apiKeys || [];
+    const hasApiKeys = apiKeys.length > 0;
+    const supportsLoadBalance = provider.supportsLoadBalance && apiKeys.length >= 2;
+    const loadBalanceEnabled = provider.loadBalanceEnabled || false;
+
+    // Render load balancing toggle if supported
+    const loadBalanceSection = supportsLoadBalance ? `
+        <div class="api-key-lb-section">
+            <div class="api-key-lb-toggle">
+                <span class="api-key-lb-label">
+                    <span class="lb-icon">⚖️</span>
+                    Load Balancing
+                </span>
+                <label class="toggle-switch small">
+                    <input type="checkbox"
+                           id="toggle-lb-${provider.id}"
+                           ${loadBalanceEnabled ? "checked" : ""}
+                           onchange="handleToggleChange('${provider.id}', this.checked)">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            ${loadBalanceEnabled ? renderStrategySelector(provider.id, provider.loadBalanceStrategy) : ""}
+        </div>
+    ` : "";
+
+    // Render list of existing API keys
+    const apiKeyList = apiKeys.map((apiKey) => `
+        <div class="api-key-item ${apiKey.isActive ? "active" : ""}">
+            <div class="api-key-info">
+                <span class="api-key-name">${escapeHtml(apiKey.displayName)}</span>
+                <span class="api-key-date">Added: ${formatDate(apiKey.createdAt)}</span>
+                ${apiKey.isActive ? '<span class="api-key-badge active">Active</span>' : ""}
+            </div>
+            <div class="api-key-actions">
+                ${!apiKey.isActive ? `<button class="action-button secondary compact" onclick="switchApiKey('${provider.id}', '${apiKey.id}')">Use</button>` : ""}
+                <button class="action-button secondary compact danger" onclick="removeApiKey('${provider.id}', '${apiKey.id}')">Remove</button>
+            </div>
+        </div>
+    `).join("");
+
+    // Add new API key form
+    const addApiKeyForm = `
+        <div class="api-key-add-form">
+            <input
+                id="provider-apikey-${provider.id}"
+                type="password"
+                class="api-key-input"
+                placeholder="Enter new API key" />
+            <input
+                id="provider-apikey-name-${provider.id}"
+                type="text"
+                class="api-key-name-input"
+                placeholder="Optional: Display name" />
+            <button class="action-button compact" onclick="addApiKey('${provider.id}')">
+                Add
+            </button>
+        </div>
+    `;
+
+    return `
+        <div class="provider-editor-field api-keys-section">
+            <label>API Keys</label>
+            ${loadBalanceSection}
+            ${hasApiKeys ? `<div class="api-key-list">${apiKeyList}</div>` : "<p class=\"no-api-keys\">No API keys configured</p>"}
+            ${addApiKeyForm}
+        </div>
+    `;
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return "Unknown";
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString();
+    } catch {
+        return "Unknown";
+    }
 }
 
 function groupProvidersByCategory(providers) {
@@ -449,7 +522,6 @@ function _saveProviderSettings(providerId) {
         return;
     }
 
-    const apiKeyInput = document.getElementById(`provider-apikey-${providerId}`);
     const baseUrlInput = document.getElementById(
         `provider-baseurl-${providerId}`,
     );
@@ -458,12 +530,6 @@ function _saveProviderSettings(providerId) {
     );
 
     const payload = {};
-    if (provider.supportsApiKey && apiKeyInput) {
-        const nextApiKey = (apiKeyInput.value || "").trim();
-        if (nextApiKey) {
-            payload.apiKey = nextApiKey;
-        }
-    }
     if (provider.supportsBaseUrl && baseUrlInput) {
         payload.baseUrl = baseUrlInput.value;
     }
@@ -475,6 +541,65 @@ function _saveProviderSettings(providerId) {
         command: "saveProviderSettings",
         providerId,
         payload,
+    });
+}
+
+function _addApiKey(providerId) {
+    const provider = (settingsState.providers || []).find(
+        (p) => p.id === providerId,
+    );
+    if (!provider) {
+        return;
+    }
+
+    const apiKeyInput = document.getElementById(`provider-apikey-${providerId}`);
+    const apiKeyNameInput = document.getElementById(`provider-apikey-name-${providerId}`);
+
+    if (!apiKeyInput) {
+        return;
+    }
+
+    const apiKey = (apiKeyInput.value || "").trim();
+    if (!apiKey) {
+        showToast("Please enter an API key", "error");
+        return;
+    }
+
+    const displayName = (apiKeyNameInput?.value || "").trim();
+
+    vscode.postMessage({
+        command: "addApiKey",
+        providerId,
+        payload: {
+            apiKey,
+            displayName: displayName || undefined,
+        },
+    });
+
+    // Clear inputs after sending
+    apiKeyInput.value = "";
+    if (apiKeyNameInput) {
+        apiKeyNameInput.value = "";
+    }
+}
+
+function _removeApiKey(providerId, apiKeyId) {
+    if (!confirm("Are you sure you want to remove this API key?")) {
+        return;
+    }
+
+    vscode.postMessage({
+        command: "removeApiKey",
+        providerId,
+        apiKeyId,
+    });
+}
+
+function _switchApiKey(providerId, apiKeyId) {
+    vscode.postMessage({
+        command: "switchApiKey",
+        providerId,
+        apiKeyId,
     });
 }
 
@@ -634,6 +759,9 @@ window.openProviderSettings = _openProviderSettings;
 window.refreshSettings = _refreshSettings;
 window.runProviderWizard = _runProviderWizard;
 window.saveProviderSettings = _saveProviderSettings;
+window.addApiKey = _addApiKey;
+window.removeApiKey = _removeApiKey;
+window.switchApiKey = _switchApiKey;
 
 // Ask extension for current state when the page loads
 window.addEventListener("DOMContentLoaded", () => {

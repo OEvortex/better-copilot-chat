@@ -1,666 +1,886 @@
 /* GCMP Settings Page - Modern & Simple UI */
 
 :root {
-	--card-bg: var(--vscode-editor-background);
-	--card-border: var(--vscode-panel-border);
-	--card-hover: var(--vscode-list-hoverBackground);
-	--accent-color: var(--vscode-button-background);
-	--accent-hover: var(--vscode-button-hoverBackground);
-	--success-color: #4caf50;
-	--warning-color: #ff9800;
-	--danger-color: #f44336;
+    --card-bg: var(--vscode-editor-background);
+    --card-border: var(--vscode-panel-border);
+    --card-hover: var(--vscode-list-hoverBackground);
+    --accent-color: var(--vscode-button-background);
+    --accent-hover: var(--vscode-button-hoverBackground);
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+    --danger-color: #f44336;
 }
 
 * {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-	font-family: var(--vscode-font-family);
-	font-size: var(--vscode-font-size);
-	color: var(--vscode-foreground);
-	background-color: var(--vscode-editor-background);
-	padding: 0;
-	margin: 0;
-	line-height: 1.5;
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
+    color: var(--vscode-foreground);
+    background-color: var(--vscode-editor-background);
+    padding: 0;
+    margin: 0;
+    line-height: 1.5;
 }
 
 .settings-container {
-	max-width: 800px;
-	margin: 0 auto;
-	padding: 24px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px;
 }
 
 /* Header */
 .settings-header {
-	margin-bottom: 32px;
-	padding-bottom: 16px;
-	border-bottom: 1px solid var(--card-border);
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--card-border);
 }
 
 .settings-header h1 {
-	margin: 0 0 8px 0;
-	font-size: 1.8em;
-	font-weight: 600;
-	color: var(--vscode-foreground);
-	display: flex;
-	align-items: center;
-	gap: 12px;
+    margin: 0 0 8px 0;
+    font-size: 1.8em;
+    font-weight: 600;
+    color: var(--vscode-foreground);
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .settings-header h1 .icon {
-	font-size: 1.2em;
+    font-size: 1.2em;
 }
 
 .settings-header p {
-	margin: 0;
-	color: var(--vscode-descriptionForeground);
-	font-size: 1em;
+    margin: 0;
+    color: var(--vscode-descriptionForeground);
+    font-size: 1em;
 }
 
 /* Section */
 .settings-section {
-	margin-bottom: 28px;
+    margin-bottom: 28px;
 }
 
 .provider-catalog-toolbar {
-	margin-bottom: 14px;
+    margin-bottom: 14px;
 }
 
 .provider-search-input {
-	width: 100%;
-	padding: 8px 10px;
-	border-radius: 6px;
-	border: 1px solid var(--vscode-input-border);
-	background-color: var(--vscode-input-background);
-	color: var(--vscode-input-foreground);
-	outline: none;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--vscode-input-border);
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    outline: none;
 }
 
 .provider-search-input:focus {
-	border-color: var(--vscode-focusBorder);
-	box-shadow: 0 0 0 1px var(--vscode-focusBorder);
+    border-color: var(--vscode-focusBorder);
+    box-shadow: 0 0 0 1px var(--vscode-focusBorder);
 }
 
 .provider-category-group {
-	margin-bottom: 18px;
+    margin-bottom: 18px;
 }
 
 .provider-category-title {
-	margin: 0 0 10px 0;
-	font-size: 0.95em;
-	font-weight: 600;
-	color: var(--vscode-descriptionForeground);
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+    margin: 0 0 10px 0;
+    font-size: 0.95em;
+    font-weight: 600;
+    color: var(--vscode-descriptionForeground);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .provider-list-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-	gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 16px;
 }
 
 .provider-catalog-item {
-	background-color: var(--card-bg);
-	border: 1px solid var(--card-border);
-	border-radius: 8px;
-	padding: 12px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px;
 }
 
 .provider-catalog-item:hover {
-	border-color: var(--accent-color);
+    border-color: var(--accent-color);
 }
 
 .provider-catalog-head {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	gap: 10px;
-	margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .provider-title-wrap {
-	display: flex;
-	gap: 10px;
-	align-items: flex-start;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
 }
 
 .provider-title-wrap h4 {
-	margin: 0;
-	font-size: 0.98em;
-	font-weight: 600;
+    margin: 0;
+    font-size: 0.98em;
+    font-weight: 600;
 }
 
 .provider-title-wrap p {
-	margin: 2px 0 0 0;
-	font-size: 0.86em;
-	color: var(--vscode-descriptionForeground);
+    margin: 2px 0 0 0;
+    font-size: 0.86em;
+    color: var(--vscode-descriptionForeground);
 }
 
 .provider-capabilities {
-	display: flex;
-	gap: 6px;
-	flex-wrap: wrap;
-	margin-bottom: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
 }
 
 .provider-actions {
-	display: flex;
-	gap: 8px;
-	flex-wrap: wrap;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .provider-editor-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 10px;
-	margin-bottom: 10px;
-	padding: 10px;
-	border: 1px dashed var(--card-border);
-	border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 12px;
+    border: 1px dashed var(--card-border);
+    border-radius: 6px;
 }
 
 .provider-editor-field {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
 }
 
 .provider-editor-field label {
-	font-size: 0.82em;
-	color: var(--vscode-descriptionForeground);
-	font-weight: 500;
+    font-size: 0.82em;
+    color: var(--vscode-descriptionForeground);
+    font-weight: 500;
 }
 
 .provider-editor-field input,
 .provider-editor-field select {
-	padding: 6px 8px;
-	border-radius: 6px;
-	border: 1px solid var(--vscode-input-border);
-	background: var(--vscode-input-background);
-	color: var(--vscode-input-foreground);
-	outline: none;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--vscode-input-border);
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    outline: none;
 }
 
 .provider-editor-field input:focus,
 .provider-editor-field select:focus {
-	border-color: var(--vscode-focusBorder);
-	box-shadow: 0 0 0 1px var(--vscode-focusBorder);
+    border-color: var(--vscode-focusBorder);
+    box-shadow: 0 0 0 1px var(--vscode-focusBorder);
 }
 
 .provider-editor-actions {
-	display: flex;
-	align-items: end;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    margin-top: 4px;
 }
 
 .section-title {
-	font-size: 1.2em;
-	font-weight: 600;
-	margin: 0 0 16px 0;
-	color: var(--vscode-foreground);
-	display: flex;
-	align-items: center;
-	gap: 8px;
+    font-size: 1.2em;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    color: var(--vscode-foreground);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .section-title .badge {
-	font-size: 0.7em;
-	padding: 2px 8px;
-	border-radius: 12px;
-	background-color: var(--accent-color);
-	color: var(--vscode-button-foreground);
-	font-weight: 500;
+    font-size: 0.7em;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background-color: var(--accent-color);
+    color: var(--vscode-button-foreground);
+    font-weight: 500;
 }
 
 /* Card Grid */
 .card-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-	gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
 }
 
 /* Settings Card */
 .settings-card {
-	background-color: var(--card-bg);
-	border: 1px solid var(--card-border);
-	border-radius: 8px;
-	padding: 16px;
-	transition: all 0.2s ease;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px;
+    transition: all 0.2s ease;
 }
 
 .settings-card:hover {
-	border-color: var(--accent-color);
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .card-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
 }
 
 .card-title {
-	display: flex;
-	align-items: center;
-	gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .card-title .provider-icon {
-	width: 32px;
-	height: 32px;
-	border-radius: 6px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 1.2em;
-	background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
-	color: var(--vscode-button-foreground);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+    color: var(--vscode-button-foreground);
 }
 
 .card-title h3 {
-	margin: 0;
-	font-size: 1.1em;
-	font-weight: 600;
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
 }
 
 .card-description {
-	color: var(--vscode-descriptionForeground);
-	font-size: 0.95em;
-	margin-bottom: 16px;
-	line-height: 1.5;
+    color: var(--vscode-descriptionForeground);
+    font-size: 0.95em;
+    margin-bottom: 16px;
+    line-height: 1.5;
 }
 
 /* Toggle Switch */
 .toggle-container {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 12px 0;
-	border-top: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-top: 1px solid var(--card-border);
 }
 
 .toggle-label {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .toggle-label .label-text {
-	font-weight: 500;
-	font-size: 0.95em;
+    font-weight: 500;
+    font-size: 0.95em;
 }
 
 .toggle-label .label-hint {
-	font-size: 0.85em;
-	color: var(--vscode-descriptionForeground);
+    font-size: 0.85em;
+    color: var(--vscode-descriptionForeground);
 }
 
 /* Modern Toggle Switch */
 .toggle-switch {
-	position: relative;
-	width: 48px;
-	height: 26px;
-	flex-shrink: 0;
+    position: relative;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
 }
 
 .toggle-switch input {
-	opacity: 0;
-	width: 0;
-	height: 0;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
 .toggle-slider {
-	position: absolute;
-	cursor: pointer;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: var(--vscode-input-background);
-	border: 1px solid var(--vscode-input-border);
-	transition: all 0.3s ease;
-	border-radius: 26px;
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--vscode-input-background);
+    border: 1px solid var(--vscode-input-border);
+    transition: all 0.3s ease;
+    border-radius: 26px;
 }
 
 .toggle-slider:before {
-	position: absolute;
-	content: "";
-	height: 20px;
-	width: 20px;
-	left: 2px;
-	bottom: 2px;
-	background-color: var(--vscode-foreground);
-	transition: all 0.3s ease;
-	border-radius: 50%;
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: var(--vscode-foreground);
+    transition: all 0.3s ease;
+    border-radius: 50%;
 }
 
-.toggle-switch input:checked + .toggle-slider {
-	background-color: var(--success-color);
-	border-color: var(--success-color);
+.toggle-switch input:checked+.toggle-slider {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
 }
 
-.toggle-switch input:checked + .toggle-slider:before {
-	transform: translateX(22px);
-	background-color: white;
+.toggle-switch input:checked+.toggle-slider:before {
+    transform: translateX(22px);
+    background-color: white;
 }
 
-.toggle-switch input:focus + .toggle-slider {
-	box-shadow: 0 0 0 2px var(--vscode-focusBorder);
+.toggle-switch input:focus+.toggle-slider {
+    box-shadow: 0 0 0 2px var(--vscode-focusBorder);
 }
 
-.toggle-switch input:disabled + .toggle-slider {
-	opacity: 0.5;
-	cursor: not-allowed;
+.toggle-switch input:disabled+.toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Status Indicator */
 .status-indicator {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 4px 10px;
-	border-radius: 12px;
-	font-size: 0.85em;
-	font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 500;
 }
 
 .status-indicator.enabled {
-	background-color: rgba(76, 175, 80, 0.15);
-	color: var(--success-color);
+    background-color: rgba(76, 175, 80, 0.15);
+    color: var(--success-color);
 }
 
 .status-indicator.disabled {
-	background-color: rgba(158, 158, 158, 0.15);
-	color: var(--vscode-descriptionForeground);
+    background-color: rgba(158, 158, 158, 0.15);
+    color: var(--vscode-descriptionForeground);
 }
 
 .status-dot {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background-color: currentColor;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
 }
 
 /* Account Count Badge */
 .account-badge {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	padding: 2px 8px;
-	border-radius: 10px;
-	font-size: 0.8em;
-	background-color: var(--vscode-badge-background);
-	color: var(--vscode-badge-foreground);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    background-color: var(--vscode-badge-background);
+    color: var(--vscode-badge-foreground);
 }
 
 .account-badge.success {
-	background-color: rgba(76, 175, 80, 0.15);
-	color: var(--success-color);
+    background-color: rgba(76, 175, 80, 0.15);
+    color: var(--success-color);
 }
 
 .account-badge.warning {
-	background-color: rgba(255, 152, 0, 0.15);
-	color: var(--warning-color);
+    background-color: rgba(255, 152, 0, 0.15);
+    color: var(--warning-color);
 }
 
 .account-info {
-	display: flex;
-	gap: 8px;
-	flex-wrap: wrap;
-	margin-bottom: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
 }
 
 /* Strategy Selector */
 .strategy-container {
-	margin-top: 16px;
-	padding-top: 16px;
-	border-top: 1px solid var(--card-border);
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--card-border);
 }
 
 .strategy-label {
-	margin-bottom: 12px;
+    margin-bottom: 12px;
 }
 
 .strategy-label .label-text {
-	font-weight: 500;
-	font-size: 0.95em;
+    font-weight: 500;
+    font-size: 0.95em;
 }
 
 .strategy-options {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .strategy-option {
-	display: flex;
-	align-items: flex-start;
-	gap: 10px;
-	padding: 10px 12px;
-	border: 1px solid var(--card-border);
-	border-radius: 6px;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	background-color: transparent;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: transparent;
 }
 
 .strategy-option:hover {
-	border-color: var(--accent-color);
-	background-color: var(--card-hover);
+    border-color: var(--accent-color);
+    background-color: var(--card-hover);
 }
 
 .strategy-option.selected {
-	border-color: var(--success-color);
-	background-color: rgba(76, 175, 80, 0.08);
+    border-color: var(--success-color);
+    background-color: rgba(76, 175, 80, 0.08);
 }
 
 .strategy-option input[type="radio"] {
-	margin-top: 2px;
-	accent-color: var(--success-color);
+    margin-top: 2px;
+    accent-color: var(--success-color);
 }
 
 .strategy-content {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .strategy-name {
-	font-weight: 500;
-	font-size: 0.95em;
+    font-weight: 500;
+    font-size: 0.95em;
 }
 
 .strategy-desc {
-	font-size: 0.85em;
-	color: var(--vscode-descriptionForeground);
+    font-size: 0.85em;
+    color: var(--vscode-descriptionForeground);
 }
 
 /* Action Buttons Container */
 .action-buttons {
-	display: flex;
-	gap: 12px;
-	flex-wrap: wrap;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 /* Info Box */
 .info-box {
-	display: flex;
-	align-items: flex-start;
-	gap: 12px;
-	padding: 14px;
-	background-color: var(--vscode-textBlockQuote-background);
-	border-left: 3px solid var(--accent-color);
-	border-radius: 0 6px 6px 0;
-	margin-top: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    background-color: var(--vscode-textBlockQuote-background);
+    border-left: 3px solid var(--accent-color);
+    border-radius: 0 6px 6px 0;
+    margin-top: 16px;
 }
 
 .info-box .info-icon {
-	font-size: 1.2em;
-	flex-shrink: 0;
+    font-size: 1.2em;
+    flex-shrink: 0;
 }
 
 .info-box .info-content {
-	flex: 1;
+    flex: 1;
 }
 
 .info-box .info-content p {
-	margin: 0;
-	font-size: 0.95em;
-	line-height: 1.5;
+    margin: 0;
+    font-size: 0.95em;
+    line-height: 1.5;
 }
 
 /* Empty State */
 .empty-state {
-	text-align: center;
-	padding: 40px 20px;
-	color: var(--vscode-descriptionForeground);
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--vscode-descriptionForeground);
 }
 
 .empty-state.compact {
-	padding: 16px;
+    padding: 16px;
 }
 
 .empty-state .empty-icon {
-	font-size: 3em;
-	margin-bottom: 16px;
-	opacity: 0.5;
+    font-size: 3em;
+    margin-bottom: 16px;
+    opacity: 0.5;
 }
 
 .empty-state h3 {
-	margin: 0 0 8px 0;
-	color: var(--vscode-foreground);
+    margin: 0 0 8px 0;
+    color: var(--vscode-foreground);
 }
 
 .empty-state p {
-	margin: 0;
-	font-size: 0.95em;
+    margin: 0;
+    font-size: 0.95em;
 }
 
 /* Action Button */
 .action-button {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 8px 16px;
-	border: none;
-	border-radius: 6px;
-	font-size: 0.95em;
-	font-weight: 500;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	background-color: var(--vscode-button-background);
-	color: var(--vscode-button-foreground);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
 }
 
 .action-button.compact {
-	padding: 6px 10px;
-	font-size: 0.85em;
+    padding: 6px 10px;
+    font-size: 0.85em;
 }
 
 .action-button:hover {
-	background-color: var(--vscode-button-hoverBackground);
+    background-color: var(--vscode-button-hoverBackground);
 }
 
 .action-button.secondary {
-	background-color: var(--vscode-button-secondaryBackground);
-	color: var(--vscode-button-secondaryForeground);
+    background-color: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
 }
 
-.action-button.secondary:hover {
-	background-color: var(--vscode-button-secondaryHoverBackground);
+/* API Keys Section */
+.api-keys-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--card-border);
+}
+
+.api-keys-section>label {
+    font-size: 0.82em;
+    color: var(--vscode-descriptionForeground);
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.api-key-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.api-key-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background-color: var(--vscode-input-background);
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 6px;
+    gap: 12px;
+}
+
+.api-key-item.active {
+    border-color: var(--success-color);
+    background-color: rgba(76, 175, 80, 0.08);
+}
+
+.api-key-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.api-key-name {
+    font-size: 0.9em;
+    font-weight: 500;
+    color: var(--vscode-foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.api-key-date {
+    font-size: 0.75em;
+    color: var(--vscode-descriptionForeground);
+}
+
+.api-key-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7em;
+    font-weight: 500;
+}
+
+.api-key-badge.active {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.api-key-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.api-key-add-form {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    margin-top: 8px;
+    flex-wrap: nowrap;
+}
+
+.api-key-input {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--vscode-input-border);
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    outline: none;
+    font-size: 0.85em;
+}
+
+.api-key-input:focus {
+    border-color: var(--vscode-focusBorder);
+}
+
+.api-key-name-input {
+    width: 120px;
+    min-width: 80px;
+    flex-shrink: 0;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--vscode-input-border);
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    outline: none;
+    font-size: 0.85em;
+}
+
+.api-key-name-input:focus {
+    border-color: var(--vscode-focusBorder);
+}
+
+.no-api-keys {
+    font-size: 0.85em;
+    color: var(--vscode-descriptionForeground);
+    margin: 8px 0;
+    font-style: italic;
+}
+
+/* API Key Load Balancing Section */
+.api-key-lb-section {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.api-key-lb-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.api-key-lb-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: var(--vscode-foreground);
+}
+
+.lb-icon {
+    font-size: 1em;
+}
+
+/* Small toggle switch */
+.toggle-switch.small {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+}
+
+.toggle-switch.small input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-switch.small .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--vscode-disabledForeground);
+    transition: 0.3s;
+    border-radius: 20px;
+}
+
+.toggle-switch.small .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch.small input:checked+.toggle-slider {
+    background-color: var(--success-color);
+}
+
+.toggle-switch.small input:checked+.toggle-slider:before {
+    transform: translateX(16px);
 }
 
 /* Divider */
 .divider {
-	height: 1px;
-	background-color: var(--card-border);
-	margin: 24px 0;
+    height: 1px;
+    background-color: var(--card-border);
+    margin: 24px 0;
 }
 
 /* Loading Spinner */
 .loading-spinner {
-	display: inline-block;
-	width: 16px;
-	height: 16px;
-	border: 2px solid var(--vscode-foreground);
-	border-radius: 50%;
-	border-top-color: transparent;
-	animation: spin 0.8s linear infinite;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--vscode-foreground);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-	to {
-		transform: rotate(360deg);
-	}
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Toast Notification */
 .toast {
-	position: fixed;
-	bottom: 24px;
-	right: 24px;
-	padding: 12px 20px;
-	background-color: var(--vscode-notifications-background);
-	border: 1px solid var(--vscode-notifications-border);
-	border-radius: 8px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	z-index: 1000;
-	animation: slideIn 0.3s ease;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    background-color: var(--vscode-notifications-background);
+    border: 1px solid var(--vscode-notifications-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
 }
 
 .toast.success {
-	border-left: 3px solid var(--success-color);
+    border-left: 3px solid var(--success-color);
 }
 
 .toast.error {
-	border-left: 3px solid var(--danger-color);
+    border-left: 3px solid var(--danger-color);
 }
 
 @keyframes slideIn {
-	from {
-		opacity: 0;
-		transform: translateY(20px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Responsive */
 @media (max-width: 600px) {
-	.settings-container {
-		padding: 16px;
-	}
+    .settings-container {
+        padding: 16px;
+    }
 
-	.card-grid {
-		grid-template-columns: 1fr;
-	}
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
 
-	.settings-header h1 {
-		font-size: 1.5em;
-	}
+    .settings-header h1 {
+        font-size: 1.5em;
+    }
+
+    .api-key-add-form {
+        flex-wrap: wrap;
+    }
+
+    .api-key-name-input {
+        width: 100%;
+        flex: 1;
+    }
+
+    .api-key-input {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .provider-list-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-	width: 8px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-	background: transparent;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: var(--vscode-scrollbarSlider-background);
-	border-radius: 4px;
+    background-color: var(--vscode-scrollbarSlider-background);
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background-color: var(--vscode-scrollbarSlider-hoverBackground);
+    background-color: var(--vscode-scrollbarSlider-hoverBackground);
 }

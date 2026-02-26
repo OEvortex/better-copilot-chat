@@ -13,6 +13,16 @@ import settingsPageCss from "./settingsPage.css?raw";
 import settingsPageJs from "./settingsPage.js?raw";
 
 /**
+ * API Key info for display
+ */
+interface ApiKeyInfo {
+	id: string;
+	displayName: string;
+	createdAt: string;
+	isActive: boolean;
+}
+
+/**
  * Provider info for settings page
  */
 interface ProviderInfo {
@@ -32,6 +42,10 @@ interface ProviderInfo {
 	hasApiKey: boolean;
 	baseUrl: string;
 	endpoint: string;
+	apiKeys: ApiKeyInfo[];
+	activeApiKeyId: string | null;
+	loadBalanceEnabled: boolean;
+	loadBalanceStrategy: LoadBalanceStrategy;
 }
 
 /**
@@ -139,6 +153,27 @@ export class SettingsPage {
 					case "refresh":
 						await SettingsPage.sendStateUpdate(panel.webview);
 						break;
+					case "addApiKey":
+						await SettingsPage.handleAddApiKey(
+							message.providerId,
+							message.payload,
+							panel.webview,
+						);
+						break;
+					case "removeApiKey":
+						await SettingsPage.handleRemoveApiKey(
+							message.providerId,
+							message.apiKeyId,
+							panel.webview,
+						);
+						break;
+					case "switchApiKey":
+						await SettingsPage.handleSwitchApiKey(
+							message.providerId,
+							message.apiKeyId,
+							panel.webview,
+						);
+						break;
 				}
 			},
 		);
@@ -244,6 +279,26 @@ export class SettingsPage {
 			const activeApiKey = await SettingsPage.accountManager.getActiveApiKey(
 				config.id,
 			);
+
+			// Filter API key accounts
+			const apiKeyAccounts = accounts.filter((a) => a.authType === "apiKey");
+			const activeAccount = SettingsPage.accountManager.getActiveAccount(config.id);
+
+			// Map to ApiKeyInfo
+			const apiKeys: ApiKeyInfo[] = apiKeyAccounts.map((account) => ({
+				id: account.id,
+				displayName: account.displayName,
+				createdAt: account.createdAt,
+				isActive: activeAccount?.id === account.id,
+			}));
+
+			// Get load balance settings
+			const supportsMultiAccount = AccountManager.supportsMultiAccount(config.id);
+			const loadBalanceEnabled = supportsMultiAccount
+				? SettingsPage.accountManager.getLoadBalanceEnabled(config.id)
+				: false;
+			const loadBalanceStrategy = SettingsPage.loadBalanceStrategies[config.id] || "round-robin";
+
 			return {
 				id: config.id,
 				displayName: config.displayName,
@@ -253,7 +308,7 @@ export class SettingsPage {
 				description: config.description,
 				settingsPrefix: config.settingsPrefix,
 				accountCount: accounts.length,
-				supportsLoadBalance: AccountManager.supportsMultiAccount(config.id),
+				supportsLoadBalance: supportsMultiAccount,
 				supportsApiKey: config.features.supportsApiKey,
 				supportsOAuth: config.features.supportsOAuth,
 				supportsBaseUrl: config.features.supportsBaseUrl,
@@ -261,6 +316,10 @@ export class SettingsPage {
 				hasApiKey: !!activeApiKey,
 				baseUrl: configSection.get<string>(`${config.id}.baseUrl`, "").trim() || config.baseUrl || "",
 				endpoint: SettingsPage.getEndpointSetting(config.id, configSection),
+				apiKeys,
+				activeApiKeyId: activeAccount?.id || null,
+				loadBalanceEnabled,
+				loadBalanceStrategy,
 			};
 		}));
 	}
@@ -398,6 +457,110 @@ export class SettingsPage {
 			"workbench.action.openSettings",
 			query,
 		);
+	}
+
+	/**
+	 * Handle add new API key request
+	 */
+	private static async handleAddApiKey(
+		providerId: string,
+		payload: { apiKey: string; displayName?: string },
+		webview: vscode.Webview,
+	): Promise<void> {
+		try {
+			const provider = ProviderRegistry.getProvider(providerId);
+			if (!provider) {
+				throw new Error(`Unknown provider: ${providerId}`);
+			}
+
+			const displayName = payload.displayName || `${provider.displayName} API Key ${Date.now()}`;
+			const added = await SettingsPage.accountManager.addApiKeyAccount(
+				providerId,
+				displayName,
+				payload.apiKey,
+			);
+
+			if (!added.success || !added.account) {
+				throw new Error(added.error || "Failed to add API key");
+			}
+
+			await SettingsPage.sendStateUpdate(webview);
+			webview.postMessage({
+				command: "showToast",
+				message: `API key added successfully`,
+				type: "success",
+			});
+		} catch (error) {
+			webview.postMessage({
+				command: "showToast",
+				message: `Failed to add API key: ${error}`,
+				type: "error",
+			});
+		}
+	}
+
+	/**
+	 * Handle remove API key request
+	 */
+	private static async handleRemoveApiKey(
+		providerId: string,
+		apiKeyId: string,
+		webview: vscode.Webview,
+	): Promise<void> {
+		try {
+			const accounts = SettingsPage.accountManager.getAccountsByProvider(providerId);
+			const account = accounts.find((a) => a.id === apiKeyId);
+
+			if (!account) {
+				throw new Error("API key not found");
+			}
+
+			await SettingsPage.accountManager.removeAccount(apiKeyId);
+			await SettingsPage.sendStateUpdate(webview);
+			webview.postMessage({
+				command: "showToast",
+				message: "API key removed",
+				type: "success",
+			});
+		} catch (error) {
+			webview.postMessage({
+				command: "showToast",
+				message: `Failed to remove API key: ${error}`,
+				type: "error",
+			});
+		}
+	}
+
+	/**
+	 * Handle switch active API key request
+	 */
+	private static async handleSwitchApiKey(
+		providerId: string,
+		apiKeyId: string,
+		webview: vscode.Webview,
+	): Promise<void> {
+		try {
+			const accounts = SettingsPage.accountManager.getAccountsByProvider(providerId);
+			const account = accounts.find((a) => a.id === apiKeyId);
+
+			if (!account) {
+				throw new Error("API key not found");
+			}
+
+			await SettingsPage.accountManager.switchAccount(providerId, apiKeyId);
+			await SettingsPage.sendStateUpdate(webview);
+			webview.postMessage({
+				command: "showToast",
+				message: "Switched to selected API key",
+				type: "success",
+			});
+		} catch (error) {
+			webview.postMessage({
+				command: "showToast",
+				message: `Failed to switch API key: ${error}`,
+				type: "error",
+			});
+		}
 	}
 
 	private static async handleRunProviderWizard(

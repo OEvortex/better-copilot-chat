@@ -367,7 +367,7 @@ Toggle the **"Load Balance"** switch to enable automatic account switching when 
 
 ### ZhipuAI (GLM Coding Plan)
 
-| Model | Context | Output | Features |
+| Model | Input | Output | Features |
 | :---- | :------ | :----- | :------- |
 | GLM-4.5 | 98K | 32K | Tool Calling |
 | GLM-4.5-air | 98K | 32K | Tool Calling |
@@ -378,7 +378,7 @@ Toggle the **"Load Balance"** switch to enable automatic account switching when 
 
 ### MiniMax
 
-| Model | Context | Output | Features |
+| Model | Input | Output | Features |
 | :---- | :------ | :----- | :------- |
 | MiniMax-M2.5 | 172K | 32K | Thinking, Tool Calling |
 | MiniMax-M2.5-highspeed | 172K | 32K | ~100 TPS, Thinking |
@@ -386,7 +386,7 @@ Toggle the **"Load Balance"** switch to enable automatic account switching when 
 
 ### MoonshotAI (Kimi)
 
-| Model | Context | Output | Features |
+| Model | Input | Output | Features |
 | :---- | :------ | :----- | :------- |
 | Kimi For Coding | 224K | 32K | Tool Calling |
 | Kimi-K2-Thinking | 224K | 32K | Thinking, Agentic |
@@ -395,14 +395,14 @@ Toggle the **"Load Balance"** switch to enable automatic account switching when 
 
 ### DeepSeek
 
-| Model | Context | Output | Features |
+| Model | Input | Output | Features |
 | :---- | :------ | :----- | :------- |
 | DeepSeek-V3.2 | 128K | 16K | Tool Calling |
 | DeepSeek-V3.2 Reasoner | 128K | 16K | Thinking, Tool Calling |
 
 ### Antigravity (Google Cloud Code)
 
-| Model | Context | Output | Features |
+| Model | Input | Output | Features |
 | :---- | :------ | :----- | :------- |
 | Gemini 3 Pro Low | 935K | 65K | Image Input, Tool Calling |
 | Gemini 3 Pro High | 935K | 65K | Image Input, Tool Calling |
@@ -412,7 +412,7 @@ Toggle the **"Load Balance"** switch to enable automatic account switching when 
 
 ### Codex (OpenAI)
 
-| Model | Context | Output | Features |
+| Model | Input | Output | Features |
 | :---- | :------ | :----- | :------- |
 | GPT-5.2 Codex | 344K | 65K | Image Input, Tool Calling |
 | GPT-5.3 Codex | 344K | 65K | Image Input, Tool Calling |

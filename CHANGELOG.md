@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+**Load Balancing System for All API Providers:**
+- **Multi-API Key Support**: Users can now add multiple API keys per provider and enable load balancing to distribute requests across all configured keys.
+- **3 Load Balancing Strategies**:
+  - **Round Robin**: Distributes requests evenly across all accounts in sequence.
+  - **Quota Aware**: Automatically prioritizes accounts with more remaining quota (requires quota information from provider).
+  - **Failover Only**: Uses primary account and only switches to backup accounts on errors.
+- **Unified Provider Settings**: Load balancing toggle and strategy selector directly in the provider configuration panel.
+- **Per-Provider Configuration**: Each provider can have its own load balancing strategy independently configured.
+- **Works with All API Key Providers**: Compatible with OpenAI, Claude, DeepSeek, Zhipu, MiniMax, Moonshot, DeepInfra, Mistral, Ollama, HuggingFace, and all other API key-based providers.
+
 **Automatic Provider Registration (No Configuration Required):**
 - **Providers Auto-Register with VS Code**: All providers now automatically register with VS Code's language model system immediately upon extension activation, without requiring any API key or configuration.
   - Static models from config files are available right away.
