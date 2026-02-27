@@ -862,6 +862,24 @@
                 }
             },
             {
+                "vendor": "chp.nvidia",
+                "displayName": "⦿ NVIDIA NIM",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "NVIDIA NIM API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
                 "vendor": "chp.mistral",
                 "displayName": "⦿ Mistral AI",
                 "configuration": {
