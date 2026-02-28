@@ -119,6 +119,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 
 	/**
 	 * Refresh SDK handlers to apply baseUrl overrides
+	 * Subclasses can override to add additional cleanup
 	 */
 	protected refreshHandlers(): void {
 		this.openaiHandler?.dispose();
@@ -239,7 +240,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 			detail: this.providerConfig.displayName,
 			tooltip:
 				model.tooltip || `${model.name} via ${this.providerConfig.displayName}`,
-			family: model.family || this.providerKey,
+			family: model.family || this.providerConfig.family || this.providerKey,
 			maxInputTokens: model.maxInputTokens,
 			maxOutputTokens: model.maxOutputTokens,
 			version: model.id,

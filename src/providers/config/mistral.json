@@ -1,5 +1,6 @@
 {
     "displayName": "Mistral AI",
+    "family": "Mistral",
     "baseUrl": "https://api.mistral.ai/v1",
     "apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "models": [

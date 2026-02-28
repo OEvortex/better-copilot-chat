@@ -32,19 +32,6 @@ export class MiniMaxProvider
 	implements LanguageModelChatProvider
 {
 	/**
-	 * Override: Add explicit family property for MiniMax models
-	 */
-	protected override modelConfigToInfo(
-		model: ModelConfig,
-	): LanguageModelChatInformation {
-		const baseInfo = super.modelConfigToInfo(model);
-		return {
-			...baseInfo,
-			family: "minimax",
-		};
-	}
-
-	/**
 	 * Static factory method - Create and activate MiniMax provider
 	 */
 	static createAndActivate(

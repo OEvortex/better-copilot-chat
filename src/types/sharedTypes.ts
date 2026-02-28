@@ -134,6 +134,12 @@ export interface ProviderConfig {
 	apiKeyTemplate: string;
 	supportsApiKey?: boolean;
 	models: ModelConfig[];
+	/**
+	 * Provider family identifier (optional)
+	 * Used for grouping models in the model selector.
+	 * If not provided, defaults to the provider key.
+	 */
+	family?: string;
 }
 
 /**

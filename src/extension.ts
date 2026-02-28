@@ -11,7 +11,7 @@ import { CompatibleProvider } from "./providers/compatible/compatibleProvider";
 import {
 	registerProvidersFromConfig,
 	type RegisteredProvider,
-} from "./providers/providerRegistry";
+} from "./providers/providerFactory";
 import { registerAllTools } from "./tools";
 import { ProviderKey } from "./types/providerKeys";
 import {

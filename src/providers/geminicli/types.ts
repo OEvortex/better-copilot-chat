@@ -94,10 +94,12 @@ export interface ToolDefinition {
 	parameters?: Record<string, unknown>;
 }
 
+export type ThinkingTier = "minimal" | "low" | "medium" | "high";
+
 export interface ThinkingConfig {
 	includeThoughts: boolean;
 	thinkingBudget?: number;
-	thinkingLevel?: string;
+	thinkingLevel?: ThinkingTier;
 }
 
 export interface SafetySetting {
@@ -238,12 +240,20 @@ export const GEMINI_OAUTH_CLIENT_ID =
 export const GEMINI_OAUTH_CLIENT_SECRET = "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";
 export const GEMINI_OAUTH_TOKEN_ENDPOINT =
 	"https://accounts.google.com/o/oauth2/token";
-export const GEMINI_DEFAULT_BASE_URL =
-	"https://cloudcode-pa.googleapis.com/v1internal";
-export const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000; // 5 minutes
+export const GEMINI_DEFAULT_BASE_URL = "https://cloudcode-pa.googleapis.com";
+
+export const GEMINI_CLI_HEADERS = {
+	"User-Agent": "google-api-nodejs-client/9.15.1",
+	"X-Goog-Api-Client": "gl-node/22.17.0",
+	"Client-Metadata": "ideType=IDE_UNSPECIFIED,platform=PLATFORM_UNSPECIFIED,pluginType=GEMINI",
+} as const;
+
+export const SKIP_THOUGHT_SIGNATURE = "skip_thought_signature_validator";
 
 export const GEMINI_OAUTH_SCOPES = [
 	"https://www.googleapis.com/auth/cloud-platform",
 	"https://www.googleapis.com/auth/userinfo.email",
 	"https://www.googleapis.com/auth/userinfo.profile",
 ];
+
+export const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000; // 5 minutes

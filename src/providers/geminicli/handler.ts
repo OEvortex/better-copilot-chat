@@ -11,13 +11,15 @@ import { GeminiOAuthManager } from "./auth";
 import { GeminiStreamProcessor } from "./streamProcessor";
 import {
 	ErrorCategory,
+	GEMINI_CLI_HEADERS,
+	SKIP_THOUGHT_SIGNATURE,
 	type GeminiContent,
 	type GeminiPayload,
 	type GeminiRequest,
 } from "./types";
 
 export const DEFAULT_BASE_URLS = ["https://cloudcode-pa.googleapis.com"];
-export const DEFAULT_USER_AGENT = "gemini-cli/1.0.0";
+export const DEFAULT_USER_AGENT = GEMINI_CLI_HEADERS["User-Agent"];
 
 const GEMINI_UNSUPPORTED_FIELDS = new Set([
 	"$ref",
@@ -64,10 +66,13 @@ const GEMINI_UNSUPPORTED_FIELDS = new Set([
 	"strict",
 	"input_examples",
 	"examples",
+	// Remove 'value' field as it causes proto parsing errors when it contains arrays
+	// with 'type' fields inside (e.g., {value: [{type: "string", ...}]})
+	"value",
 ]);
 
 const thoughtSignatureStore = new Map<string, string>();
-const FALLBACK_THOUGHT_SIGNATURE = "skip_thought_signature_validator";
+const FALLBACK_THOUGHT_SIGNATURE = SKIP_THOUGHT_SIGNATURE;
 
 export function storeThoughtSignature(callId: string, signature: string): void {
 	if (callId && signature) {
@@ -150,14 +155,14 @@ function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
 		if (!s) {
 			return;
 		}
-		for (const composite of ['anyOf', 'oneOf', 'allOf']) {
+		for (const composite of ["anyOf", "oneOf", "allOf"]) {
 			const branch = s[composite] as unknown;
 			if (Array.isArray(branch) && branch.length > 0) {
 				let preferred: Record<string, unknown> | undefined;
 				for (const option of branch) {
-					if (option && typeof option === 'object') {
+					if (option && typeof option === "object") {
 						preferred = option as Record<string, unknown>;
-						if (preferred.type === 'string') {
+						if (preferred.type === "string") {
 							break;
 						}
 					}
@@ -171,11 +176,11 @@ function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
 			}
 		}
 		if (Array.isArray(s.type)) {
-			const typeCandidates = s.type.filter((t) => t !== 'null');
+			const typeCandidates = s.type.filter((t) => t !== "null");
 			const preferredType = typeCandidates.find(
-				(t) => typeof t === 'string' && t.trim() !== '',
+				(t) => typeof t === "string" && t.trim() !== "",
 			);
-			s.type = preferredType ?? 'object';
+			s.type = preferredType ?? "object";
 		}
 		if (s.nullable === true) {
 			delete s.nullable;
@@ -183,13 +188,13 @@ function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
 		if (Array.isArray(s.properties)) {
 			const mapped: Record<string, unknown> = {};
 			for (const item of s.properties) {
-				if (!item || typeof item !== 'object') {
+				if (!item || typeof item !== "object") {
 					continue;
 				}
 				const entry = item as Record<string, unknown>;
 				const name = entry.name ?? entry.key;
 				const value = entry.value ?? entry.schema ?? entry.property;
-				if (typeof name === 'string' && value && typeof value === 'object') {
+				if (typeof name === "string" && value && typeof value === "object") {
 					mapped[name] = value;
 				}
 			}
@@ -685,7 +690,9 @@ class FromIRTranslator {
 			options.tools.length > 0 &&
 			model.capabilities?.toolCalling;
 
-		if (isThinkingEnabled) {
+		const isImageModel = isImageGenerationModel(resolvedModel);
+
+		if (isThinkingEnabled && !isImageModel) {
 			console.log("GeminiCLI: Thinking enabled for model:", resolvedModel);
 			if (isClaudeThinkingModel) {
 				const thinkingBudget = modelConfig.thinkingBudget || 10000;
@@ -696,36 +703,30 @@ class FromIRTranslator {
 					includeThoughts: true,
 					thinkingBudget,
 				};
-				console.log(
-					"GeminiCLI: Claude thinking config:",
-					generationConfig.thinkingConfig,
-				);
-			} else if (resolvedModel.includes("gemini-3")) {
+			} else if (isGemini3Model(resolvedModel)) {
 				generationConfig.thinkingConfig = {
 					includeThoughts: true,
-					thinkingLevel: "HIGH",
+					thinkingLevel: "high",
 				};
-				console.log(
-					"GeminiCLI: Gemini-3 thinking config:",
-					generationConfig.thinkingConfig,
-				);
-			} else if (resolvedModel.includes("gemini-2.5")) {
+			} else if (isGemini25Model(resolvedModel)) {
 				generationConfig.thinkingConfig = {
 					includeThoughts: true,
-					thinkingBudget: 8192,
+					thinkingBudget: modelConfig.thinkingBudget || 8192,
 				};
-				console.log(
-					"GeminiCLI: Gemini-2.5 thinking config:",
-					generationConfig.thinkingConfig,
-				);
 			} else {
 				console.log(
 					"GeminiCLI: Model does not support thinking:",
 					resolvedModel,
 				);
 			}
-		} else {
-			console.log("GeminiCLI: Thinking disabled for model:", resolvedModel);
+		} else if (isImageModel) {
+			console.log("GeminiCLI: Image model detected, disabling thinking and adding imageConfig");
+			// Image models don't support thinking
+			delete generationConfig.thinkingConfig;
+			// Add imageConfig if needed (reference code had buildImageGenerationConfig)
+			(generationConfig as any).imageConfig = {
+				aspectRatio: process.env.OPENCODE_IMAGE_ASPECT_RATIO || "1:1",
+			};
 		}
 
 		const request: GeminiRequest = {
@@ -1130,7 +1131,7 @@ export class GeminiHandler {
 					}
 					if (category === ErrorCategory.AuthError) {
 						throw new Error(
-							"Authentication failed. Please re-login to Gemini CLI.",
+							`Authentication failed (401). Please re-login to Gemini CLI.`,
 						);
 					}
 					if (result.status === 404 && idx + 1 < baseUrls.length) {
@@ -1200,25 +1201,22 @@ export class GeminiHandler {
 					process.env.GOOGLE_CLOUD_PROJECT ||
 					process.env.GOOGLE_CLOUD_PROJECT_ID ||
 					"";
-				const metadata: Record<string, unknown> = {
-					ideType: "IDE_UNSPECIFIED",
-					platform: "PLATFORM_UNSPECIFIED",
-					pluginType: "GEMINI",
-				};
-				if (envProject) {
-					metadata.duetProject = envProject;
-				}
 				const res = await fetch(loadUrl, {
 					method: "POST",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
 						"Content-Type": "application/json",
-						"User-Agent": DEFAULT_USER_AGENT,
-						"Client-Metadata": JSON.stringify(metadata),
+						"User-Agent": GEMINI_CLI_HEADERS["User-Agent"],
+						"X-Goog-Api-Client": GEMINI_CLI_HEADERS["X-Goog-Api-Client"],
+						"Client-Metadata": GEMINI_CLI_HEADERS["Client-Metadata"],
 					},
 					body: JSON.stringify({
 						cloudaicompanionProject: envProject || undefined,
-						metadata,
+						metadata: {
+							ideType: "IDE_UNSPECIFIED",
+							platform: "PLATFORM_UNSPECIFIED",
+							pluginType: "GEMINI",
+						},
 					}),
 				});
 
@@ -1282,7 +1280,9 @@ export class GeminiHandler {
 					Authorization: `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
 					Accept: "text/event-stream",
-					"User-Agent": DEFAULT_USER_AGENT,
+					"User-Agent": GEMINI_CLI_HEADERS["User-Agent"],
+					"X-Goog-Api-Client": GEMINI_CLI_HEADERS["X-Goog-Api-Client"],
+					"Client-Metadata": GEMINI_CLI_HEADERS["Client-Metadata"],
 				},
 				body: JSON.stringify(payload),
 				signal: abortController.signal,
@@ -1342,4 +1342,22 @@ export class GeminiHandler {
 		}, delayMs);
 		this.cacheUpdateTimers.set(key, timer);
 	}
+}
+
+export function isGeminiModel(model: string): boolean {
+	const lower = model.toLowerCase();
+	return lower.includes("gemini") && !lower.includes("claude");
+}
+
+export function isGemini3Model(model: string): boolean {
+	return model.toLowerCase().includes("gemini-3");
+}
+
+export function isGemini25Model(model: string): boolean {
+	return model.toLowerCase().includes("gemini-2.5");
+}
+
+export function isImageGenerationModel(model: string): boolean {
+	const lower = model.toLowerCase();
+	return lower.includes("image") || lower.includes("imagen");
 }

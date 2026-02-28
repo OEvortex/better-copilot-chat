@@ -1,5 +1,6 @@
 {
     "displayName": "Qwen Code CLI",
+    "family": "Qwen CLI",
     "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
     "apiKeyTemplate": "OAuth via Qwen CLI",
     "models": [

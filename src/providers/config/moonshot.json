@@ -1,5 +1,6 @@
 {
     "displayName": "MoonshotAI",
+    "family": "Moonshot AI",
     "baseUrl": "https://api.moonshot.cn/v1",
     "apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "models": [

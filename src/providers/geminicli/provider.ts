@@ -276,7 +276,8 @@ export class GeminiCliProvider
 
 					if (
 						result.error instanceof Error &&
-						result.error.message.includes("401")
+						(result.error.message.includes("401") ||
+							result.error.message.includes("Authentication failed"))
 					) {
 						await accountManager.markAccountExpired(account.id);
 						continue;

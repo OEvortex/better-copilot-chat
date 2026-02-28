@@ -25,10 +25,9 @@ import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { ProviderWizard } from "../../utils/providerWizard";
-import { GenericModelProvider } from "../common/genericModelProvider";
+import { DEFAULT_CONTEXT_LENGTH, GenericModelProvider } from "../common";
 
-const DEFAULT_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
-const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
+const BLACKBOX_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768 - Blackbox specific
 
 function resolveTokenLimits(
     modelId: string,
@@ -36,7 +35,7 @@ function resolveTokenLimits(
 ): { maxInputTokens: number; maxOutputTokens: number } {
     return resolveGlobalTokenLimits(modelId, contextLength, {
         defaultContextLength: DEFAULT_CONTEXT_LENGTH,
-        defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
+        defaultMaxOutputTokens: BLACKBOX_MAX_OUTPUT_TOKENS,
     });
 }
 

@@ -4,6 +4,26 @@ export interface ResolveTokenLimitsOptions {
 	minReservedInputTokens?: number;
 }
 
+/**
+ * Default context length for providers (128K tokens)
+ */
+export const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
+
+/**
+ * Default maximum output tokens for providers (16K tokens)
+ */
+export const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+
+/**
+ * Default context length for Zhipu provider (192K tokens)
+ */
+export const ZHIPU_DEFAULT_CONTEXT_LENGTH = 192 * 1024; // 196608
+
+/**
+ * Default maximum output tokens for Zhipu provider (16K tokens)
+ */
+export const ZHIPU_DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
+
 const DEFAULT_MIN_RESERVED_INPUT_TOKENS = 1024;
 // Claude models: 200K total context (1k=1024), 32K output / 168K input
 const CLAUDE_TOTAL_TOKENS = 200 * 1024; // 204800

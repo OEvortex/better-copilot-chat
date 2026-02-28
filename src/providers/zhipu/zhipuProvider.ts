@@ -18,12 +18,12 @@ import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import { ConfigManager } from "../../utils/configManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
-import { GenericModelProvider } from "../common/genericModelProvider";
+import {
+	GenericModelProvider,
+	ZHIPU_DEFAULT_CONTEXT_LENGTH,
+	ZHIPU_DEFAULT_MAX_OUTPUT_TOKENS,
+} from "../common";
 import { ZhipuWizard } from "./zhipuWizard";
-
-// Default values - actual limits determined by resolveGlobalTokenLimits in globalContextLengthManager
-const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
-const DEFAULT_CONTEXT_LENGTH = 192 * 1024; // 196608 (using 1k=1024)
 
 // API endpoints based on plan
 const CODING_PLAN_BASE_URL = "https://api.z.ai/api/coding/paas/v4";
@@ -200,9 +200,9 @@ export class ZhipuProvider
 		const normalizedCapabilities = resolveGlobalCapabilities(modelId);
 
 		// Use resolveGlobalTokenLimits which handles all GLM models correctly
-		const tokens = resolveGlobalTokenLimits(modelId, DEFAULT_CONTEXT_LENGTH, {
-			defaultContextLength: DEFAULT_CONTEXT_LENGTH,
-			defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
+		const tokens = resolveGlobalTokenLimits(modelId, ZHIPU_DEFAULT_CONTEXT_LENGTH, {
+			defaultContextLength: ZHIPU_DEFAULT_CONTEXT_LENGTH,
+			defaultMaxOutputTokens: ZHIPU_DEFAULT_MAX_OUTPUT_TOKENS,
 		});
 
 		// Build display name based on model

@@ -23,12 +23,14 @@ import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { ProviderWizard } from "../../utils/providerWizard";
-import { GenericModelProvider } from "../common/genericModelProvider";
+import {
+	DEFAULT_CONTEXT_LENGTH,
+	DEFAULT_MAX_OUTPUT_TOKENS,
+} from "../../utils/globalContextLengthManager";
+import { GenericModelProvider } from "../common";
 import { validateRequest } from "./utils";
 
 const BASE_URL = "https://opencode.ai/zen/v1";
-const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
-const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
 
 import {
 	resolveGlobalCapabilities,

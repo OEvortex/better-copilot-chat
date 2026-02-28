@@ -24,11 +24,13 @@ import {
 	TokenCounter,
 } from "../../utils";
 import { ProviderWizard } from "../../utils/providerWizard";
-import { GenericModelProvider } from "../common/genericModelProvider";
+import {
+	DEFAULT_CONTEXT_LENGTH,
+	DEFAULT_MAX_OUTPUT_TOKENS,
+} from "../../utils/globalContextLengthManager";
+import { GenericModelProvider } from "../common";
 import type { DeepInfraModelItem, DeepInfraModelsResponse } from "./types";
 
-const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
-const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
 const BASE_URL = "https://api.deepinfra.com/v1/openai";
 const DEFAULT_API_KEY_TEMPLATE = "di-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 

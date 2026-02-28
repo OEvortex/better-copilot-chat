@@ -57,7 +57,7 @@ export { KnownProviderConfig, KnownProviders } from "./knownProviders";
 export { Logger } from "./logger";
 export { MCPWebSearchClient } from "./mcpWebSearchClient";
 export { ModelInfoCache } from "./modelInfoCache";
-export { ProviderRegistry } from "./providerRegistry";
+export { ProviderRegistry } from "./providerMetadata";
 export { RateLimiter } from "./rateLimiter";
 export {
 	formatRateLimitDisplay,
@@ -74,4 +74,5 @@ export {
 	TokenTelemetryTracker,
 	type TokenUsageSummary,
 } from "./tokenTelemetryTracker";
+export { getExtensionVersion, getUserAgent } from "./userAgent";
 export { VersionManager } from "./versionManager";

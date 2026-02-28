@@ -65,19 +65,6 @@ export class QwenCliProvider
 	extends GenericModelProvider
 	implements LanguageModelChatProvider
 {
-	/**
-	 * Override: Add explicit family property for Qwen models
-	 */
-	protected override modelConfigToInfo(
-		model: ModelConfig,
-	): LanguageModelChatInformation {
-		const baseInfo = super.modelConfigToInfo(model);
-		return {
-			...baseInfo,
-			family: "Qwen CLI", // Explicitly set family to Qwen CLI for all models under this provider
-		};
-	}
-
 	static override createAndActivate(
 		context: vscode.ExtensionContext,
 		providerKey: string,

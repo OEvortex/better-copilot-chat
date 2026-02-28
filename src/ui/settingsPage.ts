@@ -6,7 +6,7 @@
 import * as vscode from "vscode";
 import { AccountManager } from "../accounts/accountManager";
 import type { ApiKeyCredentials } from "../accounts/types";
-import { ProviderRegistry } from "../utils/providerRegistry";
+import { ProviderRegistry } from "../utils/providerMetadata";
 import { ProviderWizard } from "../utils/providerWizard";
 import { antigravityLoginCommand, codexLoginCommand } from "../utils";
 import settingsPageCss from "./settingsPage.css?raw";

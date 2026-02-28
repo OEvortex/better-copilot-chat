@@ -1,5 +1,6 @@
 {
     "displayName": "NVIDIA NIM",
+    "family": "Nvidia",
     "baseUrl": "https://integrate.api.nvidia.com/v1",
     "apiKeyTemplate": "nvapi-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "models": [

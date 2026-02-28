@@ -26,13 +26,15 @@ import {
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
-import { GenericModelProvider } from "../common/genericModelProvider";
+import {
+	DEFAULT_CONTEXT_LENGTH,
+	DEFAULT_MAX_OUTPUT_TOKENS,
+} from "../../utils/globalContextLengthManager";
+import { GenericModelProvider } from "../common";
 import { convertTools, validateRequest } from "../huggingface/utils";
 import { LightningAIWizard } from "./lightningaiWizard";
 
 const BASE_URL = "https://lightning.ai/api/v1";
-const DEFAULT_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
-const DEFAULT_CONTEXT_LENGTH = 128 * 1024; // 131072
 
 function resolveTokenLimits(
 	modelId: string,

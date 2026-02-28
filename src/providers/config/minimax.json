@@ -1,5 +1,6 @@
 {
     "displayName": "MiniMax",
+    "family": "minimax",
     "baseUrl": "https://api.minimaxi.com/v1",
     "apiKeyTemplate": "This ApiKey is a long string with a JWT-like structure",
     "models": [

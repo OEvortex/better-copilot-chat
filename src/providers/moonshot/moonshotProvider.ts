@@ -26,19 +26,6 @@ export class MoonshotProvider
 	implements LanguageModelChatProvider
 {
 	/**
-	 * Override: Add explicit family property for Moonshot models
-	 */
-	protected override modelConfigToInfo(
-		model: ModelConfig,
-	): LanguageModelChatInformation {
-		const baseInfo = super.modelConfigToInfo(model);
-		return {
-			...baseInfo,
-			family: "Moonshot AI", // Explicitly set family to Moonshot AI for all models under this provider
-		};
-	}
-
-	/**
 	 * Static factory method - Create and activate Moonshot provider
 	 */
 	static override createAndActivate(
