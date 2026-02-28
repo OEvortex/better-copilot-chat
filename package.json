@@ -468,6 +468,26 @@
                     "description": "Gemini CLI base URL or proxy endpoint (optional).",
                     "scope": "application"
                 },
+                "chp.geminicli.thinkingLevel": {
+                    "type": "string",
+                    "enum": [
+                        "minimal",
+                        "low",
+                        "medium",
+                        "high"
+                    ],
+                    "default": "high",
+                    "description": "Thinking level for Gemini 3 models (minimal, low, medium, high). Ignored for Gemini 2.5 models which use thinkingBudget instead.",
+                    "scope": "application"
+                },
+                "chp.geminicli.thinkingBudget": {
+                    "type": "number",
+                    "default": 8192,
+                    "minimum": 1024,
+                    "maximum": 24576,
+                    "description": "Thinking budget (in tokens) for Gemini 2.5 models. Ignored for Gemini 3 models which use thinkingLevel instead. Default is 8192 tokens.",
+                    "scope": "application"
+                },
                 "chp.antigravity.baseUrl": {
                     "type": "string",
                     "default": "",

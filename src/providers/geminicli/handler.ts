@@ -694,24 +694,33 @@ class FromIRTranslator {
 
 		if (isThinkingEnabled && !isImageModel) {
 			console.log("GeminiCLI: Thinking enabled for model:", resolvedModel);
+			
+			// Read thinking configuration from VS Code settings
+			const config = vscode.workspace.getConfiguration("chp.geminicli");
+			const thinkingLevel = config.get<string>("thinkingLevel") || "high";
+			const thinkingBudget = config.get<number>("thinkingBudget") || 8192;
+			
 			if (isClaudeThinkingModel) {
-				const thinkingBudget = modelConfig.thinkingBudget || 10000;
-				if (maxOutputTokens < thinkingBudget + 1000) {
-					generationConfig.maxOutputTokens = thinkingBudget + 1000;
+				const budget = modelConfig.thinkingBudget || thinkingBudget;
+				if (maxOutputTokens < budget + 1000) {
+					generationConfig.maxOutputTokens = budget + 1000;
 				}
 				generationConfig.thinkingConfig = {
 					includeThoughts: true,
-					thinkingBudget,
+					thinkingBudget: budget,
 				};
 			} else if (isGemini3Model(resolvedModel)) {
+				// Gemini 3 uses thinkingLevel (string)
 				generationConfig.thinkingConfig = {
 					includeThoughts: true,
-					thinkingLevel: "high",
+					thinkingLevel: thinkingLevel.toLowerCase(),
 				};
 			} else if (isGemini25Model(resolvedModel)) {
+				// Gemini 2.5 uses thinkingBudget (numeric)
+				const budget = modelConfig.thinkingBudget || thinkingBudget;
 				generationConfig.thinkingConfig = {
 					includeThoughts: true,
-					thinkingBudget: modelConfig.thinkingBudget || 8192,
+					thinkingBudget: budget,
 				};
 			} else {
 				console.log(
