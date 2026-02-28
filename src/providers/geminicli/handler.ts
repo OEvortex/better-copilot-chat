@@ -761,8 +761,10 @@ class FromIRTranslator {
 
 		// IMPORTANT: Match the official Code Assist API request schema used by google-gemini/gemini-cli
 		// (model/project/user_prompt_id/request + optional request.session_id)
+		// Transform model name: strip "google/" prefix if present
+		const apiModelName = modelName.replace(/^google\//, "");
 		const payload: GeminiPayload = {
-			model: modelName,
+			model: apiModelName,
 			user_prompt_id: userPromptId,
 			request,
 		};

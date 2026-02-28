@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.6] - 2026-02-26
+## [0.2.6] - 2026-02-28
 
 ### Added
 
@@ -56,6 +56,17 @@ All notable changes to this project will be documented in this file.
 - **TypeScript Type Compatibility**: Fixed type errors where several provider implementations had private `updateConfigFileAsync` methods that conflicted with the base class `GenericModelProvider`'s protected method signature. Renamed provider-specific methods to unique names (e.g., `updateOpenCodeConfigFile`, `updateZhipuConfigFile`, etc.) to resolve the type incompatibility.
 - **Ollama Vision Capabilities**: Fixed an issue where Ollama models (like `kimi-k2.5`) were not correctly reporting vision capabilities. Now uses the centralized `resolveGlobalCapabilities` for consistent capability detection across all providers.
 - **NVIDIA Auto-Registration**: Fixed an issue where the NVIDIA provider was not automatically registering with VS Code on startup without an API key. It now correctly inherits the background-fetching logic from `GenericModelProvider`.
+
+**Gemini CLI Provider Fixes:**
+- **Model Name Resolution (404 Fix)**: Fixed "Requested entity was not found" error by stripping the `google/` prefix from model names before sending to the Gemini API. The API expects bare model names like `gemini-2.5-pro` instead of `google/gemini-2.5-pro`.
+- **Tool Schema Sanitization**: Fixed `Invalid JSON payload received` errors by implementing comprehensive tool schema cleaning:
+  - Removes unsupported JSON Schema fields (`exclusiveMinimum`, `exclusiveMaximum`, `value`, etc.) that cause 400 `INVALID_ARGUMENT` errors.
+  - Sanitizes property names to match `[a-zA-Z0-9_]*` pattern.
+  - Handles nested schemas in `anyOf`, `oneOf`, `allOf` composite types.
+  - Filters `required` fields to only include properties that exist in the schema.
+- **Authentication Fallback**: Improved authentication error handling to properly fall back to local CLI credentials when managed accounts fail.
+- **Thinking Configuration**: Corrected thinking config format for Gemini 3 (uses `thinkingLevel` string) vs Gemini 2.5 (uses `thinkingBudget` numeric).
+- **Request Headers**: Added proper Gemini CLI headers (`X-Goog-Api-Client`, `Client-Metadata`) to match official `google-gemini/gemini-cli` behavior.
 
 ### Changed
 
