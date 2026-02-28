@@ -1316,7 +1316,9 @@ export class GeminiHandler {
 			modelConfig.sdkMode === "openai" ||
 			modelConfig.sdkMode === "openai-sse"
 		) {
-			await new OpenAIStreamProcessor().processStream({
+			// Always use GeminiStreamProcessor for Gemini CLI since the API returns responses in Gemini format (candidates/parts), not OpenAI format
+			// The Gemini CLI API returns responses in Gemini format (candidates/parts), not OpenAI format
+			await new GeminiStreamProcessor().processStream({
 				response,
 				modelConfig,
 				progress,
