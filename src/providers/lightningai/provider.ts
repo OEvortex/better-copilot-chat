@@ -624,10 +624,6 @@ export class LightningAIProvider
 				} catch {}
 			}
 
-			if (hasThinkingContent && !_hasReceivedContent) {
-				progress.report(new vscode.LanguageModelTextPart("<think/>"));
-			}
-
 		} catch (err) {
 			const isAbort =
 				token.isCancellationRequested ||

@@ -581,14 +581,6 @@ export class HuggingfaceProvider
 					// ignore
 				}
 			}
-
-			// Only add <think/> placeholder if thinking content was output but no content was output
-			if (hasThinkingContent && !_hasReceivedContent) {
-				progress.report(new vscode.LanguageModelTextPart("<think/>"));
-				Logger.warn(
-					"[Hugging Face] End of message stream has only thinking content and no text content, added <think/> placeholder as output",
-				);
-			}
 		} catch (err) {
 			Logger.error("[Hugging Face Model Provider] Chat request failed", {
 				modelId: model.id,

@@ -109,11 +109,6 @@ export class GeminiStreamProcessor {
             this.flushTextBuffer(progress, true);
             this.flushPendingToolCallsImmediate(progress);
             this.finalizeThinkingPart(progress);
-
-            // Only add <think/> placeholder if thinking content was output but no content was output
-            if (this.hasThinkingContent && !this.hasReceivedContent) {
-                progress.report(new vscode.LanguageModelTextPart("<think/>"));
-            }
         }
     }
 

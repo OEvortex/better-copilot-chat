@@ -64,6 +64,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Removed `<think/>` Placeholder Logic**: Removed unnecessary `<think/>` placeholder output when thinking models return only thinking content without text content. This eliminates redundant placeholder tokens in chat responses across all providers (Anthropic, Claude, DeepInfra, Zenmux, Gemini, Mistral, LightningAI, HuggingFace, Blackbox, OpenAI, OpenCode).
+
 - **TypeScript Type Compatibility**: Fixed type errors where several provider implementations had private `updateConfigFileAsync` methods that conflicted with the base class `GenericModelProvider`'s protected method signature. Renamed provider-specific methods to unique names (e.g., `updateOpenCodeConfigFile`, `updateZhipuConfigFile`, etc.) to resolve the type incompatibility.
 - **Ollama Vision Capabilities**: Fixed an issue where Ollama models (like `kimi-k2.5`) were not correctly reporting vision capabilities. Now uses the centralized `resolveGlobalCapabilities` for consistent capability detection across all providers.
 - **NVIDIA Auto-Registration**: Fixed an issue where the NVIDIA provider was not automatically registering with VS Code on startup without an API key. It now correctly inherits the background-fetching logic from `GenericModelProvider`.

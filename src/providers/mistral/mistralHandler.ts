@@ -477,14 +477,6 @@ export class MistralHandler {
 			reader.releaseLock();
 		}
 
-		// Only add <think/> placeholder if thinking content was output but no content was output
-		if (hasThinkingContent && !hasReceivedContent) {
-			progress.report(new vscode.LanguageModelTextPart("<think/>"));
-			Logger.warn(
-				`${modelName} end of message stream has only thinking content and no text content, added <think/> placeholder as output`,
-			);
-		}
-
 		return {
 			promptTokens: finalUsage?.prompt_tokens,
 			completionTokens: finalUsage?.completion_tokens,

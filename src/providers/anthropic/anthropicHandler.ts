@@ -659,13 +659,6 @@ export class AnthropicHandler {
 							pendingThinking.thinking = "";
 						}
 						currentThinkingId = null;
-						// Only add <think/> placeholder if thinking content was output but no content was output
-						if (hasThinkingContent && !hasOutputContent) {
-							progress.report(new vscode.LanguageModelTextPart("<think/>"));
-							Logger.warn(
-								"Only thinking content and no text content at end of message stream, added <think/> placeholder as output",
-							);
-						}
 						Logger.trace("Message stream complete");
 						break;
 

@@ -1047,13 +1047,6 @@ export class OpenAIHandler {
 			} finally {
 				cancellationListener.dispose();
 			}
-			// Only add <think/> placeholder if thinking content was output but no content was output
-			if (hasThinkingContent && !hasReceivedContent) {
-				progress.report(new vscode.LanguageModelTextPart("<think/>"));
-				Logger.warn(
-					`${model.name} end of message stream has only thinking content and no text content, added <think/> placeholder as output`,
-				);
-			}
 			Logger.debug(`${model.name} ${this.displayName} request complete`);
 		} catch (error) {
 			if (error instanceof Error) {

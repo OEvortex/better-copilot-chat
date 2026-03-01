@@ -668,13 +668,7 @@ export class DeepInfraProvider
 				);
 			}
 
-			// Only add <think/> placeholder if thinking content was output but no content was output
-			if (hasThinkingContent && !hasReceivedContent) {
-				progress.report(new vscode.LanguageModelTextPart("<think/>"));
-				Logger.warn(
-					"[DeepInfra] End of message stream has only thinking content and no text content, added <think/> placeholder as output",
-				);
-			}
+			// No content was received - this is unusual but handle gracefully
 		} catch (error) {
 			Logger.error(
 				`[DeepInfra] Request failed: ${error instanceof Error ? error.message : String(error)}`,
