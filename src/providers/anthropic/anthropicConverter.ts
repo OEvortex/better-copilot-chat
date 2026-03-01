@@ -29,6 +29,17 @@ function isDefined<T>(value: T | undefined): value is T {
 }
 
 /**
+ * Sanitize tool call ID to match Anthropic's required pattern: ^[a-zA-Z0-9_-]+$
+ * Only alphanumeric characters, underscores, and hyphens are allowed.
+ */
+function sanitizeToolCallId(id: string): string {
+	// Replace any characters that don't match [a-zA-Z0-9_-] with underscore
+	const sanitized = id.replace(/[^a-zA-Z0-9_-]/g, '_');
+	// Ensure the ID is not empty
+	return sanitized || `tool_${Date.now()}`;
+}
+
+/**
  * Check if content block supports cache control
  */
 function contentBlockSupportsCacheControl(block: ContentBlockParam): boolean {
@@ -91,7 +102,7 @@ function apiContentToAnthropicContent(
 		else if (part instanceof vscode.LanguageModelToolCallPart) {
 			convertedContent.push({
 				type: "tool_use",
-				id: part.callId,
+				id: sanitizeToolCallId(part.callId),
 				input: part.input,
 				name: part.name,
 			});
@@ -138,7 +149,7 @@ function apiContentToAnthropicContent(
 		else if (part instanceof vscode.LanguageModelToolResultPart) {
 			convertedContent.push({
 				type: "tool_result",
-				tool_use_id: part.callId,
+				tool_use_id: sanitizeToolCallId(part.callId),
 				content: part.content
 					.map((p): TextBlockParam | ImageBlockParam | undefined => {
 						if (p instanceof vscode.LanguageModelTextPart) {
