@@ -223,7 +223,7 @@
             "id": "qwen-qwen3-5-flash-02-23",
             "name": "Qwen: Qwen3.5-Flash",
             "tooltip": "The Qwen3.5 native vision-language Flash models are built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-of-experts model, achieving higher inference efficiency. Compared to the 3 series, these models deliver a leap forward in performance for both pure text and multimodal tasks, offering fast response times while balancing inference speed and overall performance.",
-            "maxInputTokens": 967232,
+            "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
             "model": "qwen/qwen3.5-flash-02-23",
             "capabilities": {
@@ -271,7 +271,7 @@
             "id": "qwen-qwen3-5-plus-02-15",
             "name": "Qwen: Qwen3.5 Plus 2026-02-15",
             "tooltip": "The Qwen3.5 native vision-language series Plus models are built on a hybrid architecture that integrates linear attention mechanisms with sparse mixture-of-experts models, achieving higher inference efficiency. In a variety of task evaluations, the 3.5 series consistently demonstrates performance on par with state-of-the-art leading models. Compared to the 3 series, these models show a leap forward in both pure-text and multimodal capabilities.",
-            "maxInputTokens": 967232,
+            "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
             "model": "qwen/qwen3.5-plus-02-15",
             "capabilities": {

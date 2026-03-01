@@ -125,7 +125,7 @@
 				"includeThinking": {
 					"type": "boolean",
 					"description": "Whether multi-turn conversation messages must include thinking content (optional).",
-					"default": false
+					"default": true
 				},
 				"customHeader": {
 					"type": "object",

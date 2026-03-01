@@ -1,104 +1,8 @@
 {
     "displayName": "Ollama Cloud",
-    "baseUrl": "https://ollama.com/v1",
+    "baseUrl": "https://ollama.com",
     "apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "models": [
-        {
-            "id": "kimi-k2-5",
-            "name": "kimi-k2.5",
-            "tooltip": "kimi-k2.5 by Ollama Cloud",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "kimi-k2.5",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "qwen3-coder-480b",
-            "name": "qwen3-coder:480b",
-            "tooltip": "qwen3-coder:480b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "qwen3-coder:480b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "deepseek-v3-2",
-            "name": "deepseek-v3.2",
-            "tooltip": "deepseek-v3.2 by Ollama Cloud",
-            "maxInputTokens": 147456,
-            "maxOutputTokens": 16384,
-            "model": "deepseek-v3.2",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "qwen3-vl-235b",
-            "name": "qwen3-vl:235b",
-            "tooltip": "qwen3-vl:235b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "qwen3-vl:235b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "devstral-2-123b",
-            "name": "devstral-2:123b",
-            "tooltip": "devstral-2:123b by Ollama Cloud",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "devstral-2:123b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "devstral-small-2-24b",
-            "name": "devstral-small-2:24b",
-            "tooltip": "devstral-small-2:24b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "devstral-small-2:24b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "qwen3-5-397b",
-            "name": "qwen3.5:397b",
-            "tooltip": "qwen3.5:397b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "qwen3.5:397b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "glm-4-6",
-            "name": "glm-4.6",
-            "tooltip": "glm-4.6 by Ollama Cloud",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "glm-4.6",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
         {
             "id": "glm-5",
             "name": "glm-5",
@@ -382,6 +286,102 @@
             "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
             "model": "ministral-3:14b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "kimi-k2-5",
+            "name": "kimi-k2.5",
+            "tooltip": "kimi-k2.5 by Ollama Cloud",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "kimi-k2.5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "qwen3-coder-480b",
+            "name": "qwen3-coder:480b",
+            "tooltip": "qwen3-coder:480b by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "qwen3-coder:480b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-v3-2",
+            "name": "deepseek-v3.2",
+            "tooltip": "deepseek-v3.2 by Ollama Cloud",
+            "maxInputTokens": 147456,
+            "maxOutputTokens": 16384,
+            "model": "deepseek-v3.2",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen3-vl-235b",
+            "name": "qwen3-vl:235b",
+            "tooltip": "qwen3-vl:235b by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "qwen3-vl:235b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "devstral-2-123b",
+            "name": "devstral-2:123b",
+            "tooltip": "devstral-2:123b by Ollama Cloud",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "devstral-2:123b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "devstral-small-2-24b",
+            "name": "devstral-small-2:24b",
+            "tooltip": "devstral-small-2:24b by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "devstral-small-2:24b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen3-5-397b",
+            "name": "qwen3.5:397b",
+            "tooltip": "qwen3.5:397b by Ollama Cloud",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "qwen3.5:397b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "glm-4-6",
+            "name": "glm-4.6",
+            "tooltip": "glm-4.6 by Ollama Cloud",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "glm-4.6",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false

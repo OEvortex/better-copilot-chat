@@ -256,18 +256,6 @@
             }
         },
         {
-            "id": "unsloth-mistral-small-24b-instruct-2501",
-            "name": "unsloth/Mistral-Small-24B-Instruct-2501",
-            "tooltip": "unsloth/Mistral-Small-24B-Instruct-2501 by Chutes",
-            "maxInputTokens": 16384,
-            "maxOutputTokens": 16384,
-            "model": "unsloth/Mistral-Small-24B-Instruct-2501",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
             "id": "zai-org-glm-4-7-fp8",
             "name": "zai-org/GLM-4.7-FP8",
             "tooltip": "zai-org/GLM-4.7-FP8 by Chutes",
@@ -277,6 +265,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
+            }
+        },
+        {
+            "id": "unsloth-mistral-small-24b-instruct-2501",
+            "name": "unsloth/Mistral-Small-24B-Instruct-2501",
+            "tooltip": "unsloth/Mistral-Small-24B-Instruct-2501 by Chutes",
+            "maxInputTokens": 16384,
+            "maxOutputTokens": 16384,
+            "model": "unsloth/Mistral-Small-24B-Instruct-2501",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
             }
         },
         {
@@ -376,6 +376,18 @@
             }
         },
         {
+            "id": "qwen-qwen2-5-72b-instruct",
+            "name": "Qwen/Qwen2.5-72B-Instruct",
+            "tooltip": "Qwen/Qwen2.5-72B-Instruct by Chutes",
+            "maxInputTokens": 16384,
+            "maxOutputTokens": 16384,
+            "model": "Qwen/Qwen2.5-72B-Instruct",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
             "id": "nvidia-nvidia-nemotron-3-nano-30b-a3b-bf16",
             "name": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
             "tooltip": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16 by Chutes",
@@ -406,18 +418,6 @@
             "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
             "model": "Qwen/Qwen3-235B-A22B-Thinking-2507",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "qwen-qwen2-5-72b-instruct",
-            "name": "Qwen/Qwen2.5-72B-Instruct",
-            "tooltip": "Qwen/Qwen2.5-72B-Instruct by Chutes",
-            "maxInputTokens": 16384,
-            "maxOutputTokens": 16384,
-            "model": "Qwen/Qwen2.5-72B-Instruct",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -520,24 +520,24 @@
             }
         },
         {
-            "id": "nvidia-nvidia-nemotron-3-nano-30b-a3b-bf16-tee",
-            "name": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16-TEE",
-            "tooltip": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16-TEE by Chutes",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16-TEE",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "nousresearch-hermes-4-14b",
             "name": "NousResearch/Hermes-4-14B",
             "tooltip": "NousResearch/Hermes-4-14B by Chutes",
             "maxInputTokens": 24576,
             "maxOutputTokens": 16384,
             "model": "NousResearch/Hermes-4-14B",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "nvidia-nvidia-nemotron-3-nano-30b-a3b-bf16-tee",
+            "name": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16-TEE",
+            "tooltip": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16-TEE by Chutes",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16-TEE",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false

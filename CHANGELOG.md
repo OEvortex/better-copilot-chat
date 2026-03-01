@@ -68,6 +68,7 @@ All notable changes to this project will be documented in this file.
 - **Ollama Vision Capabilities**: Fixed an issue where Ollama models (like `kimi-k2.5`) were not correctly reporting vision capabilities. Now uses the centralized `resolveGlobalCapabilities` for consistent capability detection across all providers.
 - **NVIDIA Auto-Registration**: Fixed an issue where the NVIDIA provider was not automatically registering with VS Code on startup without an API key. It now correctly inherits the background-fetching logic from `GenericModelProvider`.
 - **Ollama Base URL Normalization**: Fixed potential double slashes in API URLs when `baseUrl` ends with a trailing slash.
+- **Ollama Provider Migration to Anthropic SDK**: Shifted Ollama provider to use Anthropic SDK instead of OpenAI SDK for API requests. This aligns with Ollama's Anthropic compatibility API (`https://ollama.com`). Also disabled thinking/thinking_content output by default for Ollama requests to avoid unnecessary reasoning content.
 
 **Gemini CLI Provider Fixes:**
 - **Model Name Resolution (404 Fix)**: Fixed "Requested entity was not found" error by stripping the `google/` prefix from model names before sending to the Gemini API. The API expects bare model names like `gemini-2.5-pro` instead of `google/gemini-2.5-pro`.
@@ -122,7 +123,7 @@ All notable changes to this project will be documented in this file.
 - **Mixed SDK Mode**: Properly marked as "mixed" SDK mode since it supports both OpenAI and Anthropic compatible models.
 
 **Ollama Description Update:**
-- Updated description to clarify it uses Ollama's OpenAI compatible API: "Ollama - use Ollama's OpenAI compatible API (v1/chat/completions)"
+- Updated description to clarify it uses Ollama's Anthropic compatible API: "Ollama - use Ollama's Anthropic compatible API (v1/messages)"
 
 **Dynamic Default Base URL:**
 - All providers now display their default base URL in settings panel when no custom URL is configured.

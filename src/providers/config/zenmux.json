@@ -1279,7 +1279,7 @@
             "id": "qwen-qwen3-5-plus",
             "name": "Qwen: Qwen3.5-Plus",
             "tooltip": "Qwen: Qwen3.5-Plus by Zenmux",
-            "maxInputTokens": 967232,
+            "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
             "model": "qwen/qwen3.5-plus",
             "capabilities": {
@@ -1315,7 +1315,7 @@
             "id": "qwen-qwen3-5-flash",
             "name": "Qwen: Qwen3.5-flash",
             "tooltip": "Qwen: Qwen3.5-flash by Zenmux",
-            "maxInputTokens": 991232,
+            "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
             "model": "qwen/qwen3.5-flash",
             "capabilities": {
