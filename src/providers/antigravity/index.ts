@@ -4,5 +4,4 @@ export * from './signatureCache';
 export * from './requestHelpers';
 export * from './streamingTransformer';
 export * from './handler';
-export * from './streamProcessor';
 export * from './provider';

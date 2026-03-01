@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { AccountQuotaCache } from '../../accounts/accountQuotaCache';
 import type { ModelConfig } from '../../types/sharedTypes';
+import { GeminiStreamProcessor, type GeminiStreamHandler } from '../../utils/geminiStreamProcessor';
 import { Logger } from '../../utils/logger';
 import { QuotaNotificationManager } from '../../utils/quotaNotificationManager';
 import { RateLimiter } from '../../utils/rateLimiter';
@@ -10,7 +11,6 @@ import { OpenAIStreamProcessor } from '../openai/openaiStreamProcessor';
 import { AntigravityAuth } from './auth';
 import { aliasToModelName, prepareAntigravityRequest } from './requestHelpers';
 import { storeToolCallSignature } from './signatureCache';
-import { AntigravityStreamProcessor } from './streamProcessor';
 import {
     type AntigravityPayload,
     ErrorCategory,
@@ -267,9 +267,9 @@ export class RateLimitRetrier {
 
 
 export function extractToolCallFromGeminiResponse(part: Record<string, unknown>): {
-    callId?: string;
-    name?: string;
-    args?: unknown;
+    callId: string;
+    name: string;
+    args: Record<string, unknown> | string;
     thoughtSignature?: string;
 } | null {
     const functionCall = part.functionCall as { name?: string; args?: unknown; id?: string } | undefined;
@@ -279,7 +279,7 @@ export function extractToolCallFromGeminiResponse(part: Record<string, unknown>)
     return {
         callId: functionCall.id || `call_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
         name: functionCall.name,
-        args: functionCall.args,
+        args: (functionCall.args as Record<string, unknown>) || {},
         thoughtSignature: part.thoughtSignature as string | undefined
     };
 }
@@ -618,7 +618,11 @@ export class AntigravityHandler {
                 token
             });
         } else {
-            await new AntigravityStreamProcessor().processStream({
+            const handler: GeminiStreamHandler = {
+                extractToolCallFromGeminiResponse,
+                storeThoughtSignature
+            };
+            await new GeminiStreamProcessor('Antigravity', handler).processStream({
                 response,
                 modelConfig,
                 progress,

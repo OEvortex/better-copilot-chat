@@ -10,6 +10,10 @@ import {
 	validateGeminiPartsBalance,
 } from "../../utils/geminiSdkCommon";
 import {
+	GeminiStreamProcessor,
+	type GeminiStreamHandler,
+} from "../../utils/geminiStreamProcessor";
+import {
 	isGemini25Model,
 	isGemini3Model,
 } from "../../utils/globalContextLengthManager";
@@ -17,7 +21,6 @@ import { Logger } from "../../utils/logger";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { TokenTelemetryTracker } from "../../utils/tokenTelemetryTracker";
 import { GeminiOAuthManager } from "./auth";
-import { GeminiStreamProcessor } from "./streamProcessor";
 import {
 	ErrorCategory,
 	GEMINI_CLI_HEADERS,
@@ -103,9 +106,9 @@ export function isPermissionDeniedError(
 export function extractToolCallFromGeminiResponse(
 	part: Record<string, unknown>,
 ): {
-	callId?: string;
-	name?: string;
-	args?: unknown;
+	callId: string;
+	name: string;
+	args: Record<string, unknown> | string;
 	thoughtSignature?: string;
 } | null {
 	const functionCall = part.functionCall as
@@ -119,7 +122,7 @@ export function extractToolCallFromGeminiResponse(
 			functionCall.id ||
 			`call_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
 		name: functionCall.name,
-		args: functionCall.args,
+		args: (functionCall.args as Record<string, unknown>) || {},
 		thoughtSignature: part.thoughtSignature as string | undefined,
 	};
 }
@@ -719,7 +722,11 @@ export class GeminiHandler {
 		}
 		// Always use GeminiStreamProcessor for Gemini CLI since the API returns
 		// responses in Gemini format (candidates/parts), not OpenAI format.
-		await new GeminiStreamProcessor().processStream({
+		const handler: GeminiStreamHandler = {
+			extractToolCallFromGeminiResponse,
+			storeThoughtSignature,
+		};
+		await new GeminiStreamProcessor('GeminiCLI', handler).processStream({
 			response,
 			modelConfig,
 			progress,

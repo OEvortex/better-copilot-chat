@@ -38,6 +38,10 @@ export {
 	validateGeminiPartsBalance,
 } from "./geminiSdkCommon";
 export {
+	GeminiStreamProcessor,
+	type GeminiStreamHandler,
+} from "./geminiStreamProcessor";
+export {
 	getDefaultMaxOutputTokensForContext,
 	isDeepSeekModel,
 	isGemini2Model,
