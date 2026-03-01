@@ -229,10 +229,9 @@ export class JsonSchemaProvider {
 							},
 							sdkMode: {
 								type: "string",
-								enum: ["openai", "openai-sse", "anthropic"],
+								enum: ["openai", "anthropic"],
 								enumDescriptions: [
 									"OpenAI SDK standard mode, uses official OpenAI SDK for request/response processing",
-									"OpenAI SSE compatibility mode, uses in-plugin SSE parsing logic for streaming response processing",
 									"Anthropic SDK standard mode, uses official Anthropic SDK for request/response processing",
 								],
 								description: "SDK mode defaults to openai.",

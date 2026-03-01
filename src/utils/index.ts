@@ -54,11 +54,21 @@ export {
 	resolveGlobalTokenLimits,
 } from "./globalContextLengthManager";
 export { JsonSchemaProvider } from "./jsonSchemaProvider";
-export { KnownProviderConfig, KnownProviders } from "./knownProviders";
+export {
+	type RegisteredProvider,
+	KnownProviderConfig,
+	KnownProviders,
+	ProviderRegistry,
+	getAllProviders,
+	getProvider,
+	getProvidersByCategory,
+	getRegisteredProviderKeys,
+	hasSpecializedProvider,
+	registerProvidersFromConfig,
+} from "./knownProviders";
 export { Logger } from "./logger";
 export { MCPWebSearchClient } from "./mcpWebSearchClient";
 export { ModelInfoCache } from "./modelInfoCache";
-export { ProviderRegistry } from "./providerMetadata";
 export { RateLimiter } from "./rateLimiter";
 export {
 	formatRateLimitDisplay,

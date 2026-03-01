@@ -27,7 +27,7 @@ const vscode = acquireVsCodeApi();
  * @property {string} provider - Provider identifier
  * @property {string} [baseUrl] - API base URL (optional)
  * @property {string} [model] - Request model ID (optional)
- * @property {'openai'|'openai-sse'|'anthropic'} sdkMode - SDK compatibility mode
+ * @property {'openai'|'anthropic'} sdkMode - SDK compatibility mode
  * @property {number} maxInputTokens - Maximum input tokens
  * @property {number} maxOutputTokens - Maximum output tokens
  * @property {ModelCapabilities} capabilities - Capability configuration
@@ -146,12 +146,6 @@ function createDOM() {
 						label:
 							"OpenAI SDK (use official SDK for streaming data processing)",
 						selected: modelData.sdkMode === "openai",
-					},
-					{
-						value: "openai-sse",
-						label:
-							"OpenAI SSE (use built-in compatible parser for streaming data processing)",
-						selected: modelData.sdkMode === "openai-sse",
 					},
 					{
 						value: "anthropic",

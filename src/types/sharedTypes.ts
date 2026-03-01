@@ -26,9 +26,8 @@ export interface ModelConfig {
 	 * SDK mode selection (optional)
 	 * - "anthropic": Use Anthropic SDK
 	 * - "openai": Use OpenAI SDK (default)
-	 * - "openai-sse": Use OpenAI SSE compatible mode (custom implementation for streaming response handling)
 	 */
-	sdkMode?: "anthropic" | "openai" | "openai-sse";
+	sdkMode?: "anthropic" | "openai";
 	/**
 	 * Model-specific baseUrl (optional)
 	 * If provided, will override provider-level baseUrl

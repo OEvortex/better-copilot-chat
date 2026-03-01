@@ -45,7 +45,7 @@ export interface CompatibleModelConfig {
 	/** Maximum output tokens */
 	maxOutputTokens: number;
 	/** SDK mode */
-	sdkMode?: "anthropic" | "openai" | "openai-sse";
+	sdkMode?: "anthropic" | "openai";
 	/** Model capabilities */
 	capabilities: {
 		/** Tool calling */

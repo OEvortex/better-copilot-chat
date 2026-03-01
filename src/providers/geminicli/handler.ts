@@ -1312,26 +1312,14 @@ export class GeminiHandler {
 				body: await response.text(),
 			};
 		}
-		if (
-			modelConfig.sdkMode === "openai" ||
-			modelConfig.sdkMode === "openai-sse"
-		) {
-			// Always use GeminiStreamProcessor for Gemini CLI since the API returns responses in Gemini format (candidates/parts), not OpenAI format
-			// The Gemini CLI API returns responses in Gemini format (candidates/parts), not OpenAI format
-			await new GeminiStreamProcessor().processStream({
-				response,
-				modelConfig,
-				progress,
-				token,
-			});
-		} else {
-			await new GeminiStreamProcessor().processStream({
-				response,
-				modelConfig,
-				progress,
-				token,
-			});
-		}
+		// Always use GeminiStreamProcessor for Gemini CLI since the API returns
+		// responses in Gemini format (candidates/parts), not OpenAI format.
+		await new GeminiStreamProcessor().processStream({
+			response,
+			modelConfig,
+			progress,
+			token,
+		});
 		return { success: true };
 	}
 

@@ -388,8 +388,6 @@ export class CompatibleProvider extends GenericModelProvider {
 			let sdkName = "OpenAI SDK";
 			if (sdkMode === "anthropic") {
 				sdkName = "Anthropic SDK";
-			} else if (sdkMode === "openai-sse") {
-				sdkName = "OpenAI SSE";
 			}
 
 			Logger.info(
@@ -402,16 +400,6 @@ export class CompatibleProvider extends GenericModelProvider {
 					async () => {
 						if (sdkMode === "anthropic") {
 							await this.anthropicHandler.handleRequest(
-								model,
-								modelConfig,
-								messages,
-								options,
-								progress,
-								token,
-							);
-						} else if (sdkMode === "openai-sse") {
-							// OpenAI mode: use custom SSE stream processing
-							await this.handleRequestWithCustomSSE(
 								model,
 								modelConfig,
 								messages,

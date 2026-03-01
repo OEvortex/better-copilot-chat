@@ -610,7 +610,7 @@ export class AntigravityHandler {
                 body: await response.text()
             };
         }
-        if (modelConfig.sdkMode === 'openai' || modelConfig.sdkMode === 'openai-sse') {
+        if (modelConfig.sdkMode === 'openai') {
             await new OpenAIStreamProcessor().processStream({
                 response,
                 modelConfig,

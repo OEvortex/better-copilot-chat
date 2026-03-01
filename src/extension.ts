@@ -8,15 +8,15 @@ import { InlineCompletionShim } from "./copilot/inlineCompletionShim";
 import { AntigravityProvider } from "./providers/antigravity/provider";
 import { CodexProvider } from "./providers/codex/codexProvider";
 import { CompatibleProvider } from "./providers/compatible/compatibleProvider";
-import {
-	registerProvidersFromConfig,
-	type RegisteredProvider,
-} from "./providers/providerFactory";
 import { registerAllTools } from "./tools";
 import { ProviderKey } from "./types/providerKeys";
 import {
 	registerSettingsPageCommand,
 } from "./ui";
+import {
+	registerProvidersFromConfig,
+	type RegisteredProvider,
+} from "./utils/knownProviders";
 import {
 	ApiKeyManager,
 	CompletionLogger,
