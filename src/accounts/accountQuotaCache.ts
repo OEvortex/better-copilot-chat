@@ -54,7 +54,7 @@ interface QuotaCacheStorageData {
 /**
  * Event when quota state changes
  */
-export interface QuotaStateChangeEvent {
+interface QuotaStateChangeEvent {
 	accountId: string;
 	provider: string;
 	state: AccountQuotaState;

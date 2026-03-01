@@ -61,9 +61,6 @@ export {
 	ProviderRegistry,
 	getAllProviders,
 	getProvider,
-	getProvidersByCategory,
-	getRegisteredProviderKeys,
-	hasSpecializedProvider,
 	registerProvidersFromConfig,
 } from "./knownProviders";
 export { Logger } from "./logger";

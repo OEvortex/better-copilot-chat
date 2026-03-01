@@ -3,10 +3,13 @@ import * as vscode from "vscode";
 import { AccountQuotaCache } from "../../accounts/accountQuotaCache";
 import type { ModelConfig } from "../../types/sharedTypes";
 import { ConfigManager } from "../../utils/configManager";
+import {
+	isGemini25Model,
+	isGemini3Model,
+} from "../../utils/globalContextLengthManager";
 import { Logger } from "../../utils/logger";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { TokenTelemetryTracker } from "../../utils/tokenTelemetryTracker";
-import { OpenAIStreamProcessor } from "../openai/openaiStreamProcessor";
 import { GeminiOAuthManager } from "./auth";
 import { GeminiStreamProcessor } from "./streamProcessor";
 import {
@@ -214,10 +217,14 @@ function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
 			}
 		}
 
-		if (s.properties && typeof s.properties === "object" && !Array.isArray(s.properties)) {
+		if (
+			s.properties &&
+			typeof s.properties === "object" &&
+			!Array.isArray(s.properties)
+		) {
 			const cleanedProperties: Record<string, unknown> = {};
 			const propKeys = Object.keys(s.properties);
-			
+
 			for (const key of propKeys) {
 				const val = (s.properties as Record<string, unknown>)[key];
 				if (val && typeof val === "object" && !Array.isArray(val)) {
@@ -239,11 +246,15 @@ function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
 			) {
 				const propKeys = new Set(Object.keys(s.properties));
 				const filteredRequired = (s.required as unknown[]).filter(
-					(key) => typeof key === "string" && propKeys.has(key.replace(/[^a-zA-Z0-9_]/g, "_")),
+					(key) =>
+						typeof key === "string" &&
+						propKeys.has(key.replace(/[^a-zA-Z0-9_]/g, "_")),
 				) as string[];
 
 				if (filteredRequired.length > 0) {
-					s.required = filteredRequired.map(k => k.replace(/[^a-zA-Z0-9_]/g, "_"));
+					s.required = filteredRequired.map((k) =>
+						k.replace(/[^a-zA-Z0-9_]/g, "_"),
+					);
 				} else {
 					delete s.required;
 				}
@@ -309,14 +320,14 @@ function convertToolCallsToGeminiParts(
 			thoughtSignatureStore.set(toolCall.callId, signature);
 		}
 		let args: unknown = toolCall.input;
-		if (typeof args === 'string') {
+		if (typeof args === "string") {
 			try {
 				args = JSON.parse(args) as unknown;
 			} catch {
 				args = { value: args };
 			}
 		}
-		if (!args || typeof args !== 'object' || Array.isArray(args)) {
+		if (!args || typeof args !== "object" || Array.isArray(args)) {
 			args = { value: args };
 		}
 		return {
@@ -694,12 +705,12 @@ class FromIRTranslator {
 
 		if (isThinkingEnabled && !isImageModel) {
 			console.log("GeminiCLI: Thinking enabled for model:", resolvedModel);
-			
+
 			// Read thinking configuration from VS Code settings
 			const config = vscode.workspace.getConfiguration("chp.geminicli");
 			const thinkingLevel = config.get<string>("thinkingLevel") || "high";
 			const thinkingBudget = config.get<number>("thinkingBudget") || 8192;
-			
+
 			if (isClaudeThinkingModel) {
 				const budget = modelConfig.thinkingBudget || thinkingBudget;
 				if (maxOutputTokens < budget + 1000) {
@@ -729,7 +740,9 @@ class FromIRTranslator {
 				);
 			}
 		} else if (isImageModel) {
-			console.log("GeminiCLI: Image model detected, disabling thinking and adding imageConfig");
+			console.log(
+				"GeminiCLI: Image model detected, disabling thinking and adding imageConfig",
+			);
 			// Image models don't support thinking
 			delete generationConfig.thinkingConfig;
 			// Add imageConfig if needed (reference code had buildImageGenerationConfig)
@@ -1095,7 +1108,7 @@ export class GeminiHandler {
 								totalTokens: promptTokens,
 								maxInputTokens: model.maxInputTokens,
 								maxOutputTokens: model.maxOutputTokens,
-								estimatedPromptTokens: true
+								estimatedPromptTokens: true,
 							});
 						} catch (e) {
 							Logger.trace(
@@ -1345,20 +1358,7 @@ export class GeminiHandler {
 	}
 }
 
-export function isGeminiModel(model: string): boolean {
-	const lower = model.toLowerCase();
-	return lower.includes("gemini") && !lower.includes("claude");
-}
-
-export function isGemini3Model(model: string): boolean {
-	return model.toLowerCase().includes("gemini-3");
-}
-
-export function isGemini25Model(model: string): boolean {
-	return model.toLowerCase().includes("gemini-2.5");
-}
-
-export function isImageGenerationModel(model: string): boolean {
+function isImageGenerationModel(model: string): boolean {
 	const lower = model.toLowerCase();
 	return lower.includes("image") || lower.includes("imagen");
 }

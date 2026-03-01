@@ -25,8 +25,6 @@ export interface KnownProviderConfig
 	description?: string;
 	/** Provider settings prefix override */
 	settingsPrefix?: string;
-	/** Whether provider uses a specialized provider implementation */
-	specializedFactory?: boolean;
 }
 
 /**
@@ -46,25 +44,6 @@ export interface KnownProviderConfig
  * @type {(Record<string, KnownProviderConfig>)}
  * @memberof CompatibleModelManager
  */
-const SPECIALIZED_PROVIDER_KEYS = new Set<string>([
-	"blackbox",
-	"chutes",
-	"deepinfra",
-	"geminicli",
-	"huggingface",
-	"kilo",
-	"lightningai",
-	"minimax",
-	"mistral",
-	"moonshot",
-	"nvidia",
-	"ollama",
-	"opencode",
-	"qwencli",
-	"zenmux",
-	"zhipu",
-]);
-
 const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 	aihubmix: {
 		displayName: "AIHubMix",
@@ -157,14 +136,7 @@ export const KnownProviders: Record<string, KnownProviderConfig> =
 	Object.fromEntries(
 		Object.entries(knownProviderOverrides)
 			.sort((left, right) => left[0].localeCompare(right[0]))
-			.map(([providerId, config]) => {
-				const normalizedConfig: KnownProviderConfig = { ...config };
-				if (normalizedConfig.specializedFactory === undefined) {
-					normalizedConfig.specializedFactory =
-						SPECIALIZED_PROVIDER_KEYS.has(providerId);
-				}
-				return [providerId, normalizedConfig];
-			}),
+			.map(([providerId, config]) => [providerId, { ...config }]),
 	);
 
 export type RegisteredProvider = {
@@ -367,23 +339,6 @@ export async function registerProvidersFromConfig(
 	return { providers: registeredProviders, disposables: registeredDisposables };
 }
 
-export function getRegisteredProviderKeys(): string[] {
-	return Object.entries(KnownProviders)
-		.filter(
-			([providerKey, providerConfig]) =>
-				providerConfig.specializedFactory === true &&
-				providerKey in specializedProviderFactories,
-		)
-		.map(([providerKey]) => providerKey);
-}
-
-export function hasSpecializedProvider(providerKey: string): boolean {
-	return (
-		KnownProviders[providerKey]?.specializedFactory === true &&
-		providerKey in specializedProviderFactories
-	);
-}
-
 function toProviderKey(providerId: string): ProviderKey | undefined {
 	const values = Object.values(ProviderKey) as string[];
 	if (values.includes(providerId)) {
@@ -521,18 +476,11 @@ export function getAllProviders(): ProviderMetadata[] {
 	return metadata;
 }
 
-export function getProvidersByCategory(
-	category: ProviderCategory,
-): ProviderMetadata[] {
-	return getAllProviders().filter((provider) => provider.category === category);
-}
-
 export function getProvider(providerId: string): ProviderMetadata | undefined {
 	return getAllProviders().find((provider) => provider.id === providerId);
 }
 
 export const ProviderRegistry = {
 	getAllProviders,
-	getProvidersByCategory,
 	getProvider,
 };
