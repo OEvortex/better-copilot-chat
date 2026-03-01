@@ -2,9 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.6] - 2026-02-28
+## [0.2.6] - 2026-03-01
 
 ### Added
+
+**NVIDIA Provider Dynamic Model Fetching:**
+- **Dynamic Model Discovery**: NVIDIA NIM provider now dynamically fetches models from the NVIDIA API (`/models` endpoint) similar to Chutes and Kilo providers.
+- **Background Updates**: Models are fetched in the background with a 10-minute cooldown to avoid excessive API calls.
+- **Auto-Config Updates**: Fetched models are automatically merged into `nvidia.json` config file for persistence.
+- **Immediate Availability**: Returns cached models instantly while fetching updates asynchronously.
+- **Capability Detection**: Automatically detects vision capabilities from model metadata (`input_modalities`).
 
 **Claude Model Support:**
 - **200K Context Window**: All Claude models now have 200,000 token max window (168K input / 32K output).
@@ -51,11 +58,16 @@ All notable changes to this project will be documented in this file.
 - **Leader Election**: Implemented master instance election to ensure only one VS Code instance runs periodic status updates.
 - **User Activity Detection**: Pauses background status updates when user is inactive (30 min timeout).
 
+**Gemini Vision Support:**
+- All Gemini models (gemini-2, gemini-2.5, gemini-3, etc.) now support vision capabilities across all providers.
+- Excludes gemini-cli provider which handles Gemini models through a separate path.
+
 ### Fixed
 
 - **TypeScript Type Compatibility**: Fixed type errors where several provider implementations had private `updateConfigFileAsync` methods that conflicted with the base class `GenericModelProvider`'s protected method signature. Renamed provider-specific methods to unique names (e.g., `updateOpenCodeConfigFile`, `updateZhipuConfigFile`, etc.) to resolve the type incompatibility.
 - **Ollama Vision Capabilities**: Fixed an issue where Ollama models (like `kimi-k2.5`) were not correctly reporting vision capabilities. Now uses the centralized `resolveGlobalCapabilities` for consistent capability detection across all providers.
 - **NVIDIA Auto-Registration**: Fixed an issue where the NVIDIA provider was not automatically registering with VS Code on startup without an API key. It now correctly inherits the background-fetching logic from `GenericModelProvider`.
+- **Ollama Base URL Normalization**: Fixed potential double slashes in API URLs when `baseUrl` ends with a trailing slash.
 
 **Gemini CLI Provider Fixes:**
 - **Model Name Resolution (404 Fix)**: Fixed "Requested entity was not found" error by stripping the `google/` prefix from model names before sending to the Gemini API. The API expects bare model names like `gemini-2.5-pro` instead of `google/gemini-2.5-pro`.

@@ -1,3 +1,5 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
 import type {
 	CancellationToken,
 	LanguageModelChatInformation,
@@ -12,6 +14,7 @@ import { AccountManager } from "../../accounts";
 import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import {
 	ApiKeyManager,
+	ConfigManager,
 	Logger,
 	RateLimiter,
 	RetryManager,
@@ -61,6 +64,7 @@ class NvidiaUsageTracker {
 
 /**
  * NVIDIA NIM provider (OpenAI-compatible)
+ * Dynamically fetches models from NVIDIA API and auto-updates config
  * Endpoints:
  *  - Chat Completions: https://integrate.api.nvidia.com/v1/chat/completions
  *  - Models: https://integrate.api.nvidia.com/v1/models
@@ -70,6 +74,27 @@ export class NvidiaProvider
 	implements LanguageModelChatProvider
 {
 	private readonly usageTracker = new NvidiaUsageTracker();
+	private readonly extensionPath: string;
+	private readonly configFilePath: string;
+	private lastFetchTime = 0;
+	private static readonly FETCH_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
+
+	constructor(
+		context: vscode.ExtensionContext,
+		providerKey: string,
+		providerConfig: ProviderConfig,
+		extensionPath: string,
+	) {
+		super(context, providerKey, providerConfig);
+		this.extensionPath = extensionPath;
+		this.configFilePath = path.join(
+			this.extensionPath,
+			"src",
+			"providers",
+			"config",
+			"nvidia.json",
+		);
+	}
 
 	protected override parseApiModelsResponse(resp: unknown): LanguageModelChatInformation[] {
 		const parsed = resp as NvidiaModelsResponse;
@@ -200,8 +225,112 @@ export class NvidiaProvider
 		options: { silent: boolean },
 		token: CancellationToken,
 	): Promise<LanguageModelChatInformation[]> {
-		// Use parent implementation - static models registered on startup, dynamic fetch in background
-		return super.provideLanguageModelChatInformation(options, token);
+		const apiKey = await this.getDiscoveryApiKey(options.silent ?? true);
+
+		// Always return current models from config first
+		const currentModels = this.providerConfig.models.map(m => {
+			const baseInfo = this.modelConfigToInfo(m);
+			return {
+				...baseInfo,
+				family: "Nvidia",
+			};
+		});
+
+		// Throttled background fetch and update
+		const now = Date.now();
+		if (now - this.lastFetchTime > NvidiaProvider.FETCH_COOLDOWN_MS) {
+			this.refreshModelsAsync(apiKey);
+		}
+
+		return this.dedupeModelInfos(currentModels);
+	}
+
+	private async refreshModelsAsync(apiKey?: string): Promise<void> {
+		this.lastFetchTime = Date.now();
+		try {
+			const models = await this.fetchModels(apiKey ?? "");
+			if (models.length > 0) {
+				await this.updateNvidiaConfigFile(models);
+			}
+		} catch (err) {
+			Logger.trace("[NVIDIA] Background model refresh failed:", err);
+		}
+	}
+
+	private async updateNvidiaConfigFile(models: NvidiaModelItem[]): Promise<void> {
+		try {
+			const modelConfigs: ModelConfig[] = models.map((m) => {
+				const metadata = m.metadata || {};
+				const modalities =
+					m.input_modalities ||
+					metadata.input_modalities ||
+					metadata.modalities ||
+					[];
+
+				const detectedVision = Array.isArray(modalities)
+					? modalities.includes("image")
+					: false;
+
+				const contextLength =
+					m.context_length ||
+					metadata.context_length ||
+					DEFAULT_CONTEXT_LENGTH;
+
+				const { maxInputTokens, maxOutputTokens } = resolveTokenLimits(
+					m.id,
+					contextLength,
+				);
+
+				const capabilities = resolveGlobalCapabilities(m.id, {
+					detectedImageInput: detectedVision,
+				});
+
+				const cleanId = m.id
+					.replace(/[/]/g, "-")
+					.replace(/[^a-zA-Z0-9-]/g, "-")
+					.toLowerCase();
+
+				return {
+					id: cleanId,
+					name: m.id,
+					tooltip: `${m.id} by NVIDIA NIM`,
+					maxInputTokens,
+					maxOutputTokens,
+					model: m.id,
+					capabilities,
+				} as ModelConfig;
+			});
+
+			// Update in-memory configurations synchronously
+			let configChanged = false;
+			if (this.baseProviderConfig) {
+				const oldModelsJson = JSON.stringify(this.baseProviderConfig.models);
+				const newModelsJson = JSON.stringify(modelConfigs);
+				if (oldModelsJson !== newModelsJson) {
+					this.baseProviderConfig.models = modelConfigs;
+					configChanged = true;
+				}
+			}
+
+			if (configChanged) {
+				this.cachedProviderConfig = ConfigManager.applyProviderOverrides(
+					this.providerKey,
+					this.baseProviderConfig,
+				);
+
+				// Only write to file if it exists (for dev environment)
+				if (fs.existsSync(this.configFilePath)) {
+					fs.writeFileSync(
+						this.configFilePath,
+						JSON.stringify(this.baseProviderConfig, null, 4),
+						"utf8",
+					);
+					Logger.info(`[NVIDIA] Auto-updated config with ${modelConfigs.length} models`);
+				}
+			}
+		} catch (err) {
+			Logger.warn(`[NVIDIA] Config update failed:`, err);
+		}
 	}
 
 	override async provideLanguageModelChatResponse(
@@ -261,7 +390,7 @@ export class NvidiaProvider
 		providerConfig: ProviderConfig,
 	): { provider: NvidiaProvider; disposables: vscode.Disposable[] } {
 		Logger.trace(`${providerConfig.displayName} provider activated!`);
-		const provider = new NvidiaProvider(context, providerKey, providerConfig);
+		const provider = new NvidiaProvider(context, providerKey, providerConfig, context.extensionPath);
 
 		const providerDisposable = vscode.lm.registerLanguageModelChatProvider(
 			`chp.${providerKey}`,

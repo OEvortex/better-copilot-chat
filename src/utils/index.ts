@@ -37,6 +37,7 @@ export {
 	isGemini2Model,
 	isGemini3Model,
 	isGemini25Model,
+	isGeminiModel,
 	isGlm45Model,
 	isGlmModel,
 	isGpt4oModel,

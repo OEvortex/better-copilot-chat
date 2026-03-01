@@ -1,8 +1,10 @@
 /*---------------------------------------------------------------------------------------------
  *  Ollama Cloud Dedicated Provider
- *  Supports dynamic model fetching from https://ollama.com/v1/models
+ *  Dynamically fetches models from https://ollama.com/v1/models
  *--------------------------------------------------------------------------------------------*/
 
+import * as fs from "node:fs";
+import * as path from "node:path";
 import OpenAI from "openai";
 import type {
 	CancellationToken,
@@ -14,25 +16,32 @@ import type {
 	ProvideLanguageModelChatResponseOptions,
 } from "vscode";
 import * as vscode from "vscode";
-import type { ProviderConfig } from "../../types/sharedTypes";
+import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import { ApiKeyManager } from "../../utils/apiKeyManager";
 import { ConfigManager } from "../../utils/configManager";
+import {
+	DEFAULT_CONTEXT_LENGTH,
+	DEFAULT_MAX_OUTPUT_TOKENS,
+	resolveGlobalCapabilities,
+	resolveGlobalTokenLimits,
+} from "../../utils/globalContextLengthManager";
 import { Logger } from "../../utils/logger";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { TokenCounter } from "../../utils/tokenCounter";
 import { ProviderWizard } from "../../utils/providerWizard";
-import { resolveGlobalCapabilities } from "../../utils";
-import { DEFAULT_MAX_OUTPUT_TOKENS } from "../../utils/globalContextLengthManager";
+import { getExtensionVersion, getUserAgent } from "../../utils/userAgent";
 import { GenericModelProvider } from "../common";
 import type { OllamaModelItem, OllamaModelsResponse } from "./types";
 
-const DEFAULT_CONTEXT_LENGTH = 262000;
+const BASE_URL = "https://ollama.com/v1";
 
 export class OllamaProvider
 	extends GenericModelProvider
 	implements LanguageModelChatProvider
 {
 	private readonly userAgent: string;
+	private readonly extensionPath: string;
+	private readonly configFilePath: string;
 	private clientCache = new Map<string, { client: OpenAI; lastUsed: number }>();
 
 	constructor(
@@ -40,9 +49,18 @@ export class OllamaProvider
 		providerKey: string,
 		providerConfig: ProviderConfig,
 		userAgent: string,
+		extensionPath: string,
 	) {
 		super(context, providerKey, providerConfig);
 		this.userAgent = userAgent;
+		this.extensionPath = extensionPath;
+		this.configFilePath = path.join(
+			this.extensionPath,
+			"src",
+			"providers",
+			"config",
+			"ollama.json",
+		);
 	}
 
 	/**
@@ -60,43 +78,132 @@ export class OllamaProvider
 		super.refreshHandlers();
 	}
 
-	protected override parseApiModelsResponse(resp: unknown): LanguageModelChatInformation[] {
-		const parsed = resp as OllamaModelsResponse;
-		const models = parsed.data || [];
+	private lastFetchTime = 0;
+	private static readonly FETCH_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
 
-		return models.map((model) => {
-			const contextLength =
-				model.metadata?.context_length || DEFAULT_CONTEXT_LENGTH;
-			const maxOutput =
-				model.metadata?.max_tokens || DEFAULT_MAX_OUTPUT_TOKENS;
+	async provideLanguageModelChatInformation(
+		options: { silent: boolean },
+		_token: CancellationToken,
+	): Promise<LanguageModelChatInformation[]> {
+		const apiKey = await this.ensureApiKey(options.silent ?? true);
 
-			// Most modern Ollama models support tool calling
-			// Only disable if explicitly marked as not supporting it
-			const hasToolCalling =
-				model.metadata?.tags?.includes("tool_calling") ??
-				!model.metadata?.tags?.includes("no_tool_calling");
+		// Always return current models from config first
+		const currentModels = this.providerConfig.models.map(m => {
+			const baseInfo = this.modelConfigToInfo(m);
+			return {
+				...baseInfo,
+				family: "Ollama Cloud",
+			};
+		});
 
-			const hasImageInput =
-				model.metadata?.tags?.includes("vision") ||
-				model.id.toLowerCase().includes("vl") ||
-				model.id.toLowerCase().includes("vision");
+		// Throttled background fetch and update
+		const now = Date.now();
+		if (now - this.lastFetchTime > OllamaProvider.FETCH_COOLDOWN_MS) {
+			this.refreshModelsAsync(apiKey);
+		}
 
-			const capabilities = resolveGlobalCapabilities(model.id, {
-				detectedImageInput: hasImageInput,
-				detectedToolCalling: hasToolCalling,
+		return this.dedupeModelInfos(currentModels);
+	}
+
+	private async refreshModelsAsync(apiKey?: string): Promise<void> {
+		this.lastFetchTime = Date.now();
+		try {
+			const result = await this.fetchModels(apiKey);
+			if (result.models && result.models.length > 0) {
+				await this.updateOllamaConfigFile(result.models);
+			}
+		} catch (err) {
+			Logger.trace("[Ollama] Background model refresh failed:", err);
+		}
+	}
+
+	private async fetchModels(
+		apiKey?: string,
+	): Promise<{ models: OllamaModelItem[] }> {
+		const headers: Record<string, string> = {
+			"User-Agent": this.userAgent,
+		};
+		if (apiKey) {
+			headers["Authorization"] = `Bearer ${apiKey}`;
+		}
+
+		const baseUrl = (this.providerConfig.baseUrl || BASE_URL).replace(/\/$/, "");
+		const resp = await fetch(`${baseUrl}/models`, {
+			method: "GET",
+			headers,
+		});
+
+		if (!resp.ok) {
+			const text = await resp.text().catch(() => "");
+			throw new Error(`Failed to fetch Ollama models: ${resp.status} ${resp.statusText}\n${text}`);
+		}
+
+		const parsed = (await resp.json()) as OllamaModelsResponse;
+		return { models: parsed.data ?? [] };
+	}
+
+	private async updateOllamaConfigFile(models: OllamaModelItem[]): Promise<void> {
+		try {
+			const modelConfigs: ModelConfig[] = models.map((m) => {
+				const modelId = m.id;
+				// Detect vision support based on model name patterns
+				const detectedVision =
+					/vl|vision/i.test(modelId) ||
+					/gemini|claude|gpt-4|kimi-k2\.5/i.test(modelId);
+				const capabilities = resolveGlobalCapabilities(modelId, {
+					detectedImageInput: detectedVision,
+				});
+				const contextLen = DEFAULT_CONTEXT_LENGTH;
+				const { maxInputTokens, maxOutputTokens } = resolveGlobalTokenLimits(
+					modelId,
+					contextLen,
+					{
+						defaultContextLength: DEFAULT_CONTEXT_LENGTH,
+						defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
+					},
+				);
+				const cleanId = m.id.replace(/[/]/g, "-").replace(/[^a-zA-Z0-9-]/g, "-").toLowerCase();
+				return {
+					id: cleanId,
+					name: m.id,
+					tooltip: `${m.id} by Ollama Cloud`,
+					maxInputTokens,
+					maxOutputTokens,
+					model: m.id,
+					capabilities,
+				} as ModelConfig;
 			});
 
-			return {
-				id: model.id,
-				name: model.id,
-				tooltip: `${model.id} by Ollama`,
-				family: "Ollama",
-				version: "1.0.0",
-				maxInputTokens: contextLength - maxOutput,
-				maxOutputTokens: maxOutput,
-				capabilities,
-			} as LanguageModelChatInformation;
-		});
+			// Update in-memory configurations synchronously
+			let configChanged = false;
+			if (this.baseProviderConfig) {
+				const oldModelsJson = JSON.stringify(this.baseProviderConfig.models);
+				const newModelsJson = JSON.stringify(modelConfigs);
+				if (oldModelsJson !== newModelsJson) {
+					this.baseProviderConfig.models = modelConfigs;
+					configChanged = true;
+				}
+			}
+
+			if (configChanged) {
+				this.cachedProviderConfig = ConfigManager.applyProviderOverrides(
+					this.providerKey,
+					this.baseProviderConfig,
+				);
+
+				// Only write to file if it exists (for dev environment)
+				if (fs.existsSync(this.configFilePath)) {
+					fs.writeFileSync(
+						this.configFilePath,
+						JSON.stringify(this.baseProviderConfig, null, 4),
+						"utf8",
+					);
+					Logger.info(`[Ollama] Auto-updated config with ${modelConfigs.length} models`);
+				}
+			}
+		} catch (err) {
+			Logger.warn(`[Ollama] Config update failed:`, err);
+		}
 	}
 
 	override async provideLanguageModelChatResponse(
@@ -460,12 +567,18 @@ export class OllamaProvider
 		providerConfig: ProviderConfig,
 	): { provider: OllamaProvider; disposables: vscode.Disposable[] } {
 		Logger.trace(`${providerConfig.displayName} provider activated!`);
-		const ext = vscode.extensions.getExtension("OEvortex.better-copilot-chat");
-		const extVersion = ext?.packageJSON?.version ?? "unknown";
+		const extVersion = getExtensionVersion();
 		const vscodeVersion = vscode.version;
 		const ua = `better-copilot-chat/${extVersion} VSCode/${vscodeVersion}`;
 
-		const provider = new OllamaProvider(context, providerKey, providerConfig, ua);
+		const extensionPath = context.extensionPath;
+		const provider = new OllamaProvider(
+			context,
+			providerKey,
+			providerConfig,
+			ua,
+			extensionPath,
+		);
 		const providerDisposable = vscode.lm.registerLanguageModelChatProvider(
 			`chp.${providerKey}`,
 			provider,

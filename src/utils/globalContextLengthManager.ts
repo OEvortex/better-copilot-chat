@@ -112,6 +112,12 @@ export function isGemini3Model(modelId: string): boolean {
 	return /gemini[-_]?3(?:\.[-_]?1)?/i.test(modelId);
 }
 
+export function isGeminiModel(modelId: string): boolean {
+	// Matches all Gemini models (gemini-2, gemini-2.5, gemini-3, etc.)
+	// Excludes gemini-cli provider models which are handled separately
+	return /gemini[-_]?\d/i.test(modelId);
+}
+
 export function isGlm45Model(modelId: string): boolean {
 	// Explicit exception: glm-4.5 has a 128K context window
 	// Match anywhere in the model id (supports provider prefixes like z-ai/, zai-org/, etc.)
@@ -355,11 +361,12 @@ export function resolveGlobalCapabilities(
 	return {
 		// User request: all models should support tools
 		toolCalling: true,
-	// User request: Claude, Kimi 2.5 and GPT models should support vision (excluding gpt-oss)
-	imageInput:
-		detectedImageInput ||
-		isClaudeModel(modelId) ||
-		isKimiK25Model(modelId) ||
-		isVisionGptModel(modelId),
+		// User request: Claude, Kimi 2.5, GPT models (excluding gpt-oss), and Gemini models should support vision
+		imageInput:
+			detectedImageInput ||
+			isClaudeModel(modelId) ||
+			isKimiK25Model(modelId) ||
+			isVisionGptModel(modelId) ||
+			isGeminiModel(modelId),
 	};
 }
