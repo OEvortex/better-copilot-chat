@@ -9,7 +9,7 @@
             "tooltip": "Gemini 2.5 Pro via CLI",
             "maxInputTokens": 1000000,
             "maxOutputTokens": 32000,
-            "sdkMode": "openai",
+            "sdkMode": "gemini",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -21,7 +21,7 @@
             "tooltip": "Gemini 2.5 Flash via CLI",
             "maxInputTokens": 1000000,
             "maxOutputTokens": 32000,
-            "sdkMode": "openai",
+            "sdkMode": "gemini",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -33,7 +33,7 @@
             "tooltip": "Gemini 2.5 Flash Lite via CLI",
             "maxInputTokens": 1000000,
             "maxOutputTokens": 32000,
-            "sdkMode": "openai",
+            "sdkMode": "gemini",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -45,7 +45,7 @@
             "tooltip": "Gemini 3 Pro Preview via CLI",
             "maxInputTokens": 1000000,
             "maxOutputTokens": 32000,
-            "sdkMode": "openai",
+            "sdkMode": "gemini",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -57,7 +57,7 @@
             "tooltip": "Gemini 3 Flash Preview via CLI",
             "maxInputTokens": 1000000,
             "maxOutputTokens": 32000,
-            "sdkMode": "openai",
+            "sdkMode": "gemini",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
@@ -69,7 +69,7 @@
             "tooltip": "Gemini 3.1 Pro Preview via CLI",
             "maxInputTokens": 1000000,
             "maxOutputTokens": 32000,
-            "sdkMode": "openai",
+            "sdkMode": "gemini",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true

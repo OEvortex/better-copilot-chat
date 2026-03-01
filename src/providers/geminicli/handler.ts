@@ -4,6 +4,13 @@ import { AccountQuotaCache } from "../../accounts/accountQuotaCache";
 import type { ModelConfig } from "../../types/sharedTypes";
 import { ConfigManager } from "../../utils/configManager";
 import {
+	balanceGeminiFunctionCallResponses,
+	convertMessagesToGemini as convertMessagesToGeminiCommon,
+	type GeminiSdkContent,
+	sanitizeGeminiToolSchema,
+	validateGeminiPartsBalance,
+} from "../../utils/geminiSdkCommon";
+import {
 	isGemini25Model,
 	isGemini3Model,
 } from "../../utils/globalContextLengthManager";
@@ -23,56 +30,6 @@ import {
 
 export const DEFAULT_BASE_URLS = ["https://cloudcode-pa.googleapis.com"];
 export const DEFAULT_USER_AGENT = GEMINI_CLI_HEADERS["User-Agent"];
-
-const GEMINI_UNSUPPORTED_FIELDS = new Set([
-	"$ref",
-	"$defs",
-	"definitions",
-	"$id",
-	"$anchor",
-	"$dynamicRef",
-	"$dynamicAnchor",
-	"$schema",
-	"$vocabulary",
-	"$comment",
-	"exclusiveMinimum",
-	"exclusiveMaximum",
-	"minimum",
-	"maximum",
-	"multipleOf",
-	"additionalProperties",
-	"minLength",
-	"maxLength",
-	"pattern",
-	"minItems",
-	"maxItems",
-	"uniqueItems",
-	"minContains",
-	"maxContains",
-	"minProperties",
-	"maxProperties",
-	"if",
-	"then",
-	"else",
-	"dependentSchemas",
-	"dependentRequired",
-	"unevaluatedItems",
-	"unevaluatedProperties",
-	"contentEncoding",
-	"contentMediaType",
-	"contentSchema",
-	"dependencies",
-	"allOf",
-	"anyOf",
-	"oneOf",
-	"not",
-	"strict",
-	"input_examples",
-	"examples",
-	// Remove 'value' field as it causes proto parsing errors when it contains arrays
-	// with 'type' fields inside (e.g., {value: [{type: "string", ...}]})
-	"value",
-]);
 
 const thoughtSignatureStore = new Map<string, string>();
 const FALLBACK_THOUGHT_SIGNATURE = SKIP_THOUGHT_SIGNATURE;
@@ -145,200 +102,7 @@ export function isPermissionDeniedError(
 }
 
 function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
-	if (!schema || typeof schema !== "object" || Array.isArray(schema)) {
-		return { type: "object", properties: {} };
-	}
-	let sanitized: Record<string, unknown>;
-	try {
-		sanitized = JSON.parse(JSON.stringify(schema));
-	} catch {
-		return { type: "object", properties: {} };
-	}
-	const cleanRecursive = (s: Record<string, unknown>) => {
-		if (!s) {
-			return;
-		}
-		for (const composite of ["anyOf", "oneOf", "allOf"]) {
-			const branch = s[composite] as unknown;
-			if (Array.isArray(branch) && branch.length > 0) {
-				let preferred: Record<string, unknown> | undefined;
-				for (const option of branch) {
-					if (option && typeof option === "object") {
-						preferred = option as Record<string, unknown>;
-						if (preferred.type === "string") {
-							break;
-						}
-					}
-				}
-				const selected = preferred ?? (branch[0] as Record<string, unknown>);
-				for (const key of Object.keys(s)) {
-					delete s[key];
-				}
-				Object.assign(s, selected);
-				break;
-			}
-		}
-		if (Array.isArray(s.type)) {
-			const typeCandidates = s.type.filter((t) => t !== "null");
-			const preferredType = typeCandidates.find(
-				(t) => typeof t === "string" && t.trim() !== "",
-			);
-			s.type = preferredType ?? "object";
-		}
-		if (s.nullable === true) {
-			delete s.nullable;
-		}
-		if (Array.isArray(s.properties)) {
-			const mapped: Record<string, unknown> = {};
-			for (const item of s.properties) {
-				if (!item || typeof item !== "object") {
-					continue;
-				}
-				const entry = item as Record<string, unknown>;
-				const name = entry.name ?? entry.key;
-				const value = entry.value ?? entry.schema ?? entry.property;
-				if (typeof name === "string" && value && typeof value === "object") {
-					mapped[name] = value;
-				}
-			}
-			s.properties = mapped;
-		}
-		if (Array.isArray(s.items)) {
-			const firstItem = s.items[0];
-			s.items =
-				firstItem && typeof firstItem === "object" ? firstItem : undefined;
-		}
-		if (typeof s.type === "string") {
-			s.type = s.type.toLowerCase();
-		}
-		for (const key of Object.keys(s)) {
-			if (GEMINI_UNSUPPORTED_FIELDS.has(key)) {
-				delete s[key];
-			}
-		}
-
-		if (
-			s.properties &&
-			typeof s.properties === "object" &&
-			!Array.isArray(s.properties)
-		) {
-			const cleanedProperties: Record<string, unknown> = {};
-			const propKeys = Object.keys(s.properties);
-
-			for (const key of propKeys) {
-				const val = (s.properties as Record<string, unknown>)[key];
-				if (val && typeof val === "object" && !Array.isArray(val)) {
-					// Sanitize key name to match [a-zA-Z0-9_]*
-					const safeKey = key.replace(/[^a-zA-Z0-9_]/g, "_");
-					cleanedProperties[safeKey] = val;
-					cleanRecursive(val as Record<string, unknown>);
-				}
-			}
-			s.properties = cleanedProperties;
-		}
-
-		// Robust filtering of required fields (must be after properties cleaning)
-		if (s.required && Array.isArray(s.required)) {
-			if (
-				s.properties &&
-				typeof s.properties === "object" &&
-				!Array.isArray(s.properties)
-			) {
-				const propKeys = new Set(Object.keys(s.properties));
-				const filteredRequired = (s.required as unknown[]).filter(
-					(key) =>
-						typeof key === "string" &&
-						propKeys.has(key.replace(/[^a-zA-Z0-9_]/g, "_")),
-				) as string[];
-
-				if (filteredRequired.length > 0) {
-					s.required = filteredRequired.map((k) =>
-						k.replace(/[^a-zA-Z0-9_]/g, "_"),
-					);
-				} else {
-					delete s.required;
-				}
-			} else {
-				delete s.required;
-			}
-		}
-
-		// Handle nested schemas in objects and arrays
-		if (s.items) {
-			if (Array.isArray(s.items)) {
-				for (const item of s.items) {
-					if (item && typeof item === "object") {
-						cleanRecursive(item as Record<string, unknown>);
-					}
-				}
-			} else if (typeof s.items === "object") {
-				cleanRecursive(s.items as Record<string, unknown>);
-			}
-		}
-
-		if (s.additionalProperties && typeof s.additionalProperties === "object") {
-			cleanRecursive(s.additionalProperties as Record<string, unknown>);
-		}
-
-		if (s.patternProperties && typeof s.patternProperties === "object") {
-			for (const v of Object.values(s.patternProperties)) {
-				if (v && typeof v === "object") {
-					cleanRecursive(v as Record<string, unknown>);
-				}
-			}
-		}
-
-		if (s.propertyNames && typeof s.propertyNames === "object") {
-			cleanRecursive(s.propertyNames as Record<string, unknown>);
-		}
-
-		if (s.contains && typeof s.contains === "object") {
-			cleanRecursive(s.contains as Record<string, unknown>);
-		}
-	};
-	cleanRecursive(sanitized);
-	if (
-		typeof sanitized.type !== "string" ||
-		!sanitized.type.trim() ||
-		sanitized.type === "None"
-	) {
-		sanitized.type = "object";
-	}
-	if (!sanitized.properties || typeof sanitized.properties !== "object") {
-		sanitized.properties = {};
-	}
-	return sanitized;
-}
-
-function convertToolCallsToGeminiParts(
-	toolCalls: readonly vscode.LanguageModelToolCallPart[],
-): Array<Record<string, unknown>> {
-	return toolCalls.map((toolCall) => {
-		const storedSignature = thoughtSignatureStore.get(toolCall.callId);
-		const signature = storedSignature || FALLBACK_THOUGHT_SIGNATURE;
-		if (!storedSignature) {
-			thoughtSignatureStore.set(toolCall.callId, signature);
-		}
-		let args: unknown = toolCall.input;
-		if (typeof args === "string") {
-			try {
-				args = JSON.parse(args) as unknown;
-			} catch {
-				args = { value: args };
-			}
-		}
-		if (!args || typeof args !== "object" || Array.isArray(args)) {
-			args = { value: args };
-		}
-		return {
-			functionCall: {
-				name: toolCall.name,
-				id: toolCall.callId,
-				args,
-			},
-			thoughtSignature: signature,
-		};
-	});
+	return sanitizeGeminiToolSchema(schema);
 }
 
 export function extractToolCallFromGeminiResponse(
@@ -505,162 +269,22 @@ class MessageConverter {
 		contents: GeminiContent[];
 		systemInstruction?: Record<string, unknown>;
 	} {
-		const contents: GeminiContent[] = [];
-		let systemText = "";
-		const toolIdToName = new Map<string, string>();
-		for (const m of messages) {
-			if (m.role === vscode.LanguageModelChatMessageRole.Assistant) {
-				for (const p of m.content) {
-					if (p instanceof vscode.LanguageModelToolCallPart) {
-						toolIdToName.set(p.callId, p.name);
-					}
+		const converted = convertMessagesToGeminiCommon(messages, modelConfig, {
+			resolvedModelName,
+			getThoughtSignature: (callId) => thoughtSignatureStore.get(callId),
+			storeThoughtSignature: (callId, signature) => {
+				if (callId && signature) {
+					thoughtSignatureStore.set(callId, signature);
 				}
-			}
-		}
-		const _isThinkingEnabled =
-			modelConfig.outputThinking !== false ||
-			modelConfig.includeThinking === true;
-		const modelName = (
-			resolvedModelName ||
-			modelConfig.model ||
-			""
-		).toLowerCase();
-		const isClaudeModel = modelName.includes("claude");
-		const nonSystemMessages = messages.filter(
-			(m) => m.role !== vscode.LanguageModelChatMessageRole.System,
-		);
-		const msgCount = nonSystemMessages.length;
-		let currentMsgIndex = 0;
+			},
+			fallbackThoughtSignature: FALLBACK_THOUGHT_SIGNATURE,
+			normalizeToolCallArgs: true,
+			skipThinkingPartWhenToolCalls: true,
+		});
 
-		for (const message of messages) {
-			if (message.role === vscode.LanguageModelChatMessageRole.System) {
-				systemText = message.content
-					.filter((p) => p instanceof vscode.LanguageModelTextPart)
-					.map((p) => (p as vscode.LanguageModelTextPart).value)
-					.join("\n");
-				continue;
-			}
-			currentMsgIndex++;
-			if (message.role === vscode.LanguageModelChatMessageRole.User) {
-				const parts: Array<Record<string, unknown>> = [];
-				const text = message.content
-					.filter((p) => p instanceof vscode.LanguageModelTextPart)
-					.map((p) => (p as vscode.LanguageModelTextPart).value)
-					.join("\n");
-				if (text) {
-					parts.push({ text });
-				}
-				for (const part of message.content) {
-					if (
-						part instanceof vscode.LanguageModelDataPart &&
-						part.mimeType.toLowerCase().startsWith("image/")
-					) {
-						parts.push({
-							inlineData: {
-								mimeType: part.mimeType,
-								data: Buffer.from(part.data).toString("base64"),
-							},
-						});
-					}
-					if (part instanceof vscode.LanguageModelToolResultPart) {
-						const name = toolIdToName.get(part.callId) || "unknown";
-						let content = "";
-						if (typeof part.content === "string") {
-							content = part.content;
-						} else if (Array.isArray(part.content)) {
-							content = part.content
-								.map((r) =>
-									r instanceof vscode.LanguageModelTextPart
-										? r.value
-										: JSON.stringify(r),
-								)
-								.join("\n");
-						} else {
-							content = JSON.stringify(part.content);
-						}
-						let response: Record<string, unknown> = { content };
-						try {
-							const parsed = JSON.parse(content.trim());
-							if (parsed && typeof parsed === "object") {
-								response = Array.isArray(parsed) ? { result: parsed } : parsed;
-							}
-						} catch {
-							/* Ignore */
-						}
-						parts.push({
-							functionResponse: { name, id: part.callId, response },
-						});
-					}
-				}
-				if (parts.length > 0) {
-					contents.push({
-						role: "user",
-						parts: parts as GeminiContent["parts"],
-					});
-				}
-				continue;
-			}
-			if (message.role === vscode.LanguageModelChatMessageRole.Assistant) {
-				let parts: Array<Record<string, unknown>> = [];
-				const includeThinking =
-					!isClaudeModel &&
-					(modelConfig.includeThinking === true ||
-						modelConfig.outputThinking !== false);
-				const toolCalls = message.content.filter(
-					(p) => p instanceof vscode.LanguageModelToolCallPart,
-				) as vscode.LanguageModelToolCallPart[];
-
-				// IMPORTANT: When there are tool calls, DON'T add separate thought parts
-				// The functionCall parts will include thoughtSignatures from the stored signatures
-				// Adding separate thought parts would create a mismatch between functionCall and functionResponse counts
-				if (includeThinking && toolCalls.length === 0) {
-					for (const part of message.content) {
-						if (part instanceof vscode.LanguageModelThinkingPart) {
-							const value = Array.isArray(part.value)
-								? part.value.join("")
-								: part.value;
-							if (value) {
-								parts.push({ text: value, thought: true });
-							}
-							break;
-						}
-					}
-				}
-				const text = message.content
-					.filter((p) => p instanceof vscode.LanguageModelTextPart)
-					.map((p) => (p as vscode.LanguageModelTextPart).value)
-					.join("\n");
-				if (text) {
-					parts.push({ text });
-				}
-				if (toolCalls.length > 0) {
-					parts.push(...convertToolCallsToGeminiParts(toolCalls));
-				}
-				if (isClaudeModel) {
-					parts = parts.filter((p) => p.thought !== true);
-				}
-				if (
-					!isClaudeModel &&
-					toolCalls.length === 0 &&
-					includeThinking &&
-					currentMsgIndex === msgCount &&
-					!parts.some((p) => p.thought === true)
-				) {
-					parts.unshift({ text: "Thinking...", thought: true });
-				}
-				if (parts.length > 0) {
-					contents.push({
-						role: "model",
-						parts: parts as GeminiContent["parts"],
-					});
-				}
-			}
-		}
 		return {
-			contents,
-			systemInstruction: systemText
-				? { role: "user", parts: [{ text: systemText }] }
-				: undefined,
+			contents: converted.contents as unknown as GeminiContent[],
+			systemInstruction: converted.systemInstruction as Record<string, unknown> | undefined,
 		};
 	}
 }
@@ -811,40 +435,10 @@ class FromIRTranslator {
 		contents: GeminiContent[],
 		_modelName: string,
 	): void {
-		let totalFunctionCalls = 0;
-		let totalFunctionResponses = 0;
-		let totalThoughtSignatureParts = 0;
-
-		for (const content of contents) {
-			for (const part of content.parts) {
-				if (part.functionCall) {
-					totalFunctionCalls++;
-				}
-				if (part.functionResponse) {
-					totalFunctionResponses++;
-				}
-				// Count thoughtSignature as a separate part issue
-				if (part.thoughtSignature && !part.functionCall) {
-					totalThoughtSignatureParts++;
-				}
-			}
-		}
-
-		console.log(
-			`GeminiCLI: Parts validation - functionCalls=${totalFunctionCalls}, functionResponses=${totalFunctionResponses}, orphanThoughtSignatures=${totalThoughtSignatureParts}`,
-		);
-
-		if (totalFunctionCalls !== totalFunctionResponses) {
-			console.warn(
-				`GeminiCLI: WARNING - Function call/response mismatch! calls=${totalFunctionCalls}, responses=${totalFunctionResponses}. Attempting to automatically balance parts before sending.`,
-			);
-		}
-
-		if (totalThoughtSignatureParts > 0) {
-			console.warn(
-				`GeminiCLI: WARNING - Found ${totalThoughtSignatureParts} thoughtSignature parts without functionCall. Attempting to reattach them to the nearest functionCall part.`,
-			);
-		}
+		validateGeminiPartsBalance(contents as unknown as GeminiSdkContent[], {
+			prefix: "GeminiCLI",
+			onWarning: (message) => console.warn(message),
+		});
 	}
 
 	/**
@@ -855,160 +449,9 @@ class FromIRTranslator {
 		contents: GeminiContent[],
 		_modelName: string,
 	): void {
-		const callsById = new Map<
-			string,
-			{ name?: string; contentIndex: number; partIndex: number }
-		>();
-		const responsesById = new Map<
-			string,
-			Array<{ contentIndex: number; partIndex: number }>
-		>();
-
-		// Track orphan thoughtSignatures to try to reattach
-		const orphanThoughts: Array<{
-			signature: string;
-			contentIndex: number;
-			partIndex: number;
-		}> = [];
-
-		for (let ci = 0; ci < contents.length; ci++) {
-			const content = contents[ci];
-			for (let pi = 0; pi < content.parts.length; pi++) {
-				const part = content.parts[pi] as any;
-				if (part.functionCall) {
-					const id =
-						part.functionCall.id ||
-						part.functionCall.callId ||
-						`call_${ci}_${pi}`;
-					callsById.set(String(id), {
-						name: part.functionCall.name,
-						contentIndex: ci,
-						partIndex: pi,
-					});
-					// If thoughtSignature was on a separate part earlier, try to attach later
-					if (part.thoughtSignature) {
-						// normalize to string
-						part.thoughtSignature = String(part.thoughtSignature);
-					}
-				} else if (part.functionResponse) {
-					const id = part.functionResponse.id;
-					const key = id || `__name_${part.functionResponse.name}`;
-					const arr = responsesById.get(key) || [];
-					arr.push({ contentIndex: ci, partIndex: pi });
-					responsesById.set(key, arr);
-				}
-				if (part.thoughtSignature && !part.functionCall) {
-					orphanThoughts.push({
-						signature: String(part.thoughtSignature),
-						contentIndex: ci,
-						partIndex: pi,
-					});
-				}
-			}
-		}
-
-		// For every function call with no response, append a user content that contains an empty response
-		for (const [id, info] of callsById.entries()) {
-			const responseKey = id;
-			if (!responsesById.has(responseKey)) {
-				contents.push({
-					role: "user",
-					parts: [
-						{ functionResponse: { name: info.name || "", id, response: {} } },
-					],
-				});
-				console.log(
-					`GeminiCLI: Added placeholder functionResponse for id=${id} name=${info.name || ""}`,
-				);
-			}
-		}
-
-		// Convert orphan functionResponse parts (that don't have a matching call id) into text parts or remove them
-		for (const [key, arr] of responsesById.entries()) {
-			// Key can be id or name-based key; it is only orphan if not present in callsById
-			if (!callsById.has(key)) {
-				for (let i = arr.length - 1; i >= 0; i--) {
-					const loc = arr[i];
-					const c = contents[loc.contentIndex];
-					const p = c.parts[loc.partIndex] as any;
-					const resp = p.functionResponse?.response;
-					if (resp && Object.keys(resp).length > 0) {
-						// replace with text part containing the serialized response
-						c.parts[loc.partIndex] = { text: JSON.stringify(resp) };
-					} else {
-						// remove empty orphan response
-						c.parts.splice(loc.partIndex, 1);
-					}
-				}
-				console.warn(
-					`GeminiCLI: Converted/removed ${arr.length} orphan functionResponse(s) for key=${key}`,
-				);
-			}
-		}
-
-		// Attempt to reattach orphan thoughtSignatures to the nearest functionCall
-		for (const orphan of orphanThoughts) {
-			const { signature, contentIndex, partIndex } = orphan;
-			let attached = false;
-			// Search same content for a functionCall
-			const content = contents[contentIndex];
-			if (content) {
-				const idx = content.parts.findIndex((p) => (p as any).functionCall);
-				if (idx !== -1) {
-					(content.parts[idx] as any).thoughtSignature = signature;
-					// remove signature from original part
-					delete (content.parts[partIndex] as any).thoughtSignature;
-					attached = true;
-				}
-			}
-			if (!attached) {
-				// search previous contents
-				for (let ci = contentIndex - 1; ci >= 0 && !attached; ci--) {
-					const idx = contents[ci].parts.findIndex(
-						(p) => (p as any).functionCall,
-					);
-					if (idx !== -1) {
-						(contents[ci].parts[idx] as any).thoughtSignature = signature;
-						delete (contents[contentIndex].parts[partIndex] as any)
-							.thoughtSignature;
-						attached = true;
-					}
-				}
-			}
-			if (!attached) {
-				// search next contents
-				for (
-					let ci = contentIndex + 1;
-					ci < contents.length && !attached;
-					ci++
-				) {
-					const idx = contents[ci].parts.findIndex(
-						(p) => (p as any).functionCall,
-					);
-					if (idx !== -1) {
-						(contents[ci].parts[idx] as any).thoughtSignature = signature;
-						delete (contents[contentIndex].parts[partIndex] as any)
-							.thoughtSignature;
-						attached = true;
-					}
-				}
-			}
-			if (!attached) {
-				// Couldn't attach; just remove the orphan signature to avoid API errors
-				delete (contents[contentIndex].parts[partIndex] as any)
-					.thoughtSignature;
-				console.warn(
-					`GeminiCLI: Removed orphan thoughtSignature at content=${contentIndex} part=${partIndex} - no functionCall found to attach to.`,
-				);
-			}
-		}
-
-		// Remove any empty contents
-		for (let i = contents.length - 1; i >= 0; i--) {
-			if (!contents[i].parts || contents[i].parts.length === 0) {
-				contents.splice(i, 1);
-			}
-		}
+		balanceGeminiFunctionCallResponses(
+			contents as unknown as GeminiSdkContent[],
+		);
 	}
 }
 
@@ -1096,7 +539,7 @@ export class GeminiHandler {
 								await TokenCounter.getInstance().countMessagesTokens(
 									model,
 									[...messages],
-									{ sdkMode: modelConfig.sdkMode || "openai" },
+									{ sdkMode: modelConfig.sdkMode || "gemini" },
 									options,
 								);
 							TokenTelemetryTracker.getInstance().recordSuccess({

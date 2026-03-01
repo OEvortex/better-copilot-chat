@@ -347,7 +347,9 @@ function toProviderKey(providerId: string): ProviderKey | undefined {
 	return undefined;
 }
 
-function getSdkMode(providerId: string): "openai" | "anthropic" | "mixed" {
+function getSdkMode(
+	providerId: string,
+): "openai" | "anthropic" | "gemini" | "mixed" {
 	if (providerId === ProviderKey.Compatible) {
 		return "mixed";
 	}
@@ -360,12 +362,19 @@ function getSdkMode(providerId: string): "openai" | "anthropic" | "mixed" {
 	);
 	const hasAnthropic = modes.has("anthropic");
 	const hasOpenAI = modes.has("openai");
+	const hasGemini = modes.has("gemini");
+	const concreteModesCount = [hasAnthropic, hasOpenAI, hasGemini].filter(
+		Boolean,
+	).length;
 
-	if (hasAnthropic && hasOpenAI) {
+	if (concreteModesCount > 1) {
 		return "mixed";
 	}
 	if (hasAnthropic) {
 		return "anthropic";
+	}
+	if (hasGemini) {
+		return "gemini";
 	}
 	return "openai";
 }

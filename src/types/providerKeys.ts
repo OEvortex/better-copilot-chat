@@ -52,7 +52,7 @@ export interface ProviderMetadata {
 	key?: ProviderKey;
 	displayName: string;
 	category: ProviderCategory;
-	sdkMode?: "openai" | "anthropic" | "mixed";
+	sdkMode?: "openai" | "anthropic" | "gemini" | "mixed";
 	description?: string;
 	icon?: string;
 	settingsPrefix?: string;

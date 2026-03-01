@@ -353,8 +353,8 @@ export class TokenCounter {
 
 		const sdkMode = modelConfig?.sdkMode || "openai";
 
-		if (sdkMode === "anthropic") {
-			// Add system message and tool token costs for Anthropic SDK mode
+		if (sdkMode === "anthropic" || sdkMode === "gemini") {
+			// Add system message and tool token costs for Anthropic/Gemini SDK modes
 			// Calculate system message token cost
 			const systemMessageTokens = this.countSystemMessageTokens(messages);
 			if (systemMessageTokens > 0) {

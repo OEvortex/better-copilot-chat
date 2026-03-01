@@ -26,8 +26,9 @@ export interface ModelConfig {
 	 * SDK mode selection (optional)
 	 * - "anthropic": Use Anthropic SDK
 	 * - "openai": Use OpenAI SDK (default)
+	 * - "gemini": Use Gemini SDK-compatible request format
 	 */
-	sdkMode?: "anthropic" | "openai";
+	sdkMode?: "anthropic" | "openai" | "gemini";
 	/**
 	 * Model-specific baseUrl (optional)
 	 * If provided, will override provider-level baseUrl
@@ -87,8 +88,8 @@ export interface ModelOverride {
 	maxInputTokens?: number;
 	/** Override maximum output token count */
 	maxOutputTokens?: number;
-	/** Override SDK mode: openai (OpenAI compatible format) or anthropic (Anthropic compatible format) */
-	sdkMode?: "anthropic" | "openai";
+	/** Override SDK mode: openai, anthropic, or gemini (Gemini-compatible format) */
+	sdkMode?: "anthropic" | "openai" | "gemini";
 	/** Merge capabilities (will be merged with original capabilities) */
 	capabilities?: {
 		toolCalling?: boolean;

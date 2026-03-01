@@ -32,6 +32,12 @@ export { CompatibleModelManager } from "./compatibleModelManager";
 export { CompletionLogger } from "./completionLogger";
 export { ConfigManager } from "./configManager";
 export {
+	balanceGeminiFunctionCallResponses,
+	convertMessagesToGemini,
+	sanitizeGeminiToolSchema,
+	validateGeminiPartsBalance,
+} from "./geminiSdkCommon";
+export {
 	getDefaultMaxOutputTokensForContext,
 	isDeepSeekModel,
 	isGemini2Model,

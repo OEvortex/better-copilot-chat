@@ -121,7 +121,7 @@ export class AntigravityProvider
 			this.cachedModels = models.map((m) => {
 				// Find override for this model
 				const override = modelOverrides.find((o) => o.id === m.id);
-				const effectiveSdkMode = override?.sdkMode || 'anthropic';
+				const effectiveSdkMode = override?.sdkMode || 'gemini';
 
 				// Calculate context window split: 200K+ = 32K output, <200K = 16K output
 				const totalContext = m.maxTokens || 200000;

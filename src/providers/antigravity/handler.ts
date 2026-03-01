@@ -409,7 +409,7 @@ export class AntigravityHandler {
                             const promptTokens = await TokenCounter.getInstance().countMessagesTokens(
                                 model,
                                 [...messages],
-                                { sdkMode: modelConfig.sdkMode || 'openai' },
+                                { sdkMode: modelConfig.sdkMode || 'gemini' },
                                 options
                             );
                             TokenTelemetryTracker.getInstance().recordSuccess({

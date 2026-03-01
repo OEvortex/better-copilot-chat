@@ -229,10 +229,11 @@ export class JsonSchemaProvider {
 							},
 							sdkMode: {
 								type: "string",
-								enum: ["openai", "anthropic"],
+								enum: ["openai", "anthropic", "gemini"],
 								enumDescriptions: [
 									"OpenAI SDK standard mode, uses official OpenAI SDK for request/response processing",
 									"Anthropic SDK standard mode, uses official Anthropic SDK for request/response processing",
+									"Gemini SDK standard mode, uses Gemini-compatible request/response processing",
 								],
 								description: "SDK mode defaults to openai.",
 								default: "openai",
@@ -404,9 +405,9 @@ export class JsonSchemaProvider {
 							},
 							sdkMode: {
 								type: "string",
-								enum: ["openai", "anthropic"],
+								enum: ["openai", "anthropic", "gemini"],
 								description:
-									"Override SDK mode: openai (OpenAI compatible format) or anthropic (Anthropic compatible format)",
+									"Override SDK mode: openai (OpenAI compatible format), anthropic (Anthropic compatible format), or gemini (Gemini-compatible format)",
 							},
 							baseUrl: {
 								type: "string",

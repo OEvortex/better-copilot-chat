@@ -45,7 +45,7 @@ export interface CompatibleModelConfig {
 	/** Maximum output tokens */
 	maxOutputTokens: number;
 	/** SDK mode */
-	sdkMode?: "anthropic" | "openai";
+	sdkMode?: "anthropic" | "openai" | "gemini";
 	/** Model capabilities */
 	capabilities: {
 		/** Tool calling */
@@ -571,7 +571,7 @@ export class CompatibleModelManager {
 			for (const model of CompatibleModelManager.models) {
 				const details: string[] = [
 					`$(arrow-up) ${model.maxInputTokens} $(arrow-down) ${model.maxOutputTokens}`,
-					`$(chip) ${model.sdkMode === "openai" ? "OpenAI" : "Anthropic"}`,
+					`$(chip) ${model.sdkMode === "openai" ? "OpenAI" : model.sdkMode === "gemini" ? "Gemini" : "Anthropic"}`,
 				];
 				if (model.capabilities.toolCalling) {
 					details.push("$(plug) Tool calling");
@@ -692,7 +692,7 @@ export class CompatibleModelManager {
 			(model) => ({
 				label: model.name,
 				description: model.id,
-				detail: `$(chip) ${model.sdkMode === "openai" ? "OpenAI" : "Anthropic"} | Provider: ${model.provider || "compatible"}`,
+				detail: `$(chip) ${model.sdkMode === "openai" ? "OpenAI" : model.sdkMode === "gemini" ? "Gemini" : "Anthropic"} | Provider: ${model.provider || "compatible"}`,
 				modelId: model.id,
 			}),
 		);
