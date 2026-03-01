@@ -23,10 +23,6 @@ export interface KnownProviderConfig
 	anthropic?: Omit<ModelOverride, "id">;
 	/** Provider description for settings and UI metadata */
 	description?: string;
-	/** Provider icon for settings and UI metadata */
-	icon?: string;
-	/** Provider ordering index for settings and UI metadata */
-	order?: number;
 	/** Provider settings prefix override */
 	settingsPrefix?: string;
 	/** Whether provider uses a specialized provider implementation */
@@ -50,14 +46,26 @@ export interface KnownProviderConfig
  * @type {(Record<string, KnownProviderConfig>)}
  * @memberof CompatibleModelManager
  */
-export const KnownProviders: Record<string, KnownProviderConfig> = {
-	antigravity: {
-		displayName: "Antigravity",
-		description: "Google Cloud Code integration",
-		icon: "☁️",
-		order: 10,
-		settingsPrefix: "chp.antigravity",
-	},
+const SPECIALIZED_PROVIDER_KEYS = new Set<string>([
+	"blackbox",
+	"chutes",
+	"deepinfra",
+	"geminicli",
+	"huggingface",
+	"kilo",
+	"lightningai",
+	"minimax",
+	"mistral",
+	"moonshot",
+	"nvidia",
+	"ollama",
+	"opencode",
+	"qwencli",
+	"zenmux",
+	"zhipu",
+]);
+
+const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 	aihubmix: {
 		displayName: "AIHubMix",
 		customHeader: { "APP-Code": "TFUV4759" },
@@ -72,186 +80,92 @@ export const KnownProviders: Record<string, KnownProviderConfig> = {
 		},
 	},
 	aiping: { displayName: "AIPing" },
-	codex: {
-		displayName: "Codex",
-		description: "OpenAI Codex specialized coding provider",
-		icon: "🤖",
-		order: 20,
-		settingsPrefix: "chp.codex",
-	},
-	zhipu: {
-		displayName: "Zhipu AI",
-		description: "GLM family models and coding plan features",
-		icon: "🧠",
-		order: 30,
-		settingsPrefix: "chp.zhipu",
-		specializedFactory: true,
-	},
-	moonshot: {
-		displayName: "Moonshot AI",
-		description: "MoonshotAI Kimi model family",
-		icon: "🌙",
-		order: 40,
-		settingsPrefix: "chp.moonshot",
-		specializedFactory: true,
-	},
-	minimax: {
-		displayName: "MiniMax",
-		description: "MiniMax family models with coding endpoint options",
-		icon: "⚡",
-		order: 50,
-		settingsPrefix: "chp.minimax",
-		specializedFactory: true,
-	},
-	deepseek: {
-		displayName: "DeepSeek",
-		description: "DeepSeek model family",
-		icon: "🔍",
-		order: 60,
-		settingsPrefix: "chp.deepseek",
-	},
-	modelscope: { displayName: "ModelScope" },
-	openrouter: { displayName: "OpenRouter" },
-	siliconflow: { displayName: "SiliconFlow" },
-	tbox: { displayName: "Bailian" },
-	chutes: {
-		displayName: "Chutes",
-		description: "Chutes AI endpoint integration",
-		icon: "📦",
-		order: 100,
-		settingsPrefix: "chp.chutes",
-		specializedFactory: true,
-	},
-	opencode: {
-		displayName: "OpenCode",
-		description: "OpenCode endpoint integration",
-		icon: "🧩",
-		order: 110,
-		settingsPrefix: "chp.opencode",
-		specializedFactory: true,
+	antigravity: {
+		description: "Google Cloud Code integration",
 	},
 	blackbox: {
-		displayName: "Blackbox AI",
 		description: "Blackbox AI - works without API key",
-		icon: "⬛",
-		order: 120,
-		settingsPrefix: "chp.blackbox",
-		specializedFactory: true,
-		openai: { baseUrl: "https://oi-vscode-server-985058387028.europe-west1.run.app" }
 	},
 	chatjimmy: {
-		displayName: "ChatJimmy",
 		description: "ChatJimmy - free public API, no auth required",
-		icon: "💬",
-		order: 125,
-		settingsPrefix: "chp.chatjimmy",
 	},
-	huggingface: {
-		displayName: "Hugging Face",
-		description: "Hugging Face Router endpoint integration",
-		icon: "🤗",
-		order: 130,
-		settingsPrefix: "chp.huggingface",
-		specializedFactory: true,
+	chutes: {
+		description: "Chutes AI endpoint integration",
 	},
-	lightningai: {
-		displayName: "Lightning AI",
-		description: "LightningAI endpoint integration",
-		icon: "⚡",
-		order: 140,
-		settingsPrefix: "chp.lightningai",
-		specializedFactory: true,
-		openai: {
-			baseUrl: "https://lightning.ai/api/v1",
-		},
-	},
-	kilo: {
-		displayName: "Kilo AI",
-		icon: "⚙️",
-		order: 145,
-		settingsPrefix: "chp.kilo",
-		specializedFactory: true,
-		openai: {
-			baseUrl: "https://api.kilo.ai/api/gateway",
-		},
-	},
-	zenmux: {
-		displayName: "Zenmux",
-		description: "Zenmux endpoint integration",
-		icon: "🧬",
-		order: 150,
-		settingsPrefix: "chp.zenmux",
-		specializedFactory: true,
-		openai: {
-			baseUrl: "https://zenmux.ai/api/v1",
-		},
-	},
-	deepinfra: {
-		displayName: "DeepInfra",
-		description: "OpenAI-compatible endpoints from DeepInfra",
-		icon: "🛰️",
-		order: 70,
-		settingsPrefix: "chp.deepinfra",
-		specializedFactory: true,
-		openai: {
-			baseUrl: "https://api.deepinfra.com/v1/openai",
-		},
-	},
-	nvidia: {
-		displayName: "NVIDIA NIM",
-		description: "NVIDIA NIM hosted model endpoints",
-		icon: "🟢",
-		order: 80,
-		settingsPrefix: "chp.nvidia",
-		specializedFactory: true,
-		openai: {
-			baseUrl: "https://integrate.api.nvidia.com/v1",
-		},
-	},
-	mistral: {
-		displayName: "Mistral AI",
-		description: "Mistral AI model endpoints",
-		icon: "🌪️",
-		order: 90,
-		settingsPrefix: "chp.mistral",
-		specializedFactory: true,
-		openai: {
-			baseUrl: "https://api.mistral.ai/v1",
-		},
-	},
-	qwencli: {
-		displayName: "Qwen Code CLI",
-		description: "Qwen CLI OAuth provider",
-		icon: "🪄",
-		order: 160,
-		settingsPrefix: "chp.qwencli",
-		specializedFactory: true,
-	},
-	geminicli: {
-		displayName: "Gemini CLI",
-		description: "Gemini CLI OAuth provider",
-		icon: "💎",
-		order: 170,
-		settingsPrefix: "chp.geminicli",
-		specializedFactory: true,
-	},
-	ollama: {
-		displayName: "Ollama",
-		description:
-			"Ollama - use Ollama's OpenAI compatible API (v1/chat/completions)",
-		icon: "🦙",
-		order: 180,
-		settingsPrefix: "chp.ollama",
-		specializedFactory: true,
+	codex: {
+		description: "OpenAI Codex specialized coding provider",
 	},
 	compatible: {
 		displayName: "OpenAI/Anthropic Compatible",
 		description: "Custom OpenAI/Anthropic compatible models",
-		icon: "🔌",
-		order: 190,
 		settingsPrefix: "chp.compatibleModels",
 	},
+	deepinfra: {
+		description: "OpenAI-compatible endpoints from DeepInfra",
+	},
+	deepseek: {
+		description: "DeepSeek model family",
+	},
+	geminicli: {
+		description: "Gemini CLI OAuth provider",
+	},
+	huggingface: {
+		description: "Hugging Face Router endpoint integration",
+	},
+	kilo: {
+		description: "Kilo AI endpoint integration",
+	},
+	lightningai: {
+		description: "LightningAI endpoint integration",
+	},
+	minimax: {
+		description: "MiniMax family models with coding endpoint options",
+	},
+	mistral: {
+		description: "Mistral AI model endpoints",
+	},
+	modelscope: { displayName: "ModelScope" },
+	moonshot: {
+		description: "MoonshotAI Kimi model family",
+	},
+	nvidia: {
+		description: "NVIDIA NIM hosted model endpoints",
+	},
+	ollama: {
+		description:
+			"Ollama - use Ollama's OpenAI compatible API (v1/chat/completions)",
+	},
+	opencode: {
+		description: "OpenCode endpoint integration",
+	},
+	openrouter: { displayName: "OpenRouter" },
+	qwencli: {
+		description: "Qwen CLI OAuth provider",
+	},
+	siliconflow: { displayName: "SiliconFlow" },
+	tbox: { displayName: "Bailian" },
+	zenmux: {
+		description: "Zenmux endpoint integration",
+	},
+	zhipu: {
+		displayName: "Zhipu AI",
+		description: "GLM family models and coding plan features",
+	},
 };
+
+export const KnownProviders: Record<string, KnownProviderConfig> =
+	Object.fromEntries(
+		Object.entries(knownProviderOverrides)
+			.sort((left, right) => left[0].localeCompare(right[0]))
+			.map(([providerId, config]) => {
+				const normalizedConfig: KnownProviderConfig = { ...config };
+				if (normalizedConfig.specializedFactory === undefined) {
+					normalizedConfig.specializedFactory =
+						SPECIALIZED_PROVIDER_KEYS.has(providerId);
+				}
+				return [providerId, normalizedConfig];
+			}),
+	);
 
 export type RegisteredProvider = {
 	dispose?: () => void;
@@ -268,97 +182,105 @@ type ProviderFactory = (
 	providerConfig: ProviderConfig,
 ) => Promise<ProviderFactoryResult>;
 
+type ProviderFactoryModule = Record<string, unknown>;
+
+function createLazyFactory(
+	loadFactoryModule: () => Promise<ProviderFactoryModule>,
+	exportName: string,
+): ProviderFactory {
+	return async (context, providerKey, providerConfig) => {
+		const providerModule = await loadFactoryModule();
+		const providerFactory = providerModule[exportName] as {
+			createAndActivate: (
+				context: vscode.ExtensionContext,
+				providerKey: string,
+				providerConfig: ProviderConfig,
+			) => ProviderFactoryResult;
+		};
+		return providerFactory.createAndActivate(
+			context,
+			providerKey,
+			providerConfig,
+		);
+	};
+}
+
 const specializedProviderFactories: Record<string, ProviderFactory> = {
-	zhipu: async (context, providerKey, providerConfig) => {
-		const { ZhipuProvider } = await import("../providers/zhipu/zhipuProvider.js");
-		return ZhipuProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	minimax: async (context, providerKey, providerConfig) => {
-		const { MiniMaxProvider } = await import("../providers/minimax/minimaxProvider.js");
-		return MiniMaxProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	chutes: async (context, providerKey, providerConfig) => {
-		const { ChutesProvider } = await import("../providers/chutes/chutesProvider.js");
-		return ChutesProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	zenmux: async (context, providerKey, providerConfig) => {
-		const { ZenmuxProvider } = await import("../providers/zenmux/provider.js");
-		return ZenmuxProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	lightningai: async (context, providerKey, providerConfig) => {
-		const { LightningAIProvider } = await import("../providers/lightningai/provider.js");
-		return LightningAIProvider.createAndActivate(
-			context,
-			providerKey,
-			providerConfig,
-		);
-	},
-	opencode: async (context, providerKey, providerConfig) => {
-		const { OpenCodeProvider } = await import("../providers/opencode/opencodeProvider.js");
-		return OpenCodeProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	qwencli: async (context, providerKey, providerConfig) => {
-		const { QwenCliProvider } = await import("../providers/qwencli/provider.js");
-		return QwenCliProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	geminicli: async (context, providerKey, providerConfig) => {
-		const { GeminiCliProvider } = await import("../providers/geminicli/provider.js");
-		return GeminiCliProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	huggingface: async (context, providerKey, providerConfig) => {
-		const { HuggingfaceProvider } = await import("../providers/huggingface/provider.js");
-		return HuggingfaceProvider.createAndActivate(
-			context,
-			providerKey,
-			providerConfig,
-		);
-	},
-	kilo: async (context, providerKey, providerConfig) => {
-		const { KiloProvider } = await import("../providers/kilo/provider.js");
-		return KiloProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	deepinfra: async (context, providerKey, providerConfig) => {
-		const { DeepInfraProvider } = await import("../providers/deepinfra/deepinfraProvider.js");
-		return DeepInfraProvider.createAndActivate(
-			context,
-			providerKey,
-			providerConfig,
-		);
-	},
-	mistral: async (context, providerKey, providerConfig) => {
-		const { MistralProvider } = await import("../providers/mistral/mistralProvider.js");
-		return MistralProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	moonshot: async (context, providerKey, providerConfig) => {
-		const { MoonshotProvider } = await import("../providers/moonshot/moonshotProvider.js");
-		return MoonshotProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	nvidia: async (context, providerKey, providerConfig) => {
-		const { NvidiaProvider } = await import("../providers/nvidia/index.js");
-		return NvidiaProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	ollama: async (context, providerKey, providerConfig) => {
-		const { OllamaProvider } = await import("../providers/ollama/index.js");
-		return OllamaProvider.createAndActivate(context, providerKey, providerConfig);
-	},
-	blackbox: async (context, providerKey, providerConfig) => {
-		const { BlackboxProvider } = await import("../providers/blackbox/index.js");
-		return BlackboxProvider.createAndActivate(context, providerKey, providerConfig);
-	},
+	blackbox: createLazyFactory(
+		() => import("../providers/blackbox/index.js"),
+		"BlackboxProvider",
+	),
+	chutes: createLazyFactory(
+		() => import("../providers/chutes/chutesProvider.js"),
+		"ChutesProvider",
+	),
+	deepinfra: createLazyFactory(
+		() => import("../providers/deepinfra/deepinfraProvider.js"),
+		"DeepInfraProvider",
+	),
+	geminicli: createLazyFactory(
+		() => import("../providers/geminicli/provider.js"),
+		"GeminiCliProvider",
+	),
+	huggingface: createLazyFactory(
+		() => import("../providers/huggingface/provider.js"),
+		"HuggingfaceProvider",
+	),
+	kilo: createLazyFactory(
+		() => import("../providers/kilo/provider.js"),
+		"KiloProvider",
+	),
+	lightningai: createLazyFactory(
+		() => import("../providers/lightningai/provider.js"),
+		"LightningAIProvider",
+	),
+	minimax: createLazyFactory(
+		() => import("../providers/minimax/minimaxProvider.js"),
+		"MiniMaxProvider",
+	),
+	mistral: createLazyFactory(
+		() => import("../providers/mistral/mistralProvider.js"),
+		"MistralProvider",
+	),
+	moonshot: createLazyFactory(
+		() => import("../providers/moonshot/moonshotProvider.js"),
+		"MoonshotProvider",
+	),
+	nvidia: createLazyFactory(
+		() => import("../providers/nvidia/index.js"),
+		"NvidiaProvider",
+	),
+	ollama: createLazyFactory(
+		() => import("../providers/ollama/index.js"),
+		"OllamaProvider",
+	),
+	opencode: createLazyFactory(
+		() => import("../providers/opencode/opencodeProvider.js"),
+		"OpenCodeProvider",
+	),
+	qwencli: createLazyFactory(
+		() => import("../providers/qwencli/provider.js"),
+		"QwenCliProvider",
+	),
+	zenmux: createLazyFactory(
+		() => import("../providers/zenmux/provider.js"),
+		"ZenmuxProvider",
+	),
+	zhipu: createLazyFactory(
+		() => import("../providers/zhipu/zhipuProvider.js"),
+		"ZhipuProvider",
+	),
 };
 
 async function registerProvider(
 	context: vscode.ExtensionContext,
 	providerKey: string,
 	providerConfig: ProviderConfig,
-): Promise<
-	| {
-			providerKey: string;
-			provider: RegisteredProvider;
-			disposables: vscode.Disposable[];
-	  }
-	| null
-> {
+): Promise<{
+	providerKey: string;
+	provider: RegisteredProvider;
+	disposables: vscode.Disposable[];
+} | null> {
 	try {
 		const providerDisplayName =
 			providerConfig.displayName ||
@@ -556,18 +478,19 @@ export function getAllProviders(): ProviderMetadata[] {
 				id: providerId,
 				key: toProviderKey(providerId),
 				displayName:
-					knownProvider?.displayName || providerConfig.displayName || providerId,
+					knownProvider?.displayName ||
+					providerConfig.displayName ||
+					providerId,
 				category: resolveCategory(providerId, features),
 				sdkMode: getSdkMode(providerId),
 				description: knownProvider?.description,
-				icon: knownProvider?.icon || "🤖",
 				settingsPrefix: knownProvider?.settingsPrefix || `chp.${providerId}`,
 				baseUrl:
 					providerConfig.baseUrl ||
 					knownProvider?.baseUrl ||
 					knownProvider?.openai?.baseUrl,
 				features,
-				order: knownProvider?.order || 999,
+				order: 0,
 			};
 		},
 	);
@@ -582,18 +505,18 @@ export function getAllProviders(): ProviderMetadata[] {
 			category: ProviderCategory.OpenAI,
 			sdkMode: "mixed",
 			description: compatibleProvider?.description,
-			icon: compatibleProvider?.icon || "🔌",
 			settingsPrefix:
 				compatibleProvider?.settingsPrefix || "chp.compatibleModels",
 			baseUrl: "",
 			features: getDefaultFeatures(ProviderKey.Compatible),
-			order: compatibleProvider?.order || 999,
+			order: 0,
 		});
 	}
 
-	metadata.sort(
-		(a, b) => a.order - b.order || a.displayName.localeCompare(b.displayName),
-	);
+	metadata.sort((a, b) => a.id.localeCompare(b.id));
+	for (const [index, provider] of metadata.entries()) {
+		provider.order = index + 1;
+	}
 	providerRegistryCache = metadata;
 	return metadata;
 }
