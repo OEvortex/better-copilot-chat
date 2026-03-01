@@ -4,84 +4,24 @@
     "apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "models": [
         {
+            "id": "glm-4-7",
+            "name": "glm-4.7",
+            "tooltip": "glm-4.7 by Ollama Cloud",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "glm-4.7",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
             "id": "glm-5",
             "name": "glm-5",
             "tooltip": "glm-5 by Ollama Cloud",
             "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
             "model": "glm-5",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "gpt-oss-120b",
-            "name": "gpt-oss:120b",
-            "tooltip": "gpt-oss:120b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "gpt-oss:120b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "nemotron-3-nano-30b",
-            "name": "nemotron-3-nano:30b",
-            "tooltip": "nemotron-3-nano:30b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "nemotron-3-nano:30b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "qwen3-vl-235b-instruct",
-            "name": "qwen3-vl:235b-instruct",
-            "tooltip": "qwen3-vl:235b-instruct by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "qwen3-vl:235b-instruct",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "minimax-m2-1",
-            "name": "minimax-m2.1",
-            "tooltip": "minimax-m2.1 by Ollama Cloud",
-            "maxInputTokens": 172032,
-            "maxOutputTokens": 32768,
-            "model": "minimax-m2.1",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "gemma3-27b",
-            "name": "gemma3:27b",
-            "tooltip": "gemma3:27b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "gemma3:27b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "kimi-k2-1t",
-            "name": "kimi-k2:1t",
-            "tooltip": "kimi-k2:1t by Ollama Cloud",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "kimi-k2:1t",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -100,60 +40,72 @@
             }
         },
         {
-            "id": "minimax-m2-5",
-            "name": "minimax-m2.5",
-            "tooltip": "minimax-m2.5 by Ollama Cloud",
+            "id": "minimax-m2",
+            "name": "minimax-m2",
+            "tooltip": "minimax-m2 by Ollama Cloud",
             "maxInputTokens": 172032,
             "maxOutputTokens": 32768,
-            "model": "minimax-m2.5",
+            "model": "minimax-m2",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
             }
         },
         {
-            "id": "ministral-3-3b",
-            "name": "ministral-3:3b",
-            "tooltip": "ministral-3:3b by Ollama Cloud",
+            "id": "kimi-k2-5",
+            "name": "kimi-k2.5",
+            "tooltip": "kimi-k2.5 by Ollama Cloud",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "kimi-k2.5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "qwen3-next-80b",
+            "name": "qwen3-next:80b",
+            "tooltip": "qwen3-next:80b by Ollama Cloud",
             "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
-            "model": "ministral-3:3b",
+            "model": "qwen3-next:80b",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
             }
         },
         {
-            "id": "ministral-3-8b",
-            "name": "ministral-3:8b",
-            "tooltip": "ministral-3:8b by Ollama Cloud",
+            "id": "gpt-oss-120b",
+            "name": "gpt-oss:120b",
+            "tooltip": "gpt-oss:120b by Ollama Cloud",
             "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
-            "model": "ministral-3:8b",
+            "model": "gpt-oss:120b",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
             }
         },
         {
-            "id": "cogito-2-1-671b",
-            "name": "cogito-2.1:671b",
-            "tooltip": "cogito-2.1:671b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "cogito-2.1:671b",
+            "id": "kimi-k2-1t",
+            "name": "kimi-k2:1t",
+            "tooltip": "kimi-k2:1t by Ollama Cloud",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "kimi-k2:1t",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
             }
         },
         {
-            "id": "qwen3-coder-next",
-            "name": "qwen3-coder-next",
-            "tooltip": "qwen3-coder-next by Ollama Cloud",
+            "id": "nemotron-3-nano-30b",
+            "name": "nemotron-3-nano:30b",
+            "tooltip": "nemotron-3-nano:30b by Ollama Cloud",
             "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
-            "model": "qwen3-coder-next",
+            "model": "nemotron-3-nano:30b",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -166,6 +118,102 @@
             "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
             "model": "gpt-oss:20b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen3-vl-235b-instruct",
+            "name": "qwen3-vl:235b-instruct",
+            "tooltip": "qwen3-vl:235b-instruct by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "qwen3-vl:235b-instruct",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "qwen3-vl-235b",
+            "name": "qwen3-vl:235b",
+            "tooltip": "qwen3-vl:235b by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "qwen3-vl:235b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "minimax-m2-5",
+            "name": "minimax-m2.5",
+            "tooltip": "minimax-m2.5 by Ollama Cloud",
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
+            "model": "minimax-m2.5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "mistral-large-3-675b",
+            "name": "mistral-large-3:675b",
+            "tooltip": "mistral-large-3:675b by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "mistral-large-3:675b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "devstral-small-2-24b",
+            "name": "devstral-small-2:24b",
+            "tooltip": "devstral-small-2:24b by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "devstral-small-2:24b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-v3-2",
+            "name": "deepseek-v3.2",
+            "tooltip": "deepseek-v3.2 by Ollama Cloud",
+            "maxInputTokens": 147456,
+            "maxOutputTokens": 16384,
+            "model": "deepseek-v3.2",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "deepseek-v3-1-671b",
+            "name": "deepseek-v3.1:671b",
+            "tooltip": "deepseek-v3.1:671b by Ollama Cloud",
+            "maxInputTokens": 147456,
+            "maxOutputTokens": 16384,
+            "model": "deepseek-v3.1:671b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "ministral-3-14b",
+            "name": "ministral-3:14b",
+            "tooltip": "ministral-3:14b by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "ministral-3:14b",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -196,36 +244,72 @@
             }
         },
         {
-            "id": "glm-4-7",
-            "name": "glm-4.7",
-            "tooltip": "glm-4.7 by Ollama Cloud",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "glm-4.7",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "deepseek-v3-1-671b",
-            "name": "deepseek-v3.1:671b",
-            "tooltip": "deepseek-v3.1:671b by Ollama Cloud",
-            "maxInputTokens": 147456,
-            "maxOutputTokens": 16384,
-            "model": "deepseek-v3.1:671b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "mistral-large-3-675b",
-            "name": "mistral-large-3:675b",
-            "tooltip": "mistral-large-3:675b by Ollama Cloud",
+            "id": "gemma3-27b",
+            "name": "gemma3:27b",
+            "tooltip": "gemma3:27b by Ollama Cloud",
             "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
-            "model": "mistral-large-3:675b",
+            "model": "gemma3:27b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "cogito-2-1-671b",
+            "name": "cogito-2.1:671b",
+            "tooltip": "cogito-2.1:671b by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "cogito-2.1:671b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen3-coder-next",
+            "name": "qwen3-coder-next",
+            "tooltip": "qwen3-coder-next by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "qwen3-coder-next",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "minimax-m2-1",
+            "name": "minimax-m2.1",
+            "tooltip": "minimax-m2.1 by Ollama Cloud",
+            "maxInputTokens": 172032,
+            "maxOutputTokens": 32768,
+            "model": "minimax-m2.1",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "ministral-3-3b",
+            "name": "ministral-3:3b",
+            "tooltip": "ministral-3:3b by Ollama Cloud",
+            "maxInputTokens": 114688,
+            "maxOutputTokens": 16384,
+            "model": "ministral-3:3b",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "devstral-2-123b",
+            "name": "devstral-2:123b",
+            "tooltip": "devstral-2:123b by Ollama Cloud",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "devstral-2:123b",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -256,51 +340,15 @@
             }
         },
         {
-            "id": "qwen3-next-80b",
-            "name": "qwen3-next:80b",
-            "tooltip": "qwen3-next:80b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "qwen3-next:80b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "minimax-m2",
-            "name": "minimax-m2",
-            "tooltip": "minimax-m2 by Ollama Cloud",
-            "maxInputTokens": 172032,
-            "maxOutputTokens": 32768,
-            "model": "minimax-m2",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "ministral-3-14b",
-            "name": "ministral-3:14b",
-            "tooltip": "ministral-3:14b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "ministral-3:14b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "kimi-k2-5",
-            "name": "kimi-k2.5",
-            "tooltip": "kimi-k2.5 by Ollama Cloud",
+            "id": "glm-4-6",
+            "name": "glm-4.6",
+            "tooltip": "glm-4.6 by Ollama Cloud",
             "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
-            "model": "kimi-k2.5",
+            "model": "glm-4.6",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": true
+                "imageInput": false
             }
         },
         {
@@ -316,48 +364,12 @@
             }
         },
         {
-            "id": "deepseek-v3-2",
-            "name": "deepseek-v3.2",
-            "tooltip": "deepseek-v3.2 by Ollama Cloud",
-            "maxInputTokens": 147456,
-            "maxOutputTokens": 16384,
-            "model": "deepseek-v3.2",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "qwen3-vl-235b",
-            "name": "qwen3-vl:235b",
-            "tooltip": "qwen3-vl:235b by Ollama Cloud",
+            "id": "ministral-3-8b",
+            "name": "ministral-3:8b",
+            "tooltip": "ministral-3:8b by Ollama Cloud",
             "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
-            "model": "qwen3-vl:235b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": true
-            }
-        },
-        {
-            "id": "devstral-2-123b",
-            "name": "devstral-2:123b",
-            "tooltip": "devstral-2:123b by Ollama Cloud",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "devstral-2:123b",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
-            "id": "devstral-small-2-24b",
-            "name": "devstral-small-2:24b",
-            "tooltip": "devstral-small-2:24b by Ollama Cloud",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
-            "model": "devstral-small-2:24b",
+            "model": "ministral-3:8b",
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
@@ -373,18 +385,6 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
-            }
-        },
-        {
-            "id": "glm-4-6",
-            "name": "glm-4.6",
-            "tooltip": "glm-4.6 by Ollama Cloud",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "glm-4.6",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
             }
         }
     ]

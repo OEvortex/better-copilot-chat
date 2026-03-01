@@ -86,6 +86,22 @@ All notable changes to this project will be documented in this file.
 - **Faster Startup**: Extension now returns static config models immediately during startup (silent mode) for faster initialization.
 - **Improved Model Discovery**: In non-silent mode (when user interacts with chat), models are fetched from the API in the background and the model list is automatically refreshed.
 
+### Code Refactoring
+
+**Gemini SDK Consolidation:**
+- **New `gemini` SDK Mode**: Introduced dedicated `sdkMode: "gemini"` type for providers using Gemini-compatible APIs (Antigravity and Gemini CLI).
+- **Shared Gemini SDK Utilities** (`src/utils/geminiSdkCommon.ts`): Centralized common logic for Gemini-compatible providers:
+  - `sanitizeGeminiToolSchema`: Tool schema sanitization for Gemini API compatibility.
+  - `convertMessagesToGemini`: Message format conversion to Gemini-compatible structure.
+  - `validateGeminiPartsBalance`: Validation for function call/response pairing.
+  - `balanceGeminiFunctionCallResponses`: Automatic balancing of function calls and responses.
+- **Shared Stream Processor** (`src/utils/geminiStreamProcessor.ts`): Unified `GeminiStreamProcessor` class for SSE streaming:
+  - Handles SSE streaming, thinking tags, tool calls, adaptive buffering.
+  - Supports both Antigravity and Gemini CLI providers via `GeminiStreamHandler` interface.
+  - Consolidated ~1,500 lines of duplicate code from separate processor implementations.
+- **Updated Model Configs**: Changed sdkMode from `"anthropic"`/`"openai"` to `"gemini"` for all Gemini-compatible models in `antigravity.json` and `geminicli.json`.
+- **Token Counter Updates**: Gemini mode now uses Anthropic-style token counting (system message + tool definition costs).
+
 ## [0.2.5] - 2026-02-25
 
 ### Added
