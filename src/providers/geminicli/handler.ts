@@ -6,7 +6,6 @@ import { ConfigManager } from "../../utils/configManager";
 import {
 	balanceGeminiFunctionCallResponses,
 	convertMessagesToGemini as convertMessagesToGeminiCommon,
-	type GeminiSdkContent,
 	sanitizeGeminiToolSchema,
 	validateGeminiPartsBalance,
 } from "../../utils/geminiSdkCommon";
@@ -99,10 +98,6 @@ export function isPermissionDeniedError(
 		/* Ignore JSON parse errors */
 	}
 	return false;
-}
-
-function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
-	return sanitizeGeminiToolSchema(schema);
 }
 
 export function extractToolCallFromGeminiResponse(
@@ -260,38 +255,7 @@ export function parseGeminiSSECandidates(
 	return aggregatedCandidates;
 }
 
-class MessageConverter {
-	convertMessagesToGemini(
-		messages: readonly vscode.LanguageModelChatMessage[],
-		modelConfig: ModelConfig,
-		resolvedModelName?: string,
-	): {
-		contents: GeminiContent[];
-		systemInstruction?: Record<string, unknown>;
-	} {
-		const converted = convertMessagesToGeminiCommon(messages, modelConfig, {
-			resolvedModelName,
-			getThoughtSignature: (callId) => thoughtSignatureStore.get(callId),
-			storeThoughtSignature: (callId, signature) => {
-				if (callId && signature) {
-					thoughtSignatureStore.set(callId, signature);
-				}
-			},
-			fallbackThoughtSignature: FALLBACK_THOUGHT_SIGNATURE,
-			normalizeToolCallArgs: true,
-			skipThinkingPartWhenToolCalls: true,
-		});
-
-		return {
-			contents: converted.contents as unknown as GeminiContent[],
-			systemInstruction: converted.systemInstruction as Record<string, unknown> | undefined,
-		};
-	}
-}
-
 class FromIRTranslator {
-	private readonly messageConverter = new MessageConverter();
-
 	buildGeminiPayload(
 		model: vscode.LanguageModelChatInformation,
 		modelConfig: ModelConfig,
@@ -304,12 +268,22 @@ class FromIRTranslator {
 			model.maxOutputTokens,
 		);
 		const resolvedModel = modelName.toLowerCase();
-		const { contents, systemInstruction } =
-			this.messageConverter.convertMessagesToGemini(
-				messages,
-				modelConfig,
-				resolvedModel,
-			);
+		const { contents, systemInstruction } = convertMessagesToGeminiCommon(
+			messages,
+			modelConfig,
+			{
+				resolvedModelName: resolvedModel,
+				getThoughtSignature: (callId) => thoughtSignatureStore.get(callId),
+				storeThoughtSignature: (callId, signature) => {
+					if (callId && signature) {
+						thoughtSignatureStore.set(callId, signature);
+					}
+				},
+				fallbackThoughtSignature: FALLBACK_THOUGHT_SIGNATURE,
+				normalizeToolCallArgs: true,
+				skipThinkingPartWhenToolCalls: true,
+			},
+		);
 		const isClaudeThinkingModel =
 			resolvedModel.includes("claude") && resolvedModel.includes("thinking");
 		const isThinkingEnabled =
@@ -390,7 +364,7 @@ class FromIRTranslator {
 						description: tool.description || "",
 						parameters:
 							tool.inputSchema && typeof tool.inputSchema === "object"
-								? sanitizeToolSchema(tool.inputSchema)
+								? sanitizeGeminiToolSchema(tool.inputSchema)
 								: { type: "object", properties: {} },
 					})),
 				},
@@ -419,39 +393,14 @@ class FromIRTranslator {
 		}
 
 		// DEBUG: Validate parts count to prevent "function response parts mismatch" error
-		this.validatePartsBalance(request.contents, resolvedModel);
-		// Attempt to automatically balance and fix any mismatches before sending the request
-		this.balanceFunctionCallResponses(request.contents, resolvedModel);
-
-		return payload;
-	}
-
-	/**
-	 * Validate that functionCall and functionResponse parts are balanced
-	 * This prevents the "Please ensure that the number of function response parts is equal to
-	 * the number of function call parts of the function call turn" error
-	 */
-	private validatePartsBalance(
-		contents: GeminiContent[],
-		_modelName: string,
-	): void {
-		validateGeminiPartsBalance(contents as unknown as GeminiSdkContent[], {
+		validateGeminiPartsBalance(contents, {
 			prefix: "GeminiCLI",
 			onWarning: (message) => console.warn(message),
 		});
-	}
+		// Attempt to automatically balance and fix any mismatches before sending the request
+		balanceGeminiFunctionCallResponses(contents);
 
-	/**
-	 * Attempt to automatically balance functionCall/functionResponse parts and reattach orphan thoughtSignatures.
-	 * This mutates the contents array in-place to fix common causes of the "function response parts" 400 error.
-	 */
-	private balanceFunctionCallResponses(
-		contents: GeminiContent[],
-		_modelName: string,
-	): void {
-		balanceGeminiFunctionCallResponses(
-			contents as unknown as GeminiSdkContent[],
-		);
+		return payload;
 	}
 }
 

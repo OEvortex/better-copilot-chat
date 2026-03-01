@@ -5,7 +5,6 @@ import { ConfigManager } from "../../utils/configManager";
 import {
 	balanceGeminiFunctionCallResponses,
 	convertMessagesToGemini as convertMessagesToGeminiCommon,
-	type GeminiSdkContent,
 	sanitizeGeminiToolSchema,
 	validateGeminiPartsBalance,
 } from "../../utils/geminiSdkCommon";
@@ -14,7 +13,7 @@ import {
 	getSignatureForToolCall,
 	storeToolCallSignature,
 } from "./signatureCache";
-import type { AntigravityPayload, GeminiContent, GeminiRequest } from "./types";
+import type { AntigravityPayload, GeminiRequest } from "./types";
 
 const MODEL_ALIASES: Record<string, string> = {
 	"gemini-2.5-computer-use-preview-10-2025": "rev19-uic3-1p",
@@ -64,63 +63,10 @@ export function generateProjectId(): string {
 	return `${adjectives[bytes[0] % adjectives.length]}-${nouns[bytes[1] % nouns.length]}-${uuid.replace(/-/g, "").slice(0, 5).toLowerCase()}`;
 }
 
-function sanitizeToolSchema(schema: unknown): Record<string, unknown> {
-	return sanitizeGeminiToolSchema(schema);
-}
-
-function convertMessagesToGemini(
-	messages: readonly vscode.LanguageModelChatMessage[],
-	modelConfig: ModelConfig,
-	resolvedModelName?: string,
-	sessionId?: string,
-): { contents: GeminiContent[]; systemInstruction?: Record<string, unknown> } {
-	const converted = convertMessagesToGeminiCommon(messages, modelConfig, {
-		resolvedModelName,
-		sessionId,
-		getThoughtSignature: (callId, activeSessionId) =>
-			getSignatureForToolCall(callId, activeSessionId),
-		storeThoughtSignature: (callId, signature) =>
-			storeToolCallSignature(callId, signature),
-		fallbackThoughtSignature: FALLBACK_SIGNATURE,
-		normalizeToolCallArgs: false,
-		skipThinkingPartWhenToolCalls: false,
-	});
-
-	return {
-		contents: converted.contents as unknown as GeminiContent[],
-		systemInstruction: converted.systemInstruction as Record<string, unknown> | undefined,
-	};
-}
-
 export interface PreparedRequest {
 	payload: AntigravityPayload;
 	sessionId: string;
 	resolvedModel: string;
-}
-
-/**
- * Validate that functionCall and functionResponse parts are balanced
- */
-function validatePartsBalance(
-	contents: GeminiContent[],
-	_modelName: string,
-): void {
-	validateGeminiPartsBalance(contents as unknown as GeminiSdkContent[], {
-		prefix: "Antigravity",
-		onWarning: (message) => console.warn(message),
-	});
-}
-
-/**
- * Attempt to automatically balance functionCall/functionResponse parts and reattach orphan thoughtSignatures.
- */
-function balanceFunctionCallResponses(
-	contents: GeminiContent[],
-	_modelName: string,
-): void {
-	balanceGeminiFunctionCallResponses(
-		contents as unknown as GeminiSdkContent[],
-	);
 }
 
 export function prepareAntigravityRequest(
@@ -137,16 +83,28 @@ export function prepareAntigravityRequest(
 	const maxOutputTokens = ConfigManager.getMaxTokensForModel(
 		model.maxOutputTokens,
 	);
-	const { contents, systemInstruction } = convertMessagesToGemini(
+	const { contents, systemInstruction } = convertMessagesToGeminiCommon(
 		messages,
 		modelConfig,
-		resolvedModel,
-		sessionId,
+		{
+			resolvedModelName: resolvedModel,
+			sessionId,
+			getThoughtSignature: (callId, activeSessionId) =>
+				getSignatureForToolCall(callId, activeSessionId),
+			storeThoughtSignature: (callId, signature) =>
+				storeToolCallSignature(callId, signature),
+			fallbackThoughtSignature: FALLBACK_SIGNATURE,
+			normalizeToolCallArgs: false,
+			skipThinkingPartWhenToolCalls: false,
+		},
 	);
 
 	// Validate and balance function call responses
-	validatePartsBalance(contents, resolvedModel);
-	balanceFunctionCallResponses(contents, resolvedModel);
+	validateGeminiPartsBalance(contents, {
+		prefix: "Antigravity",
+		onWarning: (message) => console.warn(message),
+	});
+	balanceGeminiFunctionCallResponses(contents);
 
 	const isClaudeThinkingModel =
 		resolvedModel.includes("claude") && resolvedModel.includes("thinking");
@@ -190,7 +148,7 @@ export function prepareAntigravityRequest(
 					description: tool.description || "",
 					parameters:
 						tool.inputSchema && typeof tool.inputSchema === "object"
-							? sanitizeToolSchema(tool.inputSchema)
+							? sanitizeGeminiToolSchema(tool.inputSchema)
 							: { type: "object", properties: {} },
 				})),
 			},
