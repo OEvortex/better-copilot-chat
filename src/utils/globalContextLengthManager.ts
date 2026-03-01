@@ -57,6 +57,9 @@ const FIXED_64K_MAX_INPUT_TOKENS = FIXED_64K_TOTAL_TOKENS - FIXED_64K_MAX_OUTPUT
 const GEMA3_TOTAL_TOKENS = 128 * 1024; // 131072
 const GEMA3_MAX_OUTPUT_TOKENS = 16 * 1024; // 16384
 const GEMA3_MAX_INPUT_TOKENS = GEMA3_TOTAL_TOKENS - GEMA3_MAX_OUTPUT_TOKENS; // 114688
+// Qwen3.5 models: 256K total context (1k=1024), 32K output / 224K input
+const QWEN35_MAX_INPUT_TOKENS = 256 * 1024 - 32 * 1024; // 229376
+const QWEN35_MAX_OUTPUT_TOKENS = 32 * 1024; // 32768
 // Gemini large-context families (1,000,000 total)
 const GEMINI_1M_TOTAL_TOKENS = 1000000;
 const GEMINI25_MAX_OUTPUT_TOKENS = 32 * 1024; // Gemini 2.5 -> 32K output (32768)
@@ -146,6 +149,11 @@ export function isGpt5Model(modelId: string): boolean {
 
 export function isGptModel(modelId: string): boolean {
 	return /gpt/i.test(modelId);
+}
+
+export function isQwen35Model(modelId: string): boolean {
+	// Matches qwen3.5 and variants (qwen3.5, qwen-3.5, qwen3.5:397b, etc.)
+	return /qwen3\.5/i.test(modelId);
 }
 
 export function isClaudeModel(modelId: string): boolean {
@@ -322,6 +330,14 @@ export function resolveGlobalTokenLimits(
 		};
 	}
 
+	// Qwen3.5 series: 256K total context, 32K output
+	if (isQwen35Model(modelId)) {
+		return {
+			maxInputTokens: QWEN35_MAX_INPUT_TOKENS,
+			maxOutputTokens: QWEN35_MAX_OUTPUT_TOKENS,
+		};
+	}
+
 	const minReservedInputTokens =
 		typeof options.minReservedInputTokens === 'number' &&
 		options.minReservedInputTokens > 0
@@ -361,12 +377,13 @@ export function resolveGlobalCapabilities(
 	return {
 		// User request: all models should support tools
 		toolCalling: true,
-		// User request: Claude, Kimi 2.5, GPT models (excluding gpt-oss), and Gemini models should support vision
+		// User request: Claude, Kimi 2.5, GPT models (excluding gpt-oss), Gemini, and Qwen3.5 models should support vision
 		imageInput:
 			detectedImageInput ||
 			isClaudeModel(modelId) ||
 			isKimiK25Model(modelId) ||
 			isVisionGptModel(modelId) ||
-			isGeminiModel(modelId),
+			isGeminiModel(modelId) ||
+			isQwen35Model(modelId),
 	};
 }

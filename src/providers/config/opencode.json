@@ -108,7 +108,7 @@
             "model": "gemini-3.1-pro",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
@@ -120,7 +120,7 @@
             "model": "gemini-3-pro",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
@@ -132,7 +132,7 @@
             "model": "gemini-3-flash",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {
