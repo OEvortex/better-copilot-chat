@@ -21,6 +21,7 @@ import {
 import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import { resolveGlobalTokenLimits } from "../../utils/globalContextLengthManager";
 import { Logger } from "../../utils/logger";
+import { RateLimiter } from "../../utils/rateLimiter";
 import { GenericModelProvider } from "../common/genericModelProvider";
 import { GeminiOAuthManager } from "./auth";
 import { GeminiHandler } from "./handler";
@@ -171,6 +172,11 @@ export class GeminiCliProvider
 		progress: Progress<vscode.LanguageModelResponsePart2>,
 		token: CancellationToken,
 	): Promise<void> {
+		// Apply rate limiting: 2 requests per 1 second
+		await RateLimiter.getInstance(this.providerKey, 2, 1000).throttle(
+			this.providerConfig.displayName,
+		);
+
 		const modelConfig = this.providerConfig.models.find(
 			(m: ModelConfig) => m.id === model.id,
 		);

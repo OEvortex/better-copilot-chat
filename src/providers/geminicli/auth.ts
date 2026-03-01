@@ -22,6 +22,7 @@ export class GeminiOAuthManager {
 	private credentials: GeminiOAuthCredentials | null = null;
 	private refreshTimer: NodeJS.Timeout | null = null;
 	private refreshLock = false;
+	private refreshInFlight: Promise<GeminiOAuthCredentials | null> | null = null;
 
 	private constructor() {
 		// Start proactive refresh timer (every 30 seconds)
@@ -50,6 +51,38 @@ export class GeminiOAuthManager {
 				Logger.trace(`Gemini CLI: Proactive refresh failed: ${error}`);
 			}
 		}, 30000); // Check every 30 seconds
+	}
+
+	/**
+	 * Parses OAuth error payloads returned by Google token endpoints.
+	 */
+	private parseOAuthError(text: string | undefined): {
+		code?: string;
+		description?: string;
+	} {
+		if (!text) return {};
+		try {
+			const payload = JSON.parse(text) as {
+				error?:
+					| string
+					| { code?: string; status?: string; message?: string };
+				error_description?: string;
+			};
+			if (!payload || typeof payload !== "object") return { description: text };
+
+			let code: string | undefined;
+			if (typeof payload.error === "string") {
+				code = payload.error;
+			} else if (payload.error && typeof payload.error === "object") {
+				code = payload.error.status ?? payload.error.code;
+				if (!payload.error_description && payload.error.message) {
+					return { code, description: payload.error.message };
+				}
+			}
+			return { code, description: payload.error_description };
+		} catch {
+			return { description: text };
+		}
 	}
 
 	private getCredentialPath(): string {
@@ -87,69 +120,143 @@ export class GeminiOAuthManager {
 		}
 	}
 
-	private async refreshAccessToken(
+	private async refreshAccessTokenWithRetry(
 		credentials: GeminiOAuthCredentials,
-	): Promise<GeminiOAuthCredentials> {
-		if (this.refreshLock) {
-			// Wait for ongoing refresh
-			while (this.refreshLock) {
-				await new Promise((resolve) => setTimeout(resolve, 100));
+		maxAttempts = 3,
+	): Promise<GeminiOAuthCredentials | null> {
+		let attempt = 1;
+		while (attempt <= maxAttempts) {
+			try {
+				const result = await this.doRefreshAccessToken(credentials);
+				if (result) return result;
+				// If result is null (e.g., invalid_grant), don't retry
+				return null;
+			} catch (error) {
+				const isRetryable =
+					error instanceof Error &&
+					(error.message.includes("ECONNRESET") ||
+						error.message.includes("ETIMEDOUT") ||
+						error.message.includes("ECONNREFUSED") ||
+						error.message.includes("socket hang up"));
+
+				if (!isRetryable || attempt >= maxAttempts) {
+					throw error;
+				}
+
+				// Exponential backoff with jitter
+				const delay = Math.min(1000 * 2 ** attempt, 10000) + Math.random() * 1000;
+				Logger.debug(`Gemini CLI: Token refresh retry ${attempt}/${maxAttempts} after ${delay.toFixed(0)}ms`);
+				await new Promise(resolve => setTimeout(resolve, delay));
+				attempt++;
 			}
-			return this.credentials || credentials;
+		}
+		return null;
+	}
+
+	private async doRefreshAccessToken(
+		credentials: GeminiOAuthCredentials,
+	): Promise<GeminiOAuthCredentials | null> {
+		if (!credentials.refresh_token) {
+			throw new Error("No refresh token available in credentials.");
 		}
 
-		this.refreshLock = true;
+		const bodyData = new URLSearchParams();
+		bodyData.set("grant_type", "refresh_token");
+		bodyData.set("refresh_token", credentials.refresh_token);
+		bodyData.set("client_id", GEMINI_OAUTH_CLIENT_ID);
+		bodyData.set("client_secret", GEMINI_OAUTH_CLIENT_SECRET);
+		bodyData.set("scope", GEMINI_OAUTH_SCOPES.join(" "));
+
+		const response = await fetch(GEMINI_OAUTH_TOKEN_ENDPOINT, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+				Accept: "application/json",
+			},
+			body: bodyData.toString(),
+		});
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			const { code, description } = this.parseOAuthError(errorText);
+			const details = [code, description ?? errorText].filter(Boolean).join(": ");
+
+			// Handle invalid_grant - Google revoked the refresh token
+			if (code === "invalid_grant") {
+				Logger.warn(
+					"Gemini CLI: Google revoked the stored refresh token. Please re-authenticate using: gemini auth login",
+				);
+				// Clear stale credentials to force re-authentication
+				this.clearStaleCredentials();
+				return null;
+			}
+
+			throw new Error(
+				details
+					? `Token refresh failed (${response.status}): ${details}`
+					: `Token refresh failed: ${response.status} ${response.statusText}`,
+			);
+		}
+
+		const tokenData = (await response.json()) as GeminiTokenResponse;
+
+		if (tokenData.error) {
+			throw new Error(
+				`Token refresh failed: ${tokenData.error} - ${tokenData.error_description || "Unknown error"}`,
+			);
+		}
+
+		const newCredentials: GeminiOAuthCredentials = {
+			access_token: tokenData.access_token,
+			token_type: tokenData.token_type || "Bearer",
+			refresh_token: tokenData.refresh_token || credentials.refresh_token,
+			expiry_date: Date.now() + tokenData.expires_in * 1000,
+		};
+
+		this.saveCredentials(newCredentials);
+		this.credentials = newCredentials;
+
+		const rotated = tokenData.refresh_token && tokenData.refresh_token !== credentials.refresh_token;
+		Logger.debug(`Gemini CLI: Token refreshed successfully, rotated=${rotated ? "yes" : "no"}`);
+
+		return newCredentials;
+	}
+
+	/**
+	 * Clears stale credentials when refresh token is revoked or invalid.
+	 */
+	private clearStaleCredentials(): void {
+		this.credentials = null;
+		// Try to clear the cached file as well
+		try {
+			const filePath = this.getCredentialPath();
+			if (fs.existsSync(filePath)) {
+				// Rename to backup rather than delete (for debugging)
+				const backupPath = `${filePath}.invalid.${Date.now()}`;
+				fs.renameSync(filePath, backupPath);
+				Logger.info(`Gemini CLI: Moved stale credentials to ${backupPath}`);
+			}
+		} catch (error) {
+			Logger.warn(`Gemini CLI: Failed to clear stale credentials: ${error}`);
+		}
+	}
+
+	private async refreshAccessToken(
+		credentials: GeminiOAuthCredentials,
+	): Promise<GeminiOAuthCredentials | null> {
+		// Return in-flight refresh if one is already happening
+		if (this.refreshInFlight) {
+			Logger.debug("Gemini CLI: Waiting for in-flight token refresh");
+			return this.refreshInFlight;
+		}
+
+		// Start new refresh request
+		this.refreshInFlight = this.refreshAccessTokenWithRetry(credentials);
 
 		try {
-			if (!credentials.refresh_token) {
-				throw new Error("No refresh token available in credentials.");
-			}
-
-			const bodyData = new URLSearchParams();
-			bodyData.set("grant_type", "refresh_token");
-			bodyData.set("refresh_token", credentials.refresh_token);
-			bodyData.set("client_id", GEMINI_OAUTH_CLIENT_ID);
-			bodyData.set("client_secret", GEMINI_OAUTH_CLIENT_SECRET);
-			bodyData.set("scope", GEMINI_OAUTH_SCOPES.join(" "));
-
-			const response = await fetch(GEMINI_OAUTH_TOKEN_ENDPOINT, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-					Accept: "application/json",
-					"User-Agent":
-						"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-				},
-				body: bodyData.toString(),
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				throw new Error(
-					`Token refresh failed: ${response.status} ${response.statusText}. Response: ${errorText}`,
-				);
-			}
-
-			const tokenData = (await response.json()) as GeminiTokenResponse;
-
-			if (tokenData.error) {
-				throw new Error(
-					`Token refresh failed: ${tokenData.error} - ${tokenData.error_description || "Unknown error"}`,
-				);
-			}
-
-			const newCredentials: GeminiOAuthCredentials = {
-				access_token: tokenData.access_token,
-				token_type: tokenData.token_type || "Bearer",
-				refresh_token: tokenData.refresh_token || credentials.refresh_token,
-				expiry_date: Date.now() + tokenData.expires_in * 1000,
-			};
-
-			this.saveCredentials(newCredentials);
-			this.credentials = newCredentials;
-			return newCredentials;
+			return await this.refreshInFlight;
 		} finally {
-			this.refreshLock = false;
+			this.refreshInFlight = null;
 		}
 	}
 
@@ -180,7 +287,13 @@ export class GeminiOAuthManager {
 		this.credentials = this.loadCachedCredentials();
 
 		if (forceRefresh || !this.isTokenValid(this.credentials)) {
-			this.credentials = await this.refreshAccessToken(this.credentials);
+			const refreshed = await this.refreshAccessToken(this.credentials);
+			if (!refreshed) {
+				throw new Error(
+					"Failed to refresh Gemini CLI token. Please re-authenticate using: gemini auth login",
+				);
+			}
+			this.credentials = refreshed;
 		}
 
 		return {

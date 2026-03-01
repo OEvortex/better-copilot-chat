@@ -4,18 +4,6 @@
     "apiKeyTemplate": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "models": [
         {
-            "id": "glm-4-7",
-            "name": "glm-4.7",
-            "tooltip": "glm-4.7 by Ollama Cloud",
-            "maxInputTokens": 229376,
-            "maxOutputTokens": 32768,
-            "model": "glm-4.7",
-            "capabilities": {
-                "toolCalling": true,
-                "imageInput": false
-            }
-        },
-        {
             "id": "glm-5",
             "name": "glm-5",
             "tooltip": "glm-5 by Ollama Cloud",
@@ -385,6 +373,18 @@
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": true
+            }
+        },
+        {
+            "id": "glm-4-7",
+            "name": "glm-4.7",
+            "tooltip": "glm-4.7 by Ollama Cloud",
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
+            "model": "glm-4.7",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
             }
         }
     ]

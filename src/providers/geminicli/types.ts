@@ -239,7 +239,7 @@ export const GEMINI_OAUTH_CLIENT_ID =
 	"681255809395-oo8ft2oprdrnp9e3aqf6av3hmdib135j.apps.googleusercontent.com";
 export const GEMINI_OAUTH_CLIENT_SECRET = "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";
 export const GEMINI_OAUTH_TOKEN_ENDPOINT =
-	"https://accounts.google.com/o/oauth2/token";
+	"https://oauth2.googleapis.com/token";
 export const GEMINI_DEFAULT_BASE_URL = "https://cloudcode-pa.googleapis.com";
 
 export const GEMINI_CLI_HEADERS = {

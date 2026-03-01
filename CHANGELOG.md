@@ -86,6 +86,15 @@ All notable changes to this project will be documented in this file.
 - **Faster Startup**: Extension now returns static config models immediately during startup (silent mode) for faster initialization.
 - **Improved Model Discovery**: In non-silent mode (when user interacts with chat), models are fetched from the API in the background and the model list is automatically refreshed.
 
+### Fixed
+
+**Gemini CLI Token Refresh:**
+- **Fixed Token Endpoint**: Updated OAuth token endpoint from `accounts.google.com` to `oauth2.googleapis.com` for more reliable token refresh.
+- **In-Flight Request Deduplication**: Added request deduplication to prevent race conditions when multiple requests trigger token refresh simultaneously.
+- **Improved Error Handling**: Added detection for `invalid_grant` errors (revoked refresh tokens) and automatic cleanup of stale credentials.
+- **Retry Logic**: Added exponential backoff with jitter for transient network failures during token refresh.
+- **Better Debug Logging**: Added logging for token rotation detection and refresh status.
+
 ### Code Refactoring
 
 **Gemini SDK Consolidation:**
