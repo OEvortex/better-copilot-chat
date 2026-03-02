@@ -69,6 +69,7 @@
         "onLanguageModelProvider:chp.mistral",
         "onLanguageModelProvider:chp.modelscope",
         "onLanguageModelProvider:chp.moonshot",
+        "onLanguageModelProvider:chp.nanogpt",
         "onLanguageModelProvider:chp.nvidia",
         "onLanguageModelProvider:chp.ollama",
         "onLanguageModelProvider:chp.opencode",
@@ -281,6 +282,11 @@
                 "title": "Open Copilot ++ Settings",
                 "category": "Copilot ++",
                 "icon": "$(settings-gear)"
+            },
+            {
+                "command": "chp.nanogpt.setApiKey",
+                "title": "Configure NanoGPT",
+                "category": "Copilot ++"
             }
         ],
         "configuration": {
@@ -657,6 +663,12 @@
                     "description": "MoonshotAI base URL or proxy endpoint (optional).",
                     "scope": "application"
                 },
+                "chp.nanogpt.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "NanoGPT base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
                 "chp.nvidia.baseUrl": {
                     "type": "string",
                     "default": "",
@@ -1015,6 +1027,24 @@
                         "apiKey": {
                             "type": "string",
                             "description": "MoonshotAI API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.nanogpt",
+                "displayName": "⦿ NanoGPT (NanoGPT endpoint integration)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "NanoGPT API key.",
                             "secret": true
                         },
                         "baseUrl": {

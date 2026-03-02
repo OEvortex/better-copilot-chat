@@ -15,6 +15,7 @@ import minimax from "./minimax.json";
 import mistral from "./mistral.json";
 import modelscope from "./modelscope.json";
 import moonshot from "./moonshot.json";
+import nanogpt from "./nanogpt.json";
 import nvidia from "./nvidia.json";
 import opencode from "./opencode.json";
 import ollama from "./ollama.json";
@@ -45,6 +46,7 @@ const providers = {
 	deepinfra,
 	mistral,
 	modelscope,
+	nanogpt,
 	zenmux,
 };
 

@@ -267,6 +267,19 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 			cooldownMinutes: 10,
 		},
 	},
+	nanogpt: {
+		displayName: "NanoGPT",
+		family: "NanoGPT",
+		description: "NanoGPT endpoint integration",
+		openai: { baseUrl: "https://nano-gpt.com/api/v1" },
+		fetchModels: true,
+		modelsEndpoint: "/models",
+		modelParser: {
+			arrayPath: "data",
+			descriptionField: "id",
+			cooldownMinutes: 10,
+		},
+	},
 	nvidia: {
 		displayName: "NVIDIA NIM",
 		family: "NVIDIA",

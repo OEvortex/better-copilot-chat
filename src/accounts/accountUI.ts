@@ -191,6 +191,11 @@ export class AccountUI {
 				authType: "apiKey" as const,
 			},
 			{
+				label: "NanoGPT",
+				value: ProviderKey.Nanogpt,
+				authType: "apiKey" as const,
+			},
+			{
 				label: "Hugging Face",
 				value: ProviderKey.Huggingface,
 				authType: "apiKey" as const,

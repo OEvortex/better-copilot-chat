@@ -195,6 +195,14 @@ export class AccountManager {
 			},
 		],
 		[
+			ProviderKey.Nanogpt,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
 			ProviderKey.Nvidia,
 			{
 				supportsMultiAccount: true,

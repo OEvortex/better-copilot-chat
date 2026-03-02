@@ -18,6 +18,7 @@ export enum ProviderKey {
 	Mistral = 'mistral',
 	ModelScope = 'modelscope',
 	Moonshot = 'moonshot',
+	Nanogpt = 'nanogpt',
 	Nvidia = 'nvidia',
 	Ollama = 'ollama',
 	OpenAI = 'openai',

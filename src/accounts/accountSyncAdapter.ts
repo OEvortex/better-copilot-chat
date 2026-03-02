@@ -323,6 +323,7 @@ export class AccountSyncAdapter {
 			ProviderKey.OpenAI,
 			ProviderKey.Mistral,
 			ProviderKey.ModelScope,
+			ProviderKey.Nanogpt,
 			ProviderKey.Huggingface,
 			ProviderKey.Nvidia,
 			ProviderKey.Blackbox,
