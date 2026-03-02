@@ -12,7 +12,12 @@ import type {
 import * as vscode from "vscode";
 import type { ModelConfig, ProviderConfig } from "../../types/sharedTypes";
 import type { KnownProviderConfig } from "../../utils/knownProviders";
-import { ApiKeyManager, ConfigManager, Logger } from "../../utils";
+import {
+	ApiKeyManager,
+	ConfigManager,
+	Logger,
+	getUserAgent,
+} from "../../utils";
 import {
 	DEFAULT_CONTEXT_LENGTH,
 	DEFAULT_MAX_OUTPUT_TOKENS,
@@ -93,12 +98,17 @@ export class DynamicModelProvider extends GenericModelProvider {
 				return;
 			}
 
+			Logger.debug(
+				`[${this.providerKey}] Starting background model refresh...`,
+			);
 			const models = await this.fetchModels(apiKey);
 			if (models.length > 0) {
 				await this.updateModels(models);
+			} else {
+				Logger.warn(`[${this.providerKey}] No models returned from API`);
 			}
 		} catch (err) {
-			Logger.trace(
+			Logger.error(
 				`[${this.providerKey}] Background model refresh failed:`,
 				err,
 			);
@@ -108,7 +118,9 @@ export class DynamicModelProvider extends GenericModelProvider {
 	private async fetchModels(apiKey?: string): Promise<FetchedModel[]> {
 		const endpoint = this.knownConfig.modelsEndpoint || "/models";
 		let baseUrl = (
-			this.knownConfig.openai?.baseUrl || this.providerConfig.baseUrl
+			this.knownConfig.openai?.baseUrl ||
+			this.knownConfig.baseUrl ||
+			this.providerConfig.baseUrl
 		).replace(/\/$/, "");
 
 		// Avoid double /v1 if both baseUrl and endpoint contain it
@@ -120,11 +132,19 @@ export class DynamicModelProvider extends GenericModelProvider {
 			? endpoint
 			: `${baseUrl}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
 
-		const headers: Record<string, string> = {};
+		Logger.debug(`[${this.providerKey}] Fetching models from: ${url}`);
+
+		const headers: Record<string, string> = {
+			"User-Agent": getUserAgent(),
+			Accept: "application/json",
+		};
 		if (apiKey) {
-			headers["Authorization"] = `Bearer ${apiKey}`;
+			headers.Authorization = `Bearer ${apiKey}`;
 		}
 
+		Logger.debug(
+			`[${this.providerKey}] Request headers: ${JSON.stringify({ ...headers, Authorization: "Bearer ***" })}`,
+		);
 		const resp = await fetch(url, { method: "GET", headers });
 
 		if (!resp.ok) {
@@ -135,6 +155,10 @@ export class DynamicModelProvider extends GenericModelProvider {
 		}
 
 		const parsed = (await resp.json()) as Record<string, unknown>;
+		Logger.trace(
+			`[${this.providerKey}] API response:`,
+			JSON.stringify(parsed).substring(0, 500),
+		);
 
 		// Parse response using configured path
 		const arrayPath = this.knownConfig.modelParser?.arrayPath || "data";
@@ -206,11 +230,16 @@ export class DynamicModelProvider extends GenericModelProvider {
 				});
 			}
 
+			Logger.debug(
+				`[${this.providerKey}] Parsed ${modelConfigs.length} unique models`,
+			);
+
 			// Update in-memory configuration if changed
 			const oldModelsJson = JSON.stringify(this.baseProviderConfig.models);
 			const newModelsJson = JSON.stringify(modelConfigs);
 
 			if (oldModelsJson !== newModelsJson) {
+				Logger.info(`[${this.providerKey}] Model list changed, updating...`);
 				this.baseProviderConfig.models = modelConfigs;
 				this.cachedProviderConfig = ConfigManager.applyProviderOverrides(
 					this.providerKey,
@@ -247,13 +276,11 @@ export class DynamicModelProvider extends GenericModelProvider {
 						fileErr,
 					);
 				}
-
-				Logger.info(
-					`[${this.providerKey}] Auto-updated in-memory with ${modelConfigs.length} models`,
-				);
+			} else {
+				Logger.debug(`[${this.providerKey}] Model list unchanged`);
 			}
 		} catch (err) {
-			Logger.warn(`[${this.providerKey}] Model update failed:`, err);
+			Logger.error(`[${this.providerKey}] Model update failed:`, err);
 		}
 	}
 

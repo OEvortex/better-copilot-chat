@@ -8,7 +8,7 @@ import { AccountManager } from "../accounts/accountManager";
 import type { ApiKeyCredentials } from "../accounts/types";
 import { ProviderRegistry } from "../utils/knownProviders";
 import { ProviderWizard } from "../utils/providerWizard";
-import { antigravityLoginCommand, codexLoginCommand } from "../utils";
+import { antigravityLoginCommand, codexLoginCommand, Logger } from "../utils";
 import settingsPageCss from "./settingsPage.css?raw";
 import settingsPageJs from "./settingsPage.js?raw";
 
@@ -270,58 +270,71 @@ export class SettingsPage {
 	 */
 	private static async getProvidersInfo(): Promise<ProviderInfo[]> {
 		const providerConfigs = ProviderRegistry.getAllProviders();
+		Logger.debug(
+			`[SettingsPage] Found ${providerConfigs.length} providers in registry: ${providerConfigs.map((p) => p.id).join(", ")}`,
+		);
 		const configSection = vscode.workspace.getConfiguration("chp");
 
-		return Promise.all(providerConfigs.map(async (config) => {
-			const accounts = SettingsPage.accountManager.getAccountsByProvider(
-				config.id,
-			);
-			const activeApiKey = await SettingsPage.accountManager.getActiveApiKey(
-				config.id,
-			);
+		return Promise.all(
+			providerConfigs.map(async (config) => {
+				const accounts = SettingsPage.accountManager.getAccountsByProvider(
+					config.id,
+				);
+				const activeApiKey = await SettingsPage.accountManager.getActiveApiKey(
+					config.id,
+				);
 
-			// Filter API key accounts
-			const apiKeyAccounts = accounts.filter((a) => a.authType === "apiKey");
-			const activeAccount = SettingsPage.accountManager.getActiveAccount(config.id);
+				// Filter API key accounts
+				const apiKeyAccounts = accounts.filter((a) => a.authType === "apiKey");
+				const activeAccount = SettingsPage.accountManager.getActiveAccount(
+					config.id,
+				);
 
-			// Map to ApiKeyInfo
-			const apiKeys: ApiKeyInfo[] = apiKeyAccounts.map((account) => ({
-				id: account.id,
-				displayName: account.displayName,
-				createdAt: account.createdAt,
-				isActive: activeAccount?.id === account.id,
-			}));
+				// Map to ApiKeyInfo
+				const apiKeys: ApiKeyInfo[] = apiKeyAccounts.map((account) => ({
+					id: account.id,
+					displayName: account.displayName,
+					createdAt: account.createdAt,
+					isActive: activeAccount?.id === account.id,
+				}));
 
-			// Get load balance settings
-			const supportsMultiAccount = AccountManager.supportsMultiAccount(config.id);
-			const loadBalanceEnabled = supportsMultiAccount
-				? SettingsPage.accountManager.getLoadBalanceEnabled(config.id)
-				: false;
-			const loadBalanceStrategy = SettingsPage.loadBalanceStrategies[config.id] || "round-robin";
+				// Get load balance settings
+				const supportsMultiAccount = AccountManager.supportsMultiAccount(
+					config.id,
+				);
+				const loadBalanceEnabled = supportsMultiAccount
+					? SettingsPage.accountManager.getLoadBalanceEnabled(config.id)
+					: false;
+				const loadBalanceStrategy =
+					SettingsPage.loadBalanceStrategies[config.id] || "round-robin";
 
-			return {
-				id: config.id,
-				displayName: config.displayName,
-				category: config.category,
-				sdkMode: config.sdkMode,
-				icon: config.icon,
-				description: config.description,
-				settingsPrefix: config.settingsPrefix,
-				accountCount: accounts.length,
-				supportsLoadBalance: supportsMultiAccount,
-				supportsApiKey: config.features.supportsApiKey,
-				supportsOAuth: config.features.supportsOAuth,
-				supportsBaseUrl: config.features.supportsBaseUrl,
-				supportsConfigWizard: config.features.supportsConfigWizard,
-				hasApiKey: !!activeApiKey,
-				baseUrl: configSection.get<string>(`${config.id}.baseUrl`, "").trim() || config.baseUrl || "",
-				endpoint: SettingsPage.getEndpointSetting(config.id, configSection),
-				apiKeys,
-				activeApiKeyId: activeAccount?.id || null,
-				loadBalanceEnabled,
-				loadBalanceStrategy,
-			};
-		}));
+				return {
+					id: config.id,
+					displayName: config.displayName,
+					category: config.category,
+					sdkMode: config.sdkMode,
+					icon: config.icon,
+					description: config.description,
+					settingsPrefix: config.settingsPrefix,
+					accountCount: accounts.length,
+					supportsLoadBalance: supportsMultiAccount,
+					supportsApiKey: config.features.supportsApiKey,
+					supportsOAuth: config.features.supportsOAuth,
+					supportsBaseUrl: config.features.supportsBaseUrl,
+					supportsConfigWizard: config.features.supportsConfigWizard,
+					hasApiKey: !!activeApiKey,
+					baseUrl:
+						configSection.get<string>(`${config.id}.baseUrl`, "").trim() ||
+						config.baseUrl ||
+						"",
+					endpoint: SettingsPage.getEndpointSetting(config.id, configSection),
+					apiKeys,
+					activeApiKeyId: activeAccount?.id || null,
+					loadBalanceEnabled,
+					loadBalanceStrategy,
+				};
+			}),
+		);
 	}
 
 	private static getEndpointSetting(
@@ -336,7 +349,10 @@ export class SettingsPage {
 			return config.get<string>("minimax.endpoint", "minimaxi.com");
 		}
 		if (providerId === "compatible") {
-			return config.get<string>("compatible.endpoint", "https://api.openai.com/v1");
+			return config.get<string>(
+				"compatible.endpoint",
+				"https://api.openai.com/v1",
+			);
 		}
 		return "";
 	}
@@ -413,7 +429,8 @@ export class SettingsPage {
 		apiKeyRaw: string,
 	): Promise<void> {
 		const apiKey = apiKeyRaw.trim();
-		const activeAccount = SettingsPage.accountManager.getActiveAccount(providerId);
+		const activeAccount =
+			SettingsPage.accountManager.getActiveAccount(providerId);
 
 		if (!apiKey) {
 			if (activeAccount?.authType === "apiKey") {
@@ -434,7 +451,10 @@ export class SettingsPage {
 				...previous,
 				apiKey,
 			};
-			await SettingsPage.accountManager.updateCredentials(activeAccount.id, updated);
+			await SettingsPage.accountManager.updateCredentials(
+				activeAccount.id,
+				updated,
+			);
 			return;
 		}
 
@@ -446,7 +466,10 @@ export class SettingsPage {
 		if (!added.success || !added.account) {
 			throw new Error(added.error || "Failed to create API key account");
 		}
-		await SettingsPage.accountManager.switchAccount(providerId, added.account.id);
+		await SettingsPage.accountManager.switchAccount(
+			providerId,
+			added.account.id,
+		);
 	}
 
 	private static async handleOpenProviderSettings(
@@ -473,7 +496,8 @@ export class SettingsPage {
 				throw new Error(`Unknown provider: ${providerId}`);
 			}
 
-			const displayName = payload.displayName || `${provider.displayName} API Key ${Date.now()}`;
+			const displayName =
+				payload.displayName || `${provider.displayName} API Key ${Date.now()}`;
 			const added = await SettingsPage.accountManager.addApiKeyAccount(
 				providerId,
 				displayName,
@@ -508,7 +532,8 @@ export class SettingsPage {
 		webview: vscode.Webview,
 	): Promise<void> {
 		try {
-			const accounts = SettingsPage.accountManager.getAccountsByProvider(providerId);
+			const accounts =
+				SettingsPage.accountManager.getAccountsByProvider(providerId);
 			const account = accounts.find((a) => a.id === apiKeyId);
 
 			if (!account) {
@@ -540,7 +565,8 @@ export class SettingsPage {
 		webview: vscode.Webview,
 	): Promise<void> {
 		try {
-			const accounts = SettingsPage.accountManager.getAccountsByProvider(providerId);
+			const accounts =
+				SettingsPage.accountManager.getAccountsByProvider(providerId);
 			const account = accounts.find((a) => a.id === apiKeyId);
 
 			if (!account) {

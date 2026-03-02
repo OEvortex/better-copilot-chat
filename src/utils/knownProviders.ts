@@ -707,6 +707,9 @@ export function getAllProviders(): ProviderMetadata[] {
 	for (const [index, provider] of metadata.entries()) {
 		provider.order = index + 1;
 	}
+	Logger.trace(
+		`[KnownProviders] Final metadata list has ${metadata.length} providers`,
+	);
 	return metadata;
 }
 
@@ -727,12 +730,18 @@ export function buildConfigProvider(
 	configProvider: ConfigProvider,
 ): ConfigProvider {
 	const mergedConfig: ConfigProvider = { ...configProvider };
+	Logger.trace(
+		`[KnownProviders] Merging ${Object.keys(KnownProviders).length} known providers into ${Object.keys(configProvider).length} config providers`,
+	);
 
 	for (const [providerKey, knownConfig] of Object.entries(KnownProviders)) {
 		const existingConfig = mergedConfig[providerKey];
 
 		// For existing providers, merge metadata and configurations
 		if (existingConfig) {
+			Logger.trace(
+				`[KnownProviders] Merging metadata for existing provider: ${providerKey}`,
+			);
 			// Merge provider-level metadata
 			if (knownConfig.displayName) {
 				existingConfig.displayName = knownConfig.displayName;
@@ -747,7 +756,7 @@ export function buildConfigProvider(
 			}
 
 			// Apply family and customHeader to all models in the static list
-			existingConfig.models = existingConfig.models.map((model) => {
+			existingConfig.models = (existingConfig.models || []).map((model) => {
 				const sdkMode = model.sdkMode || "openai";
 				const sdkBaseUrl =
 					sdkMode === "openai"
@@ -774,15 +783,22 @@ export function buildConfigProvider(
 			continue;
 		}
 
-		// Skip if no inline models defined (specialized providers handle their own setup)
-		if (!knownConfig.models || knownConfig.models.length === 0) {
+		// Skip if no inline models defined AND not a dynamic fetching provider
+		// (specialized providers handle their own setup)
+		if (
+			(!knownConfig.models || knownConfig.models.length === 0) &&
+			!knownConfig.fetchModels
+		) {
+			Logger.trace(
+				`[KnownProviders] Skipping provider ${providerKey}: no models and no fetchModels`,
+			);
 			continue;
 		}
 
 		// Check for required fields
 		if (!knownConfig.displayName) {
 			Logger.warn(
-				`Skipping declarative provider "${providerKey}": missing displayName`,
+				`[KnownProviders] Skipping declarative provider "${providerKey}": missing displayName`,
 			);
 			continue;
 		}
@@ -793,21 +809,24 @@ export function buildConfigProvider(
 			knownConfig.openai?.baseUrl ||
 			knownConfig.anthropic?.baseUrl;
 
-		if (!baseUrl) {
+		if (!baseUrl && !knownConfig.fetchModels) {
 			Logger.warn(
-				`Skipping declarative provider "${providerKey}": missing baseUrl`,
+				`[KnownProviders] Skipping declarative provider "${providerKey}": missing baseUrl`,
 			);
 			continue;
 		}
 
+		Logger.trace(
+			`[KnownProviders] Adding new declarative provider: ${providerKey}`,
+		);
 		// Build complete ProviderConfig from inline definition
 		const providerConfig: ProviderConfig = {
 			displayName: knownConfig.displayName,
-			baseUrl: baseUrl,
+			baseUrl: baseUrl || "",
 			apiKeyTemplate: knownConfig.apiKeyTemplate ?? "",
 			supportsApiKey: knownConfig.supportsApiKey ?? true,
 			family: knownConfig.family ?? providerKey,
-			models: knownConfig.models.map((modelConfig) => {
+			models: (knownConfig.models || []).map((modelConfig) => {
 				const sdkMode = modelConfig.sdkMode || "openai";
 				const sdkBaseUrl =
 					sdkMode === "openai"
@@ -816,7 +835,7 @@ export function buildConfigProvider(
 
 				return {
 					...modelConfig,
-					baseUrl: modelConfig.baseUrl || sdkBaseUrl || baseUrl,
+					baseUrl: modelConfig.baseUrl || sdkBaseUrl || baseUrl || "",
 					// Apply known provider-level overrides to each model if applicable
 					customHeader: {
 						...knownConfig.customHeader,
@@ -834,9 +853,6 @@ export function buildConfigProvider(
 		};
 
 		mergedConfig[providerKey] = providerConfig;
-		Logger.trace(
-			`Registered declarative provider "${providerKey}" with ${providerConfig.models.length} models`,
-		);
 	}
 
 	return mergedConfig;
