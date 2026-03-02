@@ -128,6 +128,184 @@
         </list>
     </section>
 
+    <section name="ADDING_NEW_PROVIDER">
+        <title>How to Add a New AI Provider</title>
+        <description>The Copilot ++ extension uses a single-source-of-truth architecture. Provider metadata is defined in one place and automatically propagated to all dependent files.</description>
+
+        <step_list>
+            <step order="1">
+                <title>Define provider in knownProviders.ts</title>
+                <description>Add the provider configuration to src/utils/knownProviders.ts in the knownProviderOverrides object. This is the ONLY file you need to manually edit for basic provider setup.</description>
+                <code_block language="typescript">
+// Example: Adding NanoGPT provider
+const knownProviderOverrides: Record&lt;string, KnownProviderConfig&gt; = {
+    // ... existing providers ...
+    nanogpt: {
+        displayName: "NanoGPT",
+        family: "NanoGPT",
+        description: "NanoGPT endpoint integration",
+        openai: { baseUrl: "https://nano-gpt.com/api/v1" },
+        fetchModels: true,
+        modelsEndpoint: "/models",
+        modelParser: {
+            arrayPath: "data",
+            descriptionField: "id",
+            cooldownMinutes: 10,
+        },
+    },
+    // ... other providers ...
+};
+                </code_block>
+                <notes>
+                    <item>Use only openai config for OpenAI SDK-only providers</item>
+                    <item>Add anthropic config too if the provider supports both SDKs</item>
+                    <item>fetchModels: true enables automatic model list fetching</item>
+                    <item>modelsEndpoint defaults to "/models" if not specified</item>
+                </notes>
+            </step>
+
+            <step order="2">
+                <title>Run the sync script</title>
+                <description>Run the provider synchronization script to auto-generate all dependent artifacts.</description>
+                <code_block language="bash">npm run sync-providers</code_block>
+                <description>This script will:</description>
+                <list>
+                    <item>Generate ProviderKey enum entry in src/types/providerKeys.ts</item>
+                    <item>Register provider capabilities in src/accounts/accountManager.ts</item>
+                    <item>Add setApiKey command in package.json</item>
+                    <item>Add baseUrl configuration setting in package.json</item>
+                    <item>Add activation event for the provider</item>
+                    <item>Register languageModelChatProviders entry</item>
+                </list>
+            </step>
+
+            <step order="3">
+                <title>Create initial config file (optional)</title>
+                <description>Create src/providers/config/{provider}.json with initial placeholder models. This file will be auto-updated when models are fetched.</description>
+                <code_block language="json">
+{
+    "displayName": "NanoGPT",
+    "baseUrl": "https://nano-gpt.com/api/v1",
+    "apiKeyTemplate": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "models": [
+        {
+            "id": "gpt-4o",
+            "name": "GPT-4o",
+            "tooltip": "GPT-4o - OpenAI's latest multimodal model",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 4096,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        }
+    ]
+}
+                </code_block>
+            </step>
+
+            <step order="4">
+                <title>Register in config index (if step 3 done)</title>
+                <description>Add the provider to src/providers/config/index.ts</description>
+                <code_block language="typescript">
+import nanogpt from "./nanogpt.json";
+
+const providers = {
+    // ... existing providers ...
+    nanogpt,
+    // ... other providers ...
+};
+                </code_block>
+            </step>
+
+            <step order="5">
+                <title>Update account flows (optional)</title>
+                <description>Add the provider to account sync and UI flows for complete integration:</description>
+                <list>
+                    <item>Add to sync list in src/accounts/accountSyncAdapter.ts</item>
+                    <item>Add to provider list in src/accounts/accountUI.ts for "Add Account" flow</item>
+                </list>
+            </step>
+
+            <step order="6">
+                <title>Build and test</title>
+                <code_block language="bash">npm run compile:dev</code_block>
+                <description>The provider should now:</description>
+                <list>
+                    <item>Appear in Copilot ++ Settings page</item>
+                    <item>Support API key configuration via chp.{provider}.setApiKey command</item>
+                    <item>Auto-fetch models from the configured endpoint when API key is set</item>
+                </list>
+            </step>
+        </step_list>
+
+        <section name="Provider_Configuration_Reference">
+            <title>KnownProviderConfig Options</title>
+            <table>
+                <row>
+                    <cell>Property</cell>
+                    <cell>Type</cell>
+                    <cell>Description</cell>
+                </row>
+                <row>
+                    <cell>displayName</cell>
+                    <cell>string</cell>
+                    <cell>Human-readable provider name</cell>
+                </row>
+                <row>
+                    <cell>family</cell>
+                    <cell>string</cell>
+                    <cell>Provider family identifier</cell>
+                </row>
+                <row>
+                    <cell>description</cell>
+                    <cell>string?</cell>
+                    <cell>Optional description for UI</cell>
+                </row>
+                <row>
+                    <cell>openai</cell>
+                    <cell>{baseUrl: string}?</cell>
+                    <cell>OpenAI SDK configuration</cell>
+                </row>
+                <row>
+                    <cell>anthropic</cell>
+                    <cell>{baseUrl: string}?</cell>
+                    <cell>Anthropic SDK configuration</cell>
+                </row>
+                <row>
+                    <cell>fetchModels</cell>
+                    <cell>boolean?</cell>
+                    <cell>Enable automatic model fetching</cell>
+                </row>
+                <row>
+                    <cell>modelsEndpoint</cell>
+                    <cell>string?</cell>
+                    <cell>Endpoint for fetching models (default: "/models")</cell>
+                </row>
+                <row>
+                    <cell>modelParser</cell>
+                    <cell>object?</cell>
+                    <cell>Configuration for parsing model list response</cell>
+                </row>
+                <row>
+                    <cell>supportsApiKey</cell>
+                    <cell>boolean?</cell>
+                    <cell>Whether provider requires API key (default: true)</cell>
+                </row>
+                <row>
+                    <cell>apiKeyTemplate</cell>
+                    <cell>string?</cell>
+                    <cell>Template shown in API key input placeholder</cell>
+                </row>
+                <row>
+                    <cell>customHeader</cell>
+                    <cell>Record&lt;string,string&gt;?</cell>
+                    <cell>Custom headers for all requests</cell>
+                </row>
+            </table>
+        </section>
+    </section>
+
     <section name="COMMANDS">
         <code_block language="bash">npm run compile          # Build extension to dist/
 npm run compile:dev      # Build in development mode
