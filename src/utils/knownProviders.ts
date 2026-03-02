@@ -17,14 +17,46 @@ import { Logger } from "./logger";
 
 export interface KnownProviderConfig
 	extends Partial<ProviderConfig & ProviderOverride> {
-	/** Compatibility strategy for OpenAI SDK */
-	openai?: Omit<ModelOverride, "id">;
-	/** Compatibility strategy for Anthropic SDK */
-	anthropic?: Omit<ModelOverride, "id">;
 	/** Provider description for settings and UI metadata */
 	description?: string;
 	/** Provider settings prefix override */
 	settingsPrefix?: string;
+	/** Inline model definitions - static fallback when fetchModels is enabled */
+	models?: ModelConfig[];
+	/** API key template for the provider (e.g., "sk-xxxxxxxx") */
+	apiKeyTemplate?: string;
+	/** Whether this provider requires an API key */
+	supportsApiKey?: boolean;
+	/** Provider family identifier (optional) */
+	family?: string;
+	/** Enable auto-fetching models from endpoint with cooldown */
+	fetchModels?: boolean;
+	/** Endpoint to fetch model list from (e.g., "/models" or full URL) */
+	modelsEndpoint?: string;
+	/** Response parser configuration for model fetching */
+	modelParser?: {
+		/** JSON path to array of models (e.g., "data", "models") */
+		arrayPath?: string;
+		/** Cooldown between fetches in minutes (default: 10) */
+		cooldownMinutes?: number;
+		/** Field mappings for model properties */
+		idField?: string;
+		nameField?: string;
+		descriptionField?: string;
+		contextLengthField?: string;
+	};
+	/** OpenAI SDK compatibility configuration */
+	openai?: {
+		baseUrl?: string;
+		extraBody?: Record<string, unknown>;
+		customHeader?: Record<string, string>;
+	};
+	/** Anthropic SDK compatibility configuration */
+	anthropic?: {
+		baseUrl?: string;
+		extraBody?: Record<string, unknown>;
+		customHeader?: Record<string, string>;
+	};
 }
 
 /**
@@ -47,6 +79,7 @@ export interface KnownProviderConfig
 const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 	aihubmix: {
 		displayName: "AIHubMix",
+		family: "AIHubMix",
 		customHeader: { "APP-Code": "TFUV4759" },
 		openai: {
 			baseUrl: "https://aihubmix.com/v1",
@@ -58,77 +91,172 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 			},
 		},
 	},
-	aiping: { displayName: "AIPing" },
+	aiping: {
+		displayName: "AIPing",
+		family: "AIPing",
+		openai: { baseUrl: "https://api.aiping.com/v1" },
+	},
 	antigravity: {
+		displayName: "Antigravity",
+		family: "Antigravity",
 		description: "Google Cloud Code integration",
 	},
 	blackbox: {
+		displayName: "Blackbox AI",
+		family: "Blackbox AI",
 		description: "Blackbox AI - works without API key",
+		supportsApiKey: false,
+		openai: {
+			baseUrl: "https://oi-vscode-server-985058387028.europe-west1.run.app/v1",
+		},
 	},
 	chatjimmy: {
+		displayName: "ChatJimmy",
+		family: "ChatJimmy",
 		description: "ChatJimmy - free public API, no auth required",
+		supportsApiKey: false,
 	},
 	chutes: {
+		displayName: "Chutes AI",
+		family: "Chutes AI",
 		description: "Chutes AI endpoint integration",
+		openai: { baseUrl: "https://api.chutes.ai/v1" },
 	},
 	codex: {
+		displayName: "OpenAI Codex",
+		family: "OpenAI Codex",
 		description: "OpenAI Codex specialized coding provider",
 	},
 	compatible: {
 		displayName: "OpenAI/Anthropic Compatible",
+		family: "Custom",
 		description: "Custom OpenAI/Anthropic compatible models",
 		settingsPrefix: "chp.compatibleModels",
 	},
 	deepinfra: {
+		displayName: "DeepInfra",
+		family: "DeepInfra",
 		description: "OpenAI-compatible endpoints from DeepInfra",
+		openai: { baseUrl: "https://api.deepinfra.com/v1/openai" },
+		// Auto-fetch model list - updates static JSON config in background
+		fetchModels: true,
+		modelsEndpoint: "/models",
+		modelParser: {
+			arrayPath: "data",
+			descriptionField: "id",
+			cooldownMinutes: 10,
+		},
 	},
 	deepseek: {
+		displayName: "DeepSeek",
+		family: "DeepSeek",
 		description: "DeepSeek model family",
+		openai: { baseUrl: "https://api.deepseek.com/v1" },
+		anthropic: { baseUrl: "https://api.deepseek.com/anthropic" },
 	},
 	geminicli: {
+		displayName: "Gemini CLI",
+		family: "Gemini",
 		description: "Gemini CLI OAuth provider",
 	},
 	huggingface: {
+		displayName: "Hugging Face",
+		family: "Hugging Face",
 		description: "Hugging Face Router endpoint integration",
+		openai: { baseUrl: "https://router.huggingface.co/v1" },
 	},
 	kilo: {
+		displayName: "Kilo AI",
+		family: "Kilo AI",
 		description: "Kilo AI endpoint integration",
+		openai: { baseUrl: "https://api.kilo.ai/api/gateway" },
+		fetchModels: true,
+		modelsEndpoint: "/models",
+		modelParser: {
+			arrayPath: "data",
+			descriptionField: "id",
+			cooldownMinutes: 10,
+		},
 	},
 	lightningai: {
+		displayName: "LightningAI",
+		family: "LightningAI",
 		description: "LightningAI endpoint integration",
+		openai: { baseUrl: "https://api.lightning.ai/v1" },
 	},
 	minimax: {
+		displayName: "MiniMax",
+		family: "MiniMax",
 		description: "MiniMax family models with coding endpoint options",
+		openai: { baseUrl: "https://api.minimax.chat/v1" },
 	},
 	mistral: {
+		displayName: "Mistral AI",
+		family: "Mistral AI",
 		description: "Mistral AI model endpoints",
+		openai: { baseUrl: "https://api.mistral.ai/v1" },
 	},
-	modelscope: { displayName: "ModelScope" },
+	modelscope: {
+		displayName: "ModelScope",
+		family: "ModelScope",
+		openai: { baseUrl: "https://api.modelscope.cn/v1" },
+	},
 	moonshot: {
+		displayName: "MoonshotAI",
+		family: "Moonshot AI",
 		description: "MoonshotAI Kimi model family",
+		openai: { baseUrl: "https://api.moonshot.cn/v1" },
+		anthropic: { baseUrl: "https://api.kimi.com/coding" },
 	},
 	nvidia: {
+		displayName: "NVIDIA NIM",
+		family: "NVIDIA",
 		description: "NVIDIA NIM hosted model endpoints",
+		openai: { baseUrl: "https://integrate.api.nvidia.com/v1" },
 	},
 	ollama: {
+		displayName: "Ollama",
+		family: "Ollama",
 		description:
 			"Ollama - use Ollama's OpenAI compatible API (v1/chat/completions)",
+		openai: { baseUrl: "http://localhost:11434/v1" },
 	},
 	opencode: {
+		displayName: "OpenCode",
+		family: "OpenCode",
 		description: "OpenCode endpoint integration",
+		openai: { baseUrl: "https://api.opencode.ai/v1" },
 	},
-	openrouter: { displayName: "OpenRouter" },
 	qwencli: {
+		displayName: "Qwen CLI",
+		family: "Qwen",
 		description: "Qwen CLI OAuth provider",
+		openai: { baseUrl: "https://api.qwen.ai/v1" },
 	},
-	siliconflow: { displayName: "SiliconFlow" },
-	tbox: { displayName: "Bailian" },
+	siliconflow: {
+		displayName: "SiliconFlow",
+		family: "SiliconFlow",
+		openai: { baseUrl: "https://api.siliconflow.cn/v1" },
+	},
+	tbox: {
+		displayName: "Bailian",
+		family: "Bailian",
+		openai: { baseUrl: "https://bailian.aliyuncs.com/v1" },
+	},
 	zenmux: {
+		displayName: "Zenmux",
+		family: "Zenmux",
 		description: "Zenmux endpoint integration",
+		openai: { baseUrl: "https://api.zenmux.ai/v1" },
 	},
 	zhipu: {
 		displayName: "Zhipu AI",
+		family: "Zhipu AI",
 		description: "GLM family models and coding plan features",
+		openai: {
+			baseUrl: "https://open.bigmodel.cn/api/paas/v4",
+			customHeader: { "X-Request-Id": "copilot-helper" },
+		},
 	},
 };
 
@@ -198,10 +326,6 @@ const specializedProviderFactories: Record<string, ProviderFactory> = {
 		() => import("../providers/huggingface/provider.js"),
 		"HuggingfaceProvider",
 	),
-	kilo: createLazyFactory(
-		() => import("../providers/kilo/provider.js"),
-		"KiloProvider",
-	),
 	lightningai: createLazyFactory(
 		() => import("../providers/lightningai/provider.js"),
 		"LightningAIProvider",
@@ -269,6 +393,18 @@ async function registerProvider(
 
 		if (specializedFactory) {
 			result = await specializedFactory(context, providerKey, providerConfig);
+		} else if (KnownProviders[providerKey]?.fetchModels) {
+			// Use DynamicModelProvider for auto-fetching model lists
+			const { DynamicModelProvider } = await import(
+				"../providers/common/dynamicModelProvider.js"
+			);
+			const knownConfig = KnownProviders[providerKey];
+			result = DynamicModelProvider.createAndActivateDynamic(
+				context,
+				providerKey,
+				providerConfig,
+				knownConfig,
+			);
 		} else {
 			const { GenericModelProvider } = await import(
 				"../providers/common/genericModelProvider.js"
@@ -493,3 +629,126 @@ export const ProviderRegistry = {
 	getAllProviders,
 	getProvider,
 };
+
+/**
+ * Build complete ConfigProvider by merging JSON config files with declarative providers from KnownProviders
+ * Providers with inline `models` defined in KnownProviders don't need separate JSON config files
+ */
+export function buildConfigProvider(
+	configProvider: ConfigProvider,
+): ConfigProvider {
+	const mergedConfig: ConfigProvider = { ...configProvider };
+
+	for (const [providerKey, knownConfig] of Object.entries(KnownProviders)) {
+		const existingConfig = mergedConfig[providerKey];
+
+		// For existing providers, merge metadata and configurations
+		if (existingConfig) {
+			// Merge provider-level metadata
+			if (knownConfig.displayName) {
+				existingConfig.displayName = knownConfig.displayName;
+			}
+			if (knownConfig.family) {
+				existingConfig.family = knownConfig.family;
+			}
+
+			// Apply openai/anthropic baseUrl overrides if present
+			if (knownConfig.openai?.baseUrl && !existingConfig.baseUrl) {
+				existingConfig.baseUrl = knownConfig.openai.baseUrl;
+			}
+
+			// Apply family and customHeader to all models in the static list
+			existingConfig.models = existingConfig.models.map((model) => {
+				const sdkMode = model.sdkMode || "openai";
+				const sdkBaseUrl =
+					sdkMode === "openai"
+						? knownConfig.openai?.baseUrl
+						: knownConfig.anthropic?.baseUrl;
+
+				return {
+					...model,
+					family: knownConfig.family || model.family || providerKey,
+					baseUrl: model.baseUrl || sdkBaseUrl || existingConfig.baseUrl,
+					customHeader: {
+						...knownConfig.customHeader,
+						...knownConfig.openai?.customHeader,
+						...knownConfig.anthropic?.customHeader,
+						...model.customHeader,
+					},
+					extraBody: {
+						...(knownConfig.openai?.extraBody ?? {}),
+						...(knownConfig.anthropic?.extraBody ?? {}),
+						...model.extraBody,
+					},
+				};
+			});
+			continue;
+		}
+
+		// Skip if no inline models defined (specialized providers handle their own setup)
+		if (!knownConfig.models || knownConfig.models.length === 0) {
+			continue;
+		}
+
+		// Check for required fields
+		if (!knownConfig.displayName) {
+			Logger.warn(
+				`Skipping declarative provider "${providerKey}": missing displayName`,
+			);
+			continue;
+		}
+
+		// Get baseUrl from openai config, anthropic config, or direct baseUrl
+		const baseUrl =
+			knownConfig.baseUrl ||
+			knownConfig.openai?.baseUrl ||
+			knownConfig.anthropic?.baseUrl;
+
+		if (!baseUrl) {
+			Logger.warn(
+				`Skipping declarative provider "${providerKey}": missing baseUrl`,
+			);
+			continue;
+		}
+
+		// Build complete ProviderConfig from inline definition
+		const providerConfig: ProviderConfig = {
+			displayName: knownConfig.displayName,
+			baseUrl: baseUrl,
+			apiKeyTemplate: knownConfig.apiKeyTemplate ?? "",
+			supportsApiKey: knownConfig.supportsApiKey ?? true,
+			family: knownConfig.family ?? providerKey,
+			models: knownConfig.models.map((modelConfig) => {
+				const sdkMode = modelConfig.sdkMode || "openai";
+				const sdkBaseUrl =
+					sdkMode === "openai"
+						? knownConfig.openai?.baseUrl
+						: knownConfig.anthropic?.baseUrl;
+
+				return {
+					...modelConfig,
+					baseUrl: modelConfig.baseUrl || sdkBaseUrl || baseUrl,
+					// Apply known provider-level overrides to each model if applicable
+					customHeader: {
+						...knownConfig.customHeader,
+						...knownConfig.openai?.customHeader,
+						...knownConfig.anthropic?.customHeader,
+						...modelConfig.customHeader,
+					},
+					extraBody: {
+						...(knownConfig.openai?.extraBody ?? {}),
+						...(knownConfig.anthropic?.extraBody ?? {}),
+						...modelConfig.extraBody,
+					},
+				};
+			}),
+		};
+
+		mergedConfig[providerKey] = providerConfig;
+		Logger.trace(
+			`Registered declarative provider "${providerKey}" with ${providerConfig.models.length} models`,
+		);
+	}
+
+	return mergedConfig;
+}

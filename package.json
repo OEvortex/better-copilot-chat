@@ -48,30 +48,36 @@
         "chatProvider"
     ],
     "activationEvents": [
-        "onStartupFinished",
-        "onLanguageModelProvider:chp.zhipu",
-        "onLanguageModelProvider:chp.minimax",
-        "onLanguageModelProvider:chp.moonshot",
-        "onLanguageModelProvider:chp.deepseek",
-        "onLanguageModelProvider:chp.chutes",
-        "onLanguageModelProvider:chp.zenmux",
-        "onLanguageModelProvider:chp.opencode",
+        "onFileSystem:chp-settings",
+        "onLanguageModelProvider:chp.aihubmix",
+        "onLanguageModelProvider:chp.aiping",
+        "onLanguageModelProvider:chp.antigravity",
         "onLanguageModelProvider:chp.blackbox",
+        "onLanguageModelProvider:chp.chatjimmy",
+        "onLanguageModelProvider:chp.chutes",
+        "onLanguageModelProvider:chp.codex",
+        "onLanguageModelProvider:chp.deepinfra",
+        "onLanguageModelProvider:chp.deepseek",
+        "onLanguageModelProvider:chp.geminicli",
         "onLanguageModelProvider:chp.huggingface",
         "onLanguageModelProvider:chp.kilo",
         "onLanguageModelProvider:chp.lightningai",
-        "onLanguageModelProvider:chp.deepinfra",
-        "onLanguageModelProvider:chp.nvidia",
+        "onLanguageModelProvider:chp.minimax",
         "onLanguageModelProvider:chp.mistral",
+        "onLanguageModelProvider:chp.modelscope",
+        "onLanguageModelProvider:chp.moonshot",
+        "onLanguageModelProvider:chp.nvidia",
         "onLanguageModelProvider:chp.ollama",
+        "onLanguageModelProvider:chp.opencode",
         "onLanguageModelProvider:chp.qwencli",
-        "onLanguageModelProvider:chp.geminicli",
-        "onLanguageModelProvider:chp.antigravity",
-        "onLanguageModelProvider:chp.codex",
-        "onLanguageModelTool:chp_zhipuWebSearch",
-        "onLanguageModelTool:chp_minimaxWebSearch",
+        "onLanguageModelProvider:chp.siliconflow",
+        "onLanguageModelProvider:chp.tbox",
+        "onLanguageModelProvider:chp.zenmux",
+        "onLanguageModelProvider:chp.zhipu",
         "onLanguageModelTool:chp_google_web_search",
-        "onFileSystem:chp-settings"
+        "onLanguageModelTool:chp_minimaxWebSearch",
+        "onLanguageModelTool:chp_zhipuWebSearch",
+        "onStartupFinished"
     ],
     "contributes": {
         "commands": [
@@ -655,6 +661,78 @@
                     "default": "",
                     "description": "API key for Antigravity quota watcher.",
                     "scope": "application"
+                },
+                "chp.aihubmix.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "AIHubMix base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
+                "chp.aihubmix.sdkMode": {
+                    "type": "string",
+                    "enum": [
+                        "openai",
+                        "anthropic"
+                    ],
+                    "default": "anthropic",
+                    "description": "Select SDK compatibility mode for AIHubMix.",
+                    "scope": "application"
+                },
+                "chp.aiping.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "AIPing base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
+                "chp.chatjimmy.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "ChatJimmy base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
+                "chp.deepseek.sdkMode": {
+                    "type": "string",
+                    "enum": [
+                        "openai",
+                        "anthropic"
+                    ],
+                    "default": "anthropic",
+                    "description": "Select SDK compatibility mode for DeepSeek.",
+                    "scope": "application"
+                },
+                "chp.kilo.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Kilo AI base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
+                "chp.modelscope.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "ModelScope base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
+                "chp.moonshot.sdkMode": {
+                    "type": "string",
+                    "enum": [
+                        "openai",
+                        "anthropic"
+                    ],
+                    "default": "anthropic",
+                    "description": "Select SDK compatibility mode for MoonshotAI.",
+                    "scope": "application"
+                },
+                "chp.siliconflow.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "SiliconFlow base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
+                "chp.tbox.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Bailian base URL or proxy endpoint (optional).",
+                    "scope": "application"
                 }
             }
         },
@@ -666,13 +744,13 @@
         ],
         "languageModelChatProviders": [
             {
-                "vendor": "chp.zhipu",
-                "displayName": "⦿ ZhipuAI (GLM Coding Plan)",
+                "vendor": "chp.aihubmix",
+                "displayName": "⦿ AIHubMix",
                 "configuration": {
                     "properties": {
                         "apiKey": {
                             "type": "string",
-                            "description": "ZhipuAI API key.",
+                            "description": "AIHubMix API key.",
                             "secret": true
                         },
                         "baseUrl": {
@@ -684,13 +762,13 @@
                 }
             },
             {
-                "vendor": "chp.minimax",
-                "displayName": "⦿ MiniMax (Coding Plan)",
+                "vendor": "chp.aiping",
+                "displayName": "⦿ AIPing",
                 "configuration": {
                     "properties": {
                         "apiKey": {
                             "type": "string",
-                            "description": "MiniMax API key.",
+                            "description": "AIPing API key.",
                             "secret": true
                         },
                         "baseUrl": {
@@ -702,13 +780,83 @@
                 }
             },
             {
-                "vendor": "chp.moonshot",
-                "displayName": "⦿ MoonshotAI (Kimi For Coding)",
+                "vendor": "chp.antigravity",
+                "displayName": "⦿ Antigravity (Google Cloud Code integration)",
                 "configuration": {
                     "properties": {
                         "apiKey": {
                             "type": "string",
-                            "description": "MoonshotAI API key.",
+                            "description": "Antigravity API key.",
+                            "secret": true
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.blackbox",
+                "displayName": "⦿ Blackbox AI (Blackbox AI)",
+                "configuration": {
+                    "properties": {
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.chatjimmy",
+                "displayName": "⦿ ChatJimmy (ChatJimmy)",
+                "configuration": {
+                    "properties": {
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.chutes",
+                "displayName": "⦿ Chutes AI (Chutes AI endpoint integration)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Chutes AI API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.codex",
+                "displayName": "⦿ OpenAI Codex (OpenAI Codex specialized coding provider)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "OpenAI Codex API key.",
+                            "secret": true
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.deepinfra",
+                "displayName": "⦿ DeepInfra (OpenAI-compatible endpoints from DeepInfra)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "DeepInfra API key.",
                             "secret": true
                         },
                         "baseUrl": {
@@ -721,7 +869,7 @@
             },
             {
                 "vendor": "chp.deepseek",
-                "displayName": "⦿ DeepSeek",
+                "displayName": "⦿ DeepSeek (DeepSeek model family)",
                 "configuration": {
                     "properties": {
                         "apiKey": {
@@ -738,80 +886,21 @@
                 }
             },
             {
-                "vendor": "chp.chutes",
-                "displayName": "⦿ Chutes",
+                "vendor": "chp.geminicli",
+                "displayName": "⦿ Gemini CLI (Gemini CLI OAuth provider)",
                 "configuration": {
                     "properties": {
                         "apiKey": {
                             "type": "string",
-                            "description": "Chutes API key.",
+                            "description": "Gemini CLI API key.",
                             "secret": true
-                        },
-                        "baseUrl": {
-                            "type": "string",
-                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
-                            "default": ""
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.zenmux",
-                "displayName": "⦿ Zenmux",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "Zenmux API key.",
-                            "secret": true
-                        },
-                        "baseUrl": {
-                            "type": "string",
-                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
-                            "default": ""
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.opencode",
-                "displayName": "⦿ OpenCode",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "OpenCode API key.",
-                            "secret": true
-                        },
-                        "baseUrl": {
-                            "type": "string",
-                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
-                            "default": ""
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.blackbox",
-                "displayName": "⦿ Blackbox AI",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "Blackbox API key.",
-                            "secret": true
-                        },
-                        "baseUrl": {
-                            "type": "string",
-                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
-                            "default": ""
                         }
                     }
                 }
             },
             {
                 "vendor": "chp.huggingface",
-                "displayName": "⦿ Hugging Face",
+                "displayName": "⦿ Hugging Face (Hugging Face Router endpoint integration)",
                 "configuration": {
                     "properties": {
                         "apiKey": {
@@ -829,7 +918,7 @@
             },
             {
                 "vendor": "chp.kilo",
-                "displayName": "⦿ Kilo AI",
+                "displayName": "⦿ Kilo AI (Kilo AI endpoint integration)",
                 "configuration": {
                     "properties": {
                         "apiKey": {
@@ -847,12 +936,12 @@
             },
             {
                 "vendor": "chp.lightningai",
-                "displayName": "⦿ Lightning AI",
+                "displayName": "⦿ LightningAI (LightningAI endpoint integration)",
                 "configuration": {
                     "properties": {
                         "apiKey": {
                             "type": "string",
-                            "description": "Lightning AI API key.",
+                            "description": "LightningAI API key.",
                             "secret": true
                         },
                         "baseUrl": {
@@ -864,31 +953,13 @@
                 }
             },
             {
-                "vendor": "chp.deepinfra",
-                "displayName": "⦿ DeepInfra",
+                "vendor": "chp.minimax",
+                "displayName": "⦿ MiniMax (MiniMax family models with coding endpoint options)",
                 "configuration": {
                     "properties": {
                         "apiKey": {
                             "type": "string",
-                            "description": "DeepInfra API key.",
-                            "secret": true
-                        },
-                        "baseUrl": {
-                            "type": "string",
-                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
-                            "default": ""
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.nvidia",
-                "displayName": "⦿ NVIDIA NIM",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "NVIDIA NIM API key.",
+                            "description": "MiniMax API key.",
                             "secret": true
                         },
                         "baseUrl": {
@@ -901,7 +972,7 @@
             },
             {
                 "vendor": "chp.mistral",
-                "displayName": "⦿ Mistral AI",
+                "displayName": "⦿ Mistral AI (Mistral AI model endpoints)",
                 "configuration": {
                     "properties": {
                         "apiKey": {
@@ -918,13 +989,85 @@
                 }
             },
             {
-                "vendor": "chp.ollama",
-                "displayName": "⦿ Ollama Cloud",
+                "vendor": "chp.modelscope",
+                "displayName": "⦿ ModelScope",
                 "configuration": {
                     "properties": {
                         "apiKey": {
                             "type": "string",
-                            "description": "Ollama Cloud API key.",
+                            "description": "ModelScope API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.moonshot",
+                "displayName": "⦿ MoonshotAI (MoonshotAI Kimi model family)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "MoonshotAI API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.nvidia",
+                "displayName": "⦿ NVIDIA NIM (NVIDIA NIM hosted model endpoints)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "NVIDIA NIM API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.ollama",
+                "displayName": "⦿ Ollama (Ollama)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Ollama API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.opencode",
+                "displayName": "⦿ OpenCode (OpenCode endpoint integration)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "OpenCode API key.",
                             "secret": true
                         },
                         "baseUrl": {
@@ -937,26 +1080,25 @@
             },
             {
                 "vendor": "chp.qwencli",
-                "displayName": "⦿ Qwen Code CLI",
-                "configuration": {
-                    "properties": {}
-                }
-            },
-            {
-                "vendor": "chp.geminicli",
-                "displayName": "⦿ Gemini CLI",
-                "configuration": {
-                    "properties": {}
-                }
-            },
-            {
-                "vendor": "chp.codex",
-                "displayName": "⦿ Codex (OpenAI)",
+                "displayName": "⦿ Qwen CLI (Qwen CLI OAuth provider)",
                 "configuration": {
                     "properties": {
                         "apiKey": {
                             "type": "string",
-                            "description": "OpenAI / OAuth.",
+                            "description": "Qwen CLI API key.",
+                            "secret": true
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.siliconflow",
+                "displayName": "⦿ SiliconFlow",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "SiliconFlow API key.",
                             "secret": true
                         },
                         "baseUrl": {
@@ -968,13 +1110,49 @@
                 }
             },
             {
-                "vendor": "chp.antigravity",
-                "displayName": "⦿ Antigravity (Google Cloud Code)",
+                "vendor": "chp.tbox",
+                "displayName": "⦿ Bailian",
                 "configuration": {
                     "properties": {
                         "apiKey": {
                             "type": "string",
-                            "description": "Antigravity / Oauth.",
+                            "description": "Bailian API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.zenmux",
+                "displayName": "⦿ Zenmux (Zenmux endpoint integration)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Zenmux API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.zhipu",
+                "displayName": "⦿ Zhipu AI (GLM family models and coding plan features)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Zhipu AI API key.",
                             "secret": true
                         },
                         "baseUrl": {

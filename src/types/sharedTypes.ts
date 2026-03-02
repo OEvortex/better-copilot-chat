@@ -121,6 +121,8 @@ export interface ProviderOverride {
 	baseUrl?: string;
 	/** Provider-level custom HTTP headers (optional) */
 	customHeader?: Record<string, string>;
+	/** Provider-level SDK mode (optional) */
+	sdkMode?: "openai" | "anthropic";
 	/** Model override configuration list */
 	models?: ModelOverride[];
 }

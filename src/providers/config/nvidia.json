@@ -1,6 +1,6 @@
 {
     "displayName": "NVIDIA NIM",
-    "family": "Nvidia",
+    "family": "NVIDIA",
     "baseUrl": "https://integrate.api.nvidia.com/v1",
     "apiKeyTemplate": "nvapi-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "models": [
@@ -1952,12 +1952,12 @@
             "id": "qwen-qwen3-5-397b-a17b",
             "name": "qwen/qwen3.5-397b-a17b",
             "tooltip": "qwen/qwen3.5-397b-a17b by NVIDIA NIM",
-            "maxInputTokens": 114688,
-            "maxOutputTokens": 16384,
+            "maxInputTokens": 229376,
+            "maxOutputTokens": 32768,
             "model": "qwen/qwen3.5-397b-a17b",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": false
+                "imageInput": true
             }
         },
         {

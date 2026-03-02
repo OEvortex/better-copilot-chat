@@ -12,6 +12,7 @@ import type {
 	ProviderOverride,
 	UserConfigOverrides,
 } from "../types/sharedTypes";
+import { buildConfigProvider, KnownProviders } from "./knownProviders";
 import { Logger } from "./logger";
 
 /**
@@ -153,18 +154,9 @@ export class ConfigManager {
 					"zhipu.endpoint",
 					"open.bigmodel.cn",
 				),
-				plan: config.get<ZhipuConfig["plan"]>(
-					"zhipu.plan",
-					"coding",
-				),
-				thinking: config.get<ZhipuConfig["thinking"]>(
-					"zhipu.thinking",
-					"auto",
-				),
-				clearThinking: config.get<boolean>(
-					"zhipu.clearThinking",
-					true,
-				),
+				plan: config.get<ZhipuConfig["plan"]>("zhipu.plan", "coding"),
+				thinking: config.get<ZhipuConfig["thinking"]>("zhipu.thinking", "auto"),
+				clearThinking: config.get<boolean>("zhipu.clearThinking", true),
 			},
 			minimax: {
 				endpoint: config.get<MiniMaxConfig["endpoint"]>(
@@ -405,9 +397,10 @@ export class ConfigManager {
 
 	/**
 	 * Get provider configuration (new mode: directly import configProviders)
+	 * Merges JSON config files with declarative providers from KnownProviders
 	 */
 	static getConfigProvider(): ConfigProvider {
-		return configProviders;
+		return buildConfigProvider(configProviders);
 	}
 
 	/**
@@ -427,27 +420,32 @@ export class ConfigManager {
 			"providerOverrides",
 			{},
 		);
-		const baseUrlOverrides: UserConfigOverrides = {};
+		const settingsOverrides: UserConfigOverrides = {};
 
 		for (const providerKey of Object.keys(configProviders)) {
-			const baseUrl = config
-				.get<string>(`${providerKey}.baseUrl`, "")
-				.trim();
-			if (baseUrl) {
-				baseUrlOverrides[providerKey] = { baseUrl };
+			const baseUrl = config.get<string>(`${providerKey}.baseUrl`, "").trim();
+			const sdkMode = config.get<string>(`${providerKey}.sdkMode`, "").trim();
+			
+			if (baseUrl || sdkMode) {
+				settingsOverrides[providerKey] = {};
+				if (baseUrl) settingsOverrides[providerKey].baseUrl = baseUrl;
+				if (sdkMode) settingsOverrides[providerKey].sdkMode = sdkMode as "openai" | "anthropic";
 			}
 		}
 
-		const merged: UserConfigOverrides = { ...baseUrlOverrides };
+		const merged: UserConfigOverrides = { ...settingsOverrides };
 		for (const [key, override] of Object.entries(configuredOverrides)) {
 			const current = merged[key] ? { ...merged[key] } : {};
 			const normalizedBaseUrl = override.baseUrl?.trim();
 			const nextOverride: ProviderOverride = {
 				...current,
-				...override
+				...override,
 			};
 			if (!normalizedBaseUrl && current.baseUrl) {
 				nextOverride.baseUrl = current.baseUrl;
+			}
+			if (!override.sdkMode && current.sdkMode) {
+				nextOverride.sdkMode = current.sdkMode;
 			}
 			merged[key] = nextOverride;
 		}
@@ -480,6 +478,31 @@ export class ConfigManager {
 			Logger.debug(`  Override baseUrl: ${override.baseUrl}`);
 			for (const model of config.models) {
 				model.baseUrl = override.baseUrl;
+			}
+		} else if (override.sdkMode) {
+			// If sdkMode is overridden but baseUrl is not, try to find the correct baseUrl from KnownProviders
+			const knownConfig = KnownProviders[providerKey];
+			if (knownConfig) {
+				const sdkBaseUrl =
+					override.sdkMode === "openai"
+						? knownConfig.openai?.baseUrl
+						: knownConfig.anthropic?.baseUrl;
+				if (sdkBaseUrl) {
+					config.baseUrl = sdkBaseUrl;
+					Logger.debug(
+						`  Switching baseUrl to ${sdkBaseUrl} based on sdkMode ${override.sdkMode}`,
+					);
+					for (const model of config.models) {
+						model.baseUrl = sdkBaseUrl;
+					}
+				}
+			}
+		}
+
+		if (override.sdkMode) {
+			Logger.debug(`  Override sdkMode: ${override.sdkMode}`);
+			for (const model of config.models) {
+				model.sdkMode = override.sdkMode;
 			}
 		}
 
@@ -586,15 +609,17 @@ export class ConfigManager {
 						...(modelOverride.model && { model: modelOverride.model }),
 						...(modelOverride.sdkMode && { sdkMode: modelOverride.sdkMode }),
 						...(modelOverride.baseUrl && { baseUrl: modelOverride.baseUrl }),
-						...(override.baseUrl && !modelOverride.baseUrl && {
-							baseUrl: override.baseUrl,
-						}),
+						...(override.baseUrl &&
+							!modelOverride.baseUrl && {
+								baseUrl: override.baseUrl,
+							}),
 						...(modelOverride.customHeader && {
 							customHeader: modelOverride.customHeader,
 						}),
-						...(override.customHeader && !modelOverride.customHeader && {
-							customHeader: override.customHeader,
-						}),
+						...(override.customHeader &&
+							!modelOverride.customHeader && {
+								customHeader: override.customHeader,
+							}),
 						...(modelOverride.extraBody && {
 							extraBody: modelOverride.extraBody,
 						}),

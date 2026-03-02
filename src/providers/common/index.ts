@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 export type { ProcessStreamOptions } from "./commonTypes";
+export { DynamicModelProvider } from "./dynamicModelProvider";
 export { GenericModelProvider } from "./genericModelProvider";
 export {
 	DEFAULT_CONTEXT_LENGTH,
