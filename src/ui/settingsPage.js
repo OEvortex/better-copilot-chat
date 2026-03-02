@@ -11,6 +11,7 @@ let settingsState = {
     providerSearchQuery: "",
     loading: true,
 };
+const pendingApiKeyRemovals = new Set();
 
 // Available load balance strategies
 const LOAD_BALANCE_STRATEGIES = [
@@ -584,15 +585,22 @@ function _addApiKey(providerId) {
 }
 
 function _removeApiKey(providerId, apiKeyId) {
-    if (!confirm("Are you sure you want to remove this API key?")) {
+    const removalKey = `${providerId}:${apiKeyId}`;
+    if (pendingApiKeyRemovals.has(removalKey)) {
         return;
     }
+    pendingApiKeyRemovals.add(removalKey);
 
     vscode.postMessage({
         command: "removeApiKey",
         providerId,
         apiKeyId,
     });
+
+    // Prevent duplicate rapid-click requests
+    setTimeout(() => {
+        pendingApiKeyRemovals.delete(removalKey);
+    }, 1500);
 }
 
 function _switchApiKey(providerId, apiKeyId) {

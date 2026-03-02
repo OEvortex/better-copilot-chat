@@ -540,7 +540,10 @@ export class SettingsPage {
 				throw new Error("API key not found");
 			}
 
-			await SettingsPage.accountManager.removeAccount(apiKeyId);
+			const removed = await SettingsPage.accountManager.removeAccount(apiKeyId);
+			if (!removed) {
+				throw new Error("Failed to remove API key account");
+			}
 			await SettingsPage.sendStateUpdate(webview);
 			webview.postMessage({
 				command: "showToast",
