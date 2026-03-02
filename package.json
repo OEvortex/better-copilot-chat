@@ -459,7 +459,17 @@
                 "chp.ollama.baseUrl": {
                     "type": "string",
                     "default": "",
-                    "description": "Ollama Cloud base URL or proxy endpoint (optional).",
+                    "description": "Ollama base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
+                "chp.ollama.sdkMode": {
+                    "type": "string",
+                    "enum": [
+                        "openai",
+                        "anthropic"
+                    ],
+                    "default": "anthropic",
+                    "description": "Select SDK compatibility mode for Ollama.",
                     "scope": "application"
                 },
                 "chp.qwencli.baseUrl": {

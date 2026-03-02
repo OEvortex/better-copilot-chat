@@ -219,7 +219,15 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 		family: "Ollama",
 		description:
 			"Ollama - use Ollama's OpenAI compatible API (v1/chat/completions)",
-		openai: { baseUrl: "http://localhost:11434/v1" },
+		openai: { baseUrl: "https://ollama.com/v1" },
+		anthropic: { baseUrl: "https://ollama.com" },
+		fetchModels: true,
+		modelsEndpoint: "/v1/model",
+		modelParser: {
+			arrayPath: "data",
+			descriptionField: "id",
+			cooldownMinutes: 10,
+		},
 	},
 	opencode: {
 		displayName: "OpenCode",
@@ -345,10 +353,6 @@ const specializedProviderFactories: Record<string, ProviderFactory> = {
 	nvidia: createLazyFactory(
 		() => import("../providers/nvidia/index.js"),
 		"NvidiaProvider",
-	),
-	ollama: createLazyFactory(
-		() => import("../providers/ollama/index.js"),
-		"OllamaProvider",
 	),
 	opencode: createLazyFactory(
 		() => import("../providers/opencode/opencodeProvider.js"),
