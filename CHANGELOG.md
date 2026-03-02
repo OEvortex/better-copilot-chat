@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+**Provider Sync Automation:**
+- **`sync-providers.js` Script**: Created automated synchronization script to generate all provider-related artifacts from a single source of truth (`knownProviders.ts`).
+  - Auto-generates `ProviderKey` enum in `src/types/providerKeys.ts`
+  - Auto-updates provider configurations in `src/accounts/accountManager.ts`
+  - Auto-syncs commands, settings, and activation events in `package.json`
+  - Run with: `npm run sync-providers`
+
+**New Providers:**
+- **NanoGPT**: Added support for NanoGPT provider (OpenAI SDK-compatible)
+  - Endpoint: `https://nano-gpt.com/api/v1`
+  - Dynamic model fetching enabled
+  - API key configuration via `chp.nanogpt.setApiKey` command
+
 **Declarative Provider System:**
 - **Zero-Code Provider Definition**: Providers can now be defined entirely in `knownProviders.ts` without needing individual provider folders, classes, or JSON config files.
 - **Unified SDK Compatibility**: All providers now support a unified configuration structure with `openai` and `anthropic` SDK compatibility modes.
