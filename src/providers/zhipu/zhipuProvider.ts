@@ -82,7 +82,7 @@ export class ZhipuProvider
 		super(context, providerKey, providerConfig);
 		this.configFilePath = path.join(
 			context.extensionPath,
-			"src",
+			"dist",
 			"providers",
 			"config",
 			"zhipu.json",

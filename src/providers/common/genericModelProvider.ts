@@ -354,7 +354,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 		// Look for the provider config file in the extension
 		const configPath = path.join(
 			this.context.extensionPath,
-			"src",
+			"dist",
 			"providers",
 			"config",
 			`${this.providerKey}.json`,

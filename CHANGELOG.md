@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.7] - 2026-03-03
+
+### Fixed
+
+- **Production Config File Paths**: Fixed issue where provider config files could not be found in production builds.
+  - Updated esbuild configuration to copy provider JSON configs from `src/providers/config/` to `dist/providers/config/` during build.
+  - Changed all provider file paths from `src/providers/config/` to `dist/providers/config/` to match production bundle structure.
+  - Affected providers: Zhipu, MiniMax, Moonshot, and all dynamic model providers.
+
 ## [0.2.6] - 2026-03-02
 
 ### Added

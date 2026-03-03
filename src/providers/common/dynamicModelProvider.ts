@@ -61,7 +61,7 @@ export class DynamicModelProvider extends GenericModelProvider {
 		this.knownConfig = knownConfig;
 		this.configFilePath = path.join(
 			context.extensionPath,
-			"src",
+			"dist",
 			"providers",
 			"config",
 			`${providerKey}.json`,

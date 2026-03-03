@@ -121,6 +121,27 @@ async function copyBuildAssets() {
 	}
 
 	await copyStaticAssets(filesToCopy, "dist");
+
+	// Copy provider config files from src/providers/config to dist/providers/config
+	const configDir = path.join(REPO_ROOT, "src", "providers", "config");
+	const distConfigDir = path.join(REPO_ROOT, "dist", "providers", "config");
+	try {
+		const configFiles = await fs.promises.readdir(configDir);
+		const jsonFiles = configFiles.filter((f) => f.endsWith(".json"));
+		await fs.promises.mkdir(distConfigDir, { recursive: true });
+		for (const file of jsonFiles) {
+			const srcPath = path.join(configDir, file);
+			const destPath = path.join(distConfigDir, file);
+			try {
+				await fs.promises.copyFile(srcPath, destPath);
+				console.log(`Copied config: src/providers/config/${file} -> dist/providers/config/${file}`);
+			} catch {
+				console.warn(`Failed to copy config file: ${file}`);
+			}
+		}
+	} catch {
+		console.warn("Could not copy provider config files");
+	}
 }
 
 // Custom plugin to handle ?raw imports (embedded resources, no minify)
