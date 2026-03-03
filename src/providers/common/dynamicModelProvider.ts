@@ -108,8 +108,11 @@ export class DynamicModelProvider extends GenericModelProvider {
 		this.isRefreshing = true;
 		this.lastFetchTime = Date.now();
 		try {
-			const apiKey = await this.ensureApiKey(silent);
-			if (this.knownConfig.supportsApiKey !== false && !apiKey) {
+			let apiKey = await this.ensureApiKey(silent);
+			if (!apiKey && this.knownConfig.openModelEndpoint) {
+				// Open model endpoint - proceed without API key (or use defaultApiKey)
+				apiKey = this.knownConfig.defaultApiKey;
+			} else if (this.knownConfig.supportsApiKey !== false && !apiKey) {
 				Logger.trace(`[${this.providerKey}] API key required for model fetch`);
 				return;
 			}
