@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8] - 2026-03-03
+
+### Added
+
+- **Open Model Endpoint Support**: Added `openModelEndpoint` flag to `knownProviders.ts` for providers that allow model fetching without an API key.
+  - Enabled for: AIHubMix, Blackbox AI, Chutes AI, DeepInfra, Hugging Face, Kilo AI, LightningAI, ModelScope, NanoGPT, NVIDIA NIM, Ollama, OpenCode, and Zenmux.
+- **Blackbox AI Headers**: Added required custom headers (`customerId`, `userId`, `version`) to Blackbox AI provider configuration.
+
+### Fixed
+
+- **Dynamic Model Update Logic**: Fixed an issue where background model updates were skipped when models were already cached. The system now always triggers a background fetch for providers with dynamic model support to ensure config files and cache stay up-to-date.
+
 ## [0.2.7] - 2026-03-03
 
 ### Fixed

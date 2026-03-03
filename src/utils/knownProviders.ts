@@ -94,6 +94,7 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 				top_p: null,
 			},
 		},
+		openModelEndpoint: true,
 		fetchModels: true,
 		modelsEndpoint: "/models",
 		modelParser: {
@@ -112,6 +113,15 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 		family: "Blackbox AI",
 		description: "Blackbox AI - works without API key",
 		supportsApiKey: false,
+		openModelEndpoint: true,
+		fetchModels: true,
+		modelsEndpoint: "/models",
+		customHeader: {
+			customerId: "",
+			userId: "",
+			version: "1.1",
+
+		},
 		openai: {
 			baseUrl: "https://oi-vscode-server-985058387028.europe-west1.run.app/v1",
 		},
@@ -406,10 +416,6 @@ function createLazyFactory(
 }
 
 const specializedProviderFactories: Record<string, ProviderFactory> = {
-	blackbox: createLazyFactory(
-		() => import("../providers/blackbox/index.js"),
-		"BlackboxProvider",
-	),
 	geminicli: createLazyFactory(
 		() => import("../providers/geminicli/provider.js"),
 		"GeminiCliProvider",
@@ -768,6 +774,15 @@ export function buildConfigProvider(
 			if (knownConfig.family) {
 				existingConfig.family = knownConfig.family;
 			}
+			if (knownConfig.openModelEndpoint !== undefined) {
+				existingConfig.openModelEndpoint = knownConfig.openModelEndpoint;
+			}
+			if (knownConfig.modelsEndpoint) {
+				existingConfig.modelsEndpoint = knownConfig.modelsEndpoint;
+			}
+			if (knownConfig.modelParser) {
+				existingConfig.modelParser = knownConfig.modelParser;
+			}
 
 			// Apply openai/anthropic baseUrl overrides if present
 			if (knownConfig.openai?.baseUrl && !existingConfig.baseUrl) {
@@ -844,6 +859,9 @@ export function buildConfigProvider(
 			baseUrl: baseUrl || "",
 			apiKeyTemplate: knownConfig.apiKeyTemplate ?? "",
 			supportsApiKey: knownConfig.supportsApiKey ?? true,
+			openModelEndpoint: knownConfig.openModelEndpoint,
+			modelsEndpoint: knownConfig.modelsEndpoint,
+			modelParser: knownConfig.modelParser,
 			family: knownConfig.family ?? providerKey,
 			models: (knownConfig.models || []).map((modelConfig) => {
 				const sdkMode = modelConfig.sdkMode || "openai";

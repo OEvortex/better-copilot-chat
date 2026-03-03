@@ -147,6 +147,20 @@ export interface ProviderConfig {
 	 * If not provided, defaults to the provider key.
 	 */
 	family?: string;
+	/** Endpoint to fetch model list from (e.g., "/models" or full URL) */
+	modelsEndpoint?: string;
+	/** Response parser configuration for model fetching */
+	modelParser?: {
+		/** JSON path to array of models (e.g., "data", "models") */
+		arrayPath?: string;
+		/** Cooldown between fetches in minutes (default: 10) */
+		cooldownMinutes?: number;
+		/** Field mappings for model properties */
+		idField?: string;
+		nameField?: string;
+		descriptionField?: string;
+		contextLengthField?: string;
+	};
 }
 
 /**

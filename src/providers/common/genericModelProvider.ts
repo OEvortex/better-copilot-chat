@@ -257,7 +257,10 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 	protected async fetchModelsFromApi(apiKey: string): Promise<LanguageModelChatInformation[]> {
 		try {
 			const baseUrl = this.providerConfig.baseUrl;
-			const modelsUrl = `${baseUrl}/models`;
+			const modelsEndpoint = this.providerConfig.modelsEndpoint || "/models";
+			const modelsUrl = modelsEndpoint.startsWith("http")
+				? modelsEndpoint
+				: `${baseUrl}${modelsEndpoint.startsWith("/") ? "" : "/"}${modelsEndpoint}`;
 			Logger.debug(`[${this.providerKey}] Fetching models from: ${modelsUrl}`);
 
 			const abortController = new AbortController();
@@ -316,28 +319,71 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 	protected parseApiModelsResponse(resp: unknown): LanguageModelChatInformation[] {
 		// Default implementation for OpenAI-compatible /v1/models response
 		// Format: { data: [{ id: string, ... }] }
-		const data = resp as { data?: Array<{ id: string; object?: string }> };
-		if (!data.data || !Array.isArray(data.data)) {
-			Logger.warn(`[${this.providerKey}] Invalid API response format`);
+		const modelParser = this.providerConfig.modelParser;
+		const arrayPath = modelParser?.arrayPath || "data";
+		const idField = modelParser?.idField || "id";
+		const nameField = modelParser?.nameField || modelParser?.descriptionField || "id";
+
+		// Get the models array from the response
+		let modelsArray: any[] = [];
+		if (arrayPath === "") {
+			// Response is the array itself
+			modelsArray = Array.isArray(resp) ? resp : [];
+		} else {
+			// Response is an object with the array at arrayPath
+			const data = resp as Record<string, any>;
+			modelsArray = data[arrayPath];
+
+			// Fallback: if arrayPath is not found, check if the response itself is an array
+			if (!modelsArray && Array.isArray(resp)) {
+				modelsArray = resp;
+			}
+
+			// Fallback: if still not found, check common keys
+			if (!modelsArray && data) {
+				modelsArray = data.data || data.models || data.results || [];
+			}
+
+			// Fallback: if arrayPath is not found, check if the response itself is an array
+			if (!modelsArray && Array.isArray(resp)) {
+				modelsArray = resp;
+			}
+
+			// Fallback: if still not found, check common keys
+			if (!modelsArray && data) {
+				modelsArray = data.data || data.models || data.results || [];
+			}
+		}
+
+		if (!Array.isArray(modelsArray)) {
+			Logger.warn(`[${this.providerKey}] Invalid API response format: ${arrayPath} is not an array`);
 			return [];
 		}
 
-		return data.data
-			.filter((m) => m.object === "model") // Only include model objects, not deployments
-			.map((m) => ({
-				id: m.id,
-				name: this.formatModelName(m.id),
-				detail: this.providerConfig.displayName,
-				tooltip: `${m.id} via ${this.providerConfig.displayName}`,
-				family: this.providerKey,
-				maxInputTokens: 128000, // Default, will be improved
-				maxOutputTokens: 16384,
-				version: "1.0",
-				capabilities: {
-					toolCalling: true,
-					imageInput: false,
-				},
-			}));
+		return modelsArray
+			.map((m) => {
+				const modelId = m[idField] as string | undefined;
+				if (!modelId) {
+					return null;
+				}
+
+				const info: LanguageModelChatInformation = {
+					id: modelId,
+					name: this.formatModelName((m[nameField] as string) || modelId),
+					detail: this.providerConfig.displayName,
+					tooltip: `${modelId} via ${this.providerConfig.displayName}`,
+					family: this.providerKey,
+					maxInputTokens: 128000, // Default, will be improved
+					maxOutputTokens: 16384,
+					version: "1.0",
+					capabilities: {
+						toolCalling: true,
+						imageInput: false,
+					},
+				};
+				return info;
+			})
+			.filter((m): m is LanguageModelChatInformation => m !== null);
 	}
 
 	/**
@@ -514,6 +560,19 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 
 				// Background asynchronous cache update (non-blocking, do not await)
 				this.updateModelCacheAsync(apiKeyHash);
+
+				// Also trigger background API fetch to update config files and cache if needed
+				if (this.shouldFetchModelsFromApi() && !options.silent) {
+					if (this.hasOpenModelEndpoint()) {
+						this.fetchAndUpdateModelsAsync("");
+					} else {
+						ApiKeyManager.getApiKey(this.providerKey).then((apiKey) => {
+							if (apiKey) {
+								this.fetchAndUpdateModelsAsync(apiKey);
+							}
+						});
+					}
+				}
 
 				return this.dedupeModelInfos(cachedModels);
 			}
