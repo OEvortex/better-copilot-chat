@@ -22,6 +22,30 @@ interface ApiKeyInfo {
 	isActive: boolean;
 }
 
+interface ProviderSettingOption {
+	value: string | number | boolean;
+	label: string;
+}
+
+interface ProviderSettingField {
+	key: string;
+	label: string;
+	type: "string" | "number" | "boolean" | "enum";
+	value: string | number | boolean;
+	description?: string;
+	placeholder?: string;
+	options?: ProviderSettingOption[];
+}
+
+interface ManifestConfigurationProperty {
+	type?: string | string[];
+	enum?: Array<string | number | boolean>;
+	default?: string | number | boolean;
+	description?: string;
+	scope?: string;
+	secret?: boolean;
+}
+
 /**
  * Provider info for settings page
  */
@@ -48,6 +72,7 @@ interface ProviderInfo {
 	activeApiKeyId: string | null;
 	loadBalanceEnabled: boolean;
 	loadBalanceStrategy: LoadBalanceStrategy;
+	settingsFields: ProviderSettingField[];
 }
 
 /**
@@ -68,6 +93,9 @@ export class SettingsPage {
 	private static context: vscode.ExtensionContext;
 	private static accountManager: AccountManager;
 	private static strategiesLoaded = false;
+	private static configurationPropertiesCache:
+		| Record<string, ManifestConfigurationProperty>
+		| undefined;
 
 	// Store strategies in memory (persisted to globalState)
 	private static loadBalanceStrategies: Record<string, LoadBalanceStrategy> =
@@ -309,6 +337,10 @@ export class SettingsPage {
 					: false;
 				const loadBalanceStrategy =
 					SettingsPage.loadBalanceStrategies[config.id] || "round-robin";
+				const settingsFields = await SettingsPage.getProviderSettingFields(
+					config,
+					configSection,
+				);
 
 				return {
 					id: config.id,
@@ -343,9 +375,185 @@ export class SettingsPage {
 					activeApiKeyId: activeAccount?.id || null,
 					loadBalanceEnabled,
 					loadBalanceStrategy,
+					settingsFields,
 				};
 			}),
 		);
+	}
+
+	private static async getConfigurationProperties(): Promise<
+		Record<string, ManifestConfigurationProperty>
+	> {
+		if (SettingsPage.configurationPropertiesCache) {
+			return SettingsPage.configurationPropertiesCache;
+		}
+
+		try {
+			const packageJsonUri = vscode.Uri.joinPath(
+				SettingsPage.context.extensionUri,
+				"package.json",
+			);
+			const content = await vscode.workspace.fs.readFile(packageJsonUri);
+			const packageJson = JSON.parse(Buffer.from(content).toString("utf8")) as {
+				contributes?: {
+					configuration?: {
+						properties?: Record<string, ManifestConfigurationProperty>;
+					};
+				};
+			};
+
+			SettingsPage.configurationPropertiesCache =
+				packageJson.contributes?.configuration?.properties || {};
+		} catch (error) {
+			Logger.warn("[SettingsPage] Failed to load configuration schema", error);
+			SettingsPage.configurationPropertiesCache = {};
+		}
+
+		return SettingsPage.configurationPropertiesCache;
+	}
+
+	private static getSupportedSettingType(
+		property: ManifestConfigurationProperty,
+	): ProviderSettingField["type"] | undefined {
+		if (Array.isArray(property.enum) && property.enum.length > 0) {
+			return "enum";
+		}
+
+		const types = Array.isArray(property.type)
+			? property.type
+			: property.type
+				? [property.type]
+				: [];
+
+		if (types.includes("boolean")) {
+			return "boolean";
+		}
+
+		if (types.includes("number") || types.includes("integer")) {
+			return "number";
+		}
+
+		if (types.includes("string")) {
+			return "string";
+		}
+
+		return undefined;
+	}
+
+	private static formatSettingLabel(settingKey: string): string {
+		return settingKey
+			.split(".")
+			.map((segment) =>
+				segment
+					.replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+					.replace(/[_-]/g, " ")
+					.split(" ")
+					.filter(Boolean)
+					.map((word) => {
+						const lower = word.toLowerCase();
+						if (lower === "api") {
+							return "API";
+						}
+						if (lower === "sdk") {
+							return "SDK";
+						}
+						if (lower === "url") {
+							return "URL";
+						}
+						if (lower === "mcp") {
+							return "MCP";
+						}
+						return lower.charAt(0).toUpperCase() + lower.slice(1);
+					})
+					.join(" "),
+			)
+			.join(" · ");
+	}
+
+	private static formatSettingOptionLabel(
+		settingKey: string,
+		value: string | number | boolean,
+	): string {
+		if (settingKey.endsWith("sdkMode")) {
+			if (value === "oai-response") {
+				return "OpenAI Responses API";
+			}
+			if (value === "anthropic") {
+				return "Anthropic SDK";
+			}
+			if (value === "openai") {
+				return "OpenAI SDK";
+			}
+		}
+
+		return String(value);
+	}
+
+	private static normalizeSettingValue(
+		type: ProviderSettingField["type"],
+		value: unknown,
+		fallback: string | number | boolean,
+	): string | number | boolean {
+		if (type === "boolean") {
+			return typeof value === "boolean" ? value : Boolean(value ?? fallback);
+		}
+
+		if (type === "number") {
+			return typeof value === "number"
+				? value
+				: Number(value ?? fallback ?? 0);
+		}
+
+		return typeof value === "string" ? value : String(value ?? fallback ?? "");
+	}
+
+	private static async getProviderSettingFields(
+		provider: { id: string; baseUrl?: string },
+		configSection: vscode.WorkspaceConfiguration,
+	): Promise<ProviderSettingField[]> {
+		const properties = await SettingsPage.getConfigurationProperties();
+		const prefix = `chp.${provider.id}.`;
+
+		return Object.entries(properties)
+			.filter(([fullKey, property]) => {
+				if (!fullKey.startsWith(prefix) || property.secret) {
+					return false;
+				}
+
+				return !!SettingsPage.getSupportedSettingType(property);
+			})
+			.flatMap(([fullKey, property]) => {
+				const key = fullKey.slice(prefix.length);
+				const type = SettingsPage.getSupportedSettingType(property);
+				if (!type) {
+					return [];
+				}
+
+				const fallback =
+					property.default ??
+					(type === "boolean" ? false : type === "number" ? 0 : "");
+				const value = SettingsPage.normalizeSettingValue(
+					type,
+					configSection.get<unknown>(key, fallback),
+					fallback,
+				);
+
+				return [{
+					key,
+					label: SettingsPage.formatSettingLabel(key),
+					type,
+					value,
+					description: property.description,
+					placeholder:
+						key === "baseUrl" && provider.baseUrl
+							? `Leave empty to use default (${provider.baseUrl})`
+							: undefined,
+					options: property.enum?.map((option) => ({
+						value: option,
+						label: SettingsPage.formatSettingOptionLabel(key, option),
+					})),
+				}];
+			});
 	}
 
 	private static getEndpointSetting(
@@ -415,6 +623,7 @@ export class SettingsPage {
 			baseUrl?: string;
 			endpoint?: string;
 			sdkMode?: string;
+			settings?: Record<string, string | number | boolean>;
 		},
 		webview: vscode.Webview,
 	): Promise<void> {
@@ -471,6 +680,18 @@ export class SettingsPage {
 					vscode.ConfigurationTarget.Global,
 				);
 			}
+
+				if (payload.settings) {
+					for (const [settingKey, settingValue] of Object.entries(
+						payload.settings,
+					)) {
+						await config.update(
+							`${providerId}.${settingKey}`,
+							settingValue,
+							vscode.ConfigurationTarget.Global,
+						);
+					}
+				}
 
 			await SettingsPage.sendStateUpdate(webview);
 			webview.postMessage({

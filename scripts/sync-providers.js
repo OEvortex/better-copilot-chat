@@ -16,6 +16,13 @@ const ACCOUNT_MANAGER_FILE = path.join(
 	"accounts",
 	"accountManager.ts",
 );
+const ACCOUNT_UI_FILE = path.join(ROOT, "src", "accounts", "accountUI.ts");
+const ACCOUNT_SYNC_ADAPTER_FILE = path.join(
+	ROOT,
+	"src",
+	"accounts",
+	"accountSyncAdapter.ts",
+);
 const PACKAGE_JSON_FILE = path.join(ROOT, "package.json");
 
 const OAUTH_PROVIDERS = new Set(["codex", "qwencli"]);
@@ -29,6 +36,32 @@ const NO_SET_API_KEY_COMMAND_PROVIDERS = new Set([
 const NO_BASE_URL_CHAT_PROVIDER_CONFIG = new Set(["codex", "qwencli"]);
 
 const EXTRA_PROVIDER_IDS = ["kimi", "minimax-coding", "openai"];
+
+const EXTRA_PROVIDER_METADATA = {
+	kimi: { displayName: "Kimi", supportsApiKey: true },
+	"minimax-coding": { displayName: "MiniMax Coding", supportsApiKey: true },
+	openai: { displayName: "OpenAI", supportsApiKey: true },
+};
+
+const ACCOUNT_UI_LABEL_OVERRIDES = {
+	blackbox: "Blackbox",
+	codex: "Codex (OpenAI)",
+	compatible: "Compatible (Custom)",
+	lightningai: "Lightning AI",
+	mistral: "Mistral",
+	moonshot: "Moonshot",
+	zhipu: "ZhipuAI",
+};
+
+const ACCOUNT_DISPLAY_NAME_OVERRIDES = {
+	blackbox: "Blackbox",
+	codex: "Codex (OpenAI)",
+	compatible: "Compatible",
+	lightningai: "Lightning AI",
+	mistral: "Mistral",
+	moonshot: "Moonshot",
+	zhipu: "ZhipuAI",
+};
 
 const ENUM_NAME_OVERRIDES = {
 	aihubmix: "AIHubMix",
@@ -53,6 +86,24 @@ function readUtf8(filePath) {
 
 function writeUtf8(filePath, content) {
 	fs.writeFileSync(filePath, content, "utf8");
+}
+
+function replaceOrThrow(source, pattern, replacement, errorMessage) {
+	if (!pattern.test(source)) {
+		throw new Error(errorMessage);
+	}
+
+	return source.replace(pattern, replacement);
+}
+
+function formatTsString(value) {
+	return JSON.stringify(value);
+}
+
+function formatTsObjectKey(key) {
+	return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key)
+		? key
+		: formatTsString(key);
 }
 
 function objectPropertyName(name) {
@@ -266,6 +317,70 @@ function buildAccountProviderItems(knownProviders) {
 	return items;
 }
 
+function buildManagedProviderMetadata(knownProviders) {
+	const items = knownProviders.map((provider) => ({
+		id: provider.id,
+		enumName: toEnumName(provider.id),
+		displayName: provider.displayName,
+		supportsApiKey: provider.supportsApiKey !== false,
+		authType: OAUTH_PROVIDERS.has(provider.id) ? "oauth" : "apiKey",
+	}));
+
+	for (const extraId of EXTRA_PROVIDER_IDS) {
+		const extraProvider = EXTRA_PROVIDER_METADATA[extraId];
+		items.push({
+			id: extraId,
+			enumName: toEnumName(extraId),
+			displayName: extraProvider?.displayName || extraId,
+			supportsApiKey: extraProvider?.supportsApiKey !== false,
+			authType: "apiKey",
+		});
+	}
+
+	return items;
+}
+
+function getAccountUiLabel(providerId, displayName) {
+	return ACCOUNT_UI_LABEL_OVERRIDES[providerId] || displayName;
+}
+
+function getAccountDisplayName(providerId, displayName) {
+	return ACCOUNT_DISPLAY_NAME_OVERRIDES[providerId] || displayName;
+}
+
+function buildAccountUiItems(knownProviders) {
+	return buildManagedProviderMetadata(knownProviders)
+		.filter(
+			(provider) =>
+				provider.authType === "oauth" || provider.supportsApiKey === true,
+		)
+		.map((provider) => ({
+			...provider,
+			menuLabel: getAccountUiLabel(provider.id, provider.displayName),
+			displayLabel: getAccountDisplayName(provider.id, provider.displayName),
+		}))
+		.sort((left, right) => {
+			const leftGroup =
+				left.id === "compatible" ? 2 : left.authType === "oauth" ? 0 : 1;
+			const rightGroup =
+				right.id === "compatible" ? 2 : right.authType === "oauth" ? 0 : 1;
+			if (leftGroup !== rightGroup) {
+				return leftGroup - rightGroup;
+			}
+
+			return left.menuLabel.localeCompare(right.menuLabel);
+		});
+}
+
+function buildAccountSyncProviderItems(knownProviders) {
+	return buildManagedProviderMetadata(knownProviders)
+		.filter(
+			(provider) =>
+				provider.authType !== "oauth" && provider.supportsApiKey === true,
+		)
+		.sort((left, right) => left.enumName.localeCompare(right.enumName));
+}
+
 function syncAccountManagerFile(accountProviderItems) {
 	const source = readUtf8(ACCOUNT_MANAGER_FILE);
 	const generatedEntries = accountProviderItems
@@ -287,6 +402,54 @@ function syncAccountManagerFile(accountProviderItems) {
 
 	const next = source.replace(pattern, replacement);
 	writeUtf8(ACCOUNT_MANAGER_FILE, next);
+}
+
+function syncAccountUiFile(accountUiItems) {
+	const source = readUtf8(ACCOUNT_UI_FILE);
+	const providerEntries = accountUiItems
+		.map(
+			(provider) =>
+				`\t\t\t{\n\t\t\t\tlabel: ${formatTsString(provider.menuLabel)},\n\t\t\t\tvalue: ProviderKey.${provider.enumName},\n\t\t\t\tauthType: ${formatTsString(provider.authType)} as const,\n\t\t\t},`,
+		)
+		.join("\n");
+	const namesEntries = accountUiItems
+		.map(
+			(provider) =>
+				`\t\t\t${formatTsObjectKey(provider.id)}: ${formatTsString(provider.displayLabel)},`,
+		)
+		.join("\n");
+
+	let next = replaceOrThrow(
+		source,
+		/\t\tconst providers = \[[\s\S]*?\n\t\t\];/,
+		`\t\tconst providers = [\n${providerEntries}\n\t\t];`,
+		"Could not find providers array block in src/accounts/accountUI.ts",
+	);
+
+	next = replaceOrThrow(
+		next,
+		/\t\tconst names: Record<string, string> = \{[\s\S]*?\n\t\t\};/,
+		`\t\tconst names: Record<string, string> = {\n${namesEntries}\n\t\t};`,
+		"Could not find provider names map block in src/accounts/accountUI.ts",
+	);
+
+	writeUtf8(ACCOUNT_UI_FILE, next);
+}
+
+function syncAccountSyncAdapterFile(syncProviderItems) {
+	const source = readUtf8(ACCOUNT_SYNC_ADAPTER_FILE);
+	const providerEntries = syncProviderItems
+		.map((provider) => `\t\t\tProviderKey.${provider.enumName},`)
+		.join("\n");
+	const replacement = `\t\tconst providers = [\n${providerEntries}\n\t\t];`;
+	const next = replaceOrThrow(
+		source,
+		/\t\tconst providers = \[[\s\S]*?\n\t\t\];/,
+		replacement,
+		"Could not find providers array block in src/accounts/accountSyncAdapter.ts",
+	);
+
+	writeUtf8(ACCOUNT_SYNC_ADAPTER_FILE, next);
 }
 
 function createSetApiKeyCommand(provider) {
@@ -537,9 +700,13 @@ function run() {
 	const knownProviders = parseKnownProviders();
 	const providerKeyItems = buildProviderKeyItems(knownProviders);
 	const accountProviderItems = buildAccountProviderItems(knownProviders);
+	const accountUiItems = buildAccountUiItems(knownProviders);
+	const accountSyncProviderItems = buildAccountSyncProviderItems(knownProviders);
 
 	syncProviderKeysFile(providerKeyItems);
 	syncAccountManagerFile(accountProviderItems);
+	syncAccountUiFile(accountUiItems);
+	syncAccountSyncAdapterFile(accountSyncProviderItems);
 	syncPackageJson(knownProviders);
 
 	console.log(
@@ -547,6 +714,8 @@ function run() {
 	);
 	console.log("Updated: src/types/providerKeys.ts");
 	console.log("Updated: src/accounts/accountManager.ts");
+	console.log("Updated: src/accounts/accountUI.ts");
+	console.log("Updated: src/accounts/accountSyncAdapter.ts");
 	console.log("Updated: package.json");
 }
 

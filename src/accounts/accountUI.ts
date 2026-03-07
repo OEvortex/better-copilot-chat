@@ -110,8 +110,33 @@ export class AccountUI {
 				authType: "oauth" as const,
 			},
 			{
-				label: "ZhipuAI",
-				value: ProviderKey.Zhipu,
+				label: "Qwen CLI",
+				value: ProviderKey.QwenCli,
+				authType: "oauth" as const,
+			},
+			{
+				label: "AIHubMix",
+				value: ProviderKey.AIHubMix,
+				authType: "apiKey" as const,
+			},
+			{
+				label: "Blackbox",
+				value: ProviderKey.Blackbox,
+				authType: "apiKey" as const,
+			},
+			{
+				label: "Chutes AI",
+				value: ProviderKey.Chutes,
+				authType: "apiKey" as const,
+			},
+			{
+				label: "Cline",
+				value: ProviderKey.Cline,
+				authType: "apiKey" as const,
+			},
+			{
+				label: "DeepInfra",
+				value: ProviderKey.DeepInfra,
 				authType: "apiKey" as const,
 			},
 			{
@@ -120,13 +145,23 @@ export class AccountUI {
 				authType: "apiKey" as const,
 			},
 			{
-				label: "AIHubMix",
-				value: ProviderKey.AIHubMix,
+				label: "Hugging Face",
+				value: ProviderKey.Huggingface,
 				authType: "apiKey" as const,
 			},
 			{
-				label: "Moonshot",
-				value: ProviderKey.Moonshot,
+				label: "Kilo AI",
+				value: ProviderKey.Kilo,
+				authType: "apiKey" as const,
+			},
+			{
+				label: "Kimi",
+				value: ProviderKey.Kimi,
+				authType: "apiKey" as const,
+			},
+			{
+				label: "Lightning AI",
+				value: ProviderKey.LightningAI,
 				authType: "apiKey" as const,
 			},
 			{
@@ -140,21 +175,6 @@ export class AccountUI {
 				authType: "apiKey" as const,
 			},
 			{
-				label: "Kimi",
-				value: ProviderKey.Kimi,
-				authType: "apiKey" as const,
-			},
-			{
-				label: "Kilo AI",
-				value: ProviderKey.Kilo,
-				authType: "apiKey" as const,
-			},
-			{
-				label: "OpenAI",
-				value: ProviderKey.OpenAI,
-				authType: "apiKey" as const,
-			},
-			{
 				label: "Mistral",
 				value: ProviderKey.Mistral,
 				authType: "apiKey" as const,
@@ -165,18 +185,13 @@ export class AccountUI {
 				authType: "apiKey" as const,
 			},
 			{
+				label: "Moonshot",
+				value: ProviderKey.Moonshot,
+				authType: "apiKey" as const,
+			},
+			{
 				label: "NanoGPT",
 				value: ProviderKey.Nanogpt,
-				authType: "apiKey" as const,
-			},
-			{
-				label: "Hugging Face",
-				value: ProviderKey.Huggingface,
-				authType: "apiKey" as const,
-			},
-			{
-				label: "DeepInfra",
-				value: ProviderKey.DeepInfra,
 				authType: "apiKey" as const,
 			},
 			{
@@ -185,8 +200,13 @@ export class AccountUI {
 				authType: "apiKey" as const,
 			},
 			{
-				label: "Chutes",
-				value: ProviderKey.Chutes,
+				label: "Ollama",
+				value: ProviderKey.Ollama,
+				authType: "apiKey" as const,
+			},
+			{
+				label: "OpenAI",
+				value: ProviderKey.OpenAI,
 				authType: "apiKey" as const,
 			},
 			{
@@ -195,13 +215,8 @@ export class AccountUI {
 				authType: "apiKey" as const,
 			},
 			{
-				label: "Lightning AI",
-				value: ProviderKey.LightningAI,
-				authType: "apiKey" as const,
-			},
-			{
-				label: "Ollama",
-				value: ProviderKey.Ollama,
+				label: "Vercel AI",
+				value: ProviderKey.Vercelai,
 				authType: "apiKey" as const,
 			},
 			{
@@ -210,9 +225,9 @@ export class AccountUI {
 				authType: "apiKey" as const,
 			},
 			{
-				label: "Qwen CLI",
-				value: ProviderKey.QwenCli,
-				authType: "oauth" as const,
+				label: "ZhipuAI",
+				value: ProviderKey.Zhipu,
+				authType: "apiKey" as const,
 			},
 			{
 				label: "Compatible (Custom)",
@@ -795,25 +810,30 @@ export class AccountUI {
 	private getProviderDisplayName(provider: string): string {
 		const names: Record<string, string> = {
 			codex: "Codex (OpenAI)",
-			zhipu: "ZhipuAI",
+			qwencli: "Qwen CLI",
+			aihubmix: "AIHubMix",
+			blackbox: "Blackbox",
+			chutes: "Chutes AI",
+			cline: "Cline",
+			deepinfra: "DeepInfra",
 			deepseek: "DeepSeek",
-			moonshot: "Moonshot",
+			huggingface: "Hugging Face",
+			kilo: "Kilo AI",
+			kimi: "Kimi",
+			lightningai: "Lightning AI",
 			minimax: "MiniMax",
 			"minimax-coding": "MiniMax Coding",
-			kimi: "Kimi",
-			kilo: "Kilo AI",
-			openai: "OpenAI",
 			mistral: "Mistral",
-			huggingface: "Hugging Face",
-			deepinfra: "DeepInfra",
+			modelscope: "ModelScope",
+			moonshot: "Moonshot",
+			nanogpt: "NanoGPT",
 			nvidia: "NVIDIA NIM",
-			blackbox: "Blackbox",
-			chutes: "Chutes",
-			opencode: "OpenCode",
-			lightningai: "Lightning AI",
 			ollama: "Ollama",
+			openai: "OpenAI",
+			opencode: "OpenCode",
+			vercelai: "Vercel AI",
 			zenmux: "Zenmux",
-			qwencli: "Qwen CLI",
+			zhipu: "ZhipuAI",
 			compatible: "Compatible",
 		};
 		return (

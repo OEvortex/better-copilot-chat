@@ -209,53 +209,10 @@ function renderProviderCatalogItem(provider) {
 }
 
 function renderProviderEditor(provider) {
-	const endpointOptions = getEndpointOptions(provider.id);
-	const sdkModeOptions = getSdkModeOptions(provider);
-	const endpointField = endpointOptions.length
-		? `
-			<div class="provider-editor-field">
-				<label for="provider-endpoint-${provider.id}">Endpoint</label>
-				<select id="provider-endpoint-${provider.id}">
-					${endpointOptions
-						.map(
-							(option) => `
-						<option value="${option.value}" ${provider.endpoint === option.value ? "selected" : ""}>${option.label}</option>
-					`,
-						)
-						.join("")}
-				</select>
-			</div>
-		`
-		: "";
-
-	const baseUrlField = provider.supportsBaseUrl
-		? `
-			<div class="provider-editor-field">
-				<label for="provider-baseurl-${provider.id}">Base URL</label>
-				<input
-					id="provider-baseurl-${provider.id}"
-					type="text"
-					value="${escapeHtml(provider.baseUrl || "")}"
-					placeholder="Leave empty to use default" />
-			</div>
-		`
-		: "";
-
-	const sdkModeField = sdkModeOptions.length
-		? `
-				<div class="provider-editor-field">
-					<label for="provider-sdkmode-${provider.id}">SDK Mode</label>
-					<select id="provider-sdkmode-${provider.id}">
-						${sdkModeOptions
-							.map(
-								(option) => `
-							<option value="${option.value}" ${provider.selectedSdkMode === option.value ? "selected" : ""}>${option.label}</option>
-						`,
-							)
-							.join("")}
-					</select>
-				</div>
-			`
+	const settingsFields = Array.isArray(provider.settingsFields)
+		? provider.settingsFields
+				.map((field) => renderProviderSettingField(provider.id, field))
+				.join("")
 		: "";
 
 	// Render multiple API keys section
@@ -264,7 +221,7 @@ function renderProviderEditor(provider) {
 		: "";
 
 	const saveButton =
-		provider.supportsBaseUrl || endpointOptions.length || sdkModeOptions.length
+		(provider.settingsFields || []).length
 			? `
 			<div class="provider-editor-actions">
 				<button class="action-button compact" onclick="saveProviderSettings('${provider.id}')">
@@ -277,10 +234,66 @@ function renderProviderEditor(provider) {
 	return `
 		<div class="provider-editor-grid" data-provider-editor="${provider.id}">
 			${apiKeysSection}
-			${baseUrlField}
-			${sdkModeField}
-			${endpointField}
+				${settingsFields}
 			${saveButton}
+		</div>
+	`;
+}
+
+function getProviderSettingInputId(providerId, settingKey) {
+	return `provider-setting-${providerId}-${settingKey}`;
+}
+
+function renderProviderSettingField(providerId, field) {
+	const inputId = getProviderSettingInputId(providerId, field.key);
+	const description = field.description
+		? `<div class="provider-field-description">${escapeHtml(field.description)}</div>`
+		: "";
+
+	if (field.type === "enum") {
+		const options = Array.isArray(field.options)
+			? field.options
+					.map(
+						(option) => `
+							<option value="${escapeHtml(String(option.value))}" ${String(field.value) === String(option.value) ? "selected" : ""}>${escapeHtml(option.label)}</option>
+						`,
+					)
+					.join("")
+			: "";
+
+		return `
+			<div class="provider-editor-field">
+				<label for="${inputId}">${escapeHtml(field.label)}</label>
+				<select id="${inputId}">${options}</select>
+				${description}
+			</div>
+		`;
+	}
+
+	if (field.type === "boolean") {
+		return `
+			<div class="provider-editor-field">
+				<label for="${inputId}">${escapeHtml(field.label)}</label>
+				<input id="${inputId}" type="checkbox" ${field.value ? "checked" : ""} />
+				${description}
+			</div>
+		`;
+	}
+
+	const inputType = field.type === "number" ? "number" : "text";
+	const placeholder = field.placeholder
+		? `placeholder="${escapeHtml(field.placeholder)}"`
+		: "";
+
+	return `
+		<div class="provider-editor-field">
+			<label for="${inputId}">${escapeHtml(field.label)}</label>
+			<input
+				id="${inputId}"
+				type="${inputType}"
+				value="${escapeHtml(String(field.value ?? ""))}"
+				${placeholder} />
+			${description}
 		</div>
 	`;
 }
@@ -521,51 +534,6 @@ function renderInfoSection() {
     `;
 }
 
-function getEndpointOptions(providerId) {
-	if (providerId === "zhipu") {
-		return [
-			{ label: "open.bigmodel.cn (CN)", value: "open.bigmodel.cn" },
-			{ label: "api.z.ai (Global)", value: "api.z.ai" },
-		];
-	}
-	if (providerId === "minimax") {
-		return [
-			{ label: "minimaxi.com (CN)", value: "minimaxi.com" },
-			{ label: "minimax.io (Global)", value: "minimax.io" },
-		];
-	}
-	if (providerId === "compatible") {
-		return [
-			{
-				label: "OpenAI (https://api.openai.com/v1)",
-				value: "https://api.openai.com/v1",
-			},
-			{
-				label: "Anthropic (https://api.anthropic.com)",
-				value: "https://api.anthropic.com",
-			},
-			{ label: "Custom Endpoint", value: "custom" },
-		];
-	}
-	return [];
-}
-
-function getSdkModeOptions(provider) {
-	if (!Array.isArray(provider.supportedSdkModes)) {
-		return [];
-	}
-
-	return provider.supportedSdkModes.map((mode) => ({
-		value: mode,
-		label:
-			mode === "oai-response"
-				? "OpenAI Responses API"
-				: mode === "anthropic"
-					? "Anthropic SDK"
-					: "OpenAI SDK",
-	}));
-}
-
 function _saveProviderSettings(providerId) {
 	const provider = (settingsState.providers || []).find(
 		(p) => p.id === providerId,
@@ -574,25 +542,32 @@ function _saveProviderSettings(providerId) {
 		return;
 	}
 
-	const baseUrlInput = document.getElementById(
-		`provider-baseurl-${providerId}`,
-	);
-	const endpointInput = document.getElementById(
-		`provider-endpoint-${providerId}`,
-	);
-	const sdkModeInput = document.getElementById(
-		`provider-sdkmode-${providerId}`,
-	);
-
 	const payload = {};
-	if (provider.supportsBaseUrl && baseUrlInput) {
-		payload.baseUrl = baseUrlInput.value;
+	const settings = {};
+	for (const field of provider.settingsFields || []) {
+		const input = document.getElementById(
+			getProviderSettingInputId(providerId, field.key),
+		);
+		if (!input) {
+			continue;
+		}
+
+		if (field.type === "boolean") {
+			settings[field.key] = Boolean(input.checked);
+			continue;
+		}
+
+		if (field.type === "number") {
+			const rawValue = (input.value || "").trim();
+			settings[field.key] = rawValue === "" ? Number(field.value || 0) : Number(rawValue);
+			continue;
+		}
+
+		settings[field.key] = input.value;
 	}
-	if (endpointInput) {
-		payload.endpoint = endpointInput.value;
-	}
-	if (sdkModeInput) {
-		payload.sdkMode = sdkModeInput.value;
+
+	if (Object.keys(settings).length > 0) {
+		payload.settings = settings;
 	}
 
 	vscode.postMessage({

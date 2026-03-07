@@ -26,6 +26,8 @@ All notable changes to this project will be documented in this file.
   - Imports model tags from the Vercel `/models` response for fetched models.
 - **Qwen 3.5 Large-Context Overrides**: Added 1M-context special handling for Qwen 3.5 Flash and Plus model variants.
   - Covers naming variants such as `qwen3.5-flash`, `qwen3.5-plus`, `qwen3-5-flash`, and `qwen3-5-plus`.
+- **Provider Sync Coverage**: Expanded `scripts/sync-providers.js` so provider additions now sync more account-related artifacts automatically.
+  - Also updates the Add Account provider list, provider display-name map, and API-key account sync list from known provider metadata.
 
 ### Fixed
 
