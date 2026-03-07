@@ -24,7 +24,7 @@
 
 ## Overview
 
-A powerful VS Code extension that provides model support for **GitHub Copilot Chat**, seamlessly integrating **20+ AI providers** including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Antigravity (Google Cloud Code), Codex (OpenAI), Chutes, OpenCode, Blackbox, and custom OpenAI/Anthropic compatible models.
+A powerful VS Code extension that provides model support for **GitHub Copilot Chat**, seamlessly integrating **20+ AI providers** including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Codex (OpenAI), Chutes, OpenCode, Blackbox, and custom OpenAI/Anthropic compatible models.
 
 ---
 
@@ -34,7 +34,6 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 
 | Provider | Description | Key Models | Highlights |
 | :------- | :---------- | :--------- | :--------- |
-| **Antigravity** | Google Cloud Code | Gemini 3 Pro, Gemini 3.1 Pro, Gemini 3 Flash | `1M context` `Image Input` `OAuth` `Quota Tracking` |
 | **Codex** | OpenAI Codex | GPT-5.2 Codex, GPT-5.3 Codex | `400k context` `Image Input` `OAuth` `Reasoning Modes` |
 | **ZhipuAI** | GLM Coding Plan | GLM-4.5, GLM-4.6, GLM-4.7, GLM-5, GLM-4.7-Flash | `256K context` `Web Search` `MCP SDK` `Free Tier` |
 | **MiniMax** | Coding Plan | MiniMax-M2.5, MiniMax-M2.1 | `205K context` `Web Search` `Thinking Mode` |
@@ -42,7 +41,7 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 | **DeepSeek** | DeepSeek AI | DeepSeek-V3.2, DeepSeek-V3.2 Reasoner | `128K context` `GPT-5 Level Reasoning` |
 | **Chutes** | Chutes AI | Various models | `Global Request Limit` |
 | **OpenCode** | OpenCode AI | Claude 4.5, GPT-5 | `Multi-model Access` |
-| **Blackbox** | Blackbox AI | kimi-k2.5, blackbox-base-2 | `Free Tier Available` |
+| **Blackbox** | Blackbox AI | kimi-k2.5, blackbox-base-2 | `Official API` `API Key Required` |
 | **DeepInfra** | DeepInfra | OpenAI-compatible models | `LLM & Image Models` |
 | **Kilo AI** | Kilo AI | Dynamic model fetching | `High Performance` |
 | **Zenmux** | Zenmux AI | Dynamic model fetching | `OpenAI-compatible` |
@@ -52,7 +51,6 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 | **NVIDIA NIM** | NVIDIA NIM | NVIDIA models | `40 RPM Throttle` `Model Discovery` |
 | **Ollama Cloud** | Ollama | Local & Cloud models | `OpenAI-compatible` |
 | **Qwen CLI** | Qwen Code CLI | Qwen models | `OAuth via CLI` |
-| **Gemini CLI** | Gemini CLI | Gemini models | `OAuth via CLI` `Google Web Search` |
 | **Compatible** | Custom API | User-defined models | `OpenAI/Anthropic Compatible` |
 
 </div>
@@ -89,9 +87,7 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 
 | Provider | Auth Method | Command |
 | :------- | :---------- | :------ |
-| Antigravity | Google OAuth | `Copilot ++: Antigravity Login` |
 | Codex | OpenAI OAuth | `Copilot ++: Codex Login` |
-| Gemini CLI | Google OAuth | `gemini auth login` (CLI) |
 | Qwen CLI | Alibaba OAuth | `qwen auth login` (CLI) |
 
 ---
@@ -104,7 +100,6 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 | :--- | :------- | :---------- |
 | `#zhipuWebSearch` | ZhipuAI | Multi-engine search (Sogou, Quark, Standard) |
 | `#minimaxWebSearch` | MiniMax | Coding Plan web search |
-| `#googleWebSearch` | Gemini CLI | Grounded Google Search with citations |
 
 **Example usage in Copilot Chat:**
 ```
@@ -212,7 +207,6 @@ code --install-extension better-copilot-chat-*.vsix
 
 | Provider | Command |
 | :------- | :------ |
-| Antigravity | `Cmd+Shift+P` → `Copilot ++: Antigravity Login` |
 | Codex (OpenAI) | `Cmd+Shift+P` → `Copilot ++: Codex Login` |
 | ZhipuAI | `Cmd+Shift+P` → `Copilot ++: ZhipuAI Configuration Wizard` |
 | MiniMax | `Cmd+Shift+P` → `Copilot ++: MiniMax Configuration Wizard` |
@@ -400,16 +394,6 @@ Toggle the **"Load Balance"** switch to enable automatic account switching when 
 | DeepSeek-V3.2 | 128K | 16K | Tool Calling |
 | DeepSeek-V3.2 Reasoner | 128K | 16K | Thinking, Tool Calling |
 
-### Antigravity (Google Cloud Code)
-
-| Model | Input | Output | Features |
-| :---- | :------ | :----- | :------- |
-| Gemini 3 Pro Low | 935K | 65K | Image Input, Tool Calling |
-| Gemini 3 Pro High | 935K | 65K | Image Input, Tool Calling |
-| Gemini 3.1 Pro Low | 935K | 65K | Image Input, Tool Calling |
-| Gemini 3.1 Pro High | 935K | 65K | Image Input, Tool Calling |
-| Gemini 3 Flash | 935K | 65K | Image Input, Tool Calling |
-
 ### Codex (OpenAI)
 
 | Model | Input | Output | Features |
@@ -465,8 +449,6 @@ Toggle the **"Load Balance"** switch to enable automatic account switching when 
 
 | Command | Description |
 | :------ | :---------- |
-| `Copilot ++: Antigravity Login` | Login to Google Cloud Code |
-| `Copilot ++: Antigravity Logout` | Logout from Antigravity |
 | `Copilot ++: Codex Login` | Login to OpenAI Codex |
 | `Copilot ++: Codex Logout` | Logout from Codex |
 
@@ -570,7 +552,6 @@ copilot-helper/
 │   │   ├── zhipu/            # ZhipuAI provider
 │   │   ├── minimax/          # MiniMax provider
 │   │   ├── moonshot/         # MoonshotAI provider
-│   │   ├── antigravity/      # Google Cloud Code
 │   │   ├── codex/            # OpenAI Codex
 │   │   └── ...               # Other providers
 │   ├── tools/                # Web search tools
@@ -590,8 +571,8 @@ copilot-helper/
 
 Special thanks to these amazing projects:
 
-| [<img src="https://github.com/Pimzino.png" width="80" style="border-radius: 50%"/><br/>**LLMux**](https://github.com/Pimzino/LLMux) | [<img src="https://github.com/VicBilibily.png" width="80" style="border-radius: 50%"/><br/>**GCMP**](https://github.com/VicBilibily/GCMP) | [<img src="https://github.com/wusimpl.png" width="80" style="border-radius: 50%"/><br/>**AntigravityQuotaWatcher**](https://github.com/wusimpl/AntigravityQuotaWatcher) |
-| :---------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| [<img src="https://github.com/Pimzino.png" width="80" style="border-radius: 50%"/><br/>**LLMux**](https://github.com/Pimzino/LLMux) | [<img src="https://github.com/VicBilibily.png" width="80" style="border-radius: 50%"/><br/>**GCMP**](https://github.com/VicBilibily/GCMP) |
+| :---------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: |
 
 </div>
 

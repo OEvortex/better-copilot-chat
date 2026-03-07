@@ -1,44 +1,44 @@
 {
-	"displayName": "Blackbox AI",
-	"baseUrl": "https://oi-vscode-server-985058387028.europe-west1.run.app",
-	"apiKeyTemplate": "xxx",
-	"supportsApiKey": true,
-	"models": [
-		{
-			"id": "moonshotai/kimi-k2.5",
-			"name": "kimi-k2.5 (free)",
-			"tooltip": "256K context window with reasoning and vision capabilities",
-			"maxInputTokens": 224000,
-			"maxOutputTokens": 32000,
-			"model": "moonshotai/kimi-k2.5",
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": true
-			}
-		},
-		{
-			"id": "custom/blackbox-base-2",
-			"name": "Grok code fast (free)",
-			"tooltip": "Grok code fast — 256K context (coding-focused)",
-			"maxInputTokens": 224000,
-			"maxOutputTokens": 32000,
-			"model": "custom/blackbox-base-2",
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": false
-			}
-		},
-		{
-			"id": "minimax-m2",
-			"name": "minimax-m2.5 (free)",
-			"tooltip": "256K context length",
-			"maxInputTokens": 224000,
-			"maxOutputTokens": 32000,
-			"model": "minimax-m2",
-			"capabilities": {
-				"toolCalling": true,
-				"imageInput": false
-			}
-		}
-	]
+    "displayName": "Blackbox AI",
+    "baseUrl": "https://api.blackbox.ai",
+    "apiKeyTemplate": "YOUR_BLACKBOX_API_KEY",
+    "supportsApiKey": true,
+    "models": [
+        {
+            "id": "moonshotai/kimi-k2.5",
+            "name": "kimi-k2.5 (free)",
+            "tooltip": "256K context window with reasoning and vision capabilities",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "moonshotai/kimi-k2.5",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "custom/blackbox-base-2",
+            "name": "Grok code fast (free)",
+            "tooltip": "Grok code fast — 256K context (coding-focused)",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "custom/blackbox-base-2",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "minimax-m2",
+            "name": "minimax-m2.5 (free)",
+            "tooltip": "256K context length",
+            "maxInputTokens": 224000,
+            "maxOutputTokens": 32000,
+            "model": "minimax-m2",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        }
+    ]
 }

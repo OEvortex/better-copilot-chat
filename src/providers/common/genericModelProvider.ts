@@ -24,6 +24,7 @@ import {
 	Logger,
 	ModelInfoCache,
 	OpenAIHandler,
+	ResponsesHandler,
 	TokenCounter,
 } from "../../utils";
 import { KnownProviders } from "../../utils/knownProviders";
@@ -38,6 +39,7 @@ import { MoonshotWizard } from "../moonshot/moonshotWizard";
 export class GenericModelProvider implements LanguageModelChatProvider {
 	protected openaiHandler!: OpenAIHandler;
 	protected anthropicHandler!: AnthropicHandler;
+	protected responsesHandler!: ResponsesHandler;
 	protected readonly providerKey: string;
 	protected readonly context: vscode.ExtensionContext;
 	protected baseProviderConfig: ProviderConfig; // protected to support subclass access
@@ -135,6 +137,11 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 			this.baseProviderConfig.displayName,
 			this.cachedProviderConfig.baseUrl,
 		);
+		this.responsesHandler = new ResponsesHandler(
+			this.providerKey,
+			this.baseProviderConfig.displayName,
+			this.cachedProviderConfig.baseUrl,
+		);
 	}
 
 	/**
@@ -169,6 +176,7 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 		// Release handler resources
 		// this.anthropicHandler?.dispose();
 		this.openaiHandler?.dispose();
+		this.responsesHandler?.dispose();
 		Logger.info(`${this.providerConfig.displayName}: Extension destroyed`);
 	}
 
@@ -782,6 +790,15 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 						progress,
 						token,
 					);
+				} else if (sdkMode === "oai-response") {
+					await this.responsesHandler.handleRequest(
+						model,
+						modelConfig,
+						messages,
+						options,
+						progress,
+						token,
+					);
 				} else {
 					await this.openaiHandler.handleRequest(
 						model,
@@ -893,6 +910,16 @@ export class GenericModelProvider implements LanguageModelChatProvider {
 
 					if (sdkMode === "anthropic") {
 						await this.anthropicHandler.handleRequest(
+							model,
+							configWithAuth,
+							messages,
+							options,
+							progress,
+							token,
+							account.id,
+						);
+					} else if (sdkMode === "oai-response") {
+						await this.responsesHandler.handleRequest(
 							model,
 							configWithAuth,
 							messages,

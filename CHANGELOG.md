@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.9] - 2026-03-07
+
+### Changed
+
+- **Blackbox AI Provider Settings**: Blackbox now uses the official API flow and requires a user-configured API key.
+  - Removed the old built-in/default-key behavior.
+  - Added provider-level `sdkMode` selection for Blackbox, similar to Ollama.
+  - Renamed the Responses mode identifier to `oai-response`.
+  - Default Blackbox SDK mode now targets the official Responses API route.
+  - Synced generated provider settings and commands through `sync-providers.js` and `package.json`.
+
+### Fixed
+
+- **Settings Page Search**: Fixed the provider search input in the unified settings page so filtering works while typing instead of effectively resetting interaction on re-render.
+- **Settings Page Provider Controls**: Fixed Blackbox so it is no longer treated like a no-config provider and now exposes provider settings consistently.
+
 ## [0.2.8] - 2026-03-04
 
 ### Removed

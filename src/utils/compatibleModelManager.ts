@@ -687,14 +687,14 @@ export class CompatibleModelManager {
 			modelId: string;
 		}
 
-		const items: DeleteModelQuickPickItem[] = CompatibleModelManager.models.map(
-			(model) => ({
-				label: model.name,
-				description: model.id,
-				detail: `$(chip) ${model.sdkMode === "openai" ? "OpenAI" : "Anthropic"} | Provider: ${model.provider || "compatible"}`,
-				modelId: model.id,
-			}),
-		);
+			const items: DeleteModelQuickPickItem[] = CompatibleModelManager.models.map(
+				(model) => ({
+					label: model.name,
+					description: model.id,
+					detail: `$(chip) ${model.sdkMode === "openai" ? "OpenAI" : "Anthropic"} | Provider: ${model.provider || "compatible"}`,
+					modelId: model.id,
+				}),
+			);
 
 		if (items.length === 0) {
 			vscode.window.showInformationMessage("No models to delete");

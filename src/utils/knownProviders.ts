@@ -14,6 +14,7 @@ import type {
 	ModelOverride,
 	ProviderConfig,
 	ProviderOverride,
+	SdkMode,
 } from "../types/sharedTypes";
 import { Logger } from "./logger";
 
@@ -63,6 +64,12 @@ export interface KnownProviderConfig
 		extraBody?: Record<string, unknown>;
 		customHeader?: Record<string, string>;
 	};
+	/** OpenAI Responses SDK compatibility configuration */
+	responses?: {
+		baseUrl?: string;
+		extraBody?: Record<string, unknown>;
+		customHeader?: Record<string, string>;
+	};
 }
 
 /**
@@ -108,20 +115,23 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 	blackbox: {
 		displayName: "Blackbox AI",
 		family: "Blackbox AI",
-		description: "Blackbox AI - uses default API key",
+		description: "Blackbox AI official API",
 		supportsApiKey: true,
-		apiKeyTemplate: "xxx",
-		defaultApiKey: "xxx",
-		openModelEndpoint: true,
+		apiKeyTemplate: "YOUR_BLACKBOX_API_KEY",
+		sdkMode: "oai-response",
 		fetchModels: true,
 		modelsEndpoint: "/models",
-		customHeader: {
-			customerId: "",
-			userId: "",
-			version: "1.1",
-		},
 		openai: {
-			baseUrl: "https://oi-vscode-server-985058387028.europe-west1.run.app/v1",
+			baseUrl: "https://api.blackbox.ai",
+		},
+		anthropic: {
+			baseUrl: "https://api.blackbox.ai/v1",
+			customHeader: {
+				"anthropic-version": "2023-06-01",
+			},
+		},
+		responses: {
+			baseUrl: "https://api.blackbox.ai/v1",
 		},
 	},
 	chatjimmy: {
@@ -590,23 +600,65 @@ function toProviderKey(providerId: string): ProviderKey | undefined {
 	return undefined;
 }
 
-function getSdkMode(providerId: string): "openai" | "anthropic" | "mixed" {
+function getSdkCompatConfig(
+	knownConfig: KnownProviderConfig,
+	sdkMode: SdkMode,
+): KnownProviderConfig["openai"] | KnownProviderConfig["anthropic"] | KnownProviderConfig["responses"] | undefined {
+	if (sdkMode === "anthropic") {
+		return knownConfig.anthropic;
+	}
+
+	if (sdkMode === "oai-response") {
+		return knownConfig.responses;
+	}
+
+	return knownConfig.openai;
+}
+
+function getPreferredSdkMode(knownConfig?: KnownProviderConfig): SdkMode {
+	return knownConfig?.sdkMode || "openai";
+}
+
+function getPreferredBaseUrl(knownConfig: KnownProviderConfig): string | undefined {
+	const preferredSdkMode = getPreferredSdkMode(knownConfig);
+	return (
+		knownConfig.baseUrl ||
+		getSdkCompatConfig(knownConfig, preferredSdkMode)?.baseUrl ||
+		knownConfig.openai?.baseUrl ||
+		knownConfig.responses?.baseUrl ||
+		knownConfig.anthropic?.baseUrl
+	);
+}
+
+function getSdkMode(
+	providerId: string,
+): "openai" | "anthropic" | "oai-response" | "mixed" {
 	if (providerId === ProviderKey.Compatible) {
 		return "mixed";
 	}
 
+	const knownConfig = KnownProviders[providerId];
 	const providerConfig = (
 		configProviders as Record<string, { models: ModelConfig[] }>
 	)[providerId];
 	const modes = new Set<string>(
 		(providerConfig?.models || []).map((model) => model.sdkMode || "openai"),
 	);
-	const hasAnthropic = modes.has("anthropic");
-	const hasOpenAI = modes.has("openai");
-	const concreteModesCount = [hasAnthropic, hasOpenAI].filter(Boolean).length;
+	const hasAnthropic = !!knownConfig?.anthropic?.baseUrl || modes.has("anthropic");
+	const hasOpenAI = !!knownConfig?.openai?.baseUrl || modes.has("openai");
+	const hasResponses =
+		!!knownConfig?.responses?.baseUrl || modes.has("oai-response");
+	const concreteModesCount = [
+		hasAnthropic,
+		hasOpenAI,
+		hasResponses,
+	].filter(Boolean).length;
 
 	if (concreteModesCount > 1) {
 		return "mixed";
+	}
+	if (hasResponses) {
+		return "oai-response";
 	}
 	if (hasAnthropic) {
 		return "anthropic";
@@ -641,7 +693,6 @@ function getDefaultFeatures(providerId: string): ProviderMetadata["features"] {
 	const accountConfig = AccountManager.getProviderConfig(providerId);
 	const isNoConfigProvider =
 		providerId === ProviderKey.QwenCli ||
-		providerId === ProviderKey.Blackbox ||
 		providerId === "chatjimmy";
 	const isCodex = providerId === ProviderKey.Codex;
 	const isCompatible = providerId === ProviderKey.Compatible;
@@ -679,6 +730,8 @@ export function getAllProviders(): ProviderMetadata[] {
 				baseUrl:
 					providerConfig.baseUrl ||
 					knownProvider?.baseUrl ||
+						knownProvider?.responses?.baseUrl ||
+						knownProvider?.anthropic?.baseUrl ||
 					knownProvider?.openai?.baseUrl,
 				features,
 				order: 0,
@@ -761,31 +814,30 @@ export function buildConfigProvider(
 			}
 
 			// Apply openai/anthropic baseUrl overrides if present
-			if (knownConfig.openai?.baseUrl && !existingConfig.baseUrl) {
-				existingConfig.baseUrl = knownConfig.openai.baseUrl;
+				if (!existingConfig.baseUrl) {
+					existingConfig.baseUrl = getPreferredBaseUrl(knownConfig);
 			}
 
 			// Apply family and customHeader to all models in the static list
 			existingConfig.models = (existingConfig.models || []).map((model) => {
-				const sdkMode = model.sdkMode || "openai";
-				const sdkBaseUrl =
-					sdkMode === "openai"
-						? knownConfig.openai?.baseUrl
-						: knownConfig.anthropic?.baseUrl;
+					const sdkMode = model.sdkMode || knownConfig.sdkMode || "openai";
+					const sdkCompatConfig = getSdkCompatConfig(knownConfig, sdkMode);
 
 				return {
 					...model,
+						sdkMode,
 					family: knownConfig.family || model.family || providerKey,
-					baseUrl: model.baseUrl || sdkBaseUrl || existingConfig.baseUrl,
+						baseUrl:
+							model.baseUrl ||
+							sdkCompatConfig?.baseUrl ||
+							existingConfig.baseUrl,
 					customHeader: {
 						...knownConfig.customHeader,
-						...knownConfig.openai?.customHeader,
-						...knownConfig.anthropic?.customHeader,
+							...sdkCompatConfig?.customHeader,
 						...model.customHeader,
 					},
 					extraBody: {
-						...(knownConfig.openai?.extraBody ?? {}),
-						...(knownConfig.anthropic?.extraBody ?? {}),
+							...(sdkCompatConfig?.extraBody ?? {}),
 						...model.extraBody,
 					},
 				};
@@ -814,10 +866,7 @@ export function buildConfigProvider(
 		}
 
 		// Get baseUrl from openai config, anthropic config, or direct baseUrl
-		const baseUrl =
-			knownConfig.baseUrl ||
-			knownConfig.openai?.baseUrl ||
-			knownConfig.anthropic?.baseUrl;
+		const baseUrl = getPreferredBaseUrl(knownConfig);
 
 		if (!baseUrl && !knownConfig.fetchModels) {
 			Logger.warn(
@@ -840,25 +889,22 @@ export function buildConfigProvider(
 			modelParser: knownConfig.modelParser,
 			family: knownConfig.family ?? providerKey,
 			models: (knownConfig.models || []).map((modelConfig) => {
-				const sdkMode = modelConfig.sdkMode || "openai";
-				const sdkBaseUrl =
-					sdkMode === "openai"
-						? knownConfig.openai?.baseUrl
-						: knownConfig.anthropic?.baseUrl;
+				const sdkMode = modelConfig.sdkMode || knownConfig.sdkMode || "openai";
+				const sdkCompatConfig = getSdkCompatConfig(knownConfig, sdkMode);
 
 				return {
 					...modelConfig,
-					baseUrl: modelConfig.baseUrl || sdkBaseUrl || baseUrl || "",
+					sdkMode,
+					baseUrl:
+						modelConfig.baseUrl || sdkCompatConfig?.baseUrl || baseUrl || "",
 					// Apply known provider-level overrides to each model if applicable
 					customHeader: {
 						...knownConfig.customHeader,
-						...knownConfig.openai?.customHeader,
-						...knownConfig.anthropic?.customHeader,
+						...sdkCompatConfig?.customHeader,
 						...modelConfig.customHeader,
 					},
 					extraBody: {
-						...(knownConfig.openai?.extraBody ?? {}),
-						...(knownConfig.anthropic?.extraBody ?? {}),
+						...(sdkCompatConfig?.extraBody ?? {}),
 						...modelConfig.extraBody,
 					},
 				};

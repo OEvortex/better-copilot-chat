@@ -177,23 +177,30 @@ function parseKnownProviders() {
 		const displayName =
 			getStringProperty(providerConfig, "displayName") || providerId;
 		const description = getStringProperty(providerConfig, "description");
-		const supportsApiKey = getBooleanProperty(providerConfig, "supportsApiKey");
+			const supportsApiKey = getBooleanProperty(providerConfig, "supportsApiKey");
+			const defaultSdkMode = getStringProperty(providerConfig, "sdkMode");
 		const openaiNode = getObjectProperty(providerConfig, "openai");
 		const anthropicNode = getObjectProperty(providerConfig, "anthropic");
+			const responsesNode = getObjectProperty(providerConfig, "responses");
 		const hasOpenAI = Boolean(
 			openaiNode && ts.isObjectLiteralExpression(openaiNode),
 		);
 		const hasAnthropic = Boolean(
 			anthropicNode && ts.isObjectLiteralExpression(anthropicNode),
 		);
+			const hasResponses = Boolean(
+				responsesNode && ts.isObjectLiteralExpression(responsesNode),
+			);
 
 		providers.push({
 			id: providerId,
 			displayName,
 			description,
 			supportsApiKey,
+				defaultSdkMode,
 			hasOpenAI,
 			hasAnthropic,
+				hasResponses,
 		});
 	}
 
@@ -223,7 +230,7 @@ function syncProviderKeysFile(providerKeyItems) {
 		.map((item) => `\t${item.enumName} = '${item.id}',`)
 		.join("\n");
 
-	const content = `export enum ProviderKey {\n${enumEntries}\n}\n\n/**\n * Provider category for unified settings organization\n */\nexport enum ProviderCategory {\n\tOpenAI = 'openai',\n\tAnthropic = 'anthropic',\n\tOAuth = 'oauth',\n}\n\n/**\n * Provider feature flags used by unified settings UI\n */\nexport interface ProviderFeatureFlags {\n\tsupportsApiKey: boolean;\n\tsupportsOAuth: boolean;\n\tsupportsMultiAccount: boolean;\n\tsupportsBaseUrl: boolean;\n\tsupportsConfigWizard: boolean;\n}\n\n/**\n * Provider metadata for unified settings and configuration wizard\n */\nexport interface ProviderMetadata {\n\tid: string;\n\tkey?: ProviderKey;\n\tdisplayName: string;\n\tcategory: ProviderCategory;\n\tsdkMode?: 'openai' | 'anthropic' | 'gemini' | 'mixed';\n\tdescription?: string;\n\ticon?: string;\n\tsettingsPrefix?: string;\n\tbaseUrl?: string;\n\tfeatures: ProviderFeatureFlags;\n\torder: number;\n}\n`;
+	const content = `export enum ProviderKey {\n${enumEntries}\n}\n\n/**\n * Provider category for unified settings organization\n */\nexport enum ProviderCategory {\n\tOpenAI = 'openai',\n\tAnthropic = 'anthropic',\n\tOAuth = 'oauth',\n}\n\n/**\n * Provider feature flags used by unified settings UI\n */\nexport interface ProviderFeatureFlags {\n\tsupportsApiKey: boolean;\n\tsupportsOAuth: boolean;\n\tsupportsMultiAccount: boolean;\n\tsupportsBaseUrl: boolean;\n\tsupportsConfigWizard: boolean;\n}\n\n/**\n * Provider metadata for unified settings and configuration wizard\n */\nexport interface ProviderMetadata {\n\tid: string;\n\tkey?: ProviderKey;\n\tdisplayName: string;\n\tcategory: ProviderCategory;\n\tsdkMode?: 'openai' | 'anthropic' | 'oai-response' | 'mixed';\n\tdescription?: string;\n\ticon?: string;\n\tsettingsPrefix?: string;\n\tbaseUrl?: string;\n\tfeatures: ProviderFeatureFlags;\n\torder: number;\n}\n`;
 
 	writeUtf8(PROVIDER_KEYS_FILE, content);
 }
@@ -300,10 +307,27 @@ function createBaseUrlProperty(provider) {
 }
 
 function createSdkModeProperty(provider) {
+	const supportedModes = [];
+	if (provider.hasOpenAI) {
+		supportedModes.push("openai");
+	}
+	if (provider.hasAnthropic) {
+		supportedModes.push("anthropic");
+	}
+	if (provider.hasResponses) {
+		supportedModes.push("oai-response");
+	}
+
 	return {
 		type: "string",
-		enum: ["openai", "anthropic"],
-		default: "anthropic",
+		enum: supportedModes,
+		default:
+			provider.defaultSdkMode ||
+			(provider.hasResponses
+				? "oai-response"
+				: provider.hasAnthropic
+					? "anthropic"
+					: "openai"),
 		description: `Select SDK compatibility mode for ${provider.displayName}.`,
 		scope: "application",
 	};
@@ -430,7 +454,16 @@ function syncPackageJson(knownProviders) {
 
 	for (const providerId of providerIds) {
 		const provider = providerById.get(providerId);
-		if (!provider || !provider.hasOpenAI || !provider.hasAnthropic) {
+		if (!provider) {
+			continue;
+		}
+
+		const supportedModeCount = [
+			provider.hasOpenAI,
+			provider.hasAnthropic,
+			provider.hasResponses,
+		].filter(Boolean).length;
+		if (supportedModeCount < 2) {
 			continue;
 		}
 		syncedProperties[`chp.${providerId}.sdkMode`] =

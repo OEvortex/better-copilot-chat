@@ -27,7 +27,7 @@ const vscode = acquireVsCodeApi();
  * @property {string} provider - Provider identifier
  * @property {string} [baseUrl] - API base URL (optional)
  * @property {string} [model] - Request model ID (optional)
- * @property {'openai'|'anthropic'|'gemini'} sdkMode - SDK compatibility mode
+	 * @property {'openai'|'anthropic'|'gemini'} sdkMode - SDK compatibility mode
  * @property {number} maxInputTokens - Maximum input tokens
  * @property {number} maxOutputTokens - Maximum output tokens
  * @property {ModelCapabilities} capabilities - Capability configuration

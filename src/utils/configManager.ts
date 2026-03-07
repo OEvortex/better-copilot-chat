@@ -435,7 +435,8 @@ export class ConfigManager {
 				if (sdkMode)
 					settingsOverrides[providerKey].sdkMode = sdkMode as
 						| "openai"
-						| "anthropic";
+							| "anthropic"
+							| "oai-response";
 			}
 		}
 
@@ -492,6 +493,8 @@ export class ConfigManager {
 				const sdkBaseUrl =
 					override.sdkMode === "openai"
 						? knownConfig.openai?.baseUrl
+							: override.sdkMode === "oai-response"
+								? knownConfig.responses?.baseUrl
 						: knownConfig.anthropic?.baseUrl;
 				if (sdkBaseUrl) {
 					config.baseUrl = sdkBaseUrl;

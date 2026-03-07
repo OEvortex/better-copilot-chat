@@ -113,6 +113,12 @@ export class ApiKeyManager {
 			return true;
 		}
 
+		const { KnownProviders } = await import("./knownProviders.js");
+		const defaultApiKey = KnownProviders[vendor]?.defaultApiKey?.trim();
+		if (defaultApiKey) {
+			return true;
+		}
+
 		// Check if it's a built-in provider
 		const builtinProviders = await ApiKeyManager.getBuiltinProviders();
 		if (builtinProviders.has(vendor)) {

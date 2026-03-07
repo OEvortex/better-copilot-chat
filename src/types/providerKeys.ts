@@ -1,38 +1,38 @@
 export enum ProviderKey {
-	AIHubMix = "aihubmix",
-	Blackbox = "blackbox",
-	ChatJimmy = "chatjimmy",
-	Chutes = "chutes",
-	Codex = "codex",
-	Compatible = "compatible",
-	DeepInfra = "deepinfra",
-	DeepSeek = "deepseek",
-	Huggingface = "huggingface",
-	Kilo = "kilo",
-	Kimi = "kimi",
-	LightningAI = "lightningai",
-	MiniMax = "minimax",
-	MiniMaxCoding = "minimax-coding",
-	Mistral = "mistral",
-	ModelScope = "modelscope",
-	Moonshot = "moonshot",
-	Nanogpt = "nanogpt",
-	Nvidia = "nvidia",
-	Ollama = "ollama",
-	OpenAI = "openai",
-	OpenCode = "opencode",
-	QwenCli = "qwencli",
-	Zenmux = "zenmux",
-	Zhipu = "zhipu",
+	AIHubMix = 'aihubmix',
+	Blackbox = 'blackbox',
+	ChatJimmy = 'chatjimmy',
+	Chutes = 'chutes',
+	Codex = 'codex',
+	Compatible = 'compatible',
+	DeepInfra = 'deepinfra',
+	DeepSeek = 'deepseek',
+	Huggingface = 'huggingface',
+	Kilo = 'kilo',
+	Kimi = 'kimi',
+	LightningAI = 'lightningai',
+	MiniMax = 'minimax',
+	MiniMaxCoding = 'minimax-coding',
+	Mistral = 'mistral',
+	ModelScope = 'modelscope',
+	Moonshot = 'moonshot',
+	Nanogpt = 'nanogpt',
+	Nvidia = 'nvidia',
+	Ollama = 'ollama',
+	OpenAI = 'openai',
+	OpenCode = 'opencode',
+	QwenCli = 'qwencli',
+	Zenmux = 'zenmux',
+	Zhipu = 'zhipu',
 }
 
 /**
  * Provider category for unified settings organization
  */
 export enum ProviderCategory {
-	OpenAI = "openai",
-	Anthropic = "anthropic",
-	OAuth = "oauth",
+	OpenAI = 'openai',
+	Anthropic = 'anthropic',
+	OAuth = 'oauth',
 }
 
 /**
@@ -54,7 +54,7 @@ export interface ProviderMetadata {
 	key?: ProviderKey;
 	displayName: string;
 	category: ProviderCategory;
-	sdkMode?: "openai" | "anthropic" | "mixed";
+	sdkMode?: 'openai' | 'anthropic' | 'oai-response' | 'mixed';
 	description?: string;
 	icon?: string;
 	settingsPrefix?: string;

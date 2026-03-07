@@ -210,6 +210,7 @@ function renderProviderCatalogItem(provider) {
 
 function renderProviderEditor(provider) {
 	const endpointOptions = getEndpointOptions(provider.id);
+	const sdkModeOptions = getSdkModeOptions(provider);
 	const endpointField = endpointOptions.length
 		? `
 			<div class="provider-editor-field">
@@ -240,13 +241,30 @@ function renderProviderEditor(provider) {
 		`
 		: "";
 
+	const sdkModeField = sdkModeOptions.length
+		? `
+				<div class="provider-editor-field">
+					<label for="provider-sdkmode-${provider.id}">SDK Mode</label>
+					<select id="provider-sdkmode-${provider.id}">
+						${sdkModeOptions
+							.map(
+								(option) => `
+							<option value="${option.value}" ${provider.selectedSdkMode === option.value ? "selected" : ""}>${option.label}</option>
+						`,
+							)
+							.join("")}
+					</select>
+				</div>
+			`
+		: "";
+
 	// Render multiple API keys section
 	const apiKeysSection = provider.supportsApiKey
 		? renderApiKeysSection(provider)
 		: "";
 
 	const saveButton =
-		provider.supportsBaseUrl || endpointOptions.length
+		provider.supportsBaseUrl || endpointOptions.length || sdkModeOptions.length
 			? `
 			<div class="provider-editor-actions">
 				<button class="action-button compact" onclick="saveProviderSettings('${provider.id}')">
@@ -260,6 +278,7 @@ function renderProviderEditor(provider) {
 		<div class="provider-editor-grid" data-provider-editor="${provider.id}">
 			${apiKeysSection}
 			${baseUrlField}
+			${sdkModeField}
 			${endpointField}
 			${saveButton}
 		</div>
@@ -531,6 +550,22 @@ function getEndpointOptions(providerId) {
 	return [];
 }
 
+function getSdkModeOptions(provider) {
+	if (!Array.isArray(provider.supportedSdkModes)) {
+		return [];
+	}
+
+	return provider.supportedSdkModes.map((mode) => ({
+		value: mode,
+		label:
+			mode === "oai-response"
+				? "OpenAI Responses API"
+				: mode === "anthropic"
+					? "Anthropic SDK"
+					: "OpenAI SDK",
+	}));
+}
+
 function _saveProviderSettings(providerId) {
 	const provider = (settingsState.providers || []).find(
 		(p) => p.id === providerId,
@@ -545,6 +580,9 @@ function _saveProviderSettings(providerId) {
 	const endpointInput = document.getElementById(
 		`provider-endpoint-${providerId}`,
 	);
+	const sdkModeInput = document.getElementById(
+		`provider-sdkmode-${providerId}`,
+	);
 
 	const payload = {};
 	if (provider.supportsBaseUrl && baseUrlInput) {
@@ -552,6 +590,9 @@ function _saveProviderSettings(providerId) {
 	}
 	if (endpointInput) {
 		payload.endpoint = endpointInput.value;
+	}
+	if (sdkModeInput) {
+		payload.sdkMode = sdkModeInput.value;
 	}
 
 	vscode.postMessage({
@@ -738,6 +779,14 @@ function attachEventListeners() {
 			const target = event.target;
 			settingsState.providerSearchQuery = target?.value || "";
 			renderPage();
+			const nextSearchInput = document.getElementById(
+				"provider-search-input",
+			);
+			if (nextSearchInput) {
+				const cursor = settingsState.providerSearchQuery.length;
+				nextSearchInput.focus();
+				nextSearchInput.setSelectionRange(cursor, cursor);
+			}
 		});
 	}
 }

@@ -185,11 +185,6 @@ export class AccountUI {
 				authType: "apiKey" as const,
 			},
 			{
-				label: "Blackbox",
-				value: ProviderKey.Blackbox,
-				authType: "apiKey" as const,
-			},
-			{
 				label: "Chutes",
 				value: ProviderKey.Chutes,
 				authType: "apiKey" as const,

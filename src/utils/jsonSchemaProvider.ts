@@ -223,21 +223,20 @@ export class JsonSchemaProvider {
 										maxLength: 100,
 										pattern: "^[a-zA-Z0-9_-]+$",
 										description:
-											"Add new custom provider ID (allows letters, numbers, underscores, hyphens)",
-									},
-								],
+										"Add new custom provider ID (allows letters, numbers, underscores, hyphens)",
+								},
+							],
 							},
 							sdkMode: {
-								type: "string",
-								enum: ["openai", "anthropic", "gemini"],
-								enumDescriptions: [
-									"OpenAI SDK standard mode, uses official OpenAI SDK for request/response processing",
-									"Anthropic SDK standard mode, uses official Anthropic SDK for request/response processing",
-									"Gemini SDK standard mode, uses Gemini-compatible request/response processing",
-								],
-								description: "SDK mode defaults to openai.",
-								default: "openai",
-							},
+									type: "string",
+									enum: ["openai", "anthropic"],
+									enumDescriptions: [
+										"OpenAI SDK standard mode, uses official OpenAI SDK for request/response processing",
+										"Anthropic SDK standard mode, uses official Anthropic SDK for request/response processing",
+									],
+									description: "SDK mode defaults to openai.",
+									default: "openai",
+								},
 							baseUrl: {
 								type: "string",
 								description: "API base URL",
@@ -405,9 +404,9 @@ export class JsonSchemaProvider {
 							},
 							sdkMode: {
 								type: "string",
-								enum: ["openai", "anthropic", "gemini"],
+								enum: ["openai", "anthropic"],
 								description:
-									"Override SDK mode: openai (OpenAI compatible format), anthropic (Anthropic compatible format), or gemini (Gemini-compatible format)",
+									"Override SDK mode: openai (OpenAI compatible format) or anthropic (Anthropic compatible format)",
 							},
 							baseUrl: {
 								type: "string",

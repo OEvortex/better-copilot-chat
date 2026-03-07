@@ -30,6 +30,8 @@ interface ProviderInfo {
 	displayName: string;
 	category: string;
 	sdkMode?: string;
+	selectedSdkMode: string;
+	supportedSdkModes: string[];
 	icon?: string;
 	description?: string;
 	settingsPrefix?: string;
@@ -313,6 +315,15 @@ export class SettingsPage {
 					displayName: config.displayName,
 					category: config.category,
 					sdkMode: config.sdkMode,
+					selectedSdkMode: SettingsPage.getSdkModeSetting(
+						config.id,
+						config.sdkMode,
+						configSection,
+					),
+					supportedSdkModes: SettingsPage.getSupportedSdkModes(
+						config.id,
+						config.sdkMode,
+					),
 					icon: config.icon,
 					description: config.description,
 					settingsPrefix: config.settingsPrefix,
@@ -357,9 +368,46 @@ export class SettingsPage {
 		return "";
 	}
 
+	private static getSupportedSdkModes(
+		providerId: string,
+		providerSdkMode?: string,
+	): string[] {
+		if (providerId === "blackbox") {
+			return ["oai-response", "openai", "anthropic"];
+		}
+
+		if (providerSdkMode === "mixed") {
+			return ["openai", "anthropic"];
+		}
+
+		return [];
+	}
+
+	private static getSdkModeSetting(
+		providerId: string,
+		providerSdkMode: string | undefined,
+		configSection?: vscode.WorkspaceConfiguration,
+	): string {
+		const config = configSection || vscode.workspace.getConfiguration("chp");
+		if (providerId === "blackbox") {
+			return config.get<string>("blackbox.sdkMode", "oai-response");
+		}
+
+		if (providerSdkMode === "mixed") {
+			return config.get<string>(`${providerId}.sdkMode`, "anthropic");
+		}
+
+		return "";
+	}
+
 	private static async handleSaveProviderSettings(
 		providerId: string,
-		payload: { apiKey?: string; baseUrl?: string; endpoint?: string },
+		payload: {
+			apiKey?: string;
+			baseUrl?: string;
+			endpoint?: string;
+			sdkMode?: string;
+		},
 		webview: vscode.Webview,
 	): Promise<void> {
 		try {
@@ -406,6 +454,14 @@ export class SettingsPage {
 						vscode.ConfigurationTarget.Global,
 					);
 				}
+			}
+
+			if (payload.sdkMode !== undefined) {
+				await config.update(
+					`${providerId}.sdkMode`,
+					payload.sdkMode,
+					vscode.ConfigurationTarget.Global,
+				);
 			}
 
 			await SettingsPage.sendStateUpdate(webview);
