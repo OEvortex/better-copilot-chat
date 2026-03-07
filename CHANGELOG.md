@@ -12,11 +12,15 @@ All notable changes to this project will be documented in this file.
   - Renamed the Responses mode identifier to `oai-response`.
   - Default Blackbox SDK mode now targets the official Responses API route.
   - Synced generated provider settings and commands through `sync-providers.js` and `package.json`.
+- **OpenCode Provider SDK Modes**: OpenCode now supports provider-level `anthropic`, `openai`, and `oai-response` SDK modes.
+  - Default OpenCode SDK mode now prefers `anthropic`, similar to Ollama.
+  - Synced the generated `chp.opencode.sdkMode` setting into `package.json`.
 
 ### Fixed
 
 - **Settings Page Search**: Fixed the provider search input in the unified settings page so filtering works while typing instead of effectively resetting interaction on re-render.
 - **Settings Page Provider Controls**: Fixed Blackbox so it is no longer treated like a no-config provider and now exposes provider settings consistently.
+- **Known Provider Merge Typing**: Fixed a `knownProviders.ts` type error when applying preferred provider base URLs during config merging.
 
 ## [0.2.8] - 2026-03-04
 

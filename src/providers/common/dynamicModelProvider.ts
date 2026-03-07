@@ -183,11 +183,12 @@ export class DynamicModelProvider extends GenericModelProvider {
 			JSON.stringify(parsed).substring(0, 500),
 		);
 
-		// Parse response using configured path
-		const arrayPath = this.knownConfig.modelParser?.arrayPath || "data";
-		let models: FetchedModel[] = [];
+			// Parse response using configured path
+			const parser = this.knownConfig.modelParser || {};
+			const arrayPath = parser.arrayPath || "data";
+			let models: FetchedModel[] = [];
 
-		if (arrayPath.includes(".")) {
+			if (arrayPath.includes(".")) {
 			// Handle nested paths like "data.models"
 			let current: unknown = parsed;
 			for (const part of arrayPath.split(".")) {
@@ -198,12 +199,20 @@ export class DynamicModelProvider extends GenericModelProvider {
 			if (Array.isArray(current)) {
 				models = current as FetchedModel[];
 			}
-		} else {
-			const data = parsed[arrayPath];
-			if (Array.isArray(data)) {
-				models = data as FetchedModel[];
+			} else {
+				const data = parsed[arrayPath];
+				if (Array.isArray(data)) {
+					models = data as FetchedModel[];
+				}
 			}
-		}
+
+			const filterField = parser.filterField;
+			const filterValue = parser.filterValue;
+			if (filterField && filterValue !== undefined) {
+				models = models.filter(
+					(model) => String(model[filterField]) === filterValue,
+				);
+			}
 
 		return models;
 	}

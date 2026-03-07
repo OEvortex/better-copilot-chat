@@ -376,6 +376,10 @@ export class SettingsPage {
 			return ["oai-response", "openai", "anthropic"];
 		}
 
+		if (providerId === "opencode") {
+			return ["anthropic", "openai", "oai-response"];
+		}
+
 		if (providerSdkMode === "mixed") {
 			return ["openai", "anthropic"];
 		}
@@ -391,6 +395,10 @@ export class SettingsPage {
 		const config = configSection || vscode.workspace.getConfiguration("chp");
 		if (providerId === "blackbox") {
 			return config.get<string>("blackbox.sdkMode", "oai-response");
+		}
+
+		if (providerId === "opencode") {
+			return config.get<string>("opencode.sdkMode", "anthropic");
 		}
 
 		if (providerSdkMode === "mixed") {

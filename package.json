@@ -71,6 +71,7 @@
         "onLanguageModelProvider:chp.ollama",
         "onLanguageModelProvider:chp.opencode",
         "onLanguageModelProvider:chp.qwencli",
+        "onLanguageModelProvider:chp.vercelai",
         "onLanguageModelProvider:chp.zenmux",
         "onLanguageModelProvider:chp.zhipu"
     ],
@@ -273,6 +274,11 @@
             {
                 "command": "chp.nanogpt.setApiKey",
                 "title": "Configure NanoGPT",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.vercelai.setApiKey",
+                "title": "Configure Vercel AI",
                 "category": "Copilot ++"
             }
         ],
@@ -642,6 +648,12 @@
                     "description": "Qwen CLI base URL or proxy endpoint (optional).",
                     "scope": "application"
                 },
+                "chp.vercelai.baseUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Vercel AI base URL or proxy endpoint (optional).",
+                    "scope": "application"
+                },
                 "chp.zenmux.baseUrl": {
                     "type": "string",
                     "default": "",
@@ -723,6 +735,17 @@
                     ],
                     "default": "anthropic",
                     "description": "Select SDK compatibility mode for Ollama.",
+                    "scope": "application"
+                },
+                "chp.opencode.sdkMode": {
+                    "type": "string",
+                    "enum": [
+                        "openai",
+                        "anthropic",
+                        "oai-response"
+                    ],
+                    "default": "anthropic",
+                    "description": "Select SDK compatibility mode for OpenCode.",
                     "scope": "application"
                 }
             }
@@ -1057,6 +1080,24 @@
                             "type": "string",
                             "description": "Qwen CLI API key.",
                             "secret": true
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.vercelai",
+                "displayName": "⦿ Vercel AI (Vercel AI Gateway endpoint integration)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Vercel AI API key.",
+                            "secret": true
+                        },
+                        "baseUrl": {
+                            "type": "string",
+                            "description": "Custom base URL or proxy endpoint (optional). Overrides the default API endpoint.",
+                            "default": ""
                         }
                     }
                 }

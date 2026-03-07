@@ -46,6 +46,10 @@ export interface KnownProviderConfig
 		arrayPath?: string;
 		/** Cooldown between fetches in minutes (default: 10) */
 		cooldownMinutes?: number;
+		/** Optional field name used to filter imported models */
+		filterField?: string;
+		/** Optional exact-match field value used to filter imported models */
+		filterValue?: string;
 		/** Field mappings for model properties */
 		idField?: string;
 		nameField?: string;
@@ -333,7 +337,10 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 		displayName: "OpenCode",
 		family: "OpenCode",
 		description: "OpenCode endpoint integration",
+		sdkMode: "anthropic",
 		openai: { baseUrl: "https://opencode.ai/zen/v1" },
+		anthropic: { baseUrl: "https://opencode.ai/zen/v1" },
+		responses: { baseUrl: "https://opencode.ai/zen/v1" },
 		openModelEndpoint: true,
 		fetchModels: true,
 		modelsEndpoint: "/models",
@@ -348,6 +355,22 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 		family: "Qwen",
 		description: "Qwen CLI OAuth provider",
 		openai: { baseUrl: "https://api.qwen.ai/v1" },
+	},
+	vercelai: {
+		displayName: "Vercel AI",
+		family: "Vercel AI",
+		description: "Vercel AI Gateway endpoint integration",
+		openai: { baseUrl: "https://ai-gateway.vercel.sh/v1" },
+		openModelEndpoint: true,
+		fetchModels: true,
+		modelsEndpoint: "/models",
+		modelParser: {
+			arrayPath: "data",
+			filterField: "type",
+			filterValue: "language",
+			descriptionField: "id",
+			cooldownMinutes: 10,
+		},
 	},
 	zenmux: {
 		displayName: "Zenmux",
@@ -813,35 +836,38 @@ export function buildConfigProvider(
 				existingConfig.modelParser = knownConfig.modelParser;
 			}
 
-			// Apply openai/anthropic baseUrl overrides if present
+				// Apply openai/anthropic baseUrl overrides if present
 				if (!existingConfig.baseUrl) {
-					existingConfig.baseUrl = getPreferredBaseUrl(knownConfig);
-			}
+					const preferredBaseUrl = getPreferredBaseUrl(knownConfig);
+					if (preferredBaseUrl) {
+						existingConfig.baseUrl = preferredBaseUrl;
+					}
+				}
 
-			// Apply family and customHeader to all models in the static list
-			existingConfig.models = (existingConfig.models || []).map((model) => {
+				// Apply family and customHeader to all models in the static list
+				existingConfig.models = (existingConfig.models || []).map((model) => {
 					const sdkMode = model.sdkMode || knownConfig.sdkMode || "openai";
 					const sdkCompatConfig = getSdkCompatConfig(knownConfig, sdkMode);
 
-				return {
-					...model,
+					return {
+						...model,
 						sdkMode,
-					family: knownConfig.family || model.family || providerKey,
+						family: knownConfig.family || model.family || providerKey,
 						baseUrl:
 							model.baseUrl ||
 							sdkCompatConfig?.baseUrl ||
 							existingConfig.baseUrl,
-					customHeader: {
-						...knownConfig.customHeader,
+						customHeader: {
+							...knownConfig.customHeader,
 							...sdkCompatConfig?.customHeader,
-						...model.customHeader,
-					},
-					extraBody: {
+							...model.customHeader,
+						},
+						extraBody: {
 							...(sdkCompatConfig?.extraBody ?? {}),
-						...model.extraBody,
-					},
-				};
-			});
+							...model.extraBody,
+						},
+					};
+				});
 			continue;
 		}
 

@@ -227,6 +227,14 @@ export class AccountManager {
 			},
 		],
 		[
+			ProviderKey.Vercelai,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: true,
+			},
+		],
+		[
 			ProviderKey.Zenmux,
 			{
 				supportsMultiAccount: true,
