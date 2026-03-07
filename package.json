@@ -755,7 +755,7 @@
                         "openai",
                         "anthropic"
                     ],
-                    "default": "openai",
+                    "default": "anthropic",
                     "description": "Select SDK compatibility mode for OpenCode.",
                     "scope": "application"
                 }

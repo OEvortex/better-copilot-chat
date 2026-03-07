@@ -352,7 +352,7 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
 			displayName: "OpenCode",
 			family: "OpenCode",
 			description: "OpenCode endpoint integration",
-			sdkMode: "openai",
+			sdkMode: "anthropic",
 			openai: { baseUrl: "https://opencode.ai/zen/v1" },
 			anthropic: { baseUrl: "https://opencode.ai/zen" },
 			openModelEndpoint: true,
