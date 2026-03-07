@@ -24,7 +24,7 @@
 
 ## Overview
 
-A powerful VS Code extension that provides model support for **GitHub Copilot Chat**, seamlessly integrating **20+ AI providers** including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Codex (OpenAI), Chutes, OpenCode, Blackbox, and custom OpenAI/Anthropic compatible models.
+A powerful VS Code extension that provides model support for **GitHub Copilot Chat**, seamlessly integrating **20+ AI providers** including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Codex (OpenAI), Chutes, OpenCode, Blackbox, Vercel AI, Cline, and custom OpenAI/Anthropic compatible models.
 
 ---
 
@@ -42,6 +42,8 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 | **Chutes** | Chutes AI | Various models | `Global Request Limit` |
 | **OpenCode** | OpenCode AI | Claude 4.5, GPT-5 | `Multi-model Access` |
 | **Blackbox** | Blackbox AI | kimi-k2.5, blackbox-base-2 | `Official API` `API Key Required` |
+| **Vercel AI** | Vercel AI Gateway | Dynamic language models | `Dynamic Models` `Vision Tags` `Context Metadata` |
+| **Cline** | Cline API | Dynamic provider/model IDs | `Dynamic Models` `OpenAI SDK` `Authenticated Discovery` |
 | **DeepInfra** | DeepInfra | OpenAI-compatible models | `LLM & Image Models` |
 | **Kilo AI** | Kilo AI | Dynamic model fetching | `High Performance` |
 | **Zenmux** | Zenmux AI | Dynamic model fetching | `OpenAI-compatible` |
@@ -216,6 +218,8 @@ code --install-extension better-copilot-chat-*.vsix
 | Zenmux | `Cmd+Shift+P` → `Copilot ++: Configure Zenmux` |
 | OpenCode | `Cmd+Shift+P` → `Copilot ++: Configure OpenCode` |
 | Blackbox | `Cmd+Shift+P` → `Copilot ++: Configure Blackbox` |
+| Vercel AI | `Cmd+Shift+P` → `Copilot ++: Configure Vercel AI` |
+| Cline | `Cmd+Shift+P` → `Copilot ++: Configure Cline` |
 | Hugging Face | `Cmd+Shift+P` → `Copilot ++: Configure Hugging Face` |
 | Kilo AI | `Cmd+Shift+P` → `Copilot ++: Configure Kilo AI` |
 | Lightning AI | `Cmd+Shift+P` → `Copilot ++: Lightning AI Configuration Wizard` |
@@ -281,7 +285,7 @@ Enter your API key and configure provider settings:
 
 - **API Key**: Your provider's API key
 - **Base URL**: Custom API endpoint (optional)
-- **Additional Settings**: Provider-specific configurations
+- **Additional Settings**: Provider-specific settings exposed by the extension manifest, such as endpoint, SDK mode, and other provider options
 
 <div align="center">
 <img src="3.png" alt="Add Credentials" width="800"/>
@@ -298,7 +302,7 @@ Toggle the **"Load Balance"** switch to enable automatic account switching when 
 ### Provider Management Features
 
 - **Add Multiple Accounts**: Add multiple API keys per provider for load balancing
-- **Edit Settings**: Click the edit icon to modify provider details
+- **Edit Settings**: Click the edit icon to modify provider details and provider-specific settings
 - **Delete Account**: Remove accounts you no longer need
 - **Switch Account**: Use `Ctrl+Shift+Q` / `Cmd+Shift+Q` for quick switching
 - **Load Balance**: Automatically distribute requests across accounts
@@ -436,6 +440,8 @@ Toggle the **"Load Balance"** switch to enable automatic account switching when 
 | `Copilot ++: Configure Zenmux` | Set Zenmux API key |
 | `Copilot ++: Configure OpenCode` | Set OpenCode API key |
 | `Copilot ++: Configure Blackbox` | Set Blackbox API key |
+| `Copilot ++: Configure Vercel AI` | Set Vercel AI API key |
+| `Copilot ++: Configure Cline` | Set Cline API key |
 | `Copilot ++: Configure Hugging Face` | Set Hugging Face API key |
 | `Copilot ++: Configure Kilo AI` | Set Kilo AI API key |
 | `Copilot ++: Lightning AI Configuration Wizard` | Full Lightning AI setup |

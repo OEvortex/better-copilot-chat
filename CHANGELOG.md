@@ -19,8 +19,8 @@ All notable changes to this project will be documented in this file.
   - Uses `https://ai-gateway.vercel.sh/v1` with `/models` model discovery.
   - Enables open model endpoint fetching and generated provider settings/commands.
 - **Cline Provider**: Added a new OpenAI-SDK-only `cline` provider.
-  - Uses `https://api.cline.bot/api/v1` with `/models` model discovery.
-  - Uses authenticated model fetching and respects the shared global context-length manager path.
+  - Uses `https://api.cline.bot/api/v1` with authenticated model discovery from `https://api.cline.bot/api/v1/ai/cline/models`.
+  - Respects the shared global context-length manager path for dynamically fetched models.
 - **Vercel AI Context Handling**: Added a dedicated Vercel AI context resolver built on top of the global context manager.
   - Uses Vercel model metadata fields like `context_window` and `max_tokens` when available.
   - Imports model tags from the Vercel `/models` response for fetched models.
@@ -28,6 +28,8 @@ All notable changes to this project will be documented in this file.
   - Covers naming variants such as `qwen3.5-flash`, `qwen3.5-plus`, `qwen3-5-flash`, and `qwen3-5-plus`.
 - **Provider Sync Coverage**: Expanded `scripts/sync-providers.js` so provider additions now sync more account-related artifacts automatically.
   - Also updates the Add Account provider list, provider display-name map, and API-key account sync list from known provider metadata.
+- **Settings Page Provider Settings**: The Settings page now renders provider settings from the extension configuration schema instead of relying on a small hardcoded field list.
+  - Supports client-side editing of provider settings like base URL, endpoint, SDK mode, and other manifest-backed provider options.
 
 ### Fixed
 
@@ -38,6 +40,8 @@ All notable changes to this project will be documented in this file.
 - **Vercel AI Vision Capability Detection**: Imported Vercel models now enable vision support when their tags include `vision`.
 - **Vercel AI Token Limit Mapping**: Vercel AI imported models now map `maxInputTokens` from `context_window - max_tokens` and `maxOutputTokens` from `max_tokens`.
 - **Dynamic Model Parser Typing**: Fixed TypeScript typing for custom model-parser filter fields used during dynamic model imports.
+- **Cline Account Flows**: Fixed Cline so it participates in the explicit Add Account and account-sync flows.
+- **Settings Page API Key Refresh**: Fixed account-based API key changes from the Settings page so providers refresh and appear correctly in the VS Code language-model picker.
 
 ## [0.2.8] - 2026-03-04
 

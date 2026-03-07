@@ -753,10 +753,9 @@
                     "type": "string",
                     "enum": [
                         "openai",
-                        "anthropic",
-                        "oai-response"
+                        "anthropic"
                     ],
-                    "default": "anthropic",
+                    "default": "openai",
                     "description": "Select SDK compatibility mode for OpenCode.",
                     "scope": "application"
                 }
