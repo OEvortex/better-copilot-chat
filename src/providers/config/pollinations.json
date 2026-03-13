@@ -166,7 +166,7 @@
             "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
             "capabilities": {
-                "toolCalling": false,
+                "toolCalling": true,
                 "imageInput": false
             }
         },
@@ -178,7 +178,7 @@
             "maxOutputTokens": 16384,
             "includeThinking": true,
             "capabilities": {
-                "toolCalling": false,
+                "toolCalling": true,
                 "imageInput": false
             }
         },
@@ -212,7 +212,7 @@
             "maxInputTokens": 983040,
             "maxOutputTokens": 65536,
             "capabilities": {
-                "toolCalling": false,
+                "toolCalling": true,
                 "imageInput": false
             }
         },
@@ -247,7 +247,7 @@
             "maxInputTokens": 114688,
             "maxOutputTokens": 16384,
             "capabilities": {
-                "toolCalling": false,
+                "toolCalling": true,
                 "imageInput": false
             }
         },
@@ -280,7 +280,7 @@
             "maxInputTokens": 229376,
             "maxOutputTokens": 32768,
             "capabilities": {
-                "toolCalling": false,
+                "toolCalling": true,
                 "imageInput": false
             }
         },
@@ -291,7 +291,7 @@
             "maxInputTokens": 24576,
             "maxOutputTokens": 8192,
             "capabilities": {
-                "toolCalling": false,
+                "toolCalling": true,
                 "imageInput": false
             }
         },
@@ -313,7 +313,7 @@
             "maxInputTokens": 16384,
             "maxOutputTokens": 4096,
             "capabilities": {
-                "toolCalling": false,
+                "toolCalling": true,
                 "imageInput": false
             }
         }
