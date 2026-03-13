@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **Qwen CLI Provider OAuth Flow**: Updated the qwencli provider to use a proper OAuth device flow with PKCE support.
+  - Added complete OAuth Device Authorization Grant (RFC 8628) implementation
+  - Added PKCE support for secure authentication
+  - Added support for multiple OAuth accounts with automatic switching when quota is exhausted
+  - Added CLI fallback for when OAuth quota is exceeded
+  - Added proper DashScope headers for API compatibility
+  - Added new commands: `chp.qwencli.login` and `chp.qwencli.addAccount`
+  - Improved token refresh and credential management
+
 - **Settings Page UI Refresh**: Refined the unified settings page to feel smoother and easier to scan.
   - Added a cleaner header with quick provider/setup summary stats.
   - Improved provider search, result summary text, and provider status badges.
