@@ -51,6 +51,14 @@ export class AccountManager {
 			},
 		],
 		[
+			ProviderKey.AvaSupernova,
+			{
+				supportsMultiAccount: true,
+				supportsOAuth: false,
+				supportsApiKey: false,
+			},
+		],
+		[
 			ProviderKey.Blackbox,
 			{
 				supportsMultiAccount: true,

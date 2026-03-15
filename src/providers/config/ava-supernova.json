@@ -1,0 +1,33 @@
+{
+    "displayName": "AVA Supernova",
+    "baseUrl": "https://ava-supernova.com/api/v1",
+    "apiKeyTemplate": "optional-api-key-for-future-auth",
+    "models": [
+        {
+            "id": "glm-4.7-flash",
+            "name": "GLM-4.7 Flash (Free)",
+            "tooltip": "GLM-4.7 Flash - 128K context, 4K output - Free",
+            "sdkMode": "openai",
+            "baseUrl": "https://ava-supernova.com/api/v1",
+            "maxInputTokens": 126976,
+            "maxOutputTokens": 4096,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "glm-4.5-flash",
+            "name": "GLM-4.5 Flash (Free)",
+            "tooltip": "GLM-4.5 Flash - 128K context, 4K output - Free",
+            "sdkMode": "openai",
+            "baseUrl": "https://ava-supernova.com/api/v1",
+            "maxInputTokens": 126976,
+            "maxOutputTokens": 4096,
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        }
+    ]
+}

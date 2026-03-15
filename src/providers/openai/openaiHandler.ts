@@ -149,7 +149,7 @@ export class OpenAIHandler {
             apiKey: currentApiKey,
             baseURL: baseURL,
             defaultHeaders: defaultHeaders,
-            fetch: this.createCustomFetch(), // Use custom fetch to solve SSE format issues
+            fetch: this.createCustomFetch(providerKey, baseURL), // Use custom fetch to solve SSE format issues and adapt non-standard endpoints
             maxRetries: 2, // Reduce retries to avoid lag
             timeout: 60000 // 60s timeout
         });
@@ -166,17 +166,65 @@ export class OpenAIHandler {
      * Create custom fetch function to handle non-standard SSE format
      * Fix issue where some models output "data:" without a space
      */
-    private createCustomFetch(): typeof fetch {
+    private createCustomFetch(
+        providerKey: string,
+        baseURL?: string
+    ): typeof fetch {
         return async (
             url: string | URL | Request,
             init?: RequestInit
         ): Promise<Response> => {
+            // Handle provider specific endpoint remapping
+            if (providerKey === 'ava-supernova') {
+                // AVA Supernova expects /api/v1/free/chat instead of /v1/chat/completions
+                try {
+                    const rewrittenUrl = this.rewriteAvaSupernovaUrl(url, baseURL);
+                    if (rewrittenUrl) {
+                        url = rewrittenUrl;
+                    }
+
+                    // Add the stream_options payload (many callers want usage info)
+                    if (init?.body && typeof init.body === 'string') {
+                        const data = JSON.parse(init.body);
+                        if (data && data.stream && !data.stream_options) {
+                            data.stream_options = { include_usage: true };
+                            init = { ...init, body: JSON.stringify(data) };
+                        }
+                    }
+                } catch (e) {
+                    Logger.debug(
+                        `[${this.displayName}] Failed to rewrite AVA Supernova request: ${e}`
+                    );
+                }
+            }
+
             // Call original fetch
             const response = await fetch(url, init);
             // All calls of current plugin are stream requests, preprocess all responses directly
             // preprocessSSEResponse is now asynchronous and may throw error for upper layer capture
             return await this.preprocessSSEResponse(response);
         };
+    }
+
+    /** Rewrite OpenAI-style ChatCompletion URLs to AVA Supernova API endpoint. */
+    private rewriteAvaSupernovaUrl(
+        url: string | URL | Request,
+        baseURL?: string
+    ): string | undefined {
+        const rawUrl = typeof url === 'string' ? url : url instanceof URL ? url.toString() : url.url;
+        if (!rawUrl) {
+            return undefined;
+        }
+
+        const normalizedBase = baseURL?.replace(/\/+$/, '') || '';
+        // If the request targets the OpenAI chat completions endpoint, redirect it to AVA Supernova's /free/chat endpoint.
+        if (rawUrl.includes('/chat/completions')) {
+            // Use provided baseURL if available, otherwise try to preserve original origin
+            const base = normalizedBase || rawUrl.replace(/\/chat\/completions.*$/, '');
+            return `${base.replace(/\/+$/, '')}/free/chat`;
+        }
+
+        return undefined;
     }
 
     /**

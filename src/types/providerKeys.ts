@@ -1,5 +1,6 @@
 export enum ProviderKey {
 	AIHubMix = 'aihubmix',
+	AvaSupernova = 'ava-supernova',
 	Blackbox = 'blackbox',
 	ChatJimmy = 'chatjimmy',
 	Chutes = 'chutes',

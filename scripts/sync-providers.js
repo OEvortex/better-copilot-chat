@@ -106,6 +106,29 @@ function formatTsObjectKey(key) {
         : formatTsString(key);
 }
 
+function formatTsIdentifier(key) {
+    // Convert provider IDs like "ava-supernova" into a valid TS identifier (e.g. "avaSupernova").
+    // This is used for import symbols which cannot be string literals.
+    const sanitized = key
+        .split(/[^A-Za-z0-9_$]+/)
+        .filter(Boolean)
+        .map((segment, index) => {
+            if (index === 0) {
+                // lower camel case for first segment
+                return segment.replace(/^[A-Z]/, (m) => m.toLowerCase());
+            }
+            return segment.charAt(0).toUpperCase() + segment.slice(1);
+        })
+        .join("");
+
+    // Ensure it doesn't start with a digit
+    if (/^[0-9]/.test(sanitized)) {
+        return `_${sanitized}`;
+    }
+
+    return sanitized || "provider";
+}
+
 function objectPropertyName(name) {
     if (
         ts.isIdentifier(name) ||
@@ -678,12 +701,19 @@ function syncProviderConfigIndex() {
 
     // Generate import statements
     const imports = configFiles
-        .map((name) => `import ${name} from "./${name}.json";`)
+        .map((name) => {
+            const identifier = formatTsIdentifier(name);
+            return `import ${identifier} from "./${name}.json";`;
+        })
         .join("\n");
 
     // Generate providers object entries
     const providerEntries = configFiles
-        .map((name) => `\t${name},`)
+        .map((name) => {
+            const identifier = formatTsIdentifier(name);
+            const key = formatTsObjectKey(name);
+            return `\t${key}: ${identifier},`;
+        })
         .join("\n");
 
     // Replace imports section (from "import type" to the last import before "// Export")

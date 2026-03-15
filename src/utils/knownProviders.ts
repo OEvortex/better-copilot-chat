@@ -145,6 +145,15 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
         description: 'ChatJimmy - free public API, no auth required',
         supportsApiKey: false
     },
+    'ava-supernova': {
+        displayName: 'AVA Supernova',
+        family: 'AVA Supernova',
+        description: 'AVA Supernova - free public API, no auth required',
+        supportsApiKey: false,
+        openai: { baseUrl: 'https://ava-supernova.com/api/v1' },
+        openModelEndpoint: true,
+        fetchModels: false
+    },
     cline: {
         displayName: 'Cline',
         family: 'Cline',

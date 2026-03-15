@@ -1,5 +1,6 @@
 import type { ProviderConfig } from '../../types/sharedTypes';
 import aihubmix from './aihubmix.json';
+import avaSupernova from './ava-supernova.json';
 import blackbox from './blackbox.json';
 import chatjimmy from './chatjimmy.json';
 import chutes from './chutes.json';
@@ -24,29 +25,30 @@ import zenmux from './zenmux.json';
 import zhipu from './zhipu.json';
 
 const providers = {
-	aihubmix,
-	blackbox,
-	chatjimmy,
-	chutes,
-	codex,
-	deepinfra,
-	deepseek,
-	huggingface,
-	kilo,
-	lightningai,
-	minimax,
-	mistral,
-	modelscope,
-	moonshot,
-	nanogpt,
-	nvidia,
-	ollama,
-	opencode,
-	opencodego,
-	pollinations,
-	qwencli,
-	zenmux,
-	zhipu,
+	aihubmix: aihubmix,
+	"ava-supernova": avaSupernova,
+	blackbox: blackbox,
+	chatjimmy: chatjimmy,
+	chutes: chutes,
+	codex: codex,
+	deepinfra: deepinfra,
+	deepseek: deepseek,
+	huggingface: huggingface,
+	kilo: kilo,
+	lightningai: lightningai,
+	minimax: minimax,
+	mistral: mistral,
+	modelscope: modelscope,
+	moonshot: moonshot,
+	nanogpt: nanogpt,
+	nvidia: nvidia,
+	ollama: ollama,
+	opencode: opencode,
+	opencodego: opencodego,
+	pollinations: pollinations,
+	qwencli: qwencli,
+	zenmux: zenmux,
+	zhipu: zhipu,
 };
 
 export type ProviderName = keyof typeof providers;

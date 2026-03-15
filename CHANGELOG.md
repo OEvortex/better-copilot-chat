@@ -21,6 +21,10 @@ All notable changes to this project will be documented in this file.
     - Added provider support in account management, account UI, and status bar components.
     - Added `chp.opencodego.setApiKey` command for API key configuration.
 
+- **AVA Supernova Provider**: Added a new free AVA Supernova provider with OpenAI SDK compatibility via proxying requests to `https://ava-supernova.com/api/v1/free/chat`.
+    - Added `ava-supernova.json` provider config and `KnownProviders` entry.
+    - Updated model token limits to match AVA docs (128K context, 4K output; input max = 126,976). 
+
 - **Hide thinking/reasoning UI option**: Added global setting `chp.hideThinkingInUI` and a toggle in the Settings page to completely suppress thinking/reasoning output blocks across all providers.
 
 ## [0.3.0] - 2026-03-13

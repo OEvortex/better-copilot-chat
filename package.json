@@ -53,6 +53,7 @@
         "onLanguageModelTool:chp_zhipuWebSearch",
         "onStartupFinished",
         "onLanguageModelProvider:chp.aihubmix",
+        "onLanguageModelProvider:chp.ava-supernova",
         "onLanguageModelProvider:chp.blackbox",
         "onLanguageModelProvider:chp.chatjimmy",
         "onLanguageModelProvider:chp.chutes",
@@ -307,6 +308,11 @@
             {
                 "command": "chp.opencodego.setApiKey",
                 "title": "Configure OpenCode Zen Go",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.ava-supernova.setApiKey",
+                "title": "Configure AVA Supernova",
                 "category": "Copilot ++"
             }
         ],
@@ -679,6 +685,13 @@
                             "secret": true
                         }
                     }
+                }
+            },
+            {
+                "vendor": "chp.ava-supernova",
+                "displayName": "⦿ AVA Supernova (AVA Supernova - free public API, no auth required)",
+                "configuration": {
+                    "properties": {}
                 }
             },
             {
