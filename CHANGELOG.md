@@ -43,6 +43,12 @@ All notable changes to this project will be documented in this file.
     - Fixed issue where tools were reported as "unknown_tool" instead of actual names like "read_file".
     - Tool name capture happens before argument accumulation to ensure correct ordering.
 
+- **Content After Reasoning Fix**: Fixed issue where content wasn't received after `reasoning_content`.
+    - Changed fallback logic to `else if` chain to avoid conflicts with native delta processing.
+    - Fallback now only triggers when `delta.content` is missing but `message.content` exists.
+    - Handles providers that put regular content in `message` instead of `delta` after reasoning blocks.
+    - Ensures content is only extracted when delta is present, with message.content as fallback.
+
 ## [0.3.1] - 2026-03-16
 
 ### Added

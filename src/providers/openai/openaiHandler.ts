@@ -1146,66 +1146,56 @@ export class OpenAIHandler {
                                 hasSeenNativeContentEvent = true;
                                 lastFallbackMessageContent = '';
                             }
-
-                            // Fallback only: if provider does not emit native SDK content events,
-                            // derive an incremental delta from message.content snapshot.
-                            const messageContent = message?.content;
-                            const messageContentDelta =
+                            // Fallback: use message.content when delta.content is missing but message has content
+                            // This handles providers that put content in message instead of delta after reasoning
+                            else if (
                                 !hasSeenNativeContentEvent &&
-                                typeof messageContent === 'string' &&
-                                messageContent.replace(
-                                    /[\s\uFEFF\xA0]+/g,
-                                    ''
-                                ).length > 0
-                                    ? getIncrementalDeltaFromSnapshot(
-                                          messageContent,
-                                          lastFallbackMessageContent
-                                      )
-                                    : '';
-
-                            if (
-                                !hasSeenNativeContentEvent &&
-                                typeof messageContent === 'string'
+                                message?.content &&
+                                typeof message.content === 'string' &&
+                                message.content.replace(/[\s\uFEFF\xA0]+/g, '').length > 0
                             ) {
-                                lastFallbackMessageContent = messageContent;
-                            }
-
-                            if (
-                                messageContentDelta &&
-                                messageContentDelta.replace(
-                                    /[\s\uFEFF\xA0]+/g,
-                                    ''
-                                ).length > 0
-                            ) {
-                                // Before outputting visible content, if there is an unended chain of thought, end it first
-                                if (currentThinkingId) {
+                                // Get incremental delta from snapshot
+                                const messageContentDelta = getIncrementalDeltaFromSnapshot(
+                                    message.content,
+                                    lastFallbackMessageContent
+                                );
+                                
+                                if (messageContentDelta && messageContentDelta.replace(/[\s\uFEFF\xA0]+/g, '').length > 0) {
+                                    // Before outputting visible content, if there is an unended chain of thought, end it first
+                                    if (currentThinkingId) {
+                                        try {
+                                            progress.report(
+                                                new vscode.LanguageModelThinkingPart(
+                                                    '',
+                                                    currentThinkingId
+                                                )
+                                            );
+                                        } catch (e) {
+                                            Logger.trace(
+                                                `${model.name} failed to end thinking: ${String(e)}`
+                                            );
+                                        }
+                                        currentThinkingId = null;
+                                    }
+                                    
+                                    // Report text content
                                     try {
                                         progress.report(
-                                            new vscode.LanguageModelThinkingPart(
-                                                '',
-                                                currentThinkingId
+                                            new vscode.LanguageModelTextPart(
+                                                messageContentDelta
                                             )
                                         );
+                                        hasReceivedContent = true;
+                                        hasSeenNativeContentEvent = true;
                                     } catch (e) {
                                         Logger.trace(
-                                            `${model.name} failed to end thinking: ${String(e)}`
+                                            `${model.name} failed to report fallback message content: ${String(e)}`
                                         );
                                     }
-                                    currentThinkingId = null;
                                 }
-                                // Then report text content
-                                try {
-                                    progress.report(
-                                        new vscode.LanguageModelTextPart(
-                                            messageContentDelta
-                                        )
-                                    );
-                                    hasReceivedContent = true;
-                                } catch (e) {
-                                    Logger.trace(
-                                        `${model.name} failed to report message content (choice ${choiceIndex}): ${String(e)}`
-                                    );
-                                }
+                                
+                                // Update last fallback snapshot
+                                lastFallbackMessageContent = message.content;
                             }
                         }
                     }
