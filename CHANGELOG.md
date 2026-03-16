@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.2] - Unreleased
+## [0.3.2] - 2026-03-16
 
 ### Fixed
 - **OpenCode Zen Go Provider Registration**: Fixed provider not being registered properly in VS Code.
