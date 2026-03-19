@@ -25,6 +25,12 @@ All notable changes to this project will be documented in this file.
 
 - **Settings Page Blink / Flicker**: Reduced visible blinking in the unified Settings page by replacing full-page rerenders with in-place card/header updates for provider load-balance changes.
 
+- **Thinking/Reasoning UI Split on OpenAI Providers**: Fixed thinking blocks being prematurely ended and reopened during streaming on OpenAI-compatible providers (including custom models).
+    - Root cause: OpenAI Chat Completions streams do not provide explicit thinking-block boundaries like Anthropic does, so the handler was inferring them incorrectly.
+    - Previous behavior: visible content was interleaved with late reasoning deltas, causing thinking to show as multiple ugly blocks in the UI.
+    - New behavior: visible content is buffered until the reasoning block is fully finalized, then emitted as one clean output — matching how Anthropic providers already work.
+    - Affected path: `src/providers/openai/openaiHandler.ts` stream loop.
+
 ### Code Quality
 
 - **Biome Linting**: Updated codebase to pass Biome linter checks with improved code style consistency.
