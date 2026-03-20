@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **MiMo v2 Model Support**: Added context window and capability configuration for Xiaomi MiMo v2 models.
+    - **MiMo v2 Pro**: 1M total context (960K input / 64K output).
+    - **MiMo v2 Omni**: 256K total context (224K input / 32K output) with image input (vision) support.
+
 - **Custom Model Management Panel**: Added a new featured panel in the Settings page for managing OpenAI/Anthropic Compatible custom models.
     - Direct "Add custom model" action from the provider card.
     - "Manage models" button to view and edit existing custom models.

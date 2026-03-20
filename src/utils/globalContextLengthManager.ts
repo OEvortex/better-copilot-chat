@@ -92,6 +92,15 @@ const GPT5_MAX_OUTPUT_TOKENS = 64 * TOKENS_PER_KIBI; // 65536
 const GPT4_1_TOTAL_TOKENS = TOKENS_PER_MEBI;
 const GPT4_1_MAX_OUTPUT_TOKENS = 32 * TOKENS_PER_KIBI; // 32768
 const GPT4_1_MAX_INPUT_TOKENS = GPT4_1_TOTAL_TOKENS - GPT4_1_MAX_OUTPUT_TOKENS;
+// MiMo v2 Pro: 1M total context, 64K output / 960K input
+const MIMOV2_PRO_TOTAL_TOKENS = TOKENS_PER_MEBI; // 1048576
+const MIMOV2_PRO_MAX_OUTPUT_TOKENS = 64 * TOKENS_PER_KIBI; // 65536
+const MIMOV2_PRO_MAX_INPUT_TOKENS =
+    MIMOV2_PRO_TOTAL_TOKENS - MIMOV2_PRO_MAX_OUTPUT_TOKENS; // 983040
+// MiMo v2 Omni: 256K total context, 32K output / 224K input
+const MIMOV2_OMNI_MAX_INPUT_TOKENS =
+    256 * TOKENS_PER_KIBI - 32 * TOKENS_PER_KIBI; // 229376
+const MIMOV2_OMNI_MAX_OUTPUT_TOKENS = 32 * TOKENS_PER_KIBI; // 32768
 const HIGH_CONTEXT_THRESHOLD = 200 * TOKENS_PER_KIBI; // 204800
 const HIGH_CONTEXT_MAX_OUTPUT_TOKENS = 32 * TOKENS_PER_KIBI; // 32768
 
@@ -216,6 +225,16 @@ export function isMingFlashOmniModel(modelId: string): boolean {
         /ming[-_]?flash[-_]?omni[-_]?2(?:\.|-)0/i.test(modelId) ||
         /ming-flash-omni-2-0/i.test(modelId)
     );
+}
+
+export function isMiMoV2ProModel(modelId: string): boolean {
+    // Xiaomi MiMo v2 Pro: 1M context, 64K output
+    return /mimi[-_]?v2[-_]?pro/i.test(modelId);
+}
+
+export function isMiMoV2OmniModel(modelId: string): boolean {
+    // Xiaomi MiMo v2 Omni: 256K context, 32K output, image input
+    return /mimi[-_]?v2[-_]?omni/i.test(modelId);
 }
 
 export function getDefaultMaxOutputTokensForContext(
@@ -344,6 +363,22 @@ export function resolveGlobalTokenLimits(
         };
     }
 
+    // MiMo v2 Pro: 1M total context, 64K output / 960K input
+    if (isMiMoV2ProModel(modelId)) {
+        return {
+            maxInputTokens: MIMOV2_PRO_MAX_INPUT_TOKENS,
+            maxOutputTokens: MIMOV2_PRO_MAX_OUTPUT_TOKENS
+        };
+    }
+
+    // MiMo v2 Omni: 256K total context, 32K output / 224K input
+    if (isMiMoV2OmniModel(modelId)) {
+        return {
+            maxInputTokens: MIMOV2_OMNI_MAX_INPUT_TOKENS,
+            maxOutputTokens: MIMOV2_OMNI_MAX_OUTPUT_TOKENS
+        };
+    }
+
     // Minimax M2 series: 204.8K total context, 32K output
     if (isMinimaxModel(modelId)) {
         return {
@@ -467,13 +502,14 @@ export function resolveGlobalCapabilities(
     return {
         // User request: all models should support tools
         toolCalling: true,
-        // User request: Claude, Kimi 2.5, GPT models (excluding gpt-oss), Gemini, and Qwen3.5 models should support vision
+        // User request: Claude, Kimi 2.5, GPT models (excluding gpt-oss), Gemini, Qwen3.5, and MiMo v2 Omni models should support vision
         imageInput:
             detectedImageInput ||
             isClaudeModel(modelId) ||
             isKimiK25Model(modelId) ||
             isVisionGptModel(modelId) ||
             isGeminiModel(modelId) ||
-            isQwen35Model(modelId)
+            isQwen35Model(modelId) ||
+            isMiMoV2OmniModel(modelId)
     };
 }
