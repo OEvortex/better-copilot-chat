@@ -39,6 +39,94 @@ export class OpenAIHandler {
     private cleanupInterval?: NodeJS.Timeout;
     private quotaCache: AccountQuotaCache;
 
+    /**
+     * Try to recover a usable JSON payload from a malformed tool-call
+     * arguments string.
+     */
+    private recoverToolArgumentsJson(input: string): string | null {
+        let candidate = input.trim();
+
+        if (!candidate) {
+            return null;
+        }
+
+        if (
+            candidate.startsWith('```') &&
+            candidate.endsWith('```') &&
+            candidate.length > 6
+        ) {
+            candidate = candidate.slice(3, -3).trim();
+        }
+
+        const firstObjectIndex = candidate.indexOf('{');
+        const firstArrayIndex = candidate.indexOf('[');
+        const firstJsonIndex =
+            firstObjectIndex === -1
+                ? firstArrayIndex
+                : firstArrayIndex === -1
+                  ? firstObjectIndex
+                  : Math.min(firstObjectIndex, firstArrayIndex);
+
+        if (firstJsonIndex > 0) {
+            candidate = candidate.slice(firstJsonIndex);
+        }
+
+        const stack: string[] = [];
+        let inString = false;
+        let escaped = false;
+        let endIndex = -1;
+
+        for (let i = 0; i < candidate.length; i++) {
+            const ch = candidate[i];
+
+            if (inString) {
+                if (escaped) {
+                    escaped = false;
+                } else if (ch === '\\') {
+                    escaped = true;
+                } else if (ch === '"') {
+                    inString = false;
+                }
+                continue;
+            }
+
+            if (ch === '"') {
+                inString = true;
+                continue;
+            }
+
+            if (ch === '{' || ch === '[') {
+                stack.push(ch);
+                continue;
+            }
+
+            if (ch === '}' || ch === ']') {
+                const opener = stack.pop();
+                if (
+                    !opener ||
+                    (opener === '{' && ch !== '}') ||
+                    (opener === '[' && ch !== ']')
+                ) {
+                    return null;
+                }
+
+                if (stack.length === 0) {
+                    endIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (endIndex === -1) {
+            return null;
+        }
+
+        let balancedCandidate = candidate.slice(0, endIndex + 1);
+        balancedCandidate = balancedCandidate.replace(/,\s*([}\]])/g, '$1');
+
+        return balancedCandidate;
+    }
+
     constructor(
         private provider: string,
         private displayName: string,
@@ -268,10 +356,22 @@ export class OpenAIHandler {
                 const seenFinishReason = new Map<number, boolean>();
                 let lastChunkId = '';
                 let lastModel = '';
+                let pendingLine = '';
                 try {
                     while (true) {
                         const { done, value } = await reader.read();
                         if (done) {
+                            const decoderFlush = decoder.decode();
+                            if (decoderFlush) {
+                                pendingLine += decoderFlush;
+                            }
+
+                            if (pendingLine.trim().length > 0) {
+                                Logger.trace(
+                                    'preprocessSSEResponse dropping unterminated SSE line at stream end'
+                                );
+                            }
+
                             // Ensure at least choice 0 has a finish_reason to avoid OpenAI SDK error
                             // "Error: missing finish_reason for choice 0"
                             if (!seenFinishReason.get(0)) {
@@ -298,7 +398,21 @@ export class OpenAIHandler {
                             break;
                         }
                         // Decode chunk
-                        let chunk = decoder.decode(value, { stream: true });
+                        let chunk = pendingLine + decoder.decode(value, { stream: true });
+
+                        // Process only complete lines and keep unfinished tail for the next read
+                        const lastLineBreak = Math.max(
+                            chunk.lastIndexOf('\n'),
+                            chunk.lastIndexOf('\r')
+                        );
+                        if (lastLineBreak === -1) {
+                            pendingLine = chunk;
+                            continue;
+                        }
+
+                        pendingLine = chunk.slice(lastLineBreak + 1);
+                        chunk = chunk.slice(0, lastLineBreak + 1);
+
                         // Fix SSE format: ensure there is a space after "data:"
                         // Handle "data:{json}" -> "data: {json}"
                         chunk = chunk.replace(/^data:([^\s])/gm, 'data: $1');
@@ -320,8 +434,13 @@ export class OpenAIHandler {
                                 }
                                 // Skip truncated/incomplete JSON (must start with { and end with })
                                 const trimmedJson = jsonStr.trim();
-                                if (!trimmedJson.startsWith('{') || !trimmedJson.endsWith('}')) {
-                                    Logger.trace(`preprocessSSEResponse skipping incomplete JSON: ${trimmedJson.substring(0, 80)}...`);
+                                if (
+                                    !trimmedJson.startsWith('{') ||
+                                    !trimmedJson.endsWith('}')
+                                ) {
+                                    Logger.trace(
+                                        `preprocessSSEResponse skipping incomplete JSON: ${trimmedJson.substring(0, 80)}...`
+                                    );
                                     continue;
                                 }
                                 try {
@@ -1038,19 +1157,49 @@ export class OpenAIHandler {
                                                     `Deduplication fix successful for tool call index ${index}`
                                                 );
                                             } catch (secondError) {
-                                                Logger.error(
-                                                    `Failed to parse tool call parameters for index ${index}`
-                                                );
-                                                Logger.error(
-                                                    `Original parameter string (first 100 characters): ${args?.substring(0, 100)}`
-                                                );
-                                                Logger.error(
-                                                    `Parsing error: ${parseError}`
-                                                );
-                                                Logger.error(
-                                                    `Still failed after deduplication fix: ${secondError}`
-                                                );
-                                                throw parseError;
+                                                const recoveredJson =
+                                                    this.recoverToolArgumentsJson(
+                                                        cleanedArgs
+                                                    );
+
+                                                if (recoveredJson) {
+                                                    try {
+                                                        parsedArgs = JSON.parse(
+                                                            recoveredJson
+                                                        );
+                                                        Logger.debug(
+                                                            `Deduplication/recovery fix successful for tool call index ${index}`
+                                                        );
+                                                    } catch (recoveryError) {
+                                                        Logger.error(
+                                                            `Failed to parse recovered tool call parameters for index ${index}`
+                                                        );
+                                                        Logger.error(
+                                                            `Original parameter string (first 100 characters): ${args?.substring(0, 100)}`
+                                                        );
+                                                        Logger.error(
+                                                            `Parsing error: ${parseError}`
+                                                        );
+                                                        Logger.error(
+                                                            `Recovery parsing error: ${recoveryError}`
+                                                        );
+                                                        parsedArgs = {};
+                                                    }
+                                                } else {
+                                                    Logger.error(
+                                                        `Failed to parse tool call parameters for index ${index}`
+                                                    );
+                                                    Logger.error(
+                                                        `Original parameter string (first 100 characters): ${args?.substring(0, 100)}`
+                                                    );
+                                                    Logger.error(
+                                                        `Parsing error: ${parseError}`
+                                                    );
+                                                    Logger.error(
+                                                        `Still failed after deduplication fix: ${secondError}`
+                                                    );
+                                                    parsedArgs = {};
+                                                }
                                             }
                                         }
 

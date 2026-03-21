@@ -1,0 +1,20 @@
+{
+    "displayName": "Seraphyn",
+    "family": "Seraphyn",
+    "baseUrl": "https://seraphyn.ai/api/v1",
+    "apiKeyTemplate": "sk-xxxxxxxx",
+    "models": [
+        {
+            "id": "__seraphyn_dynamic__",
+            "name": "Seraphyn Models",
+            "tooltip": "Models loaded dynamically from /models",
+            "maxInputTokens": 344064,
+            "maxOutputTokens": 65536,
+            "model": "__seraphyn_dynamic__",
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        }
+    ]
+}

@@ -741,6 +741,10 @@ function createLazyFactory(
 }
 
 const specializedProviderFactories: Record<string, ProviderFactory> = {
+    seraphyn: createLazyFactory(
+        () => import('../providers/seraphyn/provider.js'),
+        'SeraphynProvider'
+    ),
     qwencli: createLazyFactory(
         () => import('../providers/qwencli/provider.js'),
         'QwenCliProvider'

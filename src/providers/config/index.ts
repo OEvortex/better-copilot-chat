@@ -21,6 +21,7 @@ import ollama from './ollama.json';
 import opencode from './opencode.json';
 import opencodego from './opencodego.json';
 import pollinations from './pollinations.json';
+import seraphyn from './seraphyn.json';
 import qwencli from './qwencli.json';
 import zenmux from './zenmux.json';
 import zhipu from './zhipu.json';
@@ -48,6 +49,7 @@ const providers = {
 	opencode: opencode,
 	opencodego: opencodego,
 	pollinations: pollinations,
+	seraphyn: seraphyn,
 	qwencli: qwencli,
 	zenmux: zenmux,
 	zhipu: zhipu,
