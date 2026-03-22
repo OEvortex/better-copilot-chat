@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **MiniMax M2.7 Model**: Added MiniMax M2.7 model to OpenCode Zen Go provider configuration with Anthropic SDK mode support.
+
 - **Seraphyn Provider**: Added new standalone AI provider integration for Seraphyn AI.
     - Custom fetch-based implementation with dedicated SSE parser.
     - OpenAI-compatible endpoint at `https://seraphyn.ai/api/v1`.
@@ -37,7 +39,7 @@ All notable changes to this project will be documented in this file.
     - Falls back to `{ raw: "<original>" }` when recovery fails instead of dropping the tool call entirely.
     - Fixed TypeScript type errors in the Seraphyn handler module.
 
-## [0.3.3] - Unreleased
+## [0.3.3] - 2026-03-20
 
 ### Added
 
