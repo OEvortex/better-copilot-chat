@@ -77,6 +77,11 @@ const QWEN35_1M_TOTAL_TOKENS = TOKENS_PER_MEBI;
 const QWEN35_1M_MAX_OUTPUT_TOKENS = 32 * TOKENS_PER_KIBI; // 32768
 const QWEN35_1M_MAX_INPUT_TOKENS =
     QWEN35_1M_TOTAL_TOKENS - QWEN35_1M_MAX_OUTPUT_TOKENS;
+// Qwen3.6 models: 1M total context, 32K output (same as Qwen3.5 Flash/Plus)
+const QWEN36_1M_TOTAL_TOKENS = TOKENS_PER_MEBI;
+const QWEN36_1M_MAX_OUTPUT_TOKENS = 32 * TOKENS_PER_KIBI; // 32768
+const QWEN36_1M_MAX_INPUT_TOKENS =
+    QWEN36_1M_TOTAL_TOKENS - QWEN36_1M_MAX_OUTPUT_TOKENS;
 // Gemini large-context families (1M total)
 const GEMINI_1M_TOTAL_TOKENS = TOKENS_PER_MEBI;
 const GEMINI25_MAX_OUTPUT_TOKENS = 32 * TOKENS_PER_KIBI; // Gemini 2.5 -> 32K output (32768)
@@ -204,6 +209,12 @@ export function isQwen35OneMillionContextModel(modelId: string): boolean {
     return /qwen[-_]?3(?:\.|[-_])?5[-_]?(?:flash|plus)/i.test(modelId);
 }
 
+export function isQwen36OneMillionContextModel(modelId: string): boolean {
+    // Matches qwen3.6 and variants (qwen3.6, qwen-3.6, qwen3.6:397b, etc.)
+    // Qwen3.6 has 1M context window, 32K output, and supports vision.
+    return /qwen[-_]?3(?:\.|[-_])?6/i.test(modelId);
+}
+
 export function isClaudeModel(modelId: string): boolean {
     // Matches all Claude models: claude-3, claude-3.5, claude-4, etc.
     // Also matches provider-prefixed ids like anthropic/claude-3, etc.
@@ -304,6 +315,14 @@ export function resolveGlobalTokenLimits(
         return {
             maxInputTokens: QWEN35_1M_MAX_INPUT_TOKENS,
             maxOutputTokens: QWEN35_1M_MAX_OUTPUT_TOKENS
+        };
+    }
+
+    // Qwen3.6: 1M total context, 32K output
+    if (isQwen36OneMillionContextModel(modelId)) {
+        return {
+            maxInputTokens: QWEN36_1M_MAX_INPUT_TOKENS,
+            maxOutputTokens: QWEN36_1M_MAX_OUTPUT_TOKENS
         };
     }
 
@@ -534,7 +553,7 @@ export function resolveGlobalCapabilities(
     return {
         // User request: all models should support tools
         toolCalling: true,
-        // User request: Claude, Kimi 2.5, GPT models (excluding gpt-oss), Gemini, Qwen3.5, and MiMo v2 Omni models should support vision
+        // User request: Claude, Kimi 2.5, GPT models (excluding gpt-oss), Gemini, Qwen3.5, Qwen3.5 1M, Qwen3.6, and MiMo v2 Omni models should support vision
         imageInput:
             detectedImageInput ||
             isClaudeModel(modelId) ||
@@ -542,6 +561,8 @@ export function resolveGlobalCapabilities(
             isVisionGptModel(modelId) ||
             isGeminiModel(modelId) ||
             isQwen35Model(modelId) ||
+            isQwen35OneMillionContextModel(modelId) ||
+            isQwen36OneMillionContextModel(modelId) ||
             isMiMoV2OmniModel(modelId)
     };
 }
