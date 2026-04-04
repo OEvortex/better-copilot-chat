@@ -1,0 +1,2 @@
+// Stub
+export default null
