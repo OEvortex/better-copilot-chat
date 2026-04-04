@@ -51,7 +51,9 @@
         "onFileSystem:chp-settings",
         "onLanguageModelTool:chp_minimaxWebSearch",
         "onLanguageModelTool:chp_zhipuWebSearch",
+        "onCommand:chp.openChat",
         "onStartupFinished",
+        "onView:copilotHelperChatView",
         "onLanguageModelProvider:chp.aihubmix",
         "onLanguageModelProvider:chp.apertis",
         "onLanguageModelProvider:chp.ava-supernova",
@@ -62,6 +64,7 @@
         "onLanguageModelProvider:chp.codex",
         "onLanguageModelProvider:chp.deepinfra",
         "onLanguageModelProvider:chp.deepseek",
+        "onLanguageModelProvider:chp.hicapai",
         "onLanguageModelProvider:chp.huggingface",
         "onLanguageModelProvider:chp.kilo",
         "onLanguageModelProvider:chp.knox",
@@ -77,6 +80,7 @@
         "onLanguageModelProvider:chp.opencode",
         "onLanguageModelProvider:chp.opencodego",
         "onLanguageModelProvider:chp.pollinations",
+        "onLanguageModelProvider:chp.puter",
         "onLanguageModelProvider:chp.qwencli",
         "onLanguageModelProvider:chp.seraphyn",
         "onLanguageModelProvider:chp.vercelai",
@@ -295,6 +299,12 @@
                 "icon": "$(settings-gear)"
             },
             {
+                "command": "chp.openChat",
+                "title": "Open Copilot ++ Chat",
+                "category": "Copilot ++",
+                "icon": "$(comment-discussion)"
+            },
+            {
                 "command": "chp.nanogpt.setApiKey",
                 "title": "Configure NanoGPT",
                 "category": "Copilot ++"
@@ -338,8 +348,35 @@
                 "command": "chp.apertis.setApiKey",
                 "title": "Configure Apertis AI",
                 "category": "Copilot ++"
+            },
+            {
+                "command": "chp.puter.setApiKey",
+                "title": "Configure Puter AI",
+                "category": "Copilot ++"
+            },
+            {
+                "command": "chp.hicapai.setApiKey",
+                "title": "Configure HicapAI",
+                "category": "Copilot ++"
             }
         ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "copilotHelperChat",
+                    "title": "Copilot ++",
+                    "icon": "./logo_ai.png"
+                }
+            ]
+        },
+        "views": {
+            "copilotHelperChat": [
+                {
+                    "id": "copilotHelperChatView",
+                    "name": "Chat"
+                }
+            ]
+        },
         "configuration": {
             "title": "Copilot ++ - AI Chat Models",
             "properties": {
@@ -582,6 +619,16 @@
                     "description": "Custom model configuration for Compatible Provider. Completely user-configured OpenAI/Anthropic compatible model list.",
                     "scope": "application"
                 },
+                "chp.moonshot.plan": {
+                    "type": "string",
+                    "enum": [
+                        "coding",
+                        "normal"
+                    ],
+                    "default": "normal",
+                    "description": "MoonshotAI plan type. coding: use https://api.kimi.com/coding/v1, normal: use https://api.moonshot.ai/v1.",
+                    "scope": "application"
+                },
                 "chp.aihubmix.sdkMode": {
                     "type": "string",
                     "enum": [
@@ -624,6 +671,16 @@
                     "description": "Select SDK compatibility mode for DeepSeek.",
                     "scope": "application"
                 },
+                "chp.llmgateway.sdkMode": {
+                    "type": "string",
+                    "enum": [
+                        "openai",
+                        "anthropic"
+                    ],
+                    "default": "anthropic",
+                    "description": "Select SDK compatibility mode for LLMGateway.",
+                    "scope": "application"
+                },
                 "chp.minimax.sdkMode": {
                     "type": "string",
                     "enum": [
@@ -642,26 +699,6 @@
                     ],
                     "default": "anthropic",
                     "description": "Select SDK compatibility mode for ModelScope.",
-                    "scope": "application"
-                },
-                "chp.llmgateway.sdkMode": {
-                    "type": "string",
-                    "enum": [
-                        "openai",
-                        "anthropic"
-                    ],
-                    "default": "openai",
-                    "description": "Select SDK compatibility mode for LLMGateway.",
-                    "scope": "application"
-                },
-                "chp.moonshot.plan": {
-                    "type": "string",
-                    "enum": [
-                        "coding",
-                        "normal"
-                    ],
-                    "default": "normal",
-                    "description": "MoonshotAI plan type. coding: use https://api.kimi.com/coding/v1, normal: use https://api.moonshot.ai/v1.",
                     "scope": "application"
                 },
                 "chp.ollama.sdkMode": {
@@ -822,6 +859,19 @@
                 }
             },
             {
+                "vendor": "chp.hicapai",
+                "displayName": "⦿ HicapAI (HicapAI - OpenAI SDK compatible endpoint)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "HicapAI API key.",
+                            "secret": true
+                        }
+                    }
+                }
+            },
+            {
                 "vendor": "chp.huggingface",
                 "displayName": "⦿ Hugging Face (Hugging Face Router endpoint integration)",
                 "configuration": {
@@ -874,6 +924,19 @@
                 }
             },
             {
+                "vendor": "chp.llmgateway",
+                "displayName": "⦿ LLMGateway (Unified access to multiple AI models)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "LLMGateway API key.",
+                            "secret": true
+                        }
+                    }
+                }
+            },
+            {
                 "vendor": "chp.minimax",
                 "displayName": "⦿ MiniMax (MiniMax family models with coding endpoint options)",
                 "configuration": {
@@ -907,19 +970,6 @@
                         "apiKey": {
                             "type": "string",
                             "description": "ModelScope API key.",
-                            "secret": true
-                        }
-                    }
-                }
-            },
-            {
-                "vendor": "chp.llmgateway",
-                "displayName": "⦿ LLMGateway (Unified access to multiple AI models)",
-                "configuration": {
-                    "properties": {
-                        "apiKey": {
-                            "type": "string",
-                            "description": "LLMGateway API key.",
                             "secret": true
                         }
                     }
@@ -1011,6 +1061,19 @@
                         "apiKey": {
                             "type": "string",
                             "description": "Pollinations AI API key.",
+                            "secret": true
+                        }
+                    }
+                }
+            },
+            {
+                "vendor": "chp.puter",
+                "displayName": "⦿ Puter AI (Free AI API - access 500+ models including GPT, Claude, Gemini with Puter auth token)",
+                "configuration": {
+                    "properties": {
+                        "apiKey": {
+                            "type": "string",
+                            "description": "Puter AI API key.",
                             "secret": true
                         }
                     }

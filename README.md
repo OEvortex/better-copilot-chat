@@ -110,6 +110,16 @@ A powerful VS Code extension that provides model support for **GitHub Copilot Ch
 
 ---
 
+### 💬 Native Chat UI
+
+> **A built-in sidebar chat view powered by the extension's registered providers**
+
+- Open **Copilot ++ Chat** from the activity bar or the `Copilot ++: Open Copilot ++ Chat` command
+- Switch between registered providers and models inside the same chat surface
+- Uses the same language-model providers already exposed by the extension
+
+---
+
 ### ✨ Advanced Code Completion
 
 > **Smart code completion features**

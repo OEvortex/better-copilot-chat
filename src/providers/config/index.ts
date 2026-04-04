@@ -9,10 +9,10 @@ import codex from './codex.json';
 import deepinfra from './deepinfra.json';
 import deepseek from './deepseek.json';
 import huggingface from './huggingface.json';
-import llmgateway from './llmgateway.json';
 import kilo from './kilo.json';
 import knox from './knox.json';
 import lightningai from './lightningai.json';
+import llmgateway from './llmgateway.json';
 import minimax from './minimax.json';
 import mistral from './mistral.json';
 import modelscope from './modelscope.json';
@@ -23,8 +23,9 @@ import ollama from './ollama.json';
 import opencode from './opencode.json';
 import opencodego from './opencodego.json';
 import pollinations from './pollinations.json';
-import seraphyn from './seraphyn.json';
+import puter from './puter.json';
 import qwencli from './qwencli.json';
+import seraphyn from './seraphyn.json';
 import zenmux from './zenmux.json';
 import zhipu from './zhipu.json';
 
@@ -39,10 +40,10 @@ const providers = {
 	deepinfra: deepinfra,
 	deepseek: deepseek,
 	huggingface: huggingface,
-	llmgateway: llmgateway,
 	kilo: kilo,
 	knox: knox,
 	lightningai: lightningai,
+	llmgateway: llmgateway,
 	minimax: minimax,
 	mistral: mistral,
 	modelscope: modelscope,
@@ -53,6 +54,7 @@ const providers = {
 	opencode: opencode,
 	opencodego: opencodego,
 	pollinations: pollinations,
+	puter: puter,
 	qwencli: qwencli,
 	seraphyn: seraphyn,
 	zenmux: zenmux,

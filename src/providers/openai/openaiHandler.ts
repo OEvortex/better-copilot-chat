@@ -398,7 +398,9 @@ export class OpenAIHandler {
                             break;
                         }
                         // Decode chunk
-                        let chunk = pendingLine + decoder.decode(value, { stream: true });
+                        let chunk =
+                            pendingLine +
+                            decoder.decode(value, { stream: true });
 
                         // Process only complete lines and keep unfinished tail for the next read
                         const lastLineBreak = Math.max(
@@ -429,7 +431,10 @@ export class OpenAIHandler {
                             for (const m of matches) {
                                 const jsonStr = m[1];
                                 // Skip SSE end marker [DONE] and empty data lines
-                                if (jsonStr === '[DONE]' || jsonStr.trim() === '') {
+                                if (
+                                    jsonStr === '[DONE]' ||
+                                    jsonStr.trim() === ''
+                                ) {
                                     continue;
                                 }
                                 // Skip truncated/incomplete JSON (must start with { and end with })
@@ -674,20 +679,17 @@ export class OpenAIHandler {
         );
 
         // Execute with automatic rate limiting and retry on 429 errors
-        await rateLimiter.executeWithRetry(
-            async () => {
-                await this.executeOpenAIRequest(
-                    model,
-                    modelConfig,
-                    messages,
-                    options,
-                    progress,
-                    token,
-                    accountId
-                );
-            },
-            this.displayName
-        );
+        await rateLimiter.executeWithRetry(async () => {
+            await this.executeOpenAIRequest(
+                model,
+                modelConfig,
+                messages,
+                options,
+                progress,
+                token,
+                accountId
+            );
+        }, this.displayName);
     }
 
     /**
@@ -1193,9 +1195,10 @@ export class OpenAIHandler {
 
                                                 if (recoveredJson) {
                                                     try {
-                                                        parsedArgs = JSON.parse(
-                                                            recoveredJson
-                                                        );
+                                                        parsedArgs =
+                                                            JSON.parse(
+                                                                recoveredJson
+                                                            );
                                                         Logger.debug(
                                                             `Deduplication/recovery fix successful for tool call index ${index}`
                                                         );
@@ -1309,7 +1312,8 @@ export class OpenAIHandler {
 
                                     if (currentThinkingId) {
                                         // Accumulate thinking content in buffer (don't report yet)
-                                        thinkingContentBuffer += reasoningContent;
+                                        thinkingContentBuffer +=
+                                            reasoningContent;
                                         hasThinkingContent = true;
                                     }
                                 }
@@ -2072,7 +2076,10 @@ export class OpenAIHandler {
             Logger.trace(
                 `Add reasoning_content: ${thinkingContent.length} characters`
             );
-        } else if (modelConfig?.includeThinking === true && toolCalls.length > 0) {
+        } else if (
+            modelConfig?.includeThinking === true &&
+            toolCalls.length > 0
+        ) {
             // Some providers (e.g. OpenCode / Kimi) validate that assistant
             // tool-call messages still contain reasoning_content whenever
             // thinking is enabled. Emit an explicit empty placeholder so the

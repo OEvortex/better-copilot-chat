@@ -12,7 +12,7 @@ import { CompatibleProvider } from './providers/compatible/compatibleProvider';
 import { LeaderElectionService, StatusBarManager } from './status';
 import { registerAllTools } from './tools';
 import { ProviderKey } from './types/providerKeys';
-import { registerSettingsPageCommand } from './ui';
+import { registerChatView, registerSettingsPageCommand } from './ui';
 import {
     ApiKeyManager,
     CompletionLogger,
@@ -151,6 +151,15 @@ export async function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(settingsPageDisposable);
         Logger.trace(
             `⏱️ Settings page command registered (time: ${Date.now() - stepStartTime}ms)`
+        );
+
+        // Register chat view early so the activity bar can resolve the provider immediately
+        stepStartTime = Date.now();
+        const chatViewDisposables = registerChatView(context);
+        context.subscriptions.push(...chatViewDisposables);
+        registeredDisposables.push(...chatViewDisposables);
+        Logger.trace(
+            `⏱️ Chat view registered (time: ${Date.now() - stepStartTime}ms)`
         );
 
         // Step 1: Initialize API key manager

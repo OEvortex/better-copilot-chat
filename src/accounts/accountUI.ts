@@ -150,6 +150,11 @@ export class AccountUI {
                 authType: "apiKey" as const
             },
             {
+                label: "HicapAI",
+                value: ProviderKey.Hicapai,
+                authType: "apiKey" as const
+            },
+            {
                 label: "Hugging Face",
                 value: ProviderKey.Huggingface,
                 authType: "apiKey" as const
@@ -172,6 +177,11 @@ export class AccountUI {
             {
                 label: "Lightning AI",
                 value: ProviderKey.LightningAI,
+                authType: "apiKey" as const
+            },
+            {
+                label: "LLMGateway",
+                value: ProviderKey.Llmgateway,
                 authType: "apiKey" as const
             },
             {
@@ -232,6 +242,11 @@ export class AccountUI {
             {
                 label: "Pollinations AI",
                 value: ProviderKey.Pollinations,
+                authType: "apiKey" as const
+            },
+            {
+                label: "Puter AI",
+                value: ProviderKey.Puter,
                 authType: "apiKey" as const
             },
             {
@@ -878,11 +893,13 @@ export class AccountUI {
             cline: "Cline",
             deepinfra: "DeepInfra",
             deepseek: "DeepSeek",
+            hicapai: "HicapAI",
             huggingface: "Hugging Face",
             kilo: "Kilo AI",
             kimi: "Kimi",
             knox: "Knox",
             lightningai: "Lightning AI",
+            llmgateway: "LLMGateway",
             minimax: "MiniMax",
             "minimax-coding": "MiniMax Coding",
             mistral: "Mistral",
@@ -895,6 +912,7 @@ export class AccountUI {
             opencode: "OpenCode",
             opencodego: "OpenCode Zen Go",
             pollinations: "Pollinations AI",
+            puter: "Puter AI",
             seraphyn: "Seraphyn",
             vercelai: "Vercel AI",
             zenmux: "Zenmux",

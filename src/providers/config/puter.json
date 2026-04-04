@@ -1,0 +1,167 @@
+{
+    "displayName": "Puter AI",
+    "baseUrl": "https://api.puter.com/puterai/openai/v1",
+    "apiKeyTemplate": "YOUR_PUTER_AUTH_TOKEN",
+    "models": [
+        {
+            "id": "gpt-5-nano",
+            "name": "GPT-5 Nano",
+            "tooltip": "GPT-5 Nano - Fast and efficient OpenAI model",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "sdkMode": "openai",
+            "baseUrl": "https://api.puter.com/puterai/openai/v1",
+            "extraBody": {
+                "temperature": 1
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gpt-5.2-chat",
+            "name": "GPT-5.2 Chat",
+            "tooltip": "GPT-5.2 Chat - OpenAI's latest multimodal model",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "sdkMode": "openai",
+            "baseUrl": "https://api.puter.com/puterai/openai/v1",
+            "extraBody": {
+                "temperature": 1
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-sonnet-4-5",
+            "name": "Claude Sonnet 4.5",
+            "tooltip": "Claude Sonnet 4.5 - Anthropic's efficient Claude model",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 64000,
+            "sdkMode": "openai",
+            "baseUrl": "https://api.puter.com/puterai/openai/v1",
+            "extraBody": {
+                "temperature": 1
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "claude-opus-4-5",
+            "name": "Claude Opus 4.5",
+            "tooltip": "Claude Opus 4.5 - Anthropic's most capable model",
+            "maxInputTokens": 200000,
+            "maxOutputTokens": 64000,
+            "sdkMode": "openai",
+            "baseUrl": "https://api.puter.com/puterai/openai/v1",
+            "extraBody": {
+                "temperature": 1
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-2.5-flash-lite",
+            "name": "Gemini 2.5 Flash Lite",
+            "tooltip": "Gemini 2.5 Flash Lite - Google's fast model",
+            "maxInputTokens": 100000,
+            "maxOutputTokens": 8192,
+            "sdkMode": "openai",
+            "baseUrl": "https://api.puter.com/puterai/openai/v1",
+            "extraBody": {
+                "temperature": 1
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "gemini-2.5-flash",
+            "name": "Gemini 2.5 Flash",
+            "tooltip": "Gemini 2.5 Flash - Google's balanced model",
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 8192,
+            "sdkMode": "openai",
+            "baseUrl": "https://api.puter.com/puterai/openai/v1",
+            "extraBody": {
+                "temperature": 1
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "grok-4-1-fast",
+            "name": "Grok 4.1 Fast",
+            "tooltip": "Grok 4.1 Fast - xAI's fast model",
+            "maxInputTokens": 131072,
+            "maxOutputTokens": 8192,
+            "sdkMode": "openai",
+            "baseUrl": "https://api.puter.com/puterai/openai/v1",
+            "extraBody": {
+                "temperature": 1
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": true
+            }
+        },
+        {
+            "id": "deepseek-chat",
+            "name": "DeepSeek Chat",
+            "tooltip": "DeepSeek Chat - DeepSeek's conversational model",
+            "maxInputTokens": 64000,
+            "maxOutputTokens": 8192,
+            "sdkMode": "openai",
+            "baseUrl": "https://api.puter.com/puterai/openai/v1",
+            "extraBody": {
+                "temperature": 1
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "llama-3.1-70b",
+            "name": "Llama 3.1 70B",
+            "tooltip": "Llama 3.1 70B - Meta's large language model",
+            "maxInputTokens": 128000,
+            "maxOutputTokens": 8192,
+            "sdkMode": "openai",
+            "baseUrl": "https://api.puter.com/puterai/openai/v1",
+            "extraBody": {
+                "temperature": 1
+            },
+            "capabilities": {
+                "toolCalling": false,
+                "imageInput": false
+            }
+        },
+        {
+            "id": "qwen3-32b",
+            "name": "Qwen3 32B",
+            "tooltip": "Qwen3 32B - Alibaba's powerful model",
+            "maxInputTokens": 32000,
+            "maxOutputTokens": 8192,
+            "sdkMode": "openai",
+            "baseUrl": "https://api.puter.com/puterai/openai/v1",
+            "extraBody": {
+                "temperature": 1
+            },
+            "capabilities": {
+                "toolCalling": true,
+                "imageInput": false
+            }
+        }
+    ]
+}

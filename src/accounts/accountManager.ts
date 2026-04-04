@@ -131,6 +131,14 @@ export class AccountManager {
             }
         ],
         [
+            ProviderKey.Hicapai,
+            {
+                supportsMultiAccount: true,
+                supportsOAuth: false,
+                supportsApiKey: true
+            }
+        ],
+        [
             ProviderKey.Huggingface,
             {
                 supportsMultiAccount: true,
@@ -164,6 +172,14 @@ export class AccountManager {
         ],
         [
             ProviderKey.LightningAI,
+            {
+                supportsMultiAccount: true,
+                supportsOAuth: false,
+                supportsApiKey: true
+            }
+        ],
+        [
+            ProviderKey.Llmgateway,
             {
                 supportsMultiAccount: true,
                 supportsOAuth: false,
@@ -260,6 +276,14 @@ export class AccountManager {
         ],
         [
             ProviderKey.Pollinations,
+            {
+                supportsMultiAccount: true,
+                supportsOAuth: false,
+                supportsApiKey: true
+            }
+        ],
+        [
+            ProviderKey.Puter,
             {
                 supportsMultiAccount: true,
                 supportsOAuth: false,

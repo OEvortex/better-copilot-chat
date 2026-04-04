@@ -31,12 +31,30 @@ All notable changes to this project will be documented in this file.
     - Full integration with account management, settings UI, and provider configuration.
     - Automatic model list fetching and config file updates.
 
+- **Puter AI Provider**: Added new Puter AI provider - free API access to 500+ models including GPT, Claude, Gemini, Grok, DeepSeek, Llama, and Qwen.
+    - OpenAI SDK compatible endpoint: `https://api.puter.com/puterai/openai/v1`.
+    - Authentication via Puter auth token (from puter.com/dashboard).
+    - Uses generic provider architecture for clean integration.
+    - 10 pre-configured models: GPT-5 Nano, GPT-5.2 Chat, Claude Sonnet 4.5, Claude Opus 4.5, Gemini 2.5 Flash Lite, Gemini 2.5 Flash, Grok 4.1 Fast, DeepSeek Chat, Llama 3.1 70B, Qwen3 32B.
+    - All models include `extraBody: { "temperature": 1 }` to fix Puter API restriction on non-default temperature values.
+    - Registered command: `chp.puter.setApiKey` for API key configuration.
+
+- **HicapAI Provider**: Added new HicapAI provider integration with OpenAI SDK compatibility.
+    - OpenAI SDK compatibility via `https://api.hicap.ai/v1`.
+    - Dynamic model discovery via `/models` endpoint with 10-minute cooldown.
+    - Full integration with account management, settings UI, and provider configuration.
+    - Automatic model list fetching and config file updates.
+
 ### Changed
 
 - **Moonshot provider architecture**: Converted from generic provider to dedicated provider class, matching Zhipu's pattern.
     - Removed duplicate Kimi-specific endpoint logic from model config files.
     - All Moonshot models now use OpenAI-compatible SDK mode with plan-aware base URLs.
     - Removed `chp.moonshot.sdkMode` setting in favor of `chp.moonshot.plan`.
+
+- **Temperature parameter handling**: Enhanced `extraBody` parameter merging to allow providers to override temperature/top_p settings.
+    - Added support for provider-specific `extraBody` configuration in model configs.
+    - Puter AI provider uses this to force `temperature: 1` for all models (required by Puter API).
 
 ### Removed
 
@@ -158,6 +176,7 @@ All notable changes to this project will be documented in this file.
 ## [0.3.2] - 2026-03-16
 
 ### Fixed
+
 - **OpenCode Zen Go Provider Registration**: Fixed provider not being registered properly in VS Code.
     - Added `fetchModels` property to `ProviderConfig` interface.
     - Added merge logic for `fetchModels` in `buildConfigProvider` function.

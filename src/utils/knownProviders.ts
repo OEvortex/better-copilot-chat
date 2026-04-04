@@ -549,7 +549,8 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     moonshot: {
         displayName: 'MoonshotAI',
         family: 'Moonshot AI',
-        description: 'MoonshotAI Kimi model family with normal and coding plans',
+        description:
+            'MoonshotAI Kimi model family with normal and coding plans',
         openai: { baseUrl: 'https://api.moonshot.ai/v1' },
         fetchModels: true,
         modelsEndpoint: '/models',
@@ -722,6 +723,24 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
             cooldownMinutes: 10
         }
     },
+    hicapai: {
+        displayName: 'HicapAI',
+        family: 'HicapAI',
+        description: 'HicapAI - OpenAI SDK compatible endpoint',
+        supportsApiKey: true,
+        apiKeyTemplate: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        openai: {
+            baseUrl: 'https://api.hicap.ai/v1'
+        },
+        openModelEndpoint: false,
+        fetchModels: true,
+        modelsEndpoint: '/models',
+        modelParser: {
+            arrayPath: 'data',
+            descriptionField: 'id',
+            cooldownMinutes: 10
+        }
+    },
     zhipu: {
         displayName: 'Zhipu AI',
         family: 'Zhipu AI',
@@ -729,6 +748,19 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
         openai: {
             baseUrl: 'https://open.bigmodel.cn/api/paas/v4'
         }
+    },
+    puter: {
+        displayName: 'Puter AI',
+        family: 'Puter AI',
+        description:
+            'Free AI API - access 500+ models including GPT, Claude, Gemini with Puter auth token',
+        supportsApiKey: true,
+        apiKeyTemplate: 'YOUR_PUTER_AUTH_TOKEN',
+        openai: {
+            baseUrl: 'https://api.puter.com/puterai/openai/v1'
+        },
+        openModelEndpoint: false,
+        fetchModels: false
     }
 };
 
