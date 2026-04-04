@@ -8,13 +8,18 @@
     "chp": "./bin/chp"
   },
   "scripts": {
-    "build": "bun run scripts/build.ts",
-    "dev": "bun run build && node dist/cli.mjs",
-    "dev:profile": "bun run scripts/provider-launch.ts",
-    "dev:profile:fast": "bun run scripts/provider-launch.ts auto --fast --bare",
-    "profile:init": "bun run scripts/provider-bootstrap.ts",
-    "profile:recommend": "bun run scripts/provider-recommend.ts",
+    "build": "node scripts/build.ts",
+    "dev": "npm run build && node dist/cli.mjs",
+    "dev:profile": "node scripts/provider-launch.ts",
+    "dev:profile:fast": "node scripts/provider-launch.ts auto --fast --bare",
+    "profile:init": "node scripts/provider-bootstrap.ts",
+    "profile:recommend": "node scripts/provider-recommend.ts",
     "start": "node dist/cli.mjs",
     "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.6.0"
   }
 }
