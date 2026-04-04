@@ -14,7 +14,7 @@
             "baseUrl": "https://api.llmgateway.io/v1",
             "capabilities": {
                 "toolCalling": true,
-                "imageInput": true
+                "imageInput": false
             }
         }
     ]

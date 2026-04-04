@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  LLMGateway Provider
- *  Dynamically fetches models from LLMGateway API with free model detection
+ *  LLMGateway Dedicated Provider
+ *  Dynamically fetches models from LLMGateway API with free model routing
  *--------------------------------------------------------------------------------------------*/
 
 import * as fs from 'node:fs';
@@ -14,28 +14,19 @@ import type {
     ProvideLanguageModelChatResponseOptions
 } from 'vscode';
 import * as vscode from 'vscode';
-import { ApiKeyManager } from '../../utils/apiKeyManager';
+import type { ModelConfig, ProviderConfig } from '../../types/sharedTypes';
+import { getProviderRateLimit } from '../../utils/knownProviders';
 import { Logger } from '../../utils/logger';
 import { RateLimiter } from '../../utils/rateLimiter';
-import { ProviderWizard } from '../../utils/providerWizard';
 import {
-    resolveGlobalCapabilities,
-    resolveGlobalTokenLimits
-} from '../../utils/globalContextLengthManager';
-import { getProviderRateLimit } from '../../utils/knownProviders';
-import { GenericModelProvider } from '../common/genericModelProvider';
-import type { ProviderConfig } from '../../types/sharedTypes';
+    GenericModelProvider,
+    DEFAULT_CONTEXT_LENGTH,
+    DEFAULT_MAX_OUTPUT_TOKENS
+} from '../common';
+import { resolveGlobalCapabilities, resolveGlobalTokenLimits } from '../../utils';
+import { LLMGatewayWizard } from './llmgatewayWizard';
 
 const LLG_GATEWAY_BASE_URL = 'https://api.llmgateway.io/v1';
-
-interface LLGGatewayProviderInfo {
-    providerId: string;
-    modelName: string;
-    streaming?: boolean;
-    vision?: boolean;
-    tools?: boolean;
-    reasoning?: boolean;
-}
 
 interface LLGGatewayAPIModel {
     id: string;
@@ -46,7 +37,14 @@ interface LLGGatewayAPIModel {
     family?: string;
     context_length?: number;
     free?: boolean;
-    providers?: LLGGatewayProviderInfo[];
+    providers?: {
+        providerId: string;
+        modelName: string;
+        streaming?: boolean;
+        vision?: boolean;
+        tools?: boolean;
+        reasoning?: boolean;
+    }[];
     architecture?: {
         input_modalities?: string[];
         output_modalities?: string[];
@@ -57,14 +55,6 @@ interface LLGGatewayModelsResponse {
     data?: LLGGatewayAPIModel[];
 }
 
-function formatLLGModelName(model: LLGGatewayAPIModel): string {
-    return model.name || model.id;
-}
-
-/**
- * LLMGateway Dedicated Model Provider Class
- * Dynamically fetches models from LLMGateway API
- */
 export class LLGGatewayProvider
     extends GenericModelProvider
     implements LanguageModelChatProvider
@@ -96,18 +86,12 @@ export class LLGGatewayProvider
 
         const resp = await fetch(url, {
             method: 'GET',
-            headers: {
-                Authorization: `Bearer ${apiKey}`
-            }
+            headers: { Authorization: `Bearer ${apiKey}` }
         });
 
         if (!resp.ok) {
             let text = '';
-            try {
-                text = await resp.text();
-            } catch {
-                // ignore
-            }
+            try { text = await resp.text(); } catch { /* ignore */ }
             const err = new Error(
                 `Failed to fetch LLMGateway models: ${resp.status} ${resp.statusText}${text ? `\n${text}` : ''}`
             );
@@ -120,24 +104,23 @@ export class LLGGatewayProvider
     }
 
     private getModelMetadata(model: LLGGatewayAPIModel): {
-        name: string;
-        maxInputTokens: number;
-        maxOutputTokens: number;
-        toolCalling: boolean;
-        imageInput: boolean;
+        name: string; maxInputTokens: number; maxOutputTokens: number;
+        toolCalling: boolean; imageInput: boolean;
     } {
-        const displayName = formatLLGModelName(model);
-        const contextLength = model.context_length || 128 * 1024;
+        const displayName = model.name || model.id;
+        const contextLength = model.context_length || DEFAULT_CONTEXT_LENGTH;
         const tokens = resolveGlobalTokenLimits(model.id, contextLength, {
             defaultContextLength: contextLength,
-            defaultMaxOutputTokens: 32 * 1024
+            defaultMaxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS
         });
 
-        const hasTools = model.providers?.some((p) => p.tools) ?? false;
+        const hasTools =
+            model.providers?.some((p) => p.tools) ??
+            resolveGlobalCapabilities(model.id).toolCalling;
         const hasVision =
             model.providers?.some((p) => p.vision) ??
             model.architecture?.input_modalities?.includes('image') ??
-            false;
+            resolveGlobalCapabilities(model.id).imageInput;
 
         return {
             name: displayName,
@@ -150,6 +133,7 @@ export class LLGGatewayProvider
 
     private async getApiKeyFromManager(): Promise<string | null> {
         try {
+            const { ApiKeyManager } = await import('../../utils/apiKeyManager.js');
             const key = await ApiKeyManager.getApiKey(this.providerKey);
             return key === undefined ? null : key;
         } catch (err) {
@@ -168,18 +152,18 @@ export class LLGGatewayProvider
         }
 
         try {
-            const models = await this.fetchModels(apiKey);
-            if (models.length > 0) {
-                this.updateLLGConfigFile(models);
+            const apiModels = await this.fetchModels(apiKey);
+            if (apiModels.length > 0) {
+                this.updateLLGConfigFile(apiModels);
             }
 
-            const infos = models.map((model) => {
-                const modelMeta = this.getModelMetadata(model);
+            const infos = apiModels.map((m) => {
+                const modelMeta = this.getModelMetadata(m);
                 return {
-                    id: model.id,
+                    id: m.id,
                     name: modelMeta.name,
-                    tooltip: model.description || `${model.id} via LLMGateway`,
-                    family: model.family || 'LLMGateway',
+                    tooltip: m.description || `${m.id} via LLMGateway`,
+                    family: m.family || 'LLMGateway',
                     version: '1.0.0',
                     maxInputTokens: modelMeta.maxInputTokens,
                     maxOutputTokens: modelMeta.maxOutputTokens,
@@ -209,38 +193,30 @@ export class LLGGatewayProvider
         (async () => {
             try {
                 if (!fs.existsSync(this.configFilePath)) {
-                    Logger.debug(
-                        `[LLMGateway] Config file not found at ${this.configFilePath}, skipping auto-update`
-                    );
+                    Logger.debug(`[LLMGateway] Config file not found at ${this.configFilePath}, skipping auto-update`);
                     return;
                 }
 
-                const modelConfigs = models.map((model) => {
-                    const meta = this.getModelMetadata(model);
+                const modelConfigs: ModelConfig[] = models.map((m) => {
+                    const meta = this.getModelMetadata(m);
                     return {
-                        id: model.id,
+                        id: m.id,
                         name: meta.name,
-                        tooltip: model.description || `${model.id} via LLMGateway`,
+                        tooltip: m.description || `${m.id} via LLMGateway`,
                         maxInputTokens: meta.maxInputTokens,
                         maxOutputTokens: meta.maxOutputTokens,
-                        model: model.id,
+                        model: m.id,
                         sdkMode: 'openai' as const,
                         baseUrl: this.getBaseUrl(),
-                        capabilities: {
-                            toolCalling: meta.toolCalling,
-                            imageInput: meta.imageInput
-                        }
+                        capabilities: { toolCalling: meta.toolCalling, imageInput: meta.imageInput }
                     };
                 });
 
-                let existingConfig: Record<string, unknown>;
+                let existingConfig: ProviderConfig;
                 try {
-                    const configContent = fs.readFileSync(
-                        this.configFilePath,
-                        'utf8'
-                    );
-                    existingConfig = JSON.parse(configContent) as Record<string, unknown>;
-                } catch {
+                    const configContent = fs.readFileSync(this.configFilePath, 'utf8');
+                    existingConfig = JSON.parse(configContent);
+                } catch (_err) {
                     existingConfig = {
                         displayName: 'LLMGateway',
                         baseUrl: this.getBaseUrl(),
@@ -249,29 +225,17 @@ export class LLGGatewayProvider
                     };
                 }
 
-                const updatedConfig = {
-                    displayName:
-                        (existingConfig.displayName as string) || 'LLMGateway',
-                    baseUrl:
-                        (existingConfig.baseUrl as string) || this.getBaseUrl(),
-                    apiKeyTemplate:
-                        (existingConfig.apiKeyTemplate as string) ||
-                        'sk-xxxxxxxxxxxxxxxxxxxxxxxx',
+                const updatedConfig: ProviderConfig = {
+                    displayName: existingConfig.displayName || 'LLMGateway',
+                    baseUrl: existingConfig.baseUrl || this.getBaseUrl(),
+                    apiKeyTemplate: existingConfig.apiKeyTemplate || 'sk-xxxxxxxxxxxxxxxxxxxxxxxx',
                     models: modelConfigs
                 };
 
-                fs.writeFileSync(
-                    this.configFilePath,
-                    JSON.stringify(updatedConfig, null, 4),
-                    'utf8'
-                );
-                Logger.info(
-                    `[LLMGateway] Auto-updated config file with ${modelConfigs.length} models`
-                );
+                fs.writeFileSync(this.configFilePath, JSON.stringify(updatedConfig, null, 4), 'utf8');
+                Logger.info(`[LLMGateway] Auto-updated config file with ${modelConfigs.length} models`);
             } catch (err) {
-                Logger.warn(
-                    `[LLMGateway] Background config update failed: ${err instanceof Error ? err.message : String(err)}`
-                );
+                Logger.warn(`[LLMGateway] Background config update failed: ${err instanceof Error ? err.message : String(err)}`);
             }
         })();
     }
@@ -281,34 +245,26 @@ export class LLGGatewayProvider
         providerKey: string,
         providerConfig: ProviderConfig
     ): { provider: LLGGatewayProvider; disposables: vscode.Disposable[] } {
-        Logger.trace(
-            `${providerConfig.displayName} dedicated model extension activated!`
-        );
-        const provider = new LLGGatewayProvider(
-            context,
-            providerKey,
-            providerConfig
-        );
-        const providerDisposable = vscode.lm.registerLanguageModelChatProvider(
-            `chp.${providerKey}`,
-            provider
-        );
-
+        Logger.trace(`${providerConfig.displayName} dedicated model extension activated!`);
+        const provider = new LLGGatewayProvider(context, providerKey, providerConfig);
+        const providerDisposable = vscode.lm.registerLanguageModelChatProvider(`chp.${providerKey}`, provider);
         const setApiKeyCommand = vscode.commands.registerCommand(
             `chp.${providerKey}.setApiKey`,
             async () => {
-                await ProviderWizard.startWizard({
-                    providerKey,
-                    displayName: providerConfig.displayName,
-                    apiKeyTemplate: providerConfig.apiKeyTemplate,
-                    supportsApiKey: true
-                });
+                await LLMGatewayWizard.startWizard(providerConfig.displayName, providerConfig.apiKeyTemplate);
                 await provider.modelInfoCache?.invalidateCache(providerKey);
                 provider._onDidChangeLanguageModelChatInformation.fire();
             }
         );
+        const configWizardCommand = vscode.commands.registerCommand(
+            `chp.${providerKey}.configWizard`,
+            async () => {
+                Logger.info(`Starting ${providerConfig.displayName} configuration wizard`);
+                await LLMGatewayWizard.startWizard(providerConfig.displayName, providerConfig.apiKeyTemplate);
+            }
+        );
 
-        const disposables = [providerDisposable, setApiKeyCommand];
+        const disposables = [providerDisposable, setApiKeyCommand, configWizardCommand];
         for (const disposable of disposables) {
             context.subscriptions.push(disposable);
         }
@@ -334,13 +290,7 @@ export class LLGGatewayProvider
 
         await rateLimiter.executeWithRetry(
             async () => {
-                await this.executeLLGRequest(
-                    model,
-                    messages,
-                    options,
-                    progress,
-                    token
-                );
+                await this.executeLLGRequest(model, messages, options, progress, token);
             },
             this.providerConfig.displayName
         );
@@ -353,15 +303,14 @@ export class LLGGatewayProvider
         progress: Progress<vscode.LanguageModelResponsePart>,
         token: CancellationToken
     ): Promise<void> {
-        const modelConfig = this.providerConfig.models.find(
-            (m) => m.id === model.id
-        );
+        const modelConfig = this.providerConfig.models.find((m) => m.id === model.id);
         if (modelConfig) {
             modelConfig.sdkMode = 'openai';
-            modelConfig.baseUrl = this.getBaseUrl();
+            modelConfig.baseUrl = modelConfig.baseUrl || this.getBaseUrl();
 
-            // Inject free_models_only for the hardcoded "Free" model
+            // Inject "auto" model + free_models_only for the hardcoded "Free" model
             if (model.id === 'free') {
+                modelConfig.model = 'auto';
                 modelConfig.extraBody = {
                     ...(modelConfig.extraBody || {}),
                     free_models_only: true
@@ -369,12 +318,6 @@ export class LLGGatewayProvider
             }
         }
 
-        await super.provideLanguageModelChatResponse(
-            model,
-            messages,
-            options,
-            progress,
-            token
-        );
+        await super.provideLanguageModelChatResponse(model, messages, options, progress, token);
     }
 }
