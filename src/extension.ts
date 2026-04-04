@@ -407,6 +407,16 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         );
         context.subscriptions.push(copilotInsertHandleFullPathCmd);
+
+        // Command: Show all stored API keys
+        const showAllApiKeysCmd = vscode.commands.registerCommand(
+            'chp.showAllApiKeys',
+            async () => {
+                await ApiKeyManager.showAllApiKeys();
+            }
+        );
+        context.subscriptions.push(showAllApiKeysCmd);
+
         Logger.trace(
             `⏱️ Copilot helper commands registered (time: ${Date.now() - stepStartTime}ms)`
         );

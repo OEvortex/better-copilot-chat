@@ -207,4 +207,95 @@ export class ApiKeyManager {
             Logger.debug(`API key updated: ${vendor}`);
         }
     }
+
+    /**
+     * Mask API key for display (show first 4 and last 4 characters)
+     */
+    static maskApiKey(apiKey: string): string {
+        if (apiKey.length <= 12) {
+            return '****';
+        }
+        return `${apiKey.slice(0, 4)}...${apiKey.slice(-4)}`;
+    }
+
+    /**
+     * List all stored API keys (full keys)
+     * Returns provider name and full key
+     */
+    static async listAllApiKeys(): Promise<Record<string, string>> {
+        const { KnownProviders } = await import('./knownProviders.js');
+        const result: Record<string, string> = {};
+
+        for (const vendor of Object.keys(KnownProviders)) {
+            const apiKey = await ApiKeyManager.getApiKey(vendor);
+            if (apiKey && apiKey.trim().length > 0) {
+                result[vendor] = apiKey;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Show API key for a specific provider (reveals masked key with option to copy)
+     */
+    static async showApiKey(vendor: string): Promise<void> {
+        const apiKey = await ApiKeyManager.getApiKey(vendor);
+        if (!apiKey || apiKey.trim().length === 0) {
+            vscode.window.showInformationMessage(
+                `No API key stored for ${vendor}`
+            );
+            return;
+        }
+
+        const masked = ApiKeyManager.maskApiKey(apiKey);
+        const { KnownProviders } = await import('./knownProviders.js');
+        const displayName = KnownProviders[vendor]?.displayName || vendor;
+
+        // Show the masked key with option to copy full key
+        const item = await vscode.window.showInformationMessage(
+            `${displayName} API Key: ${masked}`,
+            { modal: true },
+            'Copy Key',
+            'Close'
+        );
+
+        if (item === 'Copy Key') {
+            await vscode.env.clipboard.writeText(apiKey);
+            vscode.window.showInformationMessage(
+                `${displayName} API key copied to clipboard`
+            );
+        }
+    }
+
+    /**
+     * Show all stored API keys in a list
+     */
+    static async showAllApiKeys(): Promise<void> {
+        const keys = await ApiKeyManager.listAllApiKeys();
+        const { KnownProviders } = await import('./knownProviders.js');
+
+        const items: string[] = [];
+        for (const [vendor, apiKey] of Object.entries(keys)) {
+            const displayName = KnownProviders[vendor]?.displayName || vendor;
+            items.push(`${displayName}: ${apiKey}`);
+        }
+
+        if (items.length === 0) {
+            vscode.window.showInformationMessage('No API keys stored');
+            return;
+        }
+
+        // Show all keys in output channel
+        const output = vscode.window.createOutputChannel(
+            'Copilot ++ API Keys (FULL)'
+        );
+        output.appendLine('Stored API Keys (FULL):');
+        output.appendLine('='.repeat(40));
+        for (const item of items) {
+            output.appendLine(item);
+        }
+        output.appendLine('='.repeat(40));
+        output.show(true);
+    }
 }

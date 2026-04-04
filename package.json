@@ -350,9 +350,13 @@
                 "command": "chp.hicapai.setApiKey",
                 "title": "Configure HicapAI",
                 "category": "Copilot ++"
+            },
+            {
+                "command": "chp.showAllApiKeys",
+                "title": "Show All API Keys",
+                "category": "Copilot ++"
             }
         ],
-
         "configuration": {
             "title": "Copilot ++ - AI Chat Models",
             "properties": {
@@ -1294,7 +1298,7 @@
         "package": "vsce package",
         "publish": "vsce publish --allow-proposed-apis chatProvider chatParticipantAdditions defaultChatParticipant",
         "pretest": "npm run compile:dev",
-        "release": "vsce package && \"${VSCODE_BIN:-/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code}\" --install-extension *.vsix --force",
+        "release": "vsce package && "${VSCODE_BIN:-/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code}" --install-extension *.vsix --force",
         "test": "vitest"
     },
     "dependencies": {
@@ -1302,7 +1306,9 @@
         "@microsoft/tiktokenizer": "^1.0.10",
         "@modelcontextprotocol/sdk": "^1.20.2",
         "@vscode/chat-lib": "^0.2.0",
-        "openai": "^6.7.0"
+        "chalk": "^5.6.2",
+        "openai": "^6.7.0",
+        "strip-ansi": "^7.2.0"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.3.10",

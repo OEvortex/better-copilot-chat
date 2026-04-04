@@ -257,7 +257,7 @@ async function build() {
                 console.log('No dist directory to clean.');
             }
 
-            // Build both entry points in parallel
+            // Build all entry points in parallel
             console.log('Building extension.js and copilot.bundle.js...');
             const startTime = Date.now();
 
