@@ -1299,11 +1299,7 @@
         "publish": "vsce publish --allow-proposed-apis chatProvider chatParticipantAdditions defaultChatParticipant",
         "pretest": "npm run compile:dev",
         "release": "vsce package && ${VSCODE_BIN:-code} --install-extension *.vsix --force",
-        "test": "vitest",
-        "cli:build": "cd src/cli && bun run scripts/build.ts",
-        "cli:dev": "cd src/cli && bun run build && node dist/cli.mjs",
-        "cli:build:profile": "cd src/cli && bun run scripts/provider-launch.ts",
-        "cli:profile:init": "cd src/cli && bun run scripts/provider-bootstrap.ts"
+        "test": "vitest"
     },
     "dependencies": {
         "@alcalzone/ansi-tokenize": "0.3.0",
