@@ -24,7 +24,7 @@ import {
     DEFAULT_MAX_OUTPUT_TOKENS
 } from '../common';
 import { resolveGlobalCapabilities, resolveGlobalTokenLimits } from '../../utils';
-import { LLMGatewayWizard } from './llmgatewayWizard';
+import { LLMGatewayWizard } from './llmgatewayWizard.js';
 
 const LLG_GATEWAY_BASE_URL = 'https://api.llmgateway.io/v1';
 
@@ -174,6 +174,21 @@ export class LLGGatewayProvider
                 } as LanguageModelChatInformation;
             });
 
+            // Always include the hardcoded "Free" model so it appears regardless of API fetch success
+            const freeModelInfo: LanguageModelChatInformation = {
+                id: 'free',
+                name: 'Free (Auto-Routed Free Models)',
+                tooltip: 'Automatically routes to available free models. Sends model:auto + free_models_only:true to API.',
+                family: 'LLMGateway',
+                version: '1.0.0',
+                maxInputTokens: 128 * 1024,
+                maxOutputTokens: 32 * 1024,
+                capabilities: { toolCalling: true, imageInput: false }
+            };
+            if (!infos.some(i => i.id === 'free')) {
+                infos.push(freeModelInfo);
+            }
+
             this._chatEndpoints = infos.map((info) => ({
                 model: info.id,
                 modelMaxPromptTokens: info.maxInputTokens + info.maxOutputTokens
@@ -227,10 +242,11 @@ export class LLGGatewayProvider
 
                 const updatedConfig: ProviderConfig = {
                     displayName: existingConfig.displayName || 'LLMGateway',
-                    baseUrl: existingConfig.baseUrl || this.getBaseUrl(),
+                    baseUrl: this.getBaseUrl(),
                     apiKeyTemplate: existingConfig.apiKeyTemplate || 'sk-xxxxxxxxxxxxxxxxxxxxxxxx',
                     models: modelConfigs
                 };
+                // Preserve the free model in config — it has special auto-routing config
 
                 fs.writeFileSync(this.configFilePath, JSON.stringify(updatedConfig, null, 4), 'utf8');
                 Logger.info(`[LLMGateway] Auto-updated config file with ${modelConfigs.length} models`);

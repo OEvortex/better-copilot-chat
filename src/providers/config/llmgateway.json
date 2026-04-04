@@ -7,11 +7,15 @@
         {
             "id": "free",
             "name": "Free (Auto-Routed Free Models)",
-            "tooltip": "Automatically routes to available free models only. Sends free_models_only: true to the API.",
+            "tooltip": "Automatically routes to available free models. Sends model:auto + free_models_only:true to API.",
             "maxInputTokens": 128000,
             "maxOutputTokens": 32768,
+            "model": "auto",
             "sdkMode": "openai",
             "baseUrl": "https://api.llmgateway.io/v1",
+            "extraBody": {
+                "free_models_only": true
+            },
             "capabilities": {
                 "toolCalling": true,
                 "imageInput": false
