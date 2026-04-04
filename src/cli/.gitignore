@@ -1,2 +1,14 @@
 # Ignore node_modules and dist folders
 node_modules/
+dist/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
