@@ -667,7 +667,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     zenmux: {
         displayName: 'Zenmux',
         family: 'Zenmux',
-        description: 'Zenmux endpoint integration',
         openai: { baseUrl: 'https://zenmux.ai/api/v1' },
         openModelEndpoint: true,
         fetchModels: true,
@@ -681,7 +680,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     knox: {
         displayName: 'Knox',
         family: 'Knox',
-        description: 'Knox Chat - OpenAI SDK compatible endpoint',
         supportsApiKey: true,
         apiKeyTemplate: 'sk-xxxxxxxx',
         openai: {
@@ -699,7 +697,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     hicapai: {
         displayName: 'HicapAI',
         family: 'HicapAI',
-        description: 'HicapAI - OpenAI SDK compatible endpoint',
         supportsApiKey: true,
         apiKeyTemplate: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
         openai: {
@@ -717,7 +714,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     zhipu: {
         displayName: 'Zhipu AI',
         family: 'Zhipu AI',
-        description: 'GLM family models and coding plan features',
         openai: {
             baseUrl: 'https://open.bigmodel.cn/api/paas/v4'
         }
@@ -725,8 +721,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     puter: {
         displayName: 'Puter AI',
         family: 'Puter AI',
-        description:
-            'Free AI API - access 500+ models including GPT, Claude, Gemini with Puter auth token',
         supportsApiKey: true,
         apiKeyTemplate: 'YOUR_PUTER_AUTH_TOKEN',
         openai: {

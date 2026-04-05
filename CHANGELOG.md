@@ -47,6 +47,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **Provider registry cleanup**: Removed `description` field from all provider entries in `knownProviderOverrides`. Descriptions are redundant with `displayName` and not consumed by any runtime path.
+
 - **Moonshot provider architecture**: Converted from generic provider to dedicated provider class, matching Zhipu's pattern.
     - Removed duplicate Kimi-specific endpoint logic from model config files.
     - All Moonshot models now use OpenAI-compatible SDK mode with plan-aware base URLs.
