@@ -34,7 +34,7 @@ import { has1mContext } from '../context.js'
 import { getGlobalConfig } from '../config.js'
 import { getCachedOllamaModelOptions, isOllamaProvider } from './ollamaModels.js'
 import { getConfiguredProviderModelOptions } from './providerConfigModels.js'
-import { configProviders } from '../../../providers/config/index.js'
+import { configProviders } from '../../../../providers/config/index.js'
 
 // @[MODEL LAUNCH]: Update all the available and default model option strings below.
 

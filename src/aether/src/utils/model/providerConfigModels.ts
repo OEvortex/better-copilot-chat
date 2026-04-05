@@ -38,8 +38,13 @@ function resolveProviderConfigDir(): string {
     return envDir
   }
 
+  // When bundled, the bundle lives at src/aether/dist/cli.mjs
+  // The provider config JSON files live at src/providers/config/
+  // From dist/, we need to go up two levels to src/aether/, then up one more
+  // to the repo root, then into src/providers/config
   const bundleDir = path.dirname(fileURLToPath(import.meta.url))
-  return path.resolve(bundleDir, '..', '..', 'providers', 'config')
+  const repoRoot = path.resolve(bundleDir, '..', '..')
+  return path.resolve(repoRoot, 'src', 'providers', 'config')
 }
 
 function loadProviderConfigs(): ProviderConfigFile[] {

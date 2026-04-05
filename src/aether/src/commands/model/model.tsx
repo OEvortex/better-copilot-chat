@@ -21,7 +21,7 @@ import {
   getModelById,
   getProviderById,
 } from '../../utils/aetherConfig.js'
-import { configProviders } from '../../../providers/config/index.js';
+import { configProviders } from '../../../../providers/config/index.js';
 function ModelPickerWrapper(t0) {
   const $ = _c(17);
   const {

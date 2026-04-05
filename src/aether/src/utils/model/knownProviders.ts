@@ -4,7 +4,7 @@
  * Uses configProviders from src/providers/config/index.ts (dynamic JSON configs)
  */
 
-import { configProviders, type ProviderName } from '../../../providers/config/index.js'
+import { configProviders, type ProviderName } from '../../../../providers/config/index.js'
 import { getSettings_DEPRECATED } from '../settings/settings.js'
 import type { SettingsJson } from '../settings/types.js'
 

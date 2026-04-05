@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [0.3.7] - Unreleased
 
+### Fixed
+
+- **Aether CLI Dynamic Model Configuration**: Fixed broken dynamic model loading in the Aether CLI.
+    - Corrected `configProviders` import paths in 3 source files from `../../../providers/config/index.js` to `../../../../providers/config/index.js`.
+    - Files fixed: `src/aether/src/commands/model/model.tsx`, `src/aether/src/utils/model/knownProviders.ts`, `src/aether/src/utils/model/modelOptions.ts`.
+    - Fixed runtime path resolver in `src/aether/src/utils/model/providerConfigModels.ts` to correctly resolve to `src/providers/config` from the bundle location.
+    - `/model list` and `/model providers` commands now show dynamic models from all 28+ provider JSON configs instead of falling back to static hardcoded lists.
+    - Model picker now includes all models from all configured providers.
+
 ### Added
 
 - **Aether CLI Rebranded**: Updated the integrated Aether CLI branding to use consistent naming.
