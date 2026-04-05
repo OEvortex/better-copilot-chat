@@ -302,14 +302,7 @@ function loadFallbackProviderSnapshot(): ProviderSnapshot | null {
 }
 
 export function getAllProviders(): RegistryProvider[] {
-  const snapshot =
-    parseProviderSnapshot(process.env[AETHER_PROVIDER_SNAPSHOT_JSON_ENV]) ||
-    loadProviderSnapshotFromFile(process.env[AETHER_PROVIDER_SNAPSHOT_FILE_ENV]) ||
-    loadFallbackProviderSnapshot()
-  if (snapshot) {
-    return getProvidersFromSnapshot(snapshot)
-  }
-
+  // Always use KnownProviders from knownProvidersData.ts
   return Object.entries(KnownProviders)
     .map(([id, config]) => toConfigProvider(id, config))
     .sort((left, right) => left.displayName.localeCompare(right.displayName))

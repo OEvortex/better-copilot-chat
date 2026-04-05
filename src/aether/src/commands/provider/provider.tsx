@@ -38,7 +38,11 @@ import {
   type ProfileFile,
   type ProviderProfile,
 } from '../../utils/providerProfile.js'
-import { getAllProviders, getProvider } from '../../utils/providerRegistry.js'
+import {
+    getAllProviders,
+    getProvider,
+    type RegistryProvider,
+} from '../../utils/providerRegistry.js'
 import {
   getGeminiProjectIdHint,
   mayHaveGeminiAdcCredentials,
@@ -55,20 +59,10 @@ import {
   type RecommendationGoal,
 } from '../../utils/providerRecommendation.js'
 import { hasLocalOllama, listOllamaModels } from '../../utils/providerDiscovery.js'
-import {
-  DEFAULT_PROVIDERS,
-  getAllProviders,
-  getProviderById,
-  type ProviderConfig,
-} from '../../utils/aetherConfig.js'
 
 type ProviderChoice =
-  | 'auto'
-  | 'openai'
-  | 'anthropic'
-  | 'gemini'
-  | 'ollama'
-  | 'codex'
+    | 'auto'
+    | 'ollama'
   | 'clear'
   | `registry:${string}`
 
@@ -203,6 +197,10 @@ function getRegistryProviderChoices(): RegistryProviderChoiceInfo[] {
         provider.id,
     }))
     .sort((left, right) => left.label.localeCompare(right.label))
+}
+
+function getProviderById(providerId: string): RegistryProvider | undefined {
+    return getAllProviders().find(p => p.id === providerId)
 }
 
 function parseRegistryProviderChoice(
@@ -1099,21 +1097,7 @@ export function ProviderWizard({
             if (value === 'auto') {
               setStep({ name: 'auto-goal' })
             } else if (value === 'ollama') {
-              setStep({ name: 'ollama-detect' })
-            } else if (value === 'openai') {
-              setStep({
-                name: 'openai-key',
-                defaultModel: defaults.openAIModel,
-                profile: 'openai',
-              })
-            } else if (value === 'anthropic') {
-              setStep({
-                name: 'openai-key',
-                defaultModel: defaults.anthropicModel,
-                profile: 'anthropic',
-              })
-            } else if (value === 'gemini') {
-              setStep({ name: 'gemini-auth-method' })
+                setStep({ name: 'ollama-detect' })
             } else if (value === 'clear') {
               const filePath = deleteProfileFile()
               onDone(`Removed saved provider profile at ${filePath}. Restart OpenClaude to go back to normal startup.`, {
@@ -1122,45 +1106,25 @@ export function ProviderWizard({
             } else {
               const registryProviderId = parseRegistryProviderChoice(value)
               const registryProvider = registryProviderId
-                ? resolveRegistryProviderSetup(registryProviderId)
+                  ? getProvider(registryProviderId)
                 : null
 
               if (!registryProvider) {
-                setStep({ name: 'codex-check' })
+                  onDone(`Unknown provider: ${registryProviderId}`, { display: 'system' })
                 return
               }
 
+                // Determine provider type from registry config
+                const providerType = registryProvider.sdkMode === 'anthropic'
+                    ? 'anthropic'
+                    : 'openai'
+
+                // Check if we have a saved snapshot profile for this provider
               const snapshotProfile = getProvider(registryProviderId)?.profile
-              const snapshotEnv = snapshotProfile?.env ?? {}
-              const providerType =
-                snapshotProfile?.profile ||
-                (registryProviderId === 'gemini'
-                  ? 'gemini'
-                  : registryProviderId === 'ollama'
-                    ? 'ollama'
-                    : registryProviderId === 'codex'
-                      ? 'codex'
-                      : registryProvider.sdkMode === 'anthropic'
-                        ? 'anthropic'
-                        : 'openai')
+                const snapshotEnv = snapshotProfile?.env ?? {}
 
               if (snapshotProfile && canUseRegistryProfile(snapshotProfile)) {
                 finishProfileSave(onDone, snapshotProfile.profile, snapshotProfile.env)
-                return
-              }
-
-              if (providerType === 'gemini') {
-                setStep({ name: 'gemini-auth-method' })
-                return
-              }
-
-              if (providerType === 'ollama') {
-                setStep({ name: 'ollama-detect' })
-                return
-              }
-
-              if (providerType === 'codex') {
-                setStep({ name: 'codex-check' })
                 return
               }
 
@@ -1171,24 +1135,15 @@ export function ProviderWizard({
                     ? snapshotEnv.ANTHROPIC_MODEL ||
                       registryProvider.defaultModel ||
                       defaults.anthropicModel
-                    : providerType === 'openai'
-                      ? snapshotEnv.OPENAI_MODEL ||
+                        : snapshotEnv.OPENAI_MODEL ||
                         registryProvider.defaultModel ||
-                        defaults.openAIModel
-                      : registryProvider.defaultModel || defaults.openAIModel,
-                profile:
-                  providerType === 'anthropic'
-                    ? 'anthropic'
-                    : 'openai',
-                providerLabel: registryProvider.label,
+                          defaults.openAIModel,
+                  profile: providerType as 'openai' | 'anthropic',
+                  providerLabel: registryProvider.displayName,
                 baseUrl:
                   providerType === 'anthropic'
-                    ? snapshotEnv.ANTHROPIC_BASE_URL ?? null
-                    : providerType === 'gemini'
-                      ? snapshotEnv.GEMINI_BASE_URL ?? null
-                      : providerType === 'codex'
-                        ? snapshotEnv.OPENAI_BASE_URL ?? null
-                        : registryProvider.baseUrl ?? null,
+                          ? snapshotEnv.ANTHROPIC_BASE_URL ?? registryProvider.anthropic?.baseUrl ?? null
+                          : snapshotEnv.OPENAI_BASE_URL ?? registryProvider.openai?.baseUrl ?? null,
               })
             }
           }}
@@ -1587,17 +1542,7 @@ export function ProviderWizard({
 export const call: LocalJSXCommandCall = async (onDone, _context, args) => {
   const normalizedArgs = args?.trim().toLowerCase() || ''
 
-  if (COMMON_INFO_ARGS.includes(normalizedArgs)) {
-    onDone(buildUsageText(), { display: 'system' })
-    return null
-  }
-
-  if (COMMON_HELP_ARGS.includes(normalizedArgs)) {
-    onDone(buildUsageText(), { display: 'system' })
-    return null
-  }
-
-  // Handle /provider list - show available Aether providers
+    // Handle /provider list - show available Aether providers (must be before COMMON_INFO_ARGS)
   if (normalizedArgs === 'list') {
     const providers = getAllProviders()
     const lines = ['Available Aether Providers:']
@@ -1608,6 +1553,16 @@ export const call: LocalJSXCommandCall = async (onDone, _context, args) => {
     onDone(lines.join('\n'), { display: 'system' })
     return null
   }
+
+    if (COMMON_INFO_ARGS.includes(normalizedArgs)) {
+        onDone(buildUsageText(), { display: 'system' })
+        return null
+    }
+
+    if (COMMON_HELP_ARGS.includes(normalizedArgs)) {
+        onDone(buildUsageText(), { display: 'system' })
+        return null
+    }
 
   // Handle /provider status - show current provider info
   if (normalizedArgs === 'status') {

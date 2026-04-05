@@ -71,8 +71,7 @@ export function ModelPicker(t0) {
   const isFastMode = useAppState(_temp);
     const activeProvider = useAppState(_tempActiveProvider);
   const [hasToggledEffort, setHasToggledEffort] = useState(false);
-  const effortValue = useAppState(_temp2);
-  let t1;
+    const effortValue = useAppState(_temp2); const [isSearchFocused, setIsSearchFocused] = useState(false); let t1;
   if ($[0] !== effortValue) {
     t1 = effortValue !== undefined ? convertEffortValueToLevel(effortValue) : undefined;
     $[0] = effortValue;
@@ -159,23 +158,51 @@ export function ModelPicker(t0) {
     t5 = $[13];
   }
   const selectOptions = t5;
+
+    // Prepend a search input option to the list
+    let t5b;
+    if ($[213] !== searchQuery || $[214] !== isSearchFocused) {
+        const searchPlaceholder = searchQuery ? `🔍 ${searchQuery} (Esc to clear)` : '🔍 Type to search models...'
+        t5b = [
+            {
+                type: 'input' as const,
+                label: searchPlaceholder,
+                value: '__SEARCH__' as const,
+                placeholder: 'Search models...',
+                initialValue: searchQuery,
+                onChange: (value: string) => {
+                    setSearchQuery(value)
+                },
+                allowEmptySubmitToCancel: true,
+            },
+            ...selectOptions,
+        ]
+        $[213] = searchQuery
+        $[214] = isSearchFocused
+        $[215] = t5b
+    } else {
+        t5b = $[215]
+    }
+    const selectOptionsWithSearch = t5b
+
   let t6;
-  if ($[14] !== initialValue || $[15] !== selectOptions) {
-    t6 = selectOptions.some(_ => _.value === initialValue) ? initialValue : selectOptions[0]?.value ?? undefined;
+    if ($[14] !== initialValue || $[216] !== selectOptionsWithSearch) {
+        // Always focus the search input first
+        t6 = '__SEARCH__' as any;
     $[14] = initialValue;
-    $[15] = selectOptions;
+        $[216] = selectOptionsWithSearch;
     $[16] = t6;
   } else {
     t6 = $[16];
   }
   const initialFocusValue = t6;
-  const visibleCount = Math.min(10, selectOptions.length);
-  const hiddenCount = Math.max(0, selectOptions.length - visibleCount);
+    const visibleCount = Math.min(10, selectOptionsWithSearch.length);
+    const hiddenCount = Math.max(0, selectOptionsWithSearch.length - visibleCount);
   let t7;
-  if ($[17] !== focusedValue || $[18] !== selectOptions) {
-    t7 = selectOptions.find(opt_1 => opt_1.value === focusedValue)?.label;
+    if ($[17] !== focusedValue || $[217] !== selectOptionsWithSearch) {
+        t7 = selectOptionsWithSearch.find(opt_1 => opt_1.value === focusedValue)?.label;
     $[17] = focusedValue;
-    $[18] = selectOptions;
+        $[217] = selectOptionsWithSearch;
     $[19] = t7;
   } else {
     t7 = $[19];
@@ -208,6 +235,8 @@ export function ModelPicker(t0) {
   let t10;
   if ($[25] !== effortValue || $[26] !== hasToggledEffort) {
     t10 = value => {
+        // Skip search input
+        if (value === '__SEARCH__') return
       setFocusedValue(value);
       if (!hasToggledEffort && effortValue === undefined) {
         setEffort(getDefaultEffortLevelForOption(value));
@@ -251,6 +280,9 @@ export function ModelPicker(t0) {
 
     // Handle text input for fuzzy search via useInput
     useInput((input, key) => {
+        // Only capture when NOT in the search input option
+        if (focusedValue === '__SEARCH__') return
+
         // Backspace clears last search character
         if (key.backspace || (key.ctrl && input === 'h')) {
             setSearchQuery(prev => prev.slice(0, -1))
@@ -367,13 +399,13 @@ export function ModelPicker(t0) {
   }
   const t20 = onCancel ?? _temp4;
   let t21;
-  if ($[49] !== handleFocus || $[50] !== handleSelect || $[51] !== initialFocusValue || $[52] !== initialValue || $[53] !== selectOptions || $[54] !== t20 || $[55] !== visibleCount) {
-    t21 = <Box flexDirection="column"><Select defaultValue={initialValue} defaultFocusValue={initialFocusValue} options={selectOptions} onChange={handleSelect} onFocus={handleFocus} onCancel={t20} visibleOptionCount={visibleCount} /></Box>;
+    if ($[49] !== handleFocus || $[50] !== handleSelect || $[51] !== initialFocusValue || $[52] !== initialValue || $[218] !== selectOptionsWithSearch || $[54] !== t20 || $[55] !== visibleCount) {
+        t21 = <Box flexDirection="column"><Select defaultValue={initialValue} defaultFocusValue={initialFocusValue} options={selectOptionsWithSearch} onChange={handleSelect} onFocus={handleFocus} onCancel={t20} visibleOptionCount={visibleCount} /></Box>;
     $[49] = handleFocus;
     $[50] = handleSelect;
     $[51] = initialFocusValue;
     $[52] = initialValue;
-    $[53] = selectOptions;
+        $[218] = selectOptionsWithSearch;
     $[54] = t20;
     $[55] = visibleCount;
     $[56] = t21;
