@@ -54,6 +54,14 @@ export {
 export { Logger } from './logger';
 export { MCPWebSearchClient } from './mcpWebSearchClient';
 export { ModelInfoCache } from './modelInfoCache';
+export {
+    buildOpenClaudeProfile,
+    getLaunchableOpenClaudeProviders,
+    launchOpenClaudeFromExtension,
+    type OpenClaudeBridgeResult,
+    type OpenClaudeProfileFile,
+    writeOpenClaudeBridgeProfile
+} from './openclaudeBridge';
 export { RateLimiter } from './rateLimiter';
 export {
     formatRateLimitDisplay,

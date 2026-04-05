@@ -7,6 +7,8 @@
             "!!node_modules",
             "!!.vscode-test",
             "!!out",
+            "!src/openclaude/**",
+            "!src/chpcli/**",
             "!**/*.d.ts",
             "!extension.js",
             "!src/ui/*.js"

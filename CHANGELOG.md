@@ -60,6 +60,10 @@ All notable changes to this project will be documented in this file.
 
 - **`chp.editToolMode` setting removed**: The editing tool mode configuration (`claude`, `gpt-5`, `none`) has been removed. The extension now handles editing operations internally without requiring a user-facing tool mode selection.
 
+- **chpcli Integration**: Introduced `chpcli` — a modified fork of OpenClaude, integrated into the extension as `src/chpcli`.
+    - Provides standalone CLI access to 200+ models including OpenAI, Gemini, DeepSeek, Ollama, and more.
+    - Cleaned up standalone-package artifacts (Python scripts, Python tests, nested `.git`, `.github`, docs) for bundled usage.
+
 ## [0.3.6] - 2026-04-03
 
 ### Added

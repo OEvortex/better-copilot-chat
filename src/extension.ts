@@ -19,6 +19,7 @@ import {
     ConfigManager,
     JsonSchemaProvider,
     Logger,
+    launchOpenClaudeFromExtension,
     StatusLogger
 } from './utils';
 import { CompatibleModelManager } from './utils/compatibleModelManager';
@@ -151,6 +152,27 @@ export async function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(settingsPageDisposable);
         Logger.trace(
             `⏱️ Settings page command registered (time: ${Date.now() - stepStartTime}ms)`
+        );
+
+        stepStartTime = Date.now();
+        const openClaudeCommand = vscode.commands.registerCommand(
+            'chp.chpcli.launch',
+            async () => {
+                try {
+                    await launchOpenClaudeFromExtension(context);
+                } catch (error) {
+                    const message =
+                        error instanceof Error ? error.message : String(error);
+                    Logger.error('Failed to launch CHPCLI:', error);
+                    vscode.window.showErrorMessage(
+                        `Failed to launch CHPCLI: ${message}`
+                    );
+                }
+            }
+        );
+        context.subscriptions.push(openClaudeCommand);
+        Logger.trace(
+            `⏱️ CHPCLI launch command registered (time: ${Date.now() - stepStartTime}ms)`
         );
 
         // Step 1: Initialize API key manager

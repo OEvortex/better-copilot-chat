@@ -328,7 +328,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     apertis: {
         displayName: 'Apertis AI',
         family: 'Apertis AI',
-        description: 'Apertis AI endpoint integration',
         supportsApiKey: true,
         apiKeyTemplate: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
         openai: {
@@ -352,7 +351,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     blackbox: {
         displayName: 'Blackbox AI',
         family: 'Blackbox AI',
-        description: 'Blackbox AI official API',
         supportsApiKey: true,
         apiKeyTemplate: 'YOUR_BLACKBOX_API_KEY',
         sdkMode: 'oai-response',
@@ -374,13 +372,11 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     chatjimmy: {
         displayName: 'ChatJimmy',
         family: 'ChatJimmy',
-        description: 'ChatJimmy - free public API, no auth required',
         supportsApiKey: false
     },
     'ava-supernova': {
         displayName: 'AVA Supernova',
         family: 'AVA Supernova',
-        description: 'AVA Supernova - free public API, no auth required',
         supportsApiKey: false,
         openai: { baseUrl: 'https://ava-supernova.com/api/v1' },
         openModelEndpoint: true,
@@ -389,7 +385,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     cline: {
         displayName: 'Cline',
         family: 'Cline',
-        description: 'Cline endpoint integration',
         openai: { baseUrl: 'https://api.cline.bot/api/v1' },
         fetchModels: true,
         openModelEndpoint: true,
@@ -403,7 +398,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     chutes: {
         displayName: 'Chutes AI',
         family: 'Chutes AI',
-        description: 'Chutes AI endpoint integration',
         openai: { baseUrl: 'https://llm.chutes.ai/v1' },
         openModelEndpoint: true,
         fetchModels: true,
@@ -416,19 +410,16 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     },
     codex: {
         displayName: 'OpenAI Codex',
-        family: 'OpenAI Codex',
-        description: 'OpenAI Codex specialized coding provider'
+        family: 'OpenAI Codex'
     },
     compatible: {
         displayName: 'OpenAI/Anthropic Compatible',
         family: 'Custom',
-        description: 'Custom OpenAI/Anthropic compatible models',
         settingsPrefix: 'chp.compatibleModels'
     },
     deepinfra: {
         displayName: 'DeepInfra',
         family: 'DeepInfra',
-        description: 'OpenAI-compatible endpoints from DeepInfra',
         openai: { baseUrl: 'https://api.deepinfra.com/v1/openai' },
         openModelEndpoint: true,
         fetchModels: true,
@@ -442,7 +433,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     deepseek: {
         displayName: 'DeepSeek',
         family: 'DeepSeek',
-        description: 'DeepSeek model family',
         openai: { baseUrl: 'https://api.deepseek.com/v1' },
         anthropic: { baseUrl: 'https://api.deepseek.com/anthropic' },
         apiKeyTemplate: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
@@ -457,7 +447,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     huggingface: {
         displayName: 'Hugging Face',
         family: 'Hugging Face',
-        description: 'Hugging Face Router endpoint integration',
         openai: { baseUrl: 'https://router.huggingface.co/v1' },
         openModelEndpoint: true,
         fetchModels: true,
@@ -471,7 +460,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     kilo: {
         displayName: 'Kilo AI',
         family: 'Kilo AI',
-        description: 'Kilo AI endpoint integration',
         openai: { baseUrl: 'https://api.kilo.ai/api/gateway' },
         openModelEndpoint: true,
         fetchModels: true,
@@ -485,7 +473,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     lightningai: {
         displayName: 'LightningAI',
         family: 'LightningAI',
-        description: 'LightningAI endpoint integration',
         openai: { baseUrl: 'https://lightning.ai/api/v1' },
         openModelEndpoint: true,
         fetchModels: true,
@@ -499,7 +486,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     minimax: {
         displayName: 'MiniMax',
         family: 'MiniMax',
-        description: 'MiniMax family models with coding endpoint options',
         openai: { baseUrl: 'https://api.minimaxi.com/v1' },
         anthropic: { baseUrl: 'https://api.minimaxi.com/anthropic' },
         fetchModels: true,
@@ -513,7 +499,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     mistral: {
         displayName: 'Mistral AI',
         family: 'Mistral',
-        description: 'Mistral AI model endpoints',
         openai: { baseUrl: 'https://api.mistral.ai/v1' },
         apiKeyTemplate: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
         fetchModels: false // Mistral's model list is static and doesn't require fetching
@@ -535,7 +520,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     llmgateway: {
         displayName: 'LLMGateway',
         family: 'LLMGateway',
-        description: 'LLMGateway - unified access to multiple AI models',
         openai: { baseUrl: 'https://api.llmgateway.io/v1' },
         anthropic: { baseUrl: 'https://api.llmgateway.io' },
         fetchModels: true,
@@ -549,8 +533,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     moonshot: {
         displayName: 'MoonshotAI',
         family: 'Moonshot AI',
-        description:
-            'MoonshotAI Kimi model family with normal and coding plans',
         openai: { baseUrl: 'https://api.moonshot.ai/v1' },
         fetchModels: true,
         modelsEndpoint: '/models',
@@ -563,7 +545,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     nanogpt: {
         displayName: 'NanoGPT',
         family: 'NanoGPT',
-        description: 'NanoGPT endpoint integration',
         openai: { baseUrl: 'https://nano-gpt.com/api/v1' },
         openModelEndpoint: true,
         fetchModels: true,
@@ -577,7 +558,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     nvidia: {
         displayName: 'NVIDIA NIM',
         family: 'NVIDIA',
-        description: 'NVIDIA NIM hosted model endpoints',
         openai: { baseUrl: 'https://integrate.api.nvidia.com/v1' },
         openModelEndpoint: true,
         fetchModels: true,
@@ -591,7 +571,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     ollama: {
         displayName: 'Ollama',
         family: 'Ollama',
-        description: "Ollama - use Ollama's OpenAI / Anthropic compatible API",
         openai: { baseUrl: 'https://ollama.com/v1' },
         anthropic: { baseUrl: 'https://ollama.com' },
         openModelEndpoint: true,
@@ -606,7 +585,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     opencode: {
         displayName: 'OpenCode',
         family: 'OpenCode',
-        description: 'OpenCode endpoint integration',
         sdkMode: 'openai',
         openai: { baseUrl: 'https://opencode.ai/zen/v1' },
         anthropic: { baseUrl: 'https://opencode.ai/zen' },
@@ -627,7 +605,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     opencodego: {
         displayName: 'OpenCode Zen Go',
         family: 'OpenCode',
-        description: 'OpenCode Zen Go endpoint integration',
         sdkMode: 'openai',
         openai: { baseUrl: 'https://opencode.ai/zen/go/v1' },
         anthropic: { baseUrl: 'https://opencode.ai/zen/go' },
@@ -642,7 +619,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     pollinations: {
         displayName: 'Pollinations AI',
         family: 'Pollinations',
-        description: 'Pollinations AI',
         supportsApiKey: true,
         apiKeyTemplate: 'sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
         openai: { baseUrl: 'https://gen.pollinations.ai/v1' },
@@ -652,13 +628,11 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     qwencli: {
         displayName: 'Qwen CLI',
         family: 'Qwen',
-        description: 'Qwen OAuth via local qwen-code CLI credentials',
         openai: { baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1' }
     },
     seraphyn: {
         displayName: 'Seraphyn',
         family: 'Seraphyn',
-        description: 'Seraphyn AI - OpenAI SDK compatible endpoint',
         supportsApiKey: true,
         apiKeyTemplate: 'sk-xxxxxxxx',
         openai: {
@@ -676,7 +650,6 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
     vercelai: {
         displayName: 'Vercel AI',
         family: 'Vercel AI',
-        description: 'Vercel AI Gateway endpoint integration',
         openai: { baseUrl: 'https://ai-gateway.vercel.sh/v1' },
         openModelEndpoint: true,
         fetchModels: true,

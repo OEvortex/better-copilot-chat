@@ -297,6 +297,11 @@
                 "icon": "$(settings-gear)"
             },
             {
+                "command": "chp.chpcli.launch",
+                "title": "Launch CHPCLI",
+                "category": "Copilot ++"
+            },
+            {
                 "command": "chp.nanogpt.setApiKey",
                 "title": "Configure NanoGPT",
                 "category": "Copilot ++"
@@ -1295,6 +1300,9 @@
         "format:check": "biome format --check",
         "watch": "node esbuild.config.js --watch --dev",
         "sync-providers": "node scripts/sync-providers.js",
+        "chpcli:build": "npm --prefix src/chpcli run build",
+        "chpcli:start": "node src/chpcli/dist/cli.mjs",
+        "chpcli:dev": "npm --prefix src/chpcli run build && node src/chpcli/dist/cli.mjs",
         "package": "vsce package",
         "publish": "vsce publish --allow-proposed-apis chatProvider chatParticipantAdditions defaultChatParticipant",
         "pretest": "npm run compile:dev",
@@ -1315,6 +1323,7 @@
         "ajv": "8.18.0",
         "auto-bind": "5.0.1",
         "axios": "1.14.0",
+        "better-sqlite3": "^12.8.0",
         "bidi-js": "1.0.3",
         "chalk": "^5.6.2",
         "chokidar": "4.0.3",
