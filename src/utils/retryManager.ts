@@ -239,12 +239,19 @@ export class RetryManager {
             return true;
         }
 
-        const name = String(candidate.name || candidate.constructor?.name || '');
-        if (name.toLowerCase().includes('rate') && name.toLowerCase().includes('limit')) {
+        const name = String(
+            candidate.name || candidate.constructor?.name || ''
+        );
+        if (
+            name.toLowerCase().includes('rate') &&
+            name.toLowerCase().includes('limit')
+        ) {
             return true;
         }
 
-        const message = String(candidate.message || (error as Error).message || '');
+        const message = String(
+            candidate.message || (error as Error).message || ''
+        );
         return (
             message.includes('429') ||
             /rate\s*limit/i.test(message) ||

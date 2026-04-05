@@ -215,8 +215,9 @@ export class MCPWebSearchClient {
     private async disableMCPMode(): Promise<void> {
         try {
             // Update configuration: disable MCP mode
-            const config =
-                vscode.workspace.getConfiguration('aether.zhipu.search');
+            const config = vscode.workspace.getConfiguration(
+                'aether.zhipu.search'
+            );
             await config.update(
                 'enableMCP',
                 false,

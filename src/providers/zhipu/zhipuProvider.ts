@@ -459,18 +459,15 @@ export class ZhipuProvider
         );
 
         // Execute with automatic rate limiting and retry on 429 errors
-        await rateLimiter.executeWithRetry(
-            async () => {
-                await this.executeZhipuRequest(
-                    model,
-                    messages,
-                    options,
-                    progress,
-                    token
-                );
-            },
-            this.providerConfig.displayName
-        );
+        await rateLimiter.executeWithRetry(async () => {
+            await this.executeZhipuRequest(
+                model,
+                messages,
+                options,
+                progress,
+                token
+            );
+        }, this.providerConfig.displayName);
     }
 
     /**

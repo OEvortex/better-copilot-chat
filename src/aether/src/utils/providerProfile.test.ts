@@ -426,8 +426,8 @@ test('loadCopilotPlusPlusProfileFile prefers serialized env snapshots', () => {
   })
 
   const env = {
-    CHPCLI_PROFILE_JSON: JSON.stringify(snapshot),
-    CHPCLI_PROFILE_FILE: join(tmpdir(), 'does-not-exist.json'),
+    AETHER_PROFILE_JSON: JSON.stringify(snapshot),
+    AETHER_PROFILE_FILE: join(tmpdir(), 'does-not-exist.json'),
   }
 
   assert.deepEqual(loadCopilotPlusPlusProfileFile(env), snapshot)

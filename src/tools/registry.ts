@@ -44,8 +44,12 @@ export function registerAllTools(context: vscode.ExtensionContext): void {
             }
         });
 
-        Logger.info('Zhipu AI web search tool registered: aether_zhipuWebSearch');
-        Logger.info('MiniMax web search tool registered: aether_minimaxWebSearch');
+        Logger.info(
+            'Zhipu AI web search tool registered: aether_zhipuWebSearch'
+        );
+        Logger.info(
+            'MiniMax web search tool registered: aether_minimaxWebSearch'
+        );
     } catch (error) {
         Logger.error(
             'Tool registration failed',

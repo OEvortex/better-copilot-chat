@@ -25,7 +25,7 @@
         "node_modules",
         "dist",
         "src/openclaude/**/*",
-        "src/chpcli/**/*",
+        "src/aether/**/*",
         "**/*.test.ts"
     ]
 }

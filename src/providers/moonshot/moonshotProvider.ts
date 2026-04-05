@@ -143,7 +143,9 @@ export class MoonshotProvider
             throw err;
         }
 
-        const parsed = (await resp.json()) as MoonshotModelsResponse | MoonshotAPIModel[];
+        const parsed = (await resp.json()) as
+            | MoonshotModelsResponse
+            | MoonshotAPIModel[];
         if (Array.isArray(parsed)) {
             return parsed;
         }
@@ -267,7 +269,10 @@ export class MoonshotProvider
                         this.configFilePath,
                         'utf8'
                     );
-                    existingConfig = JSON.parse(configContent) as Record<string, unknown>;
+                    existingConfig = JSON.parse(configContent) as Record<
+                        string,
+                        unknown
+                    >;
                 } catch {
                     existingConfig = {
                         displayName: 'MoonshotAI',
@@ -376,18 +381,15 @@ export class MoonshotProvider
             windowMs
         );
 
-        await rateLimiter.executeWithRetry(
-            async () => {
-                await this.executeMoonshotRequest(
-                    model,
-                    messages,
-                    options,
-                    progress,
-                    token
-                );
-            },
-            this.providerConfig.displayName
-        );
+        await rateLimiter.executeWithRetry(async () => {
+            await this.executeMoonshotRequest(
+                model,
+                messages,
+                options,
+                progress,
+                token
+            );
+        }, this.providerConfig.displayName);
     }
 
     private async executeMoonshotRequest(

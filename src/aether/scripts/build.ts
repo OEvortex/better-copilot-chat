@@ -135,6 +135,37 @@ export async function handleBgFlag() { throw new Error("Background sessions are 
           }),
         )
 
+        // Stub vscode (VS Code extension API — unavailable in CLI runtime)
+        build.onResolve({ filter: /^vscode$/ }, () => ({
+          path: 'vscode',
+          namespace: 'vscode-stub',
+        }))
+        build.onLoad(
+          { filter: /.*/, namespace: 'vscode-stub' },
+          () => ({
+            contents: `
+const noop = () => null;
+const handler = {
+  get(_, prop) {
+    if (prop === '__esModule') return true;
+    if (prop === 'default') return new Proxy({}, handler);
+    return noop;
+  }
+};
+const stub = new Proxy(noop, handler);
+export default stub;
+// Common vscode API stubs
+export const workspace = new Proxy({}, { get: () => new Proxy({}, { get: () => noop }) });
+export const window = new Proxy({}, { get: () => new Proxy({}, { get: () => noop }) });
+export const commands = { registerCommand: noop };
+export const ExtensionMode = { Production: 1, Development: 2 };
+export const EventEmitter = class { on() { return { dispose: noop } }; fire() {} };
+export const Disposable = { from: noop };
+`,
+            loader: 'js',
+          }),
+        )
+
         // Resolve react/compiler-runtime to the standalone package
         build.onResolve({ filter: /^react\/compiler-runtime$/ }, () => ({
           path: 'react/compiler-runtime',

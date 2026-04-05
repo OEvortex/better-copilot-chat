@@ -383,7 +383,8 @@ export class SeraphynHandler {
         modelConfig: ModelConfig
     ): SeraphynResponseMessage | null {
         const textContent = this.convertTextContent(message.content);
-        const toolCalls: NonNullable<SeraphynResponseMessage['tool_calls']> = [];
+        const toolCalls: NonNullable<SeraphynResponseMessage['tool_calls']> =
+            [];
         let thinkingContent: string | null = null;
 
         for (const part of message.content) {
@@ -415,7 +416,10 @@ export class SeraphynHandler {
 
         if (thinkingContent && modelConfig.includeThinking === true) {
             assistantMessage.reasoning_content = thinkingContent;
-        } else if (modelConfig.includeThinking === true && toolCalls.length > 0) {
+        } else if (
+            modelConfig.includeThinking === true &&
+            toolCalls.length > 0
+        ) {
             assistantMessage.reasoning_content = '';
         }
 
@@ -513,7 +517,9 @@ export class SeraphynHandler {
                 return assistant ? [assistant] : [];
             }
             default:
-                Logger.warn(`Seraphyn: Unsupported message role ${message.role}`);
+                Logger.warn(
+                    `Seraphyn: Unsupported message role ${message.role}`
+                );
                 return [];
         }
     }
@@ -604,8 +610,10 @@ export class SeraphynHandler {
             return {};
         }
 
-        const attempts = [trimmed, this.normalizeJsonLikePayload(trimmed)]
-            .filter((value): value is string => Boolean(value));
+        const attempts = [
+            trimmed,
+            this.normalizeJsonLikePayload(trimmed)
+        ].filter((value): value is string => Boolean(value));
 
         for (const candidate of attempts) {
             try {
@@ -680,8 +688,12 @@ export class SeraphynHandler {
                     toolCallNames.set(toolCall.index, toolCall.function.name);
                 }
 
-                if (toolCall.index !== undefined && toolCall.function?.arguments) {
-                    const existing = toolCallArguments.get(toolCall.index) || '';
+                if (
+                    toolCall.index !== undefined &&
+                    toolCall.function?.arguments
+                ) {
+                    const existing =
+                        toolCallArguments.get(toolCall.index) || '';
                     toolCallArguments.set(
                         toolCall.index,
                         existing + toolCall.function.arguments
@@ -803,7 +815,9 @@ export class SeraphynHandler {
 
                 this.processChunkChoice(
                     chunk,
-                    context.modelConfig.name || lastModel || context.modelConfig.id,
+                    context.modelConfig.name ||
+                        lastModel ||
+                        context.modelConfig.id,
                     context.progress,
                     toolCallIds,
                     toolCallNames,
@@ -926,7 +940,10 @@ export class SeraphynHandler {
         const parsed = (await response.json()) as
             | SeraphynModelsResponse
             | SeraphynModelResponseItem[];
-        const items = this.extractModelsArray(parsed, providerConfig) as SeraphynModelResponseItem[];
+        const items = this.extractModelsArray(
+            parsed,
+            providerConfig
+        ) as SeraphynModelResponseItem[];
         const parser = providerConfig.modelParser;
         const idField = parser?.idField || 'id';
         const nameField = parser?.nameField || parser?.descriptionField || 'id';
@@ -947,14 +964,11 @@ export class SeraphynHandler {
                 getPositiveNumber(record.max_output_tokens);
             const defaultContextLength = contextLength || 344064;
             const defaultMaxOutputTokens = advertisedMaxOutputTokens || 65536;
-            const { maxInputTokens, maxOutputTokens } = resolveGlobalTokenLimits(
-                modelId,
-                defaultContextLength,
-                {
+            const { maxInputTokens, maxOutputTokens } =
+                resolveGlobalTokenLimits(modelId, defaultContextLength, {
                     defaultContextLength,
                     defaultMaxOutputTokens
-                }
-            );
+                });
 
             models.push({
                 id: modelId,

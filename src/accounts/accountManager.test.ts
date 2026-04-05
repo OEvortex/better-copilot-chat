@@ -89,7 +89,8 @@ describe('AccountManager', () => {
         context = createMockContext();
 
         // Reset singleton
-        (AccountManager as unknown as { instance: undefined }).instance = undefined;
+        (AccountManager as unknown as { instance: undefined }).instance =
+            undefined;
         manager = AccountManager.initialize(context);
     });
 
@@ -100,7 +101,8 @@ describe('AccountManager', () => {
         });
 
         it('getInstance throws if not initialized', () => {
-            (AccountManager as unknown as { instance: undefined }).instance = undefined;
+            (AccountManager as unknown as { instance: undefined }).instance =
+                undefined;
             expect(() => AccountManager.getInstance()).toThrow(
                 'AccountManager not initialized'
             );
@@ -139,7 +141,11 @@ describe('AccountManager', () => {
 
         it('does not set second account as default', async () => {
             await manager.addApiKeyAccount('openai', 'First', 'sk-1');
-            const result = await manager.addApiKeyAccount('openai', 'Second', 'sk-2');
+            const result = await manager.addApiKeyAccount(
+                'openai',
+                'Second',
+                'sk-2'
+            );
 
             expect(result.account!.isDefault).toBe(false);
         });
@@ -221,7 +227,11 @@ describe('AccountManager', () => {
 
     describe('removeAccount', () => {
         it('removes an existing account', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-1'
+            );
             const removed = await manager.removeAccount(account!.id);
 
             expect(removed).toBe(true);
@@ -234,15 +244,27 @@ describe('AccountManager', () => {
         });
 
         it('deletes credentials from secret storage', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-1'
+            );
             await manager.removeAccount(account!.id);
 
             expect(context.secrets.delete).toHaveBeenCalled();
         });
 
         it('switches active account when removing the active one', async () => {
-            const a1 = await manager.addApiKeyAccount('openai', 'First', 'sk-1');
-            const a2 = await manager.addApiKeyAccount('openai', 'Second', 'sk-2');
+            const a1 = await manager.addApiKeyAccount(
+                'openai',
+                'First',
+                'sk-1'
+            );
+            const a2 = await manager.addApiKeyAccount(
+                'openai',
+                'Second',
+                'sk-2'
+            );
 
             // a1 is active (first account)
             expect(manager.getActiveAccount('openai')?.id).toBe(a1.account!.id);
@@ -254,7 +276,11 @@ describe('AccountManager', () => {
         });
 
         it('removes active provider entry when last account is removed', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Only', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Only',
+                'sk-1'
+            );
             await manager.removeAccount(account!.id);
 
             expect(manager.getActiveAccount('openai')).toBeUndefined();
@@ -263,10 +289,21 @@ describe('AccountManager', () => {
 
     describe('switchAccount', () => {
         it('switches active account for a provider', async () => {
-            const a1 = await manager.addApiKeyAccount('openai', 'First', 'sk-1');
-            const a2 = await manager.addApiKeyAccount('openai', 'Second', 'sk-2');
+            const a1 = await manager.addApiKeyAccount(
+                'openai',
+                'First',
+                'sk-1'
+            );
+            const a2 = await manager.addApiKeyAccount(
+                'openai',
+                'Second',
+                'sk-2'
+            );
 
-            const switched = await manager.switchAccount('openai', a2.account!.id);
+            const switched = await manager.switchAccount(
+                'openai',
+                a2.account!.id
+            );
 
             expect(switched).toBe(true);
             expect(manager.getActiveAccount('openai')?.id).toBe(a2.account!.id);
@@ -278,14 +315,29 @@ describe('AccountManager', () => {
         });
 
         it('returns false when provider mismatches', async () => {
-            const a1 = await manager.addApiKeyAccount('openai', 'OpenAI', 'sk-1');
-            const switched = await manager.switchAccount('zhipu', a1.account!.id);
+            const a1 = await manager.addApiKeyAccount(
+                'openai',
+                'OpenAI',
+                'sk-1'
+            );
+            const switched = await manager.switchAccount(
+                'zhipu',
+                a1.account!.id
+            );
             expect(switched).toBe(false);
         });
 
         it('clears isDefault on old active account', async () => {
-            const a1 = await manager.addApiKeyAccount('openai', 'First', 'sk-1');
-            const a2 = await manager.addApiKeyAccount('openai', 'Second', 'sk-2');
+            const a1 = await manager.addApiKeyAccount(
+                'openai',
+                'First',
+                'sk-1'
+            );
+            const a2 = await manager.addApiKeyAccount(
+                'openai',
+                'Second',
+                'sk-2'
+            );
 
             await manager.switchAccount('openai', a2.account!.id);
 
@@ -300,7 +352,11 @@ describe('AccountManager', () => {
         });
 
         it('returns the active account for a provider', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-1'
+            );
             expect(manager.getActiveAccount('openai')?.id).toBe(account!.id);
         });
     });
@@ -317,7 +373,9 @@ describe('AccountManager', () => {
 
             const openaiAccounts = manager.getAccountsByProvider('openai');
             expect(openaiAccounts).toHaveLength(2);
-            expect(openaiAccounts.every((a) => a.provider === 'openai')).toBe(true);
+            expect(openaiAccounts.every((a) => a.provider === 'openai')).toBe(
+                true
+            );
         });
     });
 
@@ -332,7 +390,11 @@ describe('AccountManager', () => {
 
     describe('getAccount', () => {
         it('returns account by ID', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-1'
+            );
             expect(manager.getAccount(account!.id)?.displayName).toBe('Test');
         });
 
@@ -343,24 +405,36 @@ describe('AccountManager', () => {
 
     describe('updateAccount', () => {
         it('updates account fields', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Old Name', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Old Name',
+                'sk-1'
+            );
             const updated = await manager.updateAccount(account!.id, {
                 displayName: 'New Name'
             });
 
             expect(updated).toBe(true);
-            expect(manager.getAccount(account!.id)!.displayName).toBe('New Name');
+            expect(manager.getAccount(account!.id)!.displayName).toBe(
+                'New Name'
+            );
         });
 
         it('returns false for non-existent account', async () => {
-            const updated = await manager.updateAccount('fake', { displayName: 'X' });
+            const updated = await manager.updateAccount('fake', {
+                displayName: 'X'
+            });
             expect(updated).toBe(false);
         });
     });
 
     describe('updateCredentials', () => {
         it('updates API key credentials', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-old');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-old'
+            );
             const updated = await manager.updateCredentials(account!.id, {
                 apiKey: 'sk-new'
             });
@@ -370,14 +444,20 @@ describe('AccountManager', () => {
         });
 
         it('returns false for non-existent account', async () => {
-            const updated = await manager.updateCredentials('fake', { apiKey: 'x' });
+            const updated = await manager.updateCredentials('fake', {
+                apiKey: 'x'
+            });
             expect(updated).toBe(false);
         });
     });
 
     describe('getCredentials', () => {
         it('retrieves stored credentials', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-123');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-123'
+            );
             const creds = await manager.getCredentials(account!.id);
 
             expect(creds).toBeDefined();
@@ -405,24 +485,44 @@ describe('AccountManager', () => {
 
     describe('model account assignments', () => {
         it('assigns and retrieves model to account mapping', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-1'
+            );
             await manager.setAccountForModel('openai', 'gpt-4o', account!.id);
 
-            expect(manager.getAccountIdForModel('openai', 'gpt-4o')).toBe(account!.id);
+            expect(manager.getAccountIdForModel('openai', 'gpt-4o')).toBe(
+                account!.id
+            );
         });
 
         it('removes model assignment when accountId not provided', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-1'
+            );
             await manager.setAccountForModel('openai', 'gpt-4o', account!.id);
             await manager.setAccountForModel('openai', 'gpt-4o');
 
-            expect(manager.getAccountIdForModel('openai', 'gpt-4o')).toBeUndefined();
+            expect(
+                manager.getAccountIdForModel('openai', 'gpt-4o')
+            ).toBeUndefined();
         });
 
         it('returns all model assignments for a provider', async () => {
             const a1 = await manager.addApiKeyAccount('openai', 'A', 'sk-1');
-            await manager.setAccountForModel('openai', 'gpt-4o', a1.account!.id);
-            await manager.setAccountForModel('openai', 'gpt-3.5', a1.account!.id);
+            await manager.setAccountForModel(
+                'openai',
+                'gpt-4o',
+                a1.account!.id
+            );
+            await manager.setAccountForModel(
+                'openai',
+                'gpt-3.5',
+                a1.account!.id
+            );
 
             const assignments = manager.getModelAccountAssignments('openai');
             expect(Object.keys(assignments)).toHaveLength(2);
@@ -466,7 +566,11 @@ describe('AccountManager', () => {
         });
 
         it('returns false for accounts without expiration', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-1'
+            );
             expect(manager.isAccountExpired(account!.id)).toBe(false);
         });
 
@@ -475,7 +579,11 @@ describe('AccountManager', () => {
         });
 
         it('marks account as expired', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-1'
+            );
             await manager.markAccountExpired(account!.id);
 
             expect(manager.getAccount(account!.id)!.status).toBe('expired');
@@ -484,7 +592,11 @@ describe('AccountManager', () => {
 
     describe('account error state', () => {
         it('marks account with error', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-1'
+            );
             await manager.markAccountError(account!.id, 'API key invalid');
 
             const updated = manager.getAccount(account!.id);
@@ -496,7 +608,11 @@ describe('AccountManager', () => {
     describe('getAvailableAccountsForProvider', () => {
         it('returns active, non-expired accounts', async () => {
             await manager.addApiKeyAccount('openai', 'Active', 'sk-1');
-            const a2 = await manager.addApiKeyAccount('openai', 'Will Expire', 'sk-2');
+            const a2 = await manager.addApiKeyAccount(
+                'openai',
+                'Will Expire',
+                'sk-2'
+            );
             await manager.markAccountExpired(a2.account!.id);
 
             const available = manager.getAvailableAccountsForProvider('openai');
@@ -507,7 +623,11 @@ describe('AccountManager', () => {
 
     describe('getNextAvailableAccount', () => {
         it('returns first available when no current account', async () => {
-            const a1 = await manager.addApiKeyAccount('openai', 'First', 'sk-1');
+            const a1 = await manager.addApiKeyAccount(
+                'openai',
+                'First',
+                'sk-1'
+            );
             await manager.addApiKeyAccount('openai', 'Second', 'sk-2');
 
             const next = manager.getNextAvailableAccount('openai');
@@ -515,18 +635,40 @@ describe('AccountManager', () => {
         });
 
         it('returns next account after current', async () => {
-            const a1 = await manager.addApiKeyAccount('openai', 'First', 'sk-1');
-            const a2 = await manager.addApiKeyAccount('openai', 'Second', 'sk-2');
+            const a1 = await manager.addApiKeyAccount(
+                'openai',
+                'First',
+                'sk-1'
+            );
+            const a2 = await manager.addApiKeyAccount(
+                'openai',
+                'Second',
+                'sk-2'
+            );
 
-            const next = manager.getNextAvailableAccount('openai', a1.account!.id);
+            const next = manager.getNextAvailableAccount(
+                'openai',
+                a1.account!.id
+            );
             expect(next?.id).toBe(a2.account!.id);
         });
 
         it('wraps around to first when at end of list', async () => {
-            const a1 = await manager.addApiKeyAccount('openai', 'First', 'sk-1');
-            const a2 = await manager.addApiKeyAccount('openai', 'Second', 'sk-2');
+            const a1 = await manager.addApiKeyAccount(
+                'openai',
+                'First',
+                'sk-1'
+            );
+            const a2 = await manager.addApiKeyAccount(
+                'openai',
+                'Second',
+                'sk-2'
+            );
 
-            const next = manager.getNextAvailableAccount('openai', a2.account!.id);
+            const next = manager.getNextAvailableAccount(
+                'openai',
+                a2.account!.id
+            );
             expect(next?.id).toBe(a1.account!.id);
         });
 
@@ -538,7 +680,9 @@ describe('AccountManager', () => {
 
     describe('provider configuration', () => {
         it('supportsMultiAccount returns true by default', () => {
-            expect(AccountManager.supportsMultiAccount('unknown-provider')).toBe(true);
+            expect(
+                AccountManager.supportsMultiAccount('unknown-provider')
+            ).toBe(true);
         });
 
         it('returns correct config for known providers', () => {
@@ -572,7 +716,11 @@ describe('AccountManager', () => {
         });
 
         it('fires event when account is removed', async () => {
-            const { account } = await manager.addApiKeyAccount('openai', 'Test', 'sk-1');
+            const { account } = await manager.addApiKeyAccount(
+                'openai',
+                'Test',
+                'sk-1'
+            );
             const handler = vi.fn();
             manager.onAccountChange(handler);
 

@@ -19,12 +19,7 @@ import type {
     ApiKeyCredentials
 } from '../../accounts/types';
 import type { ModelConfig, ProviderConfig } from '../../types/sharedTypes';
-import {
-    ApiKeyManager,
-    Logger,
-    RateLimiter,
-    RetryManager
-} from '../../utils';
+import { ApiKeyManager, Logger, RateLimiter, RetryManager } from '../../utils';
 import { ProviderWizard } from '../../utils/providerWizard';
 import { getProviderRateLimit } from '../../utils/knownProviders';
 import {
@@ -59,7 +54,10 @@ export class SeraphynProvider implements LanguageModelChatProvider {
         private readonly cachedProviderConfig: ProviderConfig
     ) {
         this.accountListener = this.accountManager.onAccountChange((event) => {
-            if (event.provider === this.providerKey || event.provider === 'all') {
+            if (
+                event.provider === this.providerKey ||
+                event.provider === 'all'
+            ) {
                 this.invalidateCache();
                 this._onDidChangeLanguageModelChatInformation.fire();
             }
@@ -81,7 +79,9 @@ export class SeraphynProvider implements LanguageModelChatProvider {
         return this.cachedProviderConfig;
     }
 
-    private modelConfigToInfo(model: ModelConfig): LanguageModelChatInformation {
+    private modelConfigToInfo(
+        model: ModelConfig
+    ): LanguageModelChatInformation {
         const contextLength = model.maxInputTokens + model.maxOutputTokens;
         const { maxInputTokens, maxOutputTokens } = resolveGlobalTokenLimits(
             model.id,
@@ -134,7 +134,8 @@ export class SeraphynProvider implements LanguageModelChatProvider {
                 return {
                     apiKey: apiKeyCredentials.apiKey,
                     baseUrl:
-                        apiKeyCredentials.endpoint || this.providerConfig.baseUrl,
+                        apiKeyCredentials.endpoint ||
+                        this.providerConfig.baseUrl,
                     customHeaders: apiKeyCredentials.customHeaders,
                     accountId: activeAccount.id
                 };
@@ -300,7 +301,9 @@ export class SeraphynProvider implements LanguageModelChatProvider {
             return [];
         }
 
-        const infos = modelConfigs.map((model) => this.modelConfigToInfo(model));
+        const infos = modelConfigs.map((model) =>
+            this.modelConfigToInfo(model)
+        );
         this.cachedModels = modelConfigs;
         return infos;
     }
@@ -356,18 +359,15 @@ export class SeraphynProvider implements LanguageModelChatProvider {
         );
 
         // Execute with automatic rate limiting and retry on 429 errors
-        await rateLimiter.executeWithRetry(
-            async () => {
-                await this.executeSeraphynRequest(
-                    model,
-                    messages,
-                    options,
-                    progress,
-                    token
-                );
-            },
-            this.providerConfig.displayName
-        );
+        await rateLimiter.executeWithRetry(async () => {
+            await this.executeSeraphynRequest(
+                model,
+                messages,
+                options,
+                progress,
+                token
+            );
+        }, this.providerConfig.displayName);
     }
 
     /**
@@ -380,8 +380,9 @@ export class SeraphynProvider implements LanguageModelChatProvider {
         progress: Progress<vscode.LanguageModelResponsePart2>,
         token: CancellationToken
     ): Promise<void> {
-        const modelConfig =
-            this.cachedModels.find((candidate) => candidate.id === model.id) ||
+        const modelConfig = this.cachedModels.find(
+            (candidate) => candidate.id === model.id
+        ) ||
             this.providerConfig.models?.find(
                 (candidate) => candidate.id === model.id
             ) || {

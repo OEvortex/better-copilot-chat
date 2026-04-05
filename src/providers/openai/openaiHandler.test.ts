@@ -105,7 +105,10 @@ describe('OpenAIHandler assistant message serialization', () => {
         const message = {
             role: vscode.LanguageModelChatMessageRole.Assistant,
             content: [
-                new vscode.LanguageModelThinkingPart('plan first', 'thinking-1'),
+                new vscode.LanguageModelThinkingPart(
+                    'plan first',
+                    'thinking-1'
+                ),
                 new vscode.LanguageModelToolCallPart('call-1', 'read_file', {
                     path: 'src/index.ts'
                 })

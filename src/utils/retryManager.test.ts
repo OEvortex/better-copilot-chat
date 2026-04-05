@@ -53,7 +53,10 @@ describe('RetryManager', () => {
         });
 
         it('retries on retryable errors and eventually succeeds', async () => {
-            const manager = new RetryManager({ maxAttempts: 3, initialDelayMs: 100 });
+            const manager = new RetryManager({
+                maxAttempts: 3,
+                initialDelayMs: 100
+            });
             const error = new Error('Rate limited') as RetryableError;
             error.status = 429;
 
@@ -78,7 +81,10 @@ describe('RetryManager', () => {
         });
 
         it('throws after exhausting all retry attempts', async () => {
-            const manager = new RetryManager({ maxAttempts: 2, initialDelayMs: 50 });
+            const manager = new RetryManager({
+                maxAttempts: 2,
+                initialDelayMs: 50
+            });
             const error = new Error('Server error') as RetryableError;
             error.status = 500;
             const operation = vi.fn().mockRejectedValue(error);
@@ -100,7 +106,10 @@ describe('RetryManager', () => {
         });
 
         it('stops retrying when error becomes non-retryable', async () => {
-            const manager = new RetryManager({ maxAttempts: 5, initialDelayMs: 50 });
+            const manager = new RetryManager({
+                maxAttempts: 5,
+                initialDelayMs: 50
+            });
             const retryableError = new Error('Rate limited') as RetryableError;
             retryableError.status = 429;
             const fatalError = new Error('Bad request') as RetryableError;
@@ -237,7 +246,9 @@ describe('RetryManager', () => {
         });
 
         it('returns false for non-rate-limit errors', () => {
-            expect(RetryManager.isRateLimitError(new Error('Not found'))).toBe(false);
+            expect(RetryManager.isRateLimitError(new Error('Not found'))).toBe(
+                false
+            );
             expect(RetryManager.isRateLimitError({ status: 500 })).toBe(false);
             expect(RetryManager.isRateLimitError({ status: 401 })).toBe(false);
         });

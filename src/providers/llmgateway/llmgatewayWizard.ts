@@ -39,9 +39,7 @@ export class LLMGatewayWizard {
             );
 
             if (!choice) {
-                Logger.debug(
-                    'User cancelled LLMGateway configuration wizard'
-                );
+                Logger.debug('User cancelled LLMGateway configuration wizard');
                 return;
             }
 
@@ -101,9 +99,7 @@ export class LLMGatewayWizard {
         try {
             if (result.trim() === '') {
                 Logger.info(`${displayName} API Key cleared`);
-                await ApiKeyManager.deleteApiKey(
-                    LLMGatewayWizard.PROVIDER_KEY
-                );
+                await ApiKeyManager.deleteApiKey(LLMGatewayWizard.PROVIDER_KEY);
             } else {
                 await ApiKeyManager.setApiKey(
                     LLMGatewayWizard.PROVIDER_KEY,

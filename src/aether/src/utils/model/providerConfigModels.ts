@@ -33,7 +33,7 @@ function trimValue(value: string | undefined): string | undefined {
 }
 
 function resolveProviderConfigDir(): string {
-  const envDir = trimValue(process.env.CHPCLI_PROVIDER_CONFIG_DIR)
+  const envDir = trimValue(process.env.AETHER_PROVIDER_CONFIG_DIR)
   if (envDir) {
     return envDir
   }

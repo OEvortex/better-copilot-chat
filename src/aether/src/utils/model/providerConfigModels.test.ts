@@ -8,10 +8,10 @@ import { getConfiguredProviderModelOptions } from './providerConfigModels.ts'
 import { validateModel } from './validateModel.ts'
 
 test('loads provider-backed models from config files', async () => {
-  const configDir = mkdtempSync(join(tmpdir(), 'chpcli-provider-config-'))
+  const configDir = mkdtempSync(join(tmpdir(), 'aether-provider-config-'))
   const filePath = join(configDir, 'apertis.json')
   const originalEnv = {
-    CHPCLI_PROVIDER_CONFIG_DIR: process.env.CHPCLI_PROVIDER_CONFIG_DIR,
+    AETHER_PROVIDER_CONFIG_DIR: process.env.AETHER_PROVIDER_CONFIG_DIR,
     CLAUDE_CODE_USE_OPENAI: process.env.CLAUDE_CODE_USE_OPENAI,
     OPENAI_BASE_URL: process.env.OPENAI_BASE_URL,
   }
@@ -35,7 +35,7 @@ test('loads provider-backed models from config files', async () => {
     ),
   )
 
-  process.env.CHPCLI_PROVIDER_CONFIG_DIR = configDir
+  process.env.AETHER_PROVIDER_CONFIG_DIR = configDir
   process.env.CLAUDE_CODE_USE_OPENAI = '1'
   process.env.OPENAI_BASE_URL = 'https://api.apertis.ai/v1'
 
@@ -47,10 +47,10 @@ test('loads provider-backed models from config files', async () => {
     const validation = await validateModel('gpt-4o')
     assert.deepEqual(validation, { valid: true })
   } finally {
-    if (originalEnv.CHPCLI_PROVIDER_CONFIG_DIR === undefined) {
-      delete process.env.CHPCLI_PROVIDER_CONFIG_DIR
+    if (originalEnv.AETHER_PROVIDER_CONFIG_DIR === undefined) {
+      delete process.env.AETHER_PROVIDER_CONFIG_DIR
     } else {
-      process.env.CHPCLI_PROVIDER_CONFIG_DIR = originalEnv.CHPCLI_PROVIDER_CONFIG_DIR
+      process.env.AETHER_PROVIDER_CONFIG_DIR = originalEnv.AETHER_PROVIDER_CONFIG_DIR
     }
 
     if (originalEnv.CLAUDE_CODE_USE_OPENAI === undefined) {

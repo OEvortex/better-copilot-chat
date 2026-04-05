@@ -6,10 +6,20 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **chpcli Rebranded to Aether**: Updated the integrated chpcli branding from OpenClaude to Aether.
+- **Aether CLI Rebranded**: Updated the integrated Aether CLI branding to use consistent naming.
     - Startup screen now displays the Aether ASCII logo with sunset gradient.
-    - Build output shows "Built Aether" instead of "Built openclaude".
-    - All references to OpenClaude in the CLI have been updated to Aether.
+    - Build output shows "Built Aether CLI" instead of "Built openclaude".
+    - All previous references to chpcli in the CLI have been updated to Aether CLI.
+    - Command renamed: `aether.cli.start` (was `aether.aether-cli.launch`).
+    - NPM scripts: `aether:build`, `aether:start`, `aether:dev` (was `aether-cli:*`).
+
+- **Provider Registry Split**: Split `knownProviders.ts` into two files for clean separation of concerns.
+    - **`src/utils/knownProvidersData.ts`** — pure provider data only (no `vscode`, `AccountManager`, or `configProviders` imports). Safe for CLI bundling.
+    - **`src/utils/knownProviders.ts`** — extension-only logic. Imports from `knownProvidersData.ts`. Contains provider registration, rate limiting, SDK adaptation.
+    - **Aether CLI** now imports from `knownProvidersData.ts` to avoid `vscode` resolution errors during Bun bundling.
+    - **Extension** continues using `configProviders` from JSON config files (old method preserved).
+    - `sync-providers.js` updated to parse `knownProvidersData.ts` instead of `knownProviders.ts`.
+    - `vscode` stub added to Aether build script for any remaining extension imports.
 
 - **OpenCode Zen Go New Models**: Added MiMo V2 Pro and MiMo V2 Omni models to the OpenCode Zen Go provider.
 
@@ -82,7 +92,7 @@ All notable changes to this project will be documented in this file.
     - Added support for provider-specific `extraBody` configuration in model configs.
     - Puter AI provider uses this to force `temperature: 1` for all models (required by Puter API).
 
-- **chpcli OpenAI SDK Migration**: Replaced `openaiShim.ts` (raw `fetch` + manual SSE parsing) with native `openai` SDK usage in `chpcli`.
+- **Aether CLI OpenAI SDK Migration**: Replaced `openaiShim.ts` (raw `fetch` + manual SSE parsing) with native `openai` SDK usage in `aether`.
     - OpenAI-compatible providers (OpenAI, GitHub Models, Gemini, Ollama, OpenRouter, Groq, DeepSeek, Mistral, Azure, Codex) now use the official `openai` npm package natively.
     - Eliminates 1,244 lines of hand-rolled HTTP/SSE shim code.
     - Both Anthropic and OpenAI SDKs are now used natively — no format conversion at the transport layer.
@@ -105,7 +115,7 @@ All notable changes to this project will be documented in this file.
 
 - **`chp.editToolMode` setting removed**: The editing tool mode configuration (`claude`, `gpt-5`, `none`) has been removed. The extension now handles editing operations internally without requiring a user-facing tool mode selection.
 
-- **chpcli Integration**: Introduced `chpcli` — a modified fork of OpenClaude, integrated into the extension as `src/chpcli`.
+- **Aether CLI Integration**: Introduced `aether` — a modified fork of OpenClaude, integrated into the extension as `src/aether`.
     - Provides standalone CLI access to 200+ models including OpenAI, Gemini, DeepSeek, Ollama, and more.
     - Cleaned up standalone-package artifacts (Python scripts, Python tests, nested `.git`, `.github`, docs) for bundled usage.
 

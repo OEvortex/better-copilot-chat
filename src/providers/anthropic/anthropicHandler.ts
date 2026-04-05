@@ -122,20 +122,17 @@ export class AnthropicHandler {
         );
 
         // Execute with automatic rate limiting and retry on 429 errors
-        await rateLimiter.executeWithRetry(
-            async () => {
-                await this.executeAnthropicRequest(
-                    model,
-                    modelConfig,
-                    messages,
-                    options,
-                    progress,
-                    token,
-                    accountId
-                );
-            },
-            this.displayName
-        );
+        await rateLimiter.executeWithRetry(async () => {
+            await this.executeAnthropicRequest(
+                model,
+                modelConfig,
+                messages,
+                options,
+                progress,
+                token,
+                accountId
+            );
+        }, this.displayName);
     }
 
     /**

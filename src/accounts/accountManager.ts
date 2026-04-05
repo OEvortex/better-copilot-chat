@@ -329,7 +329,7 @@ export class AccountManager {
                 supportsOAuth: false,
                 supportsApiKey: true
             }
-        ],
+        ]
     ]);
 
     private constructor(context: vscode.ExtensionContext) {

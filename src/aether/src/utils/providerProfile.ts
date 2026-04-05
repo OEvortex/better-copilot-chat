@@ -16,10 +16,10 @@ import {
 import { readGeminiAccessToken } from './geminiCredentials.ts'
 import { getOllamaChatBaseUrl } from './providerDiscovery.ts'
 
-export const CHPCLI_HOME = join(homedir(), '.copilot-helper')
-export const PROFILE_FILE_NAME = '.chpcli.json'
-export const CHPCLI_PROFILE_JSON_ENV = 'CHPCLI_PROFILE_JSON'
-export const CHPCLI_PROFILE_FILE_ENV = 'CHPCLI_PROFILE_FILE'
+export const AETHER_HOME = join(homedir(), '.copilot-helper')
+export const PROFILE_FILE_NAME = '.aether.json'
+export const AETHER_PROFILE_JSON_ENV = 'AETHER_PROFILE_JSON'
+export const AETHER_PROFILE_FILE_ENV = 'AETHER_PROFILE_FILE'
 export const COPILOT_PLUS_PLUS_PROFILE_FILE_ENV =
   'COPILOT_PLUS_PLUS_PROFILE_FILE'
 export const DEFAULT_GEMINI_BASE_URL =
@@ -109,9 +109,9 @@ function resolveProfileFilePath(options?: ProfileFileLocation): string {
     return options.filePath
   }
 
-  // Default to CHPCLI_HOME instead of CWD
-  mkdirSync(CHPCLI_HOME, { recursive: true })
-  return join(CHPCLI_HOME, PROFILE_FILE_NAME)
+  // Default to AETHER_HOME instead of CWD
+  mkdirSync(AETHER_HOME, { recursive: true })
+  return join(AETHER_HOME, PROFILE_FILE_NAME)
 }
 
 function parseProfileFileJson(raw: string): ProfileFile | null {
@@ -466,7 +466,7 @@ export function loadCopilotPlusPlusProfileFile(
   processEnv: NodeJS.ProcessEnv = process.env,
 ): ProfileFile | null {
   const serializedProfile =
-    asTrimmedString(processEnv.CHPCLI_PROFILE_JSON) ||
+    asTrimmedString(processEnv.AETHER_PROFILE_JSON) ||
     asTrimmedString(processEnv.COPILOT_PLUS_PLUS_PROFILE_JSON)
   if (serializedProfile) {
     const profile = parseProfileFileJson(serializedProfile)
@@ -476,7 +476,7 @@ export function loadCopilotPlusPlusProfileFile(
   }
 
   const filePath =
-    asTrimmedString(processEnv.CHPCLI_PROFILE_FILE) ||
+    asTrimmedString(processEnv.AETHER_PROFILE_FILE) ||
     asTrimmedString(processEnv.COPILOT_PLUS_PLUS_PROFILE_FILE)
   if (!filePath || !existsSync(filePath)) {
     return null

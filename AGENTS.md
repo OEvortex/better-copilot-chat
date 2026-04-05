@@ -14,10 +14,15 @@
                     <folder name="status">Status bar components</folder>
                     <folder name="ui">User interface components</folder>
                     <folder name="utils">Shared utilities</folder>
+                    <folder name="utils">
+                        <file name="knownProvidersData.ts">Pure provider data — NO vscode imports</file>
+                        <file name="knownProviders.ts">Extension logic — imports from knownProvidersData.ts</file>
+                    </folder>
                     <folder name="tools">Tool implementations</folder>
                     <folder name="types">Type definitions</folder>
                     <folder name="prompt">AI prompts and instructions</folder>
                 </folder>
+                <folder name="aether">Aether CLI (src/aether)</folder>
                 <folder name="dist">Compiled output</folder>
                 <folder name="fonts">Custom fonts</folder>
                 <folder name=".vscode">VS Code configuration</folder>
@@ -39,8 +44,13 @@
             </row>
             <row>
                 <cell>Add new AI provider</cell>
-                <cell>src/providers/</cell>
-                <cell>Follow existing provider pattern</cell>
+                <cell>src/utils/knownProvidersData.ts</cell>
+                <cell>Add to knownProviderOverrides, then run npm run sync-providers</cell>
+            </row>
+            <row>
+                <cell>Aether CLI source</cell>
+                <cell>src/aether/</cell>
+                <cell>Reads from knownProvidersData.ts (no vscode imports)</cell>
             </row>
             <row>
                 <cell>Account management</cell>
@@ -130,12 +140,23 @@
 
     <section name="ADDING_NEW_PROVIDER">
         <title>How to Add a New AI Provider</title>
-        <description>The Aether extension uses a single-source-of-truth architecture. Provider metadata is defined in one place and automatically propagated to all dependent files.</description>
+        <description>The Aether extension uses a dual-source architecture. Provider data lives in knownProvidersData.ts (pure data, no vscode imports), while extension logic lives in knownProviders.ts. Aether CLI reads directly from knownProvidersData.ts.</description>
+
+        <section name="CRITICAL_RULE_FOR_AI">
+            <title>⚠️ IMPORTANT: Where to Add Provider Data</title>
+            <warning>ALWAYS add provider entries to src/utils/knownProvidersData.ts — NOT knownProviders.ts.</warning>
+            <list>
+                <item>knownProvidersData.ts = pure data only (no vscode, no AccountManager, no configProviders imports)</item>
+                <item>knownProviders.ts = extension logic only (imports from knownProvidersData.ts)</item>
+                <item>Aether CLI imports from knownProvidersData.ts to avoid vscode bundling errors</item>
+                <item>sync-providers.js parses knownProvidersData.ts to generate dependent files</item>
+            </list>
+        </section>
 
         <step_list>
             <step order="1">
-                <title>Define provider in knownProviders.ts</title>
-                <description>Add the provider configuration to src/utils/knownProviders.ts in the knownProviderOverrides object. This is the ONLY file you need to manually edit for basic provider setup.</description>
+                <title>Define provider in knownProvidersData.ts</title>
+                <description>Add the provider configuration to src/utils/knownProvidersData.ts in the knownProviderOverrides object. This is the ONLY file you need to manually edit for basic provider setup.</description>
                 <code_block language="typescript">
 // Example: Adding NanoGPT provider
 const knownProviderOverrides: Record&lt;string, KnownProviderConfig&gt; = {
@@ -143,7 +164,6 @@ const knownProviderOverrides: Record&lt;string, KnownProviderConfig&gt; = {
     nanogpt: {
         displayName: "NanoGPT",
         family: "NanoGPT",
-        description: "NanoGPT endpoint integration",
         openai: { baseUrl: "https://nano-gpt.com/api/v1" },
         fetchModels: true,
         modelsEndpoint: "/models",
@@ -159,8 +179,11 @@ const knownProviderOverrides: Record&lt;string, KnownProviderConfig&gt; = {
                 <notes>
                     <item>Use only openai config for OpenAI SDK-only providers</item>
                     <item>Add anthropic config too if the provider supports both SDKs</item>
+                    <item>Add responses config for OpenAI Responses SDK compatibility</item>
                     <item>fetchModels: true enables automatic model list fetching</item>
                     <item>modelsEndpoint defaults to "/models" if not specified</item>
+                    <item>supportsApiKey: false for providers that don't require API keys</item>
+                    <item>DO NOT import vscode, AccountManager, or configProviders in this file</item>
                 </notes>
             </step>
 
@@ -168,7 +191,7 @@ const knownProviderOverrides: Record&lt;string, KnownProviderConfig&gt; = {
                 <title>Run the sync script</title>
                 <description>Run the provider synchronization script to auto-generate all dependent artifacts.</description>
                 <code_block language="bash">npm run sync-providers</code_block>
-                <description>This script will:</description>
+                <description>This script parses knownProvidersData.ts and will:</description>
                 <list>
                     <item>Generate ProviderKey enum entry in src/types/providerKeys.ts</item>
                     <item>Register provider capabilities in src/accounts/accountManager.ts</item>
@@ -176,12 +199,13 @@ const knownProviderOverrides: Record&lt;string, KnownProviderConfig&gt; = {
                     <item>Add baseUrl configuration setting in package.json</item>
                     <item>Add activation event for the provider</item>
                     <item>Register languageModelChatProviders entry</item>
+                    <item>Update src/providers/config/index.ts with JSON config file import</item>
                 </list>
             </step>
 
             <step order="3">
                 <title>Create initial config file (optional)</title>
-                <description>Create src/providers/config/{provider}.json with initial placeholder models. This file will be auto-updated when models are fetched.</description>
+                <description>Create src/providers/config/{provider}.json with initial placeholder models. This file is used by the extension (not Aether CLI).</description>
                 <code_block language="json">
 {
     "displayName": "NanoGPT",
@@ -205,35 +229,14 @@ const knownProviderOverrides: Record&lt;string, KnownProviderConfig&gt; = {
             </step>
 
             <step order="4">
-                <title>Register in config index (if step 3 done)</title>
-                <description>Add the provider to src/providers/config/index.ts</description>
-                <code_block language="typescript">
-import nanogpt from "./nanogpt.json";
-
-const providers = {
-    // ... existing providers ...
-    nanogpt,
-    // ... other providers ...
-};
-                </code_block>
-            </step>
-
-            <step order="5">
-                <title>Update account flows (optional)</title>
-                <description>Add the provider to account sync and UI flows for complete integration:</description>
-                <list>
-                    <item>Add to sync list in src/accounts/accountSyncAdapter.ts</item>
-                    <item>Add to provider list in src/accounts/accountUI.ts for "Add Account" flow</item>
-                </list>
-            </step>
-
-            <step order="6">
                 <title>Build and test</title>
-                <code_block language="bash">npm run compile:dev</code_block>
+                <code_block language="bash">npm run compile:dev    # Extension build
+npm run aether:build   # Aether CLI build</code_block>
                 <description>The provider should now:</description>
                 <list>
-                    <item>Appear in Aether Settings page</item>
-                    <item>Support API key configuration via chp.{provider}.setApiKey command</item>
+                    <item>Appear in Aether Settings page (extension)</item>
+                    <item>Support API key configuration via aether.{provider}.setApiKey command</item>
+                    <item>Appear in Aether CLI provider list</item>
                     <item>Auto-fetch models from the configured endpoint when API key is set</item>
                 </list>
             </step>
@@ -258,9 +261,9 @@ const providers = {
                     <cell>Provider family identifier</cell>
                 </row>
                 <row>
-                    <cell>description</cell>
+                    <cell>sdkMode</cell>
                     <cell>string?</cell>
-                    <cell>Optional description for UI</cell>
+                    <cell>Default SDK mode: "openai", "anthropic", "oai-response"</cell>
                 </row>
                 <row>
                     <cell>openai</cell>
@@ -271,6 +274,11 @@ const providers = {
                     <cell>anthropic</cell>
                     <cell>{baseUrl: string}?</cell>
                     <cell>Anthropic SDK configuration</cell>
+                </row>
+                <row>
+                    <cell>responses</cell>
+                    <cell>{baseUrl: string}?</cell>
+                    <cell>OpenAI Responses SDK configuration</cell>
                 </row>
                 <row>
                     <cell>fetchModels</cell>
@@ -298,9 +306,19 @@ const providers = {
                     <cell>Template shown in API key input placeholder</cell>
                 </row>
                 <row>
+                    <cell>openModelEndpoint</cell>
+                    <cell>boolean?</cell>
+                    <cell>Whether provider has open/unauthenticated model endpoint</cell>
+                </row>
+                <row>
                     <cell>customHeader</cell>
                     <cell>Record&lt;string,string&gt;?</cell>
                     <cell>Custom headers for all requests</cell>
+                </row>
+                <row>
+                    <cell>rateLimit</cell>
+                    <cell>object?</cell>
+                    <cell>Provider rate-limit tuning configuration</cell>
                 </row>
             </table>
         </section>
@@ -312,8 +330,14 @@ npm run compile:dev      # Build in development mode
 npm run watch            # Watch mode for development
 npm run lint             # Run Biome lint checks
 npm run format           # Format code with Biome
+npm run sync-providers   # Sync provider metadata from knownProvidersData.ts
 npm run package          # Create .vsix package
-npm run publish          # Publish to VS Code marketplace</code_block>
+npm run publish          # Publish to VS Code marketplace
+
+# Aether CLI commands
+npm run aether:build     # Build Aether CLI
+npm run aether:start     # Start Aether CLI
+npm run aether:dev       # Build and start Aether CLI (dev mode)</code_block>
     </section>
 
     <section name="RULES">

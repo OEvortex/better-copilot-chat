@@ -12,10 +12,23 @@ vi.mock('./logger', () => ({
 
 describe('RateLimiter', () => {
     beforeEach(() => {
-        vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'setImmediate', 'clearImmediate', 'queueMicrotask'] });
+        vi.useFakeTimers({
+            toFake: [
+                'Date',
+                'setTimeout',
+                'clearTimeout',
+                'setInterval',
+                'clearInterval',
+                'setImmediate',
+                'clearImmediate',
+                'queueMicrotask'
+            ]
+        });
         vi.setSystemTime(0);
         // Clear singleton instances between tests by accessing the private map
-        (RateLimiter as unknown as { instances: Map<string, RateLimiter> }).instances.clear();
+        (
+            RateLimiter as unknown as { instances: Map<string, RateLimiter> }
+        ).instances.clear();
     });
 
     afterEach(() => {
@@ -178,7 +191,10 @@ describe('RateLimiter', () => {
             const limiter = RateLimiter.getInstance('retry-test-1', 10, 1000);
             const operation = vi.fn().mockResolvedValue('success');
 
-            const result = await limiter.executeWithRetry(operation, 'test-provider');
+            const result = await limiter.executeWithRetry(
+                operation,
+                'test-provider'
+            );
 
             expect(result).toBe('success');
             expect(operation).toHaveBeenCalledTimes(1);
@@ -189,23 +205,29 @@ describe('RateLimiter', () => {
             const error429 = new Error('Rate limit exceeded: 429');
             (error429 as any).status = 429;
 
-            const operation = vi.fn()
+            const operation = vi
+                .fn()
                 .mockRejectedValueOnce(error429)
                 .mockRejectedValueOnce(error429)
                 .mockResolvedValue('success-after-retry');
 
             // Mock the retry delay to complete immediately
             const originalSetTimeout = global.setTimeout;
-            vi.spyOn(global, 'setTimeout').mockImplementation((cb: any, ms?: any) => {
-                if (ms && ms > 0) {
-                    // Execute callback immediately for test
-                    (cb as Function)();
-                    return originalSetTimeout(() => {}, 0);
+            vi.spyOn(global, 'setTimeout').mockImplementation(
+                (cb: any, ms?: any) => {
+                    if (ms && ms > 0) {
+                        // Execute callback immediately for test
+                        (cb as Function)();
+                        return originalSetTimeout(() => {}, 0);
+                    }
+                    return originalSetTimeout(cb, ms);
                 }
-                return originalSetTimeout(cb, ms);
-            });
+            );
 
-            const result = await limiter.executeWithRetry(operation, 'test-provider');
+            const result = await limiter.executeWithRetry(
+                operation,
+                'test-provider'
+            );
 
             expect(result).toBe('success-after-retry');
             expect(operation).toHaveBeenCalledTimes(3);
@@ -219,8 +241,9 @@ describe('RateLimiter', () => {
 
             const operation = vi.fn().mockRejectedValue(nonRetryableError);
 
-            await expect(limiter.executeWithRetry(operation, 'test-provider'))
-                .rejects.toThrow('Invalid API key: 401');
+            await expect(
+                limiter.executeWithRetry(operation, 'test-provider')
+            ).rejects.toThrow('Invalid API key: 401');
 
             expect(operation).toHaveBeenCalledTimes(1);
         });
@@ -234,16 +257,19 @@ describe('RateLimiter', () => {
 
             // Mock the retry delay to complete immediately
             const originalSetTimeout = global.setTimeout;
-            vi.spyOn(global, 'setTimeout').mockImplementation((cb: any, ms?: any) => {
-                if (ms && ms > 0) {
-                    (cb as Function)();
-                    return originalSetTimeout(() => {}, 0);
+            vi.spyOn(global, 'setTimeout').mockImplementation(
+                (cb: any, ms?: any) => {
+                    if (ms && ms > 0) {
+                        (cb as Function)();
+                        return originalSetTimeout(() => {}, 0);
+                    }
+                    return originalSetTimeout(cb, ms);
                 }
-                return originalSetTimeout(cb, ms);
-            });
+            );
 
-            await expect(limiter.executeWithRetry(operation, 'test-provider'))
-                .rejects.toThrow('Rate limit exceeded: 429');
+            await expect(
+                limiter.executeWithRetry(operation, 'test-provider')
+            ).rejects.toThrow('Rate limit exceeded: 429');
 
             // Should have tried maxAttempts (5) + 1 initial = 6 times
             expect(operation).toHaveBeenCalledTimes(6);

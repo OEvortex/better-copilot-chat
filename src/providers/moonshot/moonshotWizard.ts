@@ -18,7 +18,8 @@ export class MoonshotWizard {
     ): Promise<void> {
         try {
             const currentPlan = ConfigManager.getMoonshotPlan();
-            const planLabel = currentPlan === 'coding' ? 'Coding Plan' : 'Normal';
+            const planLabel =
+                currentPlan === 'coding' ? 'Coding Plan' : 'Normal';
 
             const choice = await vscode.window.showQuickPick(
                 [
@@ -46,7 +47,9 @@ export class MoonshotWizard {
             );
 
             if (!choice) {
-                Logger.debug('User cancelled the MoonshotAI configuration wizard');
+                Logger.debug(
+                    'User cancelled the MoonshotAI configuration wizard'
+                );
                 return;
             }
 

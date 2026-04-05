@@ -1,8 +1,8 @@
-import { configProviders } from '../../../../src/providers/config/index.ts'
+import { KnownProviders } from '../../../../src/utils/knownProvidersData.ts'
 import { existsSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import type { ProviderConfig, SdkMode } from '../../../../src/types/sharedTypes.ts'
+import type { SdkMode } from '../../../../src/types/sharedTypes.ts'
 import type { ProfileFile } from './providerProfile.ts'
 
 const liveModelCache = new Map<string, { models: string[]; ts: number }>()
@@ -108,10 +108,10 @@ export type RegistryProvider = {
   responses?: ProviderCompatConfig
 }
 
-export const CHPCLI_PROVIDER_SNAPSHOT_JSON_ENV =
-  'CHPCLI_PROVIDER_SNAPSHOT_JSON'
-export const CHPCLI_PROVIDER_SNAPSHOT_FILE_ENV =
-  'CHPCLI_PROVIDER_SNAPSHOT_FILE'
+export const AETHER_PROVIDER_SNAPSHOT_JSON_ENV =
+  'AETHER_PROVIDER_SNAPSHOT_JSON'
+export const AETHER_PROVIDER_SNAPSHOT_FILE_ENV =
+  'AETHER_PROVIDER_SNAPSHOT_FILE'
 
 function inferSdkModeFromProfile(profile: ProfileFile): SdkMode | undefined {
   switch (profile.profile) {
@@ -216,10 +216,18 @@ function inferSdkMode(config: ProviderConfig): SdkMode | undefined {
   return undefined
 }
 
-function toConfigProvider(id: string, config: ProviderConfig): RegistryProvider {
-  const sdkMode = inferSdkMode(config)
-  const baseUrl = config.baseUrl?.trim() || undefined
-  const defaultModel = config.models[0]?.model || config.models[0]?.id
+function inferSdkModeFromKnownConfig(config: typeof KnownProviders[string]): SdkMode | undefined {
+  if ('sdkMode' in config && config.sdkMode) {
+    return config.sdkMode as SdkMode
+  }
+  return undefined
+}
+
+function toConfigProvider(id: string, config: typeof KnownProviders[string]): RegistryProvider {
+  const sdkMode = inferSdkModeFromKnownConfig(config)
+  const baseUrl = config.openai?.baseUrl?.trim() || config.anthropic?.baseUrl?.trim() || config.responses?.baseUrl?.trim() || undefined
+  const models = config.models || []
+  const defaultModel = models[0]?.id
   const compatConfig: ProviderCompatConfig | undefined = baseUrl
     ? { baseUrl }
     : undefined
@@ -227,7 +235,7 @@ function toConfigProvider(id: string, config: ProviderConfig): RegistryProvider 
   return {
     id,
     displayName: config.displayName,
-    description: config.models[0]?.tooltip,
+    description: models[0]?.tooltip,
     sdkMode,
     baseUrl,
     defaultModel,
@@ -289,20 +297,20 @@ function loadProviderSnapshotFromFile(filePath: string | undefined): ProviderSna
 
 function loadFallbackProviderSnapshot(): ProviderSnapshot | null {
   return loadProviderSnapshotFromFile(
-    join(homedir(), '.copilot-helper', 'chpcli-provider-snapshot.json'),
+    join(homedir(), '.copilot-helper', 'aether-provider-snapshot.json'),
   )
 }
 
 export function getAllProviders(): RegistryProvider[] {
   const snapshot =
-    parseProviderSnapshot(process.env[CHPCLI_PROVIDER_SNAPSHOT_JSON_ENV]) ||
-    loadProviderSnapshotFromFile(process.env[CHPCLI_PROVIDER_SNAPSHOT_FILE_ENV]) ||
+    parseProviderSnapshot(process.env[AETHER_PROVIDER_SNAPSHOT_JSON_ENV]) ||
+    loadProviderSnapshotFromFile(process.env[AETHER_PROVIDER_SNAPSHOT_FILE_ENV]) ||
     loadFallbackProviderSnapshot()
   if (snapshot) {
     return getProvidersFromSnapshot(snapshot)
   }
 
-  return Object.entries(configProviders)
+  return Object.entries(KnownProviders)
     .map(([id, config]) => toConfigProvider(id, config))
     .sort((left, right) => left.displayName.localeCompare(right.displayName))
 }
@@ -318,8 +326,8 @@ export function getProvidersFromSnapshot(
 export function getProvider(
   providerId: string,
   snapshot: ProviderSnapshot | null =
-    parseProviderSnapshot(process.env[CHPCLI_PROVIDER_SNAPSHOT_JSON_ENV]) ||
-    loadProviderSnapshotFromFile(process.env[CHPCLI_PROVIDER_SNAPSHOT_FILE_ENV]) ||
+    parseProviderSnapshot(process.env[AETHER_PROVIDER_SNAPSHOT_JSON_ENV]) ||
+    loadProviderSnapshotFromFile(process.env[AETHER_PROVIDER_SNAPSHOT_FILE_ENV]) ||
     loadFallbackProviderSnapshot(),
 ): RegistryProvider | undefined {
   if (snapshot) {
@@ -329,7 +337,7 @@ export function getProvider(
     }
   }
 
-  const config = configProviders[providerId]
+  const config = KnownProviders[providerId]
   if (!config) {
     return undefined
   }

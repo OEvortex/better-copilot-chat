@@ -7,7 +7,7 @@ const KNOWN_PROVIDERS_FILE = path.join(
     ROOT,
     'src',
     'utils',
-    'knownProviders.ts'
+    'knownProvidersData.ts'
 );
 const PROVIDER_KEYS_FILE = path.join(ROOT, 'src', 'types', 'providerKeys.ts');
 const ACCOUNT_MANAGER_FILE = path.join(
@@ -317,8 +317,8 @@ function buildAccountProviderItems(knownProviders) {
             provider.id === 'codex'
                 ? true
                 : OAUTH_ONLY_PROVIDERS.has(provider.id)
-                    ? false
-                    : provider.supportsApiKey !== false;
+                  ? false
+                  : provider.supportsApiKey !== false;
 
         return {
             enumName: toEnumName(provider.id),
@@ -392,14 +392,14 @@ function buildAccountUiItems(knownProviders) {
                 left.id === 'compatible'
                     ? 2
                     : left.authType === 'oauth'
-                        ? 0
-                        : 1;
+                      ? 0
+                      : 1;
             const rightGroup =
                 right.id === 'compatible'
                     ? 2
                     : right.authType === 'oauth'
-                        ? 0
-                        : 1;
+                      ? 0
+                      : 1;
             if (leftGroup !== rightGroup) {
                 return leftGroup - rightGroup;
             }
@@ -517,8 +517,8 @@ function createSdkModeProperty(provider) {
             (provider.hasResponses
                 ? 'oai-response'
                 : provider.hasAnthropic
-                    ? 'anthropic'
-                    : 'openai'),
+                  ? 'anthropic'
+                  : 'openai'),
         description: `Select SDK compatibility mode for ${provider.displayName}.`,
         scope: 'application'
     };

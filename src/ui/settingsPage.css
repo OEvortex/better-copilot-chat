@@ -41,9 +41,11 @@ html {
     padding: 20px 22px;
     border: 1px solid var(--card-border);
     border-radius: 16px;
-    background: linear-gradient(180deg,
-            color-mix(in srgb, var(--card-bg) 92%, var(--accent-color) 8%),
-            var(--card-bg));
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--card-bg) 92%, var(--accent-color) 8%),
+        var(--card-bg)
+    );
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
@@ -86,9 +88,11 @@ html {
     padding: 10px 12px;
     border-radius: 12px;
     border: 1px solid var(--card-border);
-    background-color: color-mix(in srgb,
-            var(--card-bg) 94%,
-            var(--accent-color) 6%);
+    background-color: color-mix(
+        in srgb,
+        var(--card-bg) 94%,
+        var(--accent-color) 6%
+    );
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -124,7 +128,7 @@ html {
     margin-top: 12px;
 }
 
-.provider-subsection+.provider-subsection {
+.provider-subsection + .provider-subsection {
     padding-top: 18px;
     margin-top: 18px;
     border-top: 1px solid var(--card-border);
@@ -222,11 +226,14 @@ html {
     align-items: center;
     padding: 14px;
     margin: 10px 0 12px 0;
-    border: 1px solid color-mix(in srgb, var(--accent-color) 28%, var(--card-border) 72%);
+    border: 1px solid
+        color-mix(in srgb, var(--accent-color) 28%, var(--card-border) 72%);
     border-radius: 14px;
-    background: linear-gradient(135deg,
-            color-mix(in srgb, var(--accent-color) 12%, var(--card-bg) 88%),
-            var(--card-bg));
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent-color) 12%, var(--card-bg) 88%),
+        var(--card-bg)
+    );
 }
 
 .compatible-hero-copy {
@@ -319,11 +326,14 @@ html {
     gap: 12px;
     margin-bottom: 10px;
     padding: 12px;
-    border: 1px solid color-mix(in srgb, var(--card-border) 88%, var(--accent-color) 12%);
+    border: 1px solid
+        color-mix(in srgb, var(--card-border) 88%, var(--accent-color) 12%);
     border-radius: 12px;
-    background: linear-gradient(180deg,
-            color-mix(in srgb, var(--card-bg) 96%, var(--accent-color) 4%),
-            var(--card-bg));
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--card-bg) 96%, var(--accent-color) 4%),
+        var(--card-bg)
+    );
 }
 
 .provider-editor-field {
@@ -378,7 +388,8 @@ html {
     justify-content: flex-end;
     margin-top: 6px;
     padding-top: 6px;
-    border-top: 1px solid color-mix(in srgb, var(--card-border) 80%, transparent 20%);
+    border-top: 1px solid
+        color-mix(in srgb, var(--card-border) 80%, transparent 20%);
 }
 
 .section-kicker {
@@ -391,9 +402,11 @@ html {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--vscode-descriptionForeground);
-    background-color: color-mix(in srgb,
-            var(--card-bg) 86%,
-            var(--accent-color) 14%);
+    background-color: color-mix(
+        in srgb,
+        var(--card-bg) 86%,
+        var(--accent-color) 14%
+    );
 }
 
 .provider-lb-section {
@@ -403,15 +416,19 @@ html {
     padding: 14px;
     border: 1px solid var(--card-border);
     border-radius: 12px;
-    background-color: color-mix(in srgb,
-            var(--card-bg) 90%,
-            var(--accent-color) 10%);
+    background-color: color-mix(
+        in srgb,
+        var(--card-bg) 90%,
+        var(--accent-color) 10%
+    );
 }
 
 .provider-lb-section.enabled {
-    border-color: color-mix(in srgb,
-            var(--success-color) 40%,
-            var(--card-border) 60%);
+    border-color: color-mix(
+        in srgb,
+        var(--success-color) 40%,
+        var(--card-border) 60%
+    );
 }
 
 .provider-lb-section.disabled {
@@ -509,9 +526,11 @@ html {
     align-items: center;
     justify-content: center;
     font-size: 1.2em;
-    background: linear-gradient(135deg,
-            var(--accent-color),
-            var(--accent-hover));
+    background: linear-gradient(
+        135deg,
+        var(--accent-color),
+        var(--accent-hover)
+    );
     color: var(--vscode-button-foreground);
 }
 
@@ -592,21 +611,21 @@ html {
     border-radius: 50%;
 }
 
-.toggle-switch input:checked+.toggle-slider {
+.toggle-switch input:checked + .toggle-slider {
     background-color: var(--success-color);
     border-color: var(--success-color);
 }
 
-.toggle-switch input:checked+.toggle-slider:before {
+.toggle-switch input:checked + .toggle-slider:before {
     transform: translateX(22px);
     background-color: white;
 }
 
-.toggle-switch input:focus+.toggle-slider {
+.toggle-switch input:focus + .toggle-slider {
     box-shadow: 0 0 0 2px var(--vscode-focusBorder);
 }
 
-.toggle-switch input:disabled+.toggle-slider {
+.toggle-switch input:disabled + .toggle-slider {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -709,9 +728,11 @@ html {
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
-    background-color: color-mix(in srgb,
-            var(--card-bg) 92%,
-            var(--accent-color) 8%);
+    background-color: color-mix(
+        in srgb,
+        var(--card-bg) 92%,
+        var(--accent-color) 8%
+    );
 }
 
 .strategy-option:hover {
@@ -857,7 +878,7 @@ html {
     border-top: 1px solid var(--card-border);
 }
 
-.api-keys-section>label {
+.api-keys-section > label {
     font-size: 0.82em;
     color: var(--vscode-descriptionForeground);
     font-weight: 500;
@@ -1016,11 +1037,11 @@ html {
     border-radius: 50%;
 }
 
-.toggle-switch.small input:checked+.toggle-slider {
+.toggle-switch.small input:checked + .toggle-slider {
     background-color: var(--success-color);
 }
 
-.toggle-switch.small input:checked+.toggle-slider:before {
+.toggle-switch.small input:checked + .toggle-slider:before {
     transform: translateX(16px);
 }
 

@@ -432,7 +432,9 @@ export class CodexHandler {
                     )
                     .then((selection) => {
                         if (selection === 'Manage Accounts') {
-                            vscode.commands.executeCommand('aether.openSettings');
+                            vscode.commands.executeCommand(
+                                'aether.openSettings'
+                            );
                         }
                     });
             } else if (otherAccounts.length > 0) {
@@ -446,7 +448,9 @@ export class CodexHandler {
                     )
                     .then(async (selection) => {
                         if (selection === 'Switch Account') {
-                            vscode.commands.executeCommand('aether.openSettings');
+                            vscode.commands.executeCommand(
+                                'aether.openSettings'
+                            );
                         } else if (selection === 'Enable Auto-Switch') {
                             await accountManager.setLoadBalanceEnabled(
                                 'codex',
@@ -467,7 +471,9 @@ export class CodexHandler {
                     )
                     .then((selection) => {
                         if (selection === 'Add Account') {
-                            vscode.commands.executeCommand('aether.codex.login');
+                            vscode.commands.executeCommand(
+                                'aether.codex.login'
+                            );
                         }
                     });
             }
@@ -586,24 +592,21 @@ export class CodexHandler {
         );
 
         // Execute with automatic rate limiting and retry on 429 errors
-        await rateLimiter.executeWithRetry(
-            async () => {
-                await this.executeCodexRequest(
-                    model,
-                    config,
-                    messages,
-                    options,
-                    progress,
-                    token,
-                    accessToken,
-                    managedAccountId,
-                    chatgptAccountId,
-                    organizationId,
-                    projectId
-                );
-            },
-            this.providerName
-        );
+        await rateLimiter.executeWithRetry(async () => {
+            await this.executeCodexRequest(
+                model,
+                config,
+                messages,
+                options,
+                progress,
+                token,
+                accessToken,
+                managedAccountId,
+                chatgptAccountId,
+                organizationId,
+                projectId
+            );
+        }, this.providerName);
     }
 
     /**

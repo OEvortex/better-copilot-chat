@@ -164,23 +164,23 @@ export async function activate(context: vscode.ExtensionContext) {
 
         stepStartTime = Date.now();
         const openClaudeCommand = vscode.commands.registerCommand(
-            'aether.chpcli.launch',
+            'aether.cli.start',
             async () => {
                 try {
                     await launchOpenClaudeFromExtension(context);
                 } catch (error) {
                     const message =
                         error instanceof Error ? error.message : String(error);
-                    Logger.error('Failed to launch CHPCLI:', error);
+                    Logger.error('Failed to launch Aether CLI:', error);
                     vscode.window.showErrorMessage(
-                        `Failed to launch CHPCLI: ${message}`
+                        `Failed to launch Aether CLI: ${message}`
                     );
                 }
             }
         );
         context.subscriptions.push(openClaudeCommand);
         Logger.trace(
-            `⏱️ CHPCLI launch command registered (time: ${Date.now() - stepStartTime}ms)`
+            `⏱️ Aether CLI launch command registered (time: ${Date.now() - stepStartTime}ms)`
         );
 
         // Step 1: Initialize API key manager

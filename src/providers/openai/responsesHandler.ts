@@ -72,20 +72,17 @@ export class ResponsesHandler {
         );
 
         // Execute with automatic rate limiting and retry on 429 errors
-        await rateLimiter.executeWithRetry(
-            async () => {
-                await this.executeResponsesRequest(
-                    model,
-                    modelConfig,
-                    messages,
-                    options,
-                    progress,
-                    token,
-                    _accountId
-                );
-            },
-            this.displayName
-        );
+        await rateLimiter.executeWithRetry(async () => {
+            await this.executeResponsesRequest(
+                model,
+                modelConfig,
+                messages,
+                options,
+                progress,
+                token,
+                _accountId
+            );
+        }, this.displayName);
     }
 
     /**

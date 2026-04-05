@@ -22,16 +22,20 @@ async function fetchLiveModels(
         : `${baseUrl.replace(/\/$/, '')}${modelsEndpoint.startsWith('/') ? '' : '/'}${modelsEndpoint}`;
 
     const headers: Record<string, string> = {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         ...(customHeader || {}),
-        ...(openaiCustomHeader || {}),
+        ...(openaiCustomHeader || {})
     };
     if (apiKey) {
         headers.Authorization = `Bearer ${apiKey}`;
     }
 
     try {
-        const resp = await fetch(url, { method: 'GET', headers, signal: AbortSignal.timeout(5000) });
+        const resp = await fetch(url, {
+            method: 'GET',
+            headers,
+            signal: AbortSignal.timeout(5000)
+        });
         if (!resp.ok) {
             return [];
         }
@@ -51,7 +55,7 @@ async function fetchLiveModels(
             })
             .map((m) => ({
                 id: m.id,
-                name: (m as { name?: string }).name,
+                name: (m as { name?: string }).name
             }));
     } catch {
         return [];
@@ -71,11 +75,11 @@ export interface OpenClaudeBridgeResult {
     profile: OpenClaudeProfileFile;
 }
 
-export const CHPCLI_PROFILE_JSON_ENV = 'CHPCLI_PROFILE_JSON';
-export const CHPCLI_PROVIDER_SNAPSHOT_JSON_ENV =
-    'CHPCLI_PROVIDER_SNAPSHOT_JSON';
-export const CHPCLI_PROVIDER_SNAPSHOT_FILE_ENV =
-    'CHPCLI_PROVIDER_SNAPSHOT_FILE';
+export const AETHER_PROFILE_JSON_ENV = 'AETHER_PROFILE_JSON';
+export const AETHER_PROVIDER_SNAPSHOT_JSON_ENV =
+    'AETHER_PROVIDER_SNAPSHOT_JSON';
+export const AETHER_PROVIDER_SNAPSHOT_FILE_ENV =
+    'AETHER_PROVIDER_SNAPSHOT_FILE';
 
 export interface OpenClaudeProviderSnapshotEntry {
     id: string;
@@ -99,14 +103,17 @@ function toTrimmedString(value: unknown): string | undefined {
     return trimmed.length > 0 ? trimmed : undefined;
 }
 
-function getProviderModel(providerConfig?: ConfigProvider[string]): ModelConfig | undefined {
+function getProviderModel(
+    providerConfig?: ConfigProvider[string]
+): ModelConfig | undefined {
     return providerConfig?.models?.[0];
 }
 
 function getProviderDisplayName(providerId: string): string {
     return (
         KnownProviders[providerId]?.displayName ||
-        getAllProviders().find((provider) => provider.id === providerId)?.displayName ||
+        getAllProviders().find((provider) => provider.id === providerId)
+            ?.displayName ||
         providerId
     );
 }
@@ -126,9 +133,7 @@ function resolveProviderBaseUrl(
     );
 }
 
-async function resolveProviderCredentials(
-    providerId: string
-): Promise<{
+async function resolveProviderCredentials(providerId: string): Promise<{
     apiKey?: string;
     accountId?: string;
     credentials?: AccountCredentials;
@@ -167,7 +172,11 @@ function buildOpenAIProfile(
     apiKey?: string
 ): OpenClaudeProfileFile {
     const env: Record<string, string> = {};
-    const baseUrl = resolveProviderBaseUrl(providerId, providerConfig, modelConfig);
+    const baseUrl = resolveProviderBaseUrl(
+        providerId,
+        providerConfig,
+        modelConfig
+    );
     const modelName =
         toTrimmedString(modelConfig?.model) ||
         toTrimmedString(modelConfig?.id) ||
@@ -222,7 +231,11 @@ function buildGeminiProfile(
     apiKey?: string
 ): OpenClaudeProfileFile {
     const env: Record<string, string> = {};
-    const baseUrl = resolveProviderBaseUrl('gemini', providerConfig, modelConfig);
+    const baseUrl = resolveProviderBaseUrl(
+        'gemini',
+        providerConfig,
+        modelConfig
+    );
     const modelName =
         toTrimmedString(modelConfig?.model) ||
         toTrimmedString(modelConfig?.id) ||
@@ -253,7 +266,11 @@ function buildCodexProfile(
     accountId?: string
 ): OpenClaudeProfileFile {
     const env: Record<string, string> = {};
-    const baseUrl = resolveProviderBaseUrl('codex', providerConfig, modelConfig);
+    const baseUrl = resolveProviderBaseUrl(
+        'codex',
+        providerConfig,
+        modelConfig
+    );
     const modelName =
         toTrimmedString(modelConfig?.model) ||
         toTrimmedString(modelConfig?.id) ||
@@ -287,13 +304,23 @@ function buildProfileForProvider(
 ): OpenClaudeProfileFile {
     switch (providerId) {
         case 'codex':
-            return buildCodexProfile(providerConfig, modelConfig, apiKey, accountId);
+            return buildCodexProfile(
+                providerConfig,
+                modelConfig,
+                apiKey,
+                accountId
+            );
         case 'gemini':
             return buildGeminiProfile(providerConfig, modelConfig, apiKey);
         case 'ollama':
             return buildOllamaProfile(providerConfig, modelConfig);
         default:
-            return buildOpenAIProfile(providerId, providerConfig, modelConfig, apiKey);
+            return buildOpenAIProfile(
+                providerId,
+                providerConfig,
+                modelConfig,
+                apiKey
+            );
     }
 }
 
@@ -311,16 +338,27 @@ export async function buildOpenClaudeProfile(
     const { apiKey, accountId } = await resolveProviderCredentials(providerId);
     const displayName = getProviderDisplayName(providerId);
 
-    Logger.trace(`Building OpenClaude profile from ${displayName} (${providerId})`);
+    Logger.trace(
+        `Building OpenClaude profile from ${displayName} (${providerId})`
+    );
 
     // For fetchModels-enabled providers, try to fetch live models
     if (knownConfig?.fetchModels && knownConfig?.modelsEndpoint) {
-        const baseUrl = resolveProviderBaseUrl(providerId, providerConfig, modelConfig);
+        const baseUrl = resolveProviderBaseUrl(
+            providerId,
+            providerConfig,
+            modelConfig
+        );
         if (baseUrl) {
-            const effectiveKey = (providerId === 'ollama' && knownConfig.openModelEndpoint)
-                ? apiKey || knownConfig.defaultApiKey
-                : apiKey;
-            if (providerId !== 'ollama' || knownConfig.openModelEndpoint || effectiveKey) {
+            const effectiveKey =
+                providerId === 'ollama' && knownConfig.openModelEndpoint
+                    ? apiKey || knownConfig.defaultApiKey
+                    : apiKey;
+            if (
+                providerId !== 'ollama' ||
+                knownConfig.openModelEndpoint ||
+                effectiveKey
+            ) {
                 const liveModels = await fetchLiveModels(
                     baseUrl,
                     effectiveKey,
@@ -336,20 +374,35 @@ export async function buildOpenClaudeProfile(
                         model: firstModel,
                         maxInputTokens: modelConfig?.maxInputTokens ?? 4096,
                         maxOutputTokens: modelConfig?.maxOutputTokens ?? 4096,
-                        capabilities: modelConfig?.capabilities ?? { toolCalling: true, imageInput: false },
+                        capabilities: modelConfig?.capabilities ?? {
+                            toolCalling: true,
+                            imageInput: false
+                        },
                         baseUrl: modelConfig?.baseUrl ?? '',
                         sdkMode: modelConfig?.sdkMode,
                         customHeader: modelConfig?.customHeader,
                         extraBody: modelConfig?.extraBody,
-                        tooltip: modelConfig?.tooltip ?? firstModel,
+                        tooltip: modelConfig?.tooltip ?? firstModel
                     };
-                    return buildProfileForProvider(providerId, providerConfig, updatedModelConfig, apiKey, accountId);
+                    return buildProfileForProvider(
+                        providerId,
+                        providerConfig,
+                        updatedModelConfig,
+                        apiKey,
+                        accountId
+                    );
                 }
             }
         }
     }
 
-    return buildProfileForProvider(providerId, providerConfig, modelConfig, apiKey, accountId);
+    return buildProfileForProvider(
+        providerId,
+        providerConfig,
+        modelConfig,
+        apiKey,
+        accountId
+    );
 }
 
 export async function writeOpenClaudeBridgeProfile(
@@ -358,13 +411,15 @@ export async function writeOpenClaudeBridgeProfile(
 ): Promise<OpenClaudeBridgeResult> {
     const profile = await buildOpenClaudeProfile(providerId);
     if (!profile) {
-        throw new Error(`Provider "${providerId}" cannot be exported to OpenClaude.`);
+        throw new Error(
+            `Provider "${providerId}" cannot be exported to OpenClaude.`
+        );
     }
 
     const targetDir = join(homedir(), '.copilot-helper');
     mkdirSync(targetDir, { recursive: true });
 
-    const filePath = join(targetDir, '.chpcli.json');
+    const filePath = join(targetDir, '.aether.json');
     writeFileSync(filePath, JSON.stringify(profile, null, 2), {
         encoding: 'utf8',
         mode: 0o600
@@ -378,15 +433,17 @@ export async function buildOpenClaudeLaunchEnv(
 ): Promise<Record<string, string>> {
     const profile = await buildOpenClaudeProfile(providerId);
     if (!profile) {
-        throw new Error(`Provider "${providerId}" cannot be exported to OpenClaude.`);
+        throw new Error(
+            `Provider "${providerId}" cannot be exported to OpenClaude.`
+        );
     }
 
     const snapshot = await buildOpenClaudeProviderSnapshot();
     const snapshotPath = writeOpenClaudeProviderSnapshot(snapshot);
     return {
-        [CHPCLI_PROFILE_JSON_ENV]: JSON.stringify(profile),
-        [CHPCLI_PROVIDER_SNAPSHOT_JSON_ENV]: JSON.stringify(snapshot),
-        [CHPCLI_PROVIDER_SNAPSHOT_FILE_ENV]: snapshotPath
+        [AETHER_PROFILE_JSON_ENV]: JSON.stringify(profile),
+        [AETHER_PROVIDER_SNAPSHOT_JSON_ENV]: JSON.stringify(snapshot),
+        [AETHER_PROVIDER_SNAPSHOT_FILE_ENV]: snapshotPath
     };
 }
 
@@ -418,20 +475,25 @@ export async function buildOpenClaudeProviderSnapshot(): Promise<OpenClaudeProvi
 function writeOpenClaudeProviderSnapshot(
     snapshot: OpenClaudeProviderSnapshot
 ): string {
-    const targetDir = join(homedir(), '.copilot-helper')
-    mkdirSync(targetDir, { recursive: true })
+    const targetDir = join(homedir(), '.copilot-helper');
+    mkdirSync(targetDir, { recursive: true });
 
-    const filePath = join(targetDir, 'chpcli-provider-snapshot.json')
+    const filePath = join(targetDir, 'aether-provider-snapshot.json');
     writeFileSync(filePath, JSON.stringify(snapshot, null, 2), {
         encoding: 'utf8',
         mode: 0o600
-    })
+    });
 
-    return filePath
+    return filePath;
 }
 
 export async function getLaunchableOpenClaudeProviders(): Promise<
-    Array<{ id: string; label: string; detail: string; liveModelIds?: string[] }>
+    Array<{
+        id: string;
+        label: string;
+        detail: string;
+        liveModelIds?: string[];
+    }>
 > {
     const providers = getAllProviders();
     const eligible = providers.filter((p) => p.id !== 'compatible');
@@ -447,16 +509,25 @@ export async function getLaunchableOpenClaudeProviders(): Promise<
             const configProvider = ConfigManager.getConfigProvider();
             const providerConfig = configProvider[provider.id];
             const modelConfig = getProviderModel(providerConfig);
-            const baseUrl = resolveProviderBaseUrl(provider.id, providerConfig, modelConfig);
+            const baseUrl = resolveProviderBaseUrl(
+                provider.id,
+                providerConfig,
+                modelConfig
+            );
             if (!baseUrl) {
                 return undefined;
             }
 
             const { apiKey } = await resolveProviderCredentials(provider.id);
-            const effectiveKey = (provider.id === 'ollama' && knownConfig.openModelEndpoint)
-                ? apiKey || knownConfig.defaultApiKey || undefined
-                : apiKey;
-            if (provider.id !== 'ollama' && !effectiveKey && knownConfig.openModelEndpoint !== true) {
+            const effectiveKey =
+                provider.id === 'ollama' && knownConfig.openModelEndpoint
+                    ? apiKey || knownConfig.defaultApiKey || undefined
+                    : apiKey;
+            if (
+                provider.id !== 'ollama' &&
+                !effectiveKey &&
+                knownConfig.openModelEndpoint !== true
+            ) {
                 return undefined;
             }
 
@@ -472,8 +543,11 @@ export async function getLaunchableOpenClaudeProviders(): Promise<
                     id: provider.id,
                     count: models.length,
                     modelIds: models.map((m) =>
-                        m.id.replace(/[/]/g, '-').replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase()
-                    ),
+                        m.id
+                            .replace(/[/]/g, '-')
+                            .replace(/[^a-zA-Z0-9-]/g, '-')
+                            .toLowerCase()
+                    )
                 };
             } catch {
                 return undefined;
@@ -483,7 +557,11 @@ export async function getLaunchableOpenClaudeProviders(): Promise<
 
     return eligible
         .map((provider, index) => {
-            const detail = provider.description ?? provider.baseUrl ?? provider.sdkMode ?? '';
+            const detail =
+                provider.description ??
+                provider.baseUrl ??
+                provider.sdkMode ??
+                '';
             const mc = modelResults[index];
             const enrichedDetail = mc
                 ? `${mc.count} model${mc.count === 1 ? '' : 's'} available ${detail}`
@@ -492,7 +570,7 @@ export async function getLaunchableOpenClaudeProviders(): Promise<
                 id: provider.id,
                 label: provider.displayName,
                 detail: enrichedDetail,
-                liveModelIds: mc?.modelIds,
+                liveModelIds: mc?.modelIds
             };
         })
         .sort((left, right) => left.label.localeCompare(right.label));
@@ -517,5 +595,5 @@ export async function launchOpenClaudeFromExtension(
     });
 
     terminal.show(true);
-    terminal.sendText('npm run chpcli:dev');
+    terminal.sendText('npm run aether:dev');
 }

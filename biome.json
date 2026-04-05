@@ -8,10 +8,13 @@
             "!!.vscode-test",
             "!!out",
             "!src/openclaude/**",
-            "!src/chpcli/**",
+            "!src/aether/**",
             "!**/*.d.ts",
             "!extension.js",
-            "!src/ui/*.js"
+            "!src/ui/*.js",
+            "!package.json",
+            "!biome.json",
+            "!.vscode/settings.json"
         ]
     },
     "formatter": {
