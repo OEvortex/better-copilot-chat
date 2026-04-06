@@ -191,10 +191,12 @@ test('buildProfileSaveMessage maps provider fields without echoing secrets', () 
   )
 
   expect(message).toContain('Saved OpenAI-compatible profile.')
+  expect(message).toContain('Saved OpenAI-compatible configuration.')
   expect(message).toContain('Model: gpt-4o')
   expect(message).toContain('Endpoint: https://api.openai.com/v1')
   expect(message).toContain('Credentials: configured')
   expect(message).not.toContain('sk-secret-12345678')
+  expect(message).toContain('Settings: D:/codings/Opensource/openclaude/.openclaude-profile.json')
 })
 
 test('buildProfileSaveMessage describes Gemini access token / ADC mode clearly', () => {
@@ -208,10 +210,11 @@ test('buildProfileSaveMessage describes Gemini access token / ADC mode clearly',
     'D:/codings/Opensource/openclaude/.openclaude-profile.json',
   )
 
-  expect(message).toContain('Saved Google Gemini profile.')
+  expect(message).toContain('Saved Google Gemini configuration.')
   expect(message).toContain('Model: gemini-2.5-flash')
   expect(message).toContain('Credentials: access token (stored securely)')
   expect(message).not.toContain('AIza')
+  expect(message).toContain('Settings: D:/codings/Opensource/openclaude/.openclaude-profile.json')
 })
 
 test('buildCurrentProviderSummary redacts poisoned model and endpoint values', () => {

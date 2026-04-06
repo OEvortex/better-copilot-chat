@@ -1232,8 +1232,8 @@ export function ProviderWizard({
             } else if (value === 'ollama') {
                 setStep({ name: 'ollama-detect' })
             } else if (value === 'clear') {
-              const filePath = deleteProfileFile()
-              onDone(`Removed saved provider profile at ${filePath}. Restart OpenClaude to go back to normal startup.`, {
+              clearSavedProviderConfiguration()
+              onDone('Removed saved provider configuration. Restart OpenClaude to go back to normal startup.', {
                 display: 'system',
               })
             } else {
