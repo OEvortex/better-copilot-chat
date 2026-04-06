@@ -1,10 +1,10 @@
-# OpenClaude
+# Aether
 
-OpenClaude is an open-source coding-agent CLI that works with more than one model provider.
+Aether is an open-source coding-agent CLI that works with more than one model provider.
 
 Use OpenAI-compatible APIs, Gemini, GitHub Models, Codex, Ollama, Atomic Chat, and other supported backends while keeping the same terminal-first workflow: prompts, tools, agents, MCP, slash commands, and streaming output.
 
-## Why OpenClaude
+## Why Aether
 
 - Use one CLI across cloud and local model providers
 - Save provider profiles inside the app with `/provider`
@@ -13,7 +13,7 @@ Use OpenAI-compatible APIs, Gemini, GitHub Models, Codex, Ollama, Atomic Chat, a
 
 ## Provenance & Legal Notice
 
-OpenClaude is derived from Anthropic's Claude Code CLI source code, which was
+Aether is derived from Anthropic's Claude Code CLI source code, which was
 inadvertently exposed in March 2026 through a packaging error in npm. The
 original Claude Code source is proprietary software owned by Anthropic PBC.
 
@@ -34,18 +34,18 @@ file for details.
 ### Install
 
 ```bash
-npm install -g @gitlawb/openclaude
+npm install -g @oevortex/aether
 ```
 
-If the npm install path later reports `ripgrep not found`, install ripgrep system-wide and confirm `rg --version` works in the same terminal before starting OpenClaude.
+If the npm install path later reports `ripgrep not found`, install ripgrep system-wide and confirm `rg --version` works in the same terminal before starting Aether.
 
 ### Start
 
 ```bash
-openclaude
+Aether
 ```
 
-Inside OpenClaude:
+Inside Aether:
 
 - run `/provider` for guided setup of OpenAI-compatible, Gemini, Ollama, or Codex profiles
 - run `/onboard-github` for GitHub Models setup
@@ -59,7 +59,7 @@ export CLAUDE_CODE_USE_OPENAI=1
 export OPENAI_API_KEY=sk-your-key-here
 export OPENAI_MODEL=gpt-4o
 
-openclaude
+Aether
 ```
 
 Windows PowerShell:
@@ -69,7 +69,7 @@ $env:CLAUDE_CODE_USE_OPENAI="1"
 $env:OPENAI_API_KEY="sk-your-key-here"
 $env:OPENAI_MODEL="gpt-4o"
 
-openclaude
+Aether
 ```
 
 ### Fastest local Ollama setup
@@ -81,7 +81,7 @@ export CLAUDE_CODE_USE_OPENAI=1
 export OPENAI_BASE_URL=http://localhost:11434/v1
 export OPENAI_MODEL=qwen2.5-coder:7b
 
-openclaude
+Aether
 ```
 
 Windows PowerShell:
@@ -91,7 +91,7 @@ $env:CLAUDE_CODE_USE_OPENAI="1"
 $env:OPENAI_BASE_URL="http://localhost:11434/v1"
 $env:OPENAI_MODEL="qwen2.5-coder:7b"
 
-openclaude
+Aether
 ```
 
 ---
@@ -138,7 +138,7 @@ For Gemini, `/provider` can now save either the API-key path, a securely stored 
 - Images
   URL and base64 image inputs for providers that support vision
 - Provider profiles
-  Guided setup plus saved `.openclaude-profile.json` support
+  Guided setup plus saved `.aether-profile.json` support
 - Local and remote model backends
   Cloud APIs, local servers, and Apple Silicon local inference
 
@@ -146,12 +146,12 @@ For Gemini, `/provider` can now save either the API-key path, a securely stored 
 
 ## Provider Notes
 
-OpenClaude supports multiple providers, but behavior is not identical across all of them.
+Aether supports multiple providers, but behavior is not identical across all of them.
 
 - Anthropic-specific features may not exist on other providers
 - Tool quality depends heavily on the selected model
 - Smaller local models can struggle with long multi-step tool flows
-- Some providers impose lower output caps than the CLI defaults, and OpenClaude adapts where possible
+- Some providers impose lower output caps than the CLI defaults, and Aether adapts where possible
 
 For best results, use models with strong tool/function calling support.
 
@@ -207,7 +207,7 @@ By default, `WebSearch` now works on non-Anthropic models using DuckDuckGo. This
 
 >**Note:** DuckDuckGo fallback works by scraping search results and may be rate-limited, blocked, or subject to DuckDuckGo's Terms of Service. If you want a more reliable supported option, configure Firecrawl.
 
-For Anthropic-native backends (Anthropic/Vertex/Foundry) and Codex responses, OpenClaude keeps the native provider web search behavior.
+For Anthropic-native backends (Anthropic/Vertex/Foundry) and Codex responses, Aether keeps the native provider web search behavior.
 
 `WebFetch` works but uses basic HTTP plus HTML-to-markdown conversion. That fails on JavaScript-rendered pages (React, Next.js, Vue SPAs) and sites that block plain HTTP requests.
 
@@ -244,7 +244,7 @@ Helpful commands:
 
 ## VS Code Extension
 
-The repo includes a VS Code extension in [`vscode-extension/openclaude-vscode`](vscode-extension/openclaude-vscode) for OpenClaude launch integration and theme support.
+The repo includes a VS Code extension in [`vscode-extension/aether-vscode`](vscode-extension/aether-vscode) for Aether launch integration and theme support.
 
 ---
 
@@ -268,7 +268,7 @@ For larger changes, open an issue first so the scope is clear before implementat
 
 ## Disclaimer
 
-OpenClaude is an independent community project and is not affiliated with, endorsed by, or sponsored by Anthropic.
+Aether is an independent community project and is not affiliated with, endorsed by, or sponsored by Anthropic.
 
 "Claude" and "Claude Code" are trademarks of Anthropic.
 

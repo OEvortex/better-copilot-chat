@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.8] - Unreleased
+
+### Added
+
+- **OpenAI-to-Anthropic Adapter Message Coalescing**: Added message coalescing pass to `src/aether/src/services/api/openaiClientAdapter.ts` to match openclaude behavior.
+    - Merges consecutive messages of the same role (except `tool` and `system`).
+    - Required for compatibility with Ollama/vLLM/Mistral models that enforce strict user↔assistant message alternation.
+    - Prevents Jinja template errors like "roles must alternate" (Devstral, Mistral models).
+
+### Fixed
+
+- **Provider Snapshot Loading**: Removed automatic fallback loading of default provider snapshot file (`~/.copilot-helper/aether-provider-snapshot.json`). Provider configuration now loads only from explicit environment variables (`AETHER_PROVIDER_SNAPSHOT_JSON` or `AETHER_PROVIDER_SNAPSHOT_FILE`), with fallback to built-in `KnownProviders` from `knownProvidersData.ts`.
+
 ## [0.3.7] - 2026-04-06
 
 ### Fixed

@@ -1,10 +1,10 @@
 {
-    "name": "@oevortex/aether",
-    "version": "0.1.7",
-    "description": "Aether CLI - Claude Code opened to any LLM — OpenAI, Gemini, DeepSeek, Ollama, and 200+ models",
+    "name": "@vortexbaba/aether",
+    "version": "0.0.1",
+    "description": "Aether CLI - AI coding assistant opened to any LLM — OpenAI, Gemini, DeepSeek, Ollama, and 200+ models",
     "type": "module",
     "bin": {
-        "aether": "./bin/openclaude"
+        "aether": "bin/aether"
     },
     "files": [
         "bin/",
@@ -131,7 +131,8 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://gitlawb.com/z6MkqDnb7Siv3Cwj7pGJq4T5EsUisECqR8KpnDLwcaZq5TPr/openclaude"
+        "url": "git+https://github.com/OEvortex/aether.git",
+        "directory": "src/aether"
     },
     "keywords": [
         "claude-code",

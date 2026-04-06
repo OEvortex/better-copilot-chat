@@ -1,7 +1,7 @@
 {
     "name": "aether-ai",
     "publisher": "OEvortex",
-    "displayName": "Aether",
+    "displayName": "Aether AI",
     "description": "An extension that provides model support for GitHub Copilot Chat, including ZhipuAI, MiniMax, MoonshotAI, DeepSeek, Alibaba Cloud Bailian, and custom OpenAI/Anthropic compatible models.",
     "version": "0.3.7",
     "license": "MIT",

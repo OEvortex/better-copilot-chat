@@ -12,8 +12,6 @@ import { LoadingState } from '../../components/design-system/LoadingState.js'
 import { useTerminalSize } from '../../hooks/useTerminalSize.js'
 import { Box, Text } from '../../ink.js'
 import {
-  DEFAULT_CODEX_BASE_URL,
-  DEFAULT_OPENAI_BASE_URL,
   resolveCodexApiCredentials,
   resolveProviderRequest,
 } from '../../services/api/providerConfig.js'
@@ -23,18 +21,17 @@ import {
   buildGeminiProfileEnv,
   buildOllamaProfileEnv,
   buildOpenAIProfileEnv,
-  DEFAULT_GEMINI_BASE_URL,
-  DEFAULT_GEMINI_MODEL,
   deleteProfileFile,
-  loadProfileFile,
   maskSecretForDisplay,
   redactSecretValueForDisplay,
   sanitizeApiKey,
   sanitizeProviderConfigValue,
-  type ProfileFile,
   type ProfileEnv,
   type ProviderProfile,
 } from '../../utils/providerProfile.js'
+import {
+  getDefaultModelForProvider,
+} from '../../utils/aetherConfig.js'
 import {
     getAllProviders,
     getProvider,
@@ -129,11 +126,7 @@ const PROVIDER_SELECTION_ENV_KEYS = [
   'CLAUDE_CODE_USE_FOUNDRY',
 ] as const
 
-function getSavedConfigLabel(processEnv: NodeJS.ProcessEnv, persisted?: ProfileFile | null): string {
-  if (persisted) {
-    return 'profile'
-  }
-
+function getSavedConfigLabel(processEnv: NodeJS.ProcessEnv): string {
   const hasSavedEnv =
     processEnv.CLAUDE_CODE_USE_OPENAI !== undefined ||
     processEnv.CLAUDE_CODE_USE_GEMINI !== undefined ||
@@ -314,16 +307,16 @@ export function getProviderWizardDefaults(
 ): ProviderWizardDefaults {
   const safeOpenAIModel =
     sanitizeProviderConfigValue(processEnv.OPENAI_MODEL, processEnv) ||
-    'gpt-4o'
+    ''
   const safeOpenAIBaseUrl =
     sanitizeProviderConfigValue(processEnv.OPENAI_BASE_URL, processEnv) ||
-    DEFAULT_OPENAI_BASE_URL
+    ''
   const safeAnthropicModel =
     sanitizeProviderConfigValue(processEnv.ANTHROPIC_MODEL, processEnv) ||
-    'claude-sonnet-4-6'
+    ''
   const safeGeminiModel =
     sanitizeProviderConfigValue(processEnv.GEMINI_MODEL, processEnv) ||
-    DEFAULT_GEMINI_MODEL
+    ''
 
   return {
     openAIModel: safeOpenAIModel,
@@ -352,10 +345,6 @@ function getRegistryProviderChoices(): RegistryProviderChoiceInfo[] {
         provider.id,
     }))
     .sort((left, right) => left.label.localeCompare(right.label))
-}
-
-function getProviderById(providerId: string): RegistryProvider | undefined {
-    return getAllProviders().find(p => p.id === providerId)
 }
 
 function parseRegistryProviderChoice(
@@ -389,48 +378,21 @@ function resolveRegistryProviderSetup(providerId: string): {
   }
 }
 
-function canUseRegistryProfile(profile: ProfileFile): boolean {
-  switch (profile.profile) {
-    case 'ollama':
-    case 'atomic-chat':
-      return true
-    case 'anthropic':
-      return Boolean(profile.env.ANTHROPIC_API_KEY)
-    case 'gemini':
-      return Boolean(
-        profile.env.GEMINI_API_KEY ||
-          profile.env.GEMINI_ACCESS_TOKEN ||
-          profile.env.GEMINI_AUTH_MODE === 'adc',
-      )
-    case 'codex':
-      return Boolean(
-        profile.env.CODEX_API_KEY ||
-          profile.env.CHATGPT_ACCOUNT_ID ||
-          profile.env.CODEX_ACCOUNT_ID,
-      )
-    case 'openai':
-    default:
-      return Boolean(profile.env.OPENAI_API_KEY)
-  }
-}
-
 export function buildCurrentProviderSummary(options?: {
   processEnv?: NodeJS.ProcessEnv
-  persisted?: ProfileFile | null
 }): CurrentProviderSummary {
   const processEnv = options?.processEnv ?? process.env
-  const persisted = options?.persisted ?? loadProfileFile()
-  const savedProfileLabel = getSavedConfigLabel(processEnv, persisted)
+  const savedProfileLabel = getSavedConfigLabel(processEnv)
 
   if (isEnvTruthy(processEnv.CLAUDE_CODE_USE_GEMINI)) {
     return {
       providerLabel: 'Google Gemini',
       modelLabel: getSafeDisplayValue(
-        processEnv.GEMINI_MODEL ?? DEFAULT_GEMINI_MODEL,
+        processEnv.GEMINI_MODEL,
         processEnv,
       ),
       endpointLabel: getSafeDisplayValue(
-        processEnv.GEMINI_BASE_URL ?? DEFAULT_GEMINI_BASE_URL,
+        processEnv.GEMINI_BASE_URL,
         processEnv,
       ),
       savedProfileLabel,
@@ -445,11 +407,11 @@ export function buildCurrentProviderSummary(options?: {
     return {
       providerLabel: 'Anthropic',
       modelLabel: getSafeDisplayValue(
-        processEnv.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6',
+        processEnv.ANTHROPIC_MODEL,
         processEnv,
       ),
       endpointLabel: getSafeDisplayValue(
-        processEnv.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',
+        processEnv.ANTHROPIC_BASE_URL,
         processEnv,
       ),
       savedProfileLabel,
@@ -482,13 +444,11 @@ export function buildCurrentProviderSummary(options?: {
   return {
     providerLabel: 'Anthropic',
     modelLabel: getSafeDisplayValue(
-      processEnv.ANTHROPIC_MODEL ??
-        processEnv.CLAUDE_MODEL ??
-        'claude-sonnet-4-6',
+        processEnv.ANTHROPIC_MODEL ?? processEnv.CLAUDE_MODEL,
       processEnv,
     ),
     endpointLabel: getSafeDisplayValue(
-      processEnv.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',
+        processEnv.ANTHROPIC_BASE_URL,
       processEnv,
     ),
     savedProfileLabel,
@@ -504,12 +464,12 @@ function buildSavedProfileSummary(
       return {
         providerLabel: 'Google Gemini',
         modelLabel: getSafeDisplayValue(
-          env.GEMINI_MODEL ?? DEFAULT_GEMINI_MODEL,
+          env.GEMINI_MODEL,
           process.env,
           env,
         ),
         endpointLabel: getSafeDisplayValue(
-          env.GEMINI_BASE_URL ?? DEFAULT_GEMINI_BASE_URL,
+          env.GEMINI_BASE_URL,
           process.env,
           env,
         ),
@@ -526,12 +486,12 @@ function buildSavedProfileSummary(
       return {
         providerLabel: 'Codex',
         modelLabel: getSafeDisplayValue(
-          env.OPENAI_MODEL ?? 'codexplan',
+          env.OPENAI_MODEL,
           process.env,
           env,
         ),
         endpointLabel: getSafeDisplayValue(
-          env.OPENAI_BASE_URL ?? DEFAULT_CODEX_BASE_URL,
+          env.OPENAI_BASE_URL,
           process.env,
           env,
         ),
@@ -558,12 +518,12 @@ function buildSavedProfileSummary(
       return {
         providerLabel: 'Anthropic',
         modelLabel: getSafeDisplayValue(
-          env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6',
+          env.ANTHROPIC_MODEL,
           process.env,
           env,
         ),
         endpointLabel: getSafeDisplayValue(
-          env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',
+          env.ANTHROPIC_BASE_URL,
           process.env,
           env,
         ),
@@ -577,12 +537,12 @@ function buildSavedProfileSummary(
       return {
         providerLabel: 'OpenAI-compatible',
         modelLabel: getSafeDisplayValue(
-          env.OPENAI_MODEL ?? 'gpt-4o',
+          env.OPENAI_MODEL,
           process.env,
           env,
         ),
         endpointLabel: getSafeDisplayValue(
-          env.OPENAI_BASE_URL ?? DEFAULT_OPENAI_BASE_URL,
+          env.OPENAI_BASE_URL,
           process.env,
           env,
         ),
@@ -1210,7 +1170,7 @@ function resolveCodexCredentials(processEnv: NodeJS.ProcessEnv):
     sourceDescription:
       credentials.source === 'env'
         ? 'the current shell environment'
-        : credentials.authPath ?? DEFAULT_CODEX_BASE_URL,
+        : credentials.authPath ?? 'configured credentials',
   }
 }
 
@@ -1239,44 +1199,36 @@ export function ProviderWizard({
             } else {
               const registryProviderId = parseRegistryProviderChoice(value)
               const registryProvider = registryProviderId
-                  ? getProvider(registryProviderId)
+                ? getProvider(registryProviderId)
                 : null
 
               if (!registryProvider) {
-                  onDone(`Unknown provider: ${registryProviderId}`, { display: 'system' })
+                onDone(`Unknown provider: ${registryProviderId}`, { display: 'system' })
                 return
               }
 
-                // Determine provider type from registry config
-                const providerType = registryProvider.sdkMode === 'anthropic'
-                    ? 'anthropic'
-                    : 'openai'
+              const providerType = registryProvider.sdkMode === 'anthropic'
+                ? 'anthropic'
+                : 'openai'
 
-                // Check if we have a saved snapshot profile for this provider
-              const snapshotProfile = registryProvider.profile ?? null
-                const snapshotEnv = snapshotProfile?.env ?? {}
-
-              if (snapshotProfile && canUseRegistryProfile(snapshotProfile)) {
-                finishProfileSave(onDone, snapshotProfile.profile, snapshotProfile.env)
-                return
-              }
+              const dynamicDefaultModel =
+                registryProvider.defaultModel ??
+                getDefaultModelForProvider(registryProvider.id)?.id ??
+                ''
+              const dynamicBaseUrl =
+                providerType === 'anthropic'
+                  ? registryProvider.anthropic?.baseUrl ?? registryProvider.baseUrl ?? null
+                  : registryProvider.openai?.baseUrl ?? registryProvider.baseUrl ?? null
 
               setStep({
                 name: 'openai-key',
                 defaultModel:
                   providerType === 'anthropic'
-                    ? snapshotEnv.ANTHROPIC_MODEL ||
-                      registryProvider.defaultModel ||
-                      defaults.anthropicModel
-                        : snapshotEnv.OPENAI_MODEL ||
-                        registryProvider.defaultModel ||
-                          defaults.openAIModel,
-                  profile: providerType as 'openai' | 'anthropic',
-                  providerLabel: registryProvider.displayName,
-                baseUrl:
-                  providerType === 'anthropic'
-                          ? snapshotEnv.ANTHROPIC_BASE_URL ?? registryProvider.anthropic?.baseUrl ?? null
-                          : snapshotEnv.OPENAI_BASE_URL ?? registryProvider.openai?.baseUrl ?? null,
+                    ? dynamicDefaultModel || defaults.anthropicModel
+                    : dynamicDefaultModel || defaults.openAIModel,
+                profile: providerType as 'openai' | 'anthropic',
+                providerLabel: registryProvider.displayName,
+                baseUrl: dynamicBaseUrl,
               })
             }
           }}
@@ -1378,24 +1330,14 @@ export function ProviderWizard({
             step.profile === 'anthropic' ? 'Anthropic' : 'OpenAI-compatible'
           } setup${step.providerLabel ? ` (${step.providerLabel})` : ''}`}
           subtitle="Step 2 of 3"
-          description={`Optionally enter a base URL. Leave blank for ${
-            step.profile === 'anthropic'
-              ? 'https://api.anthropic.com'
-              : DEFAULT_OPENAI_BASE_URL
-          }.`}
+          description="Optionally enter a base URL. Leave blank to keep the current provider setting."
           initialValue={
             step.baseUrl ??
             (step.profile === 'anthropic'
               ? process.env.ANTHROPIC_BASE_URL || ''
-              : defaults.openAIBaseUrl === DEFAULT_OPENAI_BASE_URL
-                ? ''
-                : defaults.openAIBaseUrl)
+              : defaults.openAIBaseUrl || '')
           }
-          placeholder={
-            step.profile === 'anthropic'
-              ? 'https://api.anthropic.com'
-              : DEFAULT_OPENAI_BASE_URL
-          }
+          placeholder=""
           allowEmpty
           onSubmit={value => {
             setStep({
@@ -1619,13 +1561,13 @@ export function ProviderWizard({
           }
           description={
             step.authMode === 'api-key'
-              ? `Enter a Gemini model name. Leave blank for ${DEFAULT_GEMINI_MODEL}.`
+              ? 'Enter a Gemini model name. Leave blank to keep the model from your current Gemini settings.'
               : step.authMode === 'access-token'
-                ? `Enter a Gemini model name. Leave blank for ${DEFAULT_GEMINI_MODEL}. This profile will use the stored Gemini access token at runtime.`
-                : `Enter a Gemini model name. Leave blank for ${DEFAULT_GEMINI_MODEL}. This profile will use local Google ADC credentials at runtime.`
+                ? 'Enter a Gemini model name. Leave blank to keep the model from your current Gemini settings. This configuration will use the stored Gemini access token at runtime.'
+                : 'Enter a Gemini model name. Leave blank to keep the model from your current Gemini settings. This configuration will use local Google ADC credentials at runtime.'
           }
           initialValue={defaults.geminiModel}
-          placeholder={DEFAULT_GEMINI_MODEL}
+          placeholder={defaults.geminiModel}
           allowEmpty
           onSubmit={value => {
             if (
@@ -1644,7 +1586,7 @@ export function ProviderWizard({
             const env = buildGeminiProfileEnv({
               apiKey: step.apiKey,
               authMode: step.authMode,
-              model: value.trim() || DEFAULT_GEMINI_MODEL,
+              model: value.trim() || defaults.geminiModel || undefined,
               processEnv: {},
             })
             if (env) {
@@ -1712,7 +1654,7 @@ export const call: LocalJSXCommandCall = async (onDone, _context, args) => {
 
   // Handle /provider [provider-name] - quick select a provider
   if (normalizedArgs) {
-    const provider = getProviderById(normalizedArgs)
+    const provider = getProvider(normalizedArgs)
     if (provider) {
       // Build a simple OpenAI-compatible profile for the selected provider
       const isOpenAI = provider.sdkMode === 'openai'
