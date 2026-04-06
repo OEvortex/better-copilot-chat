@@ -642,7 +642,7 @@
                         "anthropic",
                         "oai-response"
                     ],
-                    "default": "oai-response",
+                    "default": "openai",
                     "description": "Select SDK compatibility mode for Blackbox AI.",
                     "scope": "application"
                 },

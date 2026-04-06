@@ -127,6 +127,7 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
             baseUrl: 'https://api.apertis.ai/v1'
         },
         openModelEndpoint: false,
+        sdkMode: "openai",
         fetchModels: true,
         modelsEndpoint: '/models',
         modelParser: {
@@ -140,7 +141,7 @@ const knownProviderOverrides: Record<string, KnownProviderConfig> = {
         family: 'Blackbox AI',
         supportsApiKey: true,
         apiKeyTemplate: 'YOUR_BLACKBOX_API_KEY',
-        sdkMode: 'oai-response',
+        sdkMode: 'openai',
         fetchModels: true,
         modelsEndpoint: '/models',
         openai: {
