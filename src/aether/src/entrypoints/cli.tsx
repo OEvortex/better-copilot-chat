@@ -68,6 +68,10 @@ async function main(): Promise<void> {
     }
   }
 
+  // Ensure Aether config directory exists (creates ~/.aether if needed)
+  const { ensureConfigDirExists } = await import('../utils/envUtils.js')
+  ensureConfigDirExists()
+
   {
     const { enableConfigs } = await import('../utils/config.js')
     enableConfigs()

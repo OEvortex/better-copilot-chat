@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Default Config Directory Changed to ~/.aether**: Changed default config directory from `~/.openclaude` to `~/.aether`.
+    - Added migration compatibility to fall back to `~/.openclaude` or `~/.claude` if they exist but `~/.aether` doesn't.
+    - Existing users will continue using their existing config directory.
+
 - **OpenAI-to-Anthropic Adapter Message Coalescing**: Added message coalescing pass to `src/aether/src/services/api/openaiClientAdapter.ts` to match openclaude behavior.
     - Merges consecutive messages of the same role (except `tool` and `system`).
     - Required for compatibility with Ollama/vLLM/Mistral models that enforce strict user↔assistant message alternation.
