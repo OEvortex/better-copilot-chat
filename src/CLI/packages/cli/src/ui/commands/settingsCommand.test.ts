@@ -30,7 +30,7 @@ describe('settingsCommand', () => {
   it('should have the correct name and description', () => {
     expect(settingsCommand.name).toBe('settings');
     expect(settingsCommand.description).toBe(
-      'View and edit Qwen Code settings',
+      'View and edit Aether settings',
     );
   });
 });

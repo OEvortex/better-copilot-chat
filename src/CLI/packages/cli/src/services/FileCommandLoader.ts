@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -10,12 +10,12 @@ import path from 'node:path';
 import toml from '@iarna/toml';
 import { glob } from 'glob';
 import { z } from 'zod';
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
 import {
   createDebugLogger,
   EXTENSIONS_CONFIG_FILENAME,
   Storage,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import type { ICommandLoader } from './types.js';
 import {
   parseMarkdownCommand,

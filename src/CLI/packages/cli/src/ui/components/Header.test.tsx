@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -14,8 +14,8 @@ const useTerminalSizeMock = vi.mocked(useTerminalSize.useTerminalSize);
 
 const defaultProps = {
   version: '1.0.0',
-  authDisplayType: AuthDisplayType.QWEN_OAUTH,
-  model: 'qwen-coder-plus',
+  authDisplayType: AuthDisplayType.AETHER_OAUTH,
+  model: 'aether-coder-plus',
   workingDirectory: '/home/user/projects/test',
 };
 
@@ -33,7 +33,7 @@ describe('<Header />', () => {
     useTerminalSizeMock.mockReturnValue({ columns: 60, rows: 24 });
     const { lastFrame } = render(<Header {...defaultProps} />);
     expect(lastFrame()).not.toContain('██╔═══██╗');
-    expect(lastFrame()).toContain('>_ Qwen Code');
+    expect(lastFrame()).toContain('>_ Aether Code');
   });
 
   it('displays the version number', () => {
@@ -43,8 +43,8 @@ describe('<Header />', () => {
 
   it('displays auth type and model', () => {
     const { lastFrame } = render(<Header {...defaultProps} />);
-    expect(lastFrame()).toContain('Qwen OAuth');
-    expect(lastFrame()).toContain('qwen-coder-plus');
+    expect(lastFrame()).toContain('Aether OAuth');
+    expect(lastFrame()).toContain('aether-coder-plus');
   });
 
   it('displays Coding Plan auth type', () => {

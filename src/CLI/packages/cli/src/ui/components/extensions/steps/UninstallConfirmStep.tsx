@@ -1,12 +1,12 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { Box, Text } from 'ink';
-import { type Extension } from '@qwen-code/qwen-code-core';
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+import { type Extension } from '@aether/aether-core';
+import { createDebugLogger } from '@aether/aether-core';
 import { theme } from '../../../semantic-colors.js';
 import { useKeypress } from '../../../hooks/useKeypress.js';
 import { t } from '../../../../i18n/index.js';

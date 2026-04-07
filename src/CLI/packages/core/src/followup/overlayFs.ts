@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -27,7 +27,7 @@ export class OverlayFs {
     const id = randomUUID().slice(0, 8);
     this.overlayDir = join(
       tmpdir(),
-      'qwen-speculation',
+      'aether-speculation',
       String(process.pid),
       id,
     );

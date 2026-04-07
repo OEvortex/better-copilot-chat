@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2026 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -10,7 +10,7 @@ import {
   HookEventName,
   HookType,
   HooksConfigSource,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { HooksListStep } from './HooksListStep.js';
 import type { HookEventDisplayInfo } from './types.js';
 

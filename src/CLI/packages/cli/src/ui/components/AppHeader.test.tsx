@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -29,7 +29,7 @@ const createSettings = (options?: { hideTips?: boolean }): LoadedSettings =>
 const createMockConfig = (overrides = {}) => ({
   getContentGeneratorConfig: vi.fn(() => ({ authType: undefined })),
   getModel: vi.fn(() => 'gemini-pro'),
-  getTargetDir: vi.fn(() => '/projects/qwen-code'),
+  getTargetDir: vi.fn(() => '/projects/aether'),
   getMcpServers: vi.fn(() => ({})),
   getBlockedMcpServers: vi.fn(() => []),
   getDebugMode: vi.fn(() => false),
@@ -71,7 +71,7 @@ const renderWithProviders = (
 describe('<AppHeader />', () => {
   it('shows the working directory', () => {
     const { lastFrame } = renderWithProviders(createMockUIState());
-    expect(lastFrame()).toContain('/projects/qwen-code');
+    expect(lastFrame()).toContain('/projects/aether');
   });
 
   it('hides the header when screen reader is enabled', () => {
@@ -81,14 +81,14 @@ describe('<AppHeader />', () => {
       createMockConfig({ getScreenReader: vi.fn(() => true) }),
     );
     // When screen reader is enabled, header is not rendered
-    expect(lastFrame()).not.toContain('/projects/qwen-code');
-    expect(lastFrame()).not.toContain('Qwen Code');
+    expect(lastFrame()).not.toContain('/projects/aether');
+    expect(lastFrame()).not.toContain('aether Code');
   });
 
   it('shows the header with all info when banner is visible', () => {
     const { lastFrame } = renderWithProviders(createMockUIState());
-    expect(lastFrame()).toContain('>_ Qwen Code');
+    expect(lastFrame()).toContain('>_ Aether Code');
     expect(lastFrame()).toContain('gemini-pro');
-    expect(lastFrame()).toContain('/projects/qwen-code');
+    expect(lastFrame()).toContain('/projects/aether');
   });
 });

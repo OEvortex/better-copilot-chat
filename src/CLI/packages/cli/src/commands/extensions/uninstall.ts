@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -7,7 +7,7 @@
 import type { CommandModule } from 'yargs';
 import { getErrorMessage } from '../../utils/errors.js';
 import { writeStdoutLine, writeStderrLine } from '../../utils/stdioHelpers.js';
-import { ExtensionManager } from '@qwen-code/qwen-code-core';
+import { ExtensionManager } from '@aether/aether-core';
 import {
   requestConsentNonInteractive,
   requestConsentOrFail,

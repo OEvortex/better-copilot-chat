@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -6,9 +6,9 @@
 
 import type { Message } from '../types.js';
 import { MessageType } from '../types.js';
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
 import type { LoadedSettings } from '../../config/settings.js';
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+import { createDebugLogger } from '@aether/aether-core';
 
 const debugLogger = createDebugLogger('SHOW_MEMORY');
 
@@ -64,8 +64,8 @@ export function createShowMemoryAction(
         type: MessageType.INFO,
         content:
           fileCount > 0
-            ? 'Hierarchical memory (QWEN.md or other context files) is loaded but content is empty.'
-            : 'No hierarchical memory (QWEN.md or other context files) is currently loaded.',
+            ? 'Hierarchical memory (AGENTS.md or other context files) is loaded but content is empty.'
+            : 'No hierarchical memory (AGENTS.md or other context files) is currently loaded.',
         timestamp: new Date(),
       });
     }

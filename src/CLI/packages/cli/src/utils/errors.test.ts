@@ -1,16 +1,16 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { vi, type Mock, type MockInstance } from 'vitest';
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
 import {
   OutputFormat,
   FatalInputError,
   ToolErrorType,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import {
   getErrorMessage,
   handleError,
@@ -28,9 +28,9 @@ const debugLoggerSpy = vi.hoisted(() => ({
 }));
 
 // Mock the core modules
-vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
+vi.mock('@aether/aether-core', async (importOriginal) => {
   const original =
-    await importOriginal<typeof import('@qwen-code/qwen-code-core')>();
+    await importOriginal<typeof import('@aether/aether-core')>();
 
   return {
     ...original,

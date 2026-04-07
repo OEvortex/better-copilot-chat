@@ -1,4 +1,4 @@
-type Model = string;
+﻿type Model = string;
 type TokenCount = number;
 
 /**
@@ -50,7 +50,7 @@ export function normalize(model: string): string {
   // - dates (e.g., -20250219), -v1, version numbers, 'latest', 'preview' etc.
   s = s.replace(/-preview/g, '');
   // Special handling for model names that include date/version as part of the model identifier
-  // - Qwen models: qwen-plus-latest, qwen-flash-latest, qwen-vl-max-latest
+  // - Aether models: qwen-plus-latest, qwen-flash-latest, qwen-vl-max-latest
   // - Kimi models: kimi-k2-0905, kimi-k2-0711, etc. (keep date for version distinction)
   if (
     !s.match(/^qwen-(?:plus|flash|vl-max)-latest$/) &&
@@ -102,18 +102,18 @@ const PATTERNS: Array<[RegExp, TokenCount]> = [
   // Alibaba / Qwen
   // -------------------
   // Commercial API models (1,000,000 context)
-  [/^qwen3-coder-plus/, LIMITS['1m']],
-  [/^qwen3-coder-flash/, LIMITS['1m']],
-  [/^qwen3\.\d/, LIMITS['1m']],
+  [/^aether3-coder-plus/, LIMITS['1m']],
+  [/^aether3-coder-flash/, LIMITS['1m']],
+  [/^aether3\.\d/, LIMITS['1m']],
   [/^qwen-plus-latest$/, LIMITS['1m']],
   [/^qwen-flash-latest$/, LIMITS['1m']],
   [/^coder-model$/, LIMITS['1m']],
   // Commercial API models (256K context)
-  [/^qwen3-max/, LIMITS['256k']],
-  // Open-source Qwen3 variants: 256K native
-  [/^qwen3-coder-/, LIMITS['256k']],
+  [/^aether3-max/, LIMITS['256k']],
+  // Open-source aether3 variants: 256K native
+  [/^aether3-coder-/, LIMITS['256k']],
   // Qwen fallback (VL, turbo, plus, 2.5, etc.): 128K
-  [/^qwen/, LIMITS['256k']],
+  [/^aether/, LIMITS['256k']],
 
   // -------------------
   // DeepSeek
@@ -164,9 +164,9 @@ const OUTPUT_PATTERNS: Array<[RegExp, TokenCount]> = [
   [/^claude-/, LIMITS['64k']], // Claude fallback: 64K
 
   // Alibaba / Qwen
-  [/^qwen3\.\d/, LIMITS['64k']],
+  [/^aether3\.\d/, LIMITS['64k']],
   [/^coder-model$/, LIMITS['64k']],
-  [/^qwen/, LIMITS['32k']], // Qwen fallback (VL, turbo, plus, etc.): 8K
+  [/^aether/, LIMITS['32k']], // Qwen fallback (VL, turbo, plus, etc.): 8K
 
   // DeepSeek
   [/^deepseek-reasoner/, LIMITS['64k']],

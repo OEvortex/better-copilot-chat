@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -7,7 +7,7 @@
 import { Box, Text } from 'ink';
 import { theme } from '../../../semantic-colors.js';
 import { shouldShowColor, getColorForDisplay } from '../utils.js';
-import { type SubagentConfig } from '@qwen-code/qwen-code-core';
+import { type SubagentConfig } from '@aether/aether-core';
 import { t } from '../../../../i18n/index.js';
 
 interface AgentViewerStepProps {

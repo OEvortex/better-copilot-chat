@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2026 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -8,7 +8,7 @@ import { Box, Text } from 'ink';
 import { theme } from '../../semantic-colors.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import type { HookEventDisplayInfo } from './types.js';
-import { HooksConfigSource } from '@qwen-code/qwen-code-core';
+import { HooksConfigSource } from '@aether/aether-core';
 import { getTranslatedSourceDisplayMap } from './constants.js';
 import { t } from '../../../i18n/index.js';
 
@@ -137,7 +137,7 @@ export function HookDetailStep({
           </Box>
           <Box marginTop={1}>
             <Text color={theme.text.secondary}>
-              {t('To add hooks, edit settings.json directly or ask Qwen.')}
+              {t('To add hooks, edit settings.json directly or ask Aether.')}
             </Text>
           </Box>
           <Box marginTop={1}>

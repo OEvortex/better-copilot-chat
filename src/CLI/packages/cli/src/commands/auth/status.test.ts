@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { showAuthStatus } from './handler.js';
-import { AuthType } from '@qwen-code/qwen-code-core';
+import { AuthType } from '@aether/aether-core';
 import { CODING_PLAN_ENV_KEY } from '../../constants/codingPlan.js';
 import type { LoadedSettings } from '../../config/settings.js';
 
@@ -57,20 +57,20 @@ describe('showAuthStatus', () => {
       expect.stringContaining('No authentication method configured'),
     );
     expect(writeStdoutLine).toHaveBeenCalledWith(
-      expect.stringContaining('qwen auth qwen-oauth'),
+      expect.stringContaining('aether auth aether-oauth'),
     );
     expect(writeStdoutLine).toHaveBeenCalledWith(
-      expect.stringContaining('qwen auth coding-plan'),
+      expect.stringContaining('aether auth coding-plan'),
     );
     expect(process.exit).toHaveBeenCalledWith(0);
   });
 
-  it('should show Qwen OAuth status when configured', async () => {
+  it('should show Aether OAuth status when configured', async () => {
     vi.mocked(loadSettings).mockReturnValue(
       createMockSettings({
         security: {
           auth: {
-            selectedType: AuthType.QWEN_OAUTH,
+            selectedType: AuthType.AETHER_OAUTH,
           },
         },
       }),
@@ -79,7 +79,7 @@ describe('showAuthStatus', () => {
     await showAuthStatus();
 
     expect(writeStdoutLine).toHaveBeenCalledWith(
-      expect.stringContaining('Qwen OAuth'),
+      expect.stringContaining('Aether OAuth'),
     );
     expect(writeStdoutLine).toHaveBeenCalledWith(
       expect.stringContaining('Free tier'),
@@ -105,7 +105,7 @@ describe('showAuthStatus', () => {
           version: 'abc123def456',
         },
         model: {
-          name: 'qwen3.5-plus',
+          name: 'aether3.5-plus',
         },
       }),
     );
@@ -159,7 +159,7 @@ describe('showAuthStatus', () => {
           region: 'china',
         },
         model: {
-          name: 'qwen3.5-plus',
+          name: 'aether3.5-plus',
         },
       }),
     );
@@ -185,7 +185,7 @@ describe('showAuthStatus', () => {
           region: 'global',
         },
         model: {
-          name: 'qwen3-coder-plus',
+          name: 'aether3-coder-plus',
         },
       }),
     );
@@ -211,7 +211,7 @@ describe('showAuthStatus', () => {
           region: 'china',
         },
         model: {
-          name: 'qwen3.5-plus',
+          name: 'aether3.5-plus',
         },
       }),
     );
@@ -219,7 +219,7 @@ describe('showAuthStatus', () => {
     await showAuthStatus();
 
     expect(writeStdoutLine).toHaveBeenCalledWith(
-      expect.stringContaining('qwen3.5-plus'),
+      expect.stringContaining('aether3.5-plus'),
     );
   });
 
@@ -238,7 +238,7 @@ describe('showAuthStatus', () => {
           version: 'abc123def456789',
         },
         model: {
-          name: 'qwen3.5-plus',
+          name: 'aether3.5-plus',
         },
       }),
     );

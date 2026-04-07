@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -15,7 +15,7 @@ describe('FileCommandLoader - Markdown support', () => {
 
   beforeAll(async () => {
     // Create a temporary directory for test commands
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'qwen-md-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'aether-md-test-'));
   });
 
   afterAll(async () => {

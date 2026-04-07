@@ -228,7 +228,7 @@ describe('getInitialChatHistory', () => {
 describe('stripStartupContext', () => {
   it('should strip the env context + model ack from the start of history', () => {
     const history: Content[] = [
-      { role: 'user', parts: [{ text: 'This is the Qwen Code...' }] },
+      { role: 'user', parts: [{ text: 'This is the Aether...' }] },
       {
         role: 'model',
         parts: [{ text: 'Got it. Thanks for the context!' }],
@@ -256,7 +256,7 @@ describe('stripStartupContext', () => {
 
   it('should return empty array when history is only the startup context', () => {
     const history: Content[] = [
-      { role: 'user', parts: [{ text: 'This is the Qwen Code...' }] },
+      { role: 'user', parts: [{ text: 'This is the Aether...' }] },
       {
         role: 'model',
         parts: [{ text: 'Got it. Thanks for the context!' }],

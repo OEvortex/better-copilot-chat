@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BundledSkillLoader } from './BundledSkillLoader.js';
 import { CommandKind } from '../ui/commands/types.js';
-import type { Config, SkillConfig } from '@qwen-code/qwen-code-core';
+import type { Config, SkillConfig } from '@aether/aether-core';
 
 function makeSkill(overrides: Partial<SkillConfig> = {}): SkillConfig {
   return {

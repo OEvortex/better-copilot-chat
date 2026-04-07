@@ -1,12 +1,12 @@
-import type { CommandModule } from 'yargs';
+﻿import type { CommandModule } from 'yargs';
 import { writeStderrLine, writeStdoutLine } from '../../utils/stdioHelpers.js';
 import {
   loadAccount,
   saveAccount,
   clearAccount,
   DEFAULT_BASE_URL,
-} from '@qwen-code/channel-weixin/accounts';
-import { startLogin, waitForLogin } from '@qwen-code/channel-weixin/login';
+} from '@aether/channel-weixin/accounts';
+import { startLogin, waitForLogin } from '@aether/channel-weixin/login';
 
 export const configureWeixinCommand: CommandModule<
   object,
@@ -70,7 +70,7 @@ export const configureWeixinCommand: CommandModule<
         writeStdoutLine(
           'Credentials saved. You can now start a weixin channel with:',
         );
-        writeStdoutLine('  qwen channel start <name>');
+        writeStdoutLine('  aether channel start <name>');
       } else {
         writeStderrLine('\n' + result.message);
         process.exit(1);

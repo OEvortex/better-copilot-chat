@@ -145,7 +145,7 @@ class GlobToolInvocation extends BaseToolInvocation<
     })) as GlobPath[];
 
     // Filter using paths relative to the project root (the base that
-    // FileDiscoveryService uses for .gitignore / .qwenignore evaluation).
+    // FileDiscoveryService uses for .gitignore / .aetherignore evaluation).
     // Using searchDir-relative paths would cause ignore rules to be
     // evaluated against incorrect paths when searchDir != projectRoot.
     const projectRoot = this.config.getTargetDir();
@@ -291,9 +291,9 @@ class GlobToolInvocation extends BaseToolInvocation<
       respectGitIgnore:
         options?.respectGitIgnore ??
         DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
-      respectQwenIgnore:
-        options?.respectQwenIgnore ??
-        DEFAULT_FILE_FILTERING_OPTIONS.respectQwenIgnore,
+      respectAetherIgnore:
+        options?.respectAetherIgnore ??
+        DEFAULT_FILE_FILTERING_OPTIONS.respectAetherIgnore,
     };
   }
 }

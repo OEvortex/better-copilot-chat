@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -17,15 +17,15 @@ import path from 'node:path';
 import {
   getErrorMessage,
   loadServerHierarchicalMemory,
-  QWEN_DIR,
+  AETHER_DIR,
   setGeminiMdFilename,
   type FileDiscoveryService,
   type LoadServerHierarchicalMemoryResponse,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
-vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
+vi.mock('@aether/aether-core', async (importOriginal) => {
   const original =
-    await importOriginal<typeof import('@qwen-code/qwen-code-core')>();
+    await importOriginal<typeof import('@aether/aether-core')>();
   return {
     ...original,
     getErrorMessage: vi.fn((error: unknown) => {
@@ -68,7 +68,7 @@ describe('memoryCommand', () => {
     let mockGetGeminiMdFileCount: Mock;
 
     beforeEach(() => {
-      setGeminiMdFilename('QWEN.md');
+      setGeminiMdFilename('AGENTS.md');
       mockReadFile.mockReset();
       vi.restoreAllMocks();
 
@@ -158,7 +158,7 @@ describe('memoryCommand', () => {
 
       await globalCommand.action(mockContext, '');
 
-      const expectedGlobalPath = path.join('/home/user', QWEN_DIR, 'AGENTS.md');
+      const expectedGlobalPath = path.join('/home/user', AETHER_DIR, 'AGENTS.md');
       expect(mockReadFile).toHaveBeenCalledWith(expectedGlobalPath, 'utf-8');
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         {
@@ -169,13 +169,13 @@ describe('memoryCommand', () => {
       );
     });
 
-    it('should fall back to AGENTS.md when QWEN.md does not exist for --project', async () => {
+    it('should fall back to AGENTS.md when AGENTS.md does not exist for --project', async () => {
       const projectCommand = showCommand.subCommands?.find(
         (cmd) => cmd.name === '--project',
       );
       if (!projectCommand?.action) throw new Error('Command has no action');
 
-      setGeminiMdFilename(['QWEN.md', 'AGENTS.md']);
+      setGeminiMdFilename(['AGENTS.md', 'AGENTS.md']);
       vi.spyOn(process, 'cwd').mockReturnValue('/test/project');
       mockReadFile.mockImplementation(async (filePath: string) => {
         if (filePath.endsWith('AGENTS.md')) return 'agents memory content';
@@ -195,13 +195,13 @@ describe('memoryCommand', () => {
       );
     });
 
-    it('should fall back to AGENTS.md when QWEN.md does not exist for --global', async () => {
+    it('should fall back to AGENTS.md when AGENTS.md does not exist for --global', async () => {
       const globalCommand = showCommand.subCommands?.find(
         (cmd) => cmd.name === '--global',
       );
       if (!globalCommand?.action) throw new Error('Command has no action');
 
-      setGeminiMdFilename(['QWEN.md', 'AGENTS.md']);
+      setGeminiMdFilename(['AGENTS.md', 'AGENTS.md']);
       vi.spyOn(os, 'homedir').mockReturnValue('/home/user');
       mockReadFile.mockImplementation(async (filePath: string) => {
         if (filePath.endsWith('AGENTS.md')) return 'global agents memory';
@@ -210,7 +210,7 @@ describe('memoryCommand', () => {
 
       await globalCommand.action(mockContext, '');
 
-      const expectedPath = path.join('/home/user', QWEN_DIR, 'AGENTS.md');
+      const expectedPath = path.join('/home/user', AETHER_DIR, 'AGENTS.md');
       expect(mockReadFile).toHaveBeenCalledWith(expectedPath, 'utf-8');
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         {
@@ -221,16 +221,16 @@ describe('memoryCommand', () => {
       );
     });
 
-    it('should show content from both QWEN.md and AGENTS.md for --project when both exist', async () => {
+    it('should show content from both AGENTS.md and AGENTS.md for --project when both exist', async () => {
       const projectCommand = showCommand.subCommands?.find(
         (cmd) => cmd.name === '--project',
       );
       if (!projectCommand?.action) throw new Error('Command has no action');
 
-      setGeminiMdFilename(['QWEN.md', 'AGENTS.md']);
+      setGeminiMdFilename(['AGENTS.md', 'AGENTS.md']);
       vi.spyOn(process, 'cwd').mockReturnValue('/test/project');
       mockReadFile.mockImplementation(async (filePath: string) => {
-        if (filePath.endsWith('QWEN.md')) return 'qwen memory';
+        if (filePath.endsWith('AGENTS.md')) return  aether memory ;
         if (filePath.endsWith('AGENTS.md')) return 'agents memory';
         throw new Error('ENOENT');
       });
@@ -238,7 +238,7 @@ describe('memoryCommand', () => {
       await projectCommand.action(mockContext, '');
 
       expect(mockReadFile).toHaveBeenCalledWith(
-        path.join('/test/project', 'QWEN.md'),
+        path.join('/test/project', 'AGENTS.md'),
         'utf-8',
       );
       expect(mockReadFile).toHaveBeenCalledWith(
@@ -246,7 +246,7 @@ describe('memoryCommand', () => {
         'utf-8',
       );
       const addItemCall = (mockContext.ui.addItem as Mock).mock.calls[0][0];
-      expect(addItemCall.text).toContain('qwen memory');
+      expect(addItemCall.text).toContain( aether memory );
       expect(addItemCall.text).toContain('agents memory');
     });
 
@@ -256,10 +256,10 @@ describe('memoryCommand', () => {
       );
       if (!globalCommand?.action) throw new Error('Command has no action');
 
-      setGeminiMdFilename(['QWEN.md', 'AGENTS.md']);
+      setGeminiMdFilename(['AGENTS.md', 'AGENTS.md']);
       vi.spyOn(os, 'homedir').mockReturnValue('/home/user');
       mockReadFile.mockImplementation(async (filePath: string) => {
-        if (filePath.endsWith('QWEN.md')) return 'global qwen memory';
+        if (filePath.endsWith('AGENTS.md')) return 'global aether memory';
         if (filePath.endsWith('AGENTS.md')) return 'global agents memory';
         throw new Error('ENOENT');
       });
@@ -267,15 +267,15 @@ describe('memoryCommand', () => {
       await globalCommand.action(mockContext, '');
 
       expect(mockReadFile).toHaveBeenCalledWith(
-        path.join('/home/user', QWEN_DIR, 'QWEN.md'),
+        path.join('/home/user', AETHER_DIR, 'AGENTS.md'),
         'utf-8',
       );
       expect(mockReadFile).toHaveBeenCalledWith(
-        path.join('/home/user', QWEN_DIR, 'AGENTS.md'),
+        path.join('/home/user', AETHER_DIR, 'AGENTS.md'),
         'utf-8',
       );
       const addItemCall = (mockContext.ui.addItem as Mock).mock.calls[0][0];
-      expect(addItemCall.text).toContain('global qwen memory');
+      expect(addItemCall.text).toContain('global aether memory');
       expect(addItemCall.text).toContain('global agents memory');
     });
   });

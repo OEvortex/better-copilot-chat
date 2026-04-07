@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -12,7 +12,7 @@ import {
   INSTALL_METADATA_FILENAME,
   EXTENSIONS_CONFIG_FILENAME,
 } from './variables.js';
-import { QWEN_DIR } from '../config/storage.js';
+import { AETHER_DIR } from '../config/storage.js';
 import {
   ExtensionManager,
   SettingScope,
@@ -81,7 +81,7 @@ vi.mock('../index.js', async (importOriginal) => {
   };
 });
 
-const EXTENSIONS_DIRECTORY_NAME = path.join(QWEN_DIR, 'extensions');
+const EXTENSIONS_DIRECTORY_NAME = path.join(AETHER_DIR, 'extensions');
 
 function createExtension({
   extensionsDir = 'extensions-dir',
@@ -100,7 +100,7 @@ function createExtension({
   );
 
   if (addContextFile) {
-    fs.writeFileSync(path.join(extDir, 'QWEN.md'), 'context');
+    fs.writeFileSync(path.join(extDir, 'AGENTS.md'), 'context');
   }
 
   if (contextFileName) {
@@ -123,10 +123,10 @@ describe('extension tests', () => {
 
   beforeEach(() => {
     tempHomeDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'qwen-code-test-home-'),
+      path.join(os.tmpdir(), 'aether-cli-test-home-'),
     );
     tempWorkspaceDir = fs.mkdtempSync(
-      path.join(tempHomeDir, 'qwen-code-test-workspace-'),
+      path.join(tempHomeDir, 'aether-cli-test-workspace-'),
     );
     userExtensionsDir = path.join(tempHomeDir, EXTENSIONS_DIRECTORY_NAME);
     fs.mkdirSync(userExtensionsDir, { recursive: true });
@@ -171,7 +171,7 @@ describe('extension tests', () => {
       expect(extensions[0].config.name).toBe('test-extension');
     });
 
-    it('should load context file path when QWEN.md is present', async () => {
+    it('should load context file path when AGENTS.md is present', async () => {
       createExtension({
         extensionsDir: userExtensionsDir,
         name: 'ext1',
@@ -192,7 +192,7 @@ describe('extension tests', () => {
       const ext1 = extensions.find((e) => e.config.name === 'ext1');
       const ext2 = extensions.find((e) => e.config.name === 'ext2');
       expect(ext1?.contextFiles).toEqual([
-        path.join(userExtensionsDir, 'ext1', 'QWEN.md'),
+        path.join(userExtensionsDir, 'ext1', 'AGENTS.md'),
       ]);
       expect(ext2?.contextFiles).toEqual([]);
     });
@@ -217,7 +217,7 @@ describe('extension tests', () => {
       ]);
     });
 
-    it('should use default QWEN.md when contextFileName is empty array', async () => {
+    it('should use default AGENTS.md when contextFileName is empty array', async () => {
       const extDir = path.join(userExtensionsDir, 'ext-empty-context');
       fs.mkdirSync(extDir, { recursive: true });
       fs.writeFileSync(
@@ -228,7 +228,7 @@ describe('extension tests', () => {
           contextFileName: [],
         }),
       );
-      fs.writeFileSync(path.join(extDir, 'QWEN.md'), 'context content');
+      fs.writeFileSync(path.join(extDir, 'AGENTS.md'), 'context content');
 
       const manager = createExtensionManager();
       await manager.refreshCache();
@@ -237,7 +237,7 @@ describe('extension tests', () => {
       expect(extensions).toHaveLength(1);
       const ext = extensions.find((e) => e.config.name === 'ext-empty-context');
       expect(ext?.contextFiles).toEqual([
-        path.join(userExtensionsDir, 'ext-empty-context', 'QWEN.md'),
+        path.join(userExtensionsDir, 'ext-empty-context', 'AGENTS.md'),
       ]);
     });
 
@@ -773,11 +773,11 @@ describe('extension tests', () => {
   });
 
   describe('hooks loading and processing', () => {
-    it('should load hooks from qwen-extension.json', async () => {
+    it('should load hooks from aether-extension.json', async () => {
       const extensionDir = path.join(userExtensionsDir, 'hooks-extension');
       fs.mkdirSync(extensionDir, { recursive: true });
 
-      // Create qwen-extension.json with hooks
+      // Create aether-extension.json with hooks
       const configWithHooks = {
         name: 'hooks-extension',
         version: '1.0.0',
@@ -820,7 +820,7 @@ describe('extension tests', () => {
       );
       fs.mkdirSync(extensionDir, { recursive: true });
 
-      // Create qwen-extension.json without hooks
+      // Create aether-extension.json without hooks
       const configWithoutHooks = {
         name: 'hooks-from-file-extension',
         version: '1.0.0',
@@ -870,7 +870,7 @@ describe('extension tests', () => {
       const extensionDir = path.join(userExtensionsDir, 'hooks-var-extension');
       fs.mkdirSync(extensionDir, { recursive: true });
 
-      // Create qwen-extension.json with hooks using ${CLAUDE_PLUGIN_ROOT}
+      // Create aether-extension.json with hooks using ${CLAUDE_PLUGIN_ROOT}
       const configWithHooks = {
         name: 'hooks-var-extension',
         version: '1.0.0',
@@ -936,7 +936,7 @@ describe('extension tests', () => {
         JSON.stringify(hooksJson),
       );
 
-      // Create qwen-extension.json with hooks as string path
+      // Create aether-extension.json with hooks as string path
       const configWithHooksPath = {
         name: 'hooks-from-config-path',
         version: '1.0.0',
@@ -997,7 +997,7 @@ describe('extension tests', () => {
         }),
       );
 
-      // Create qwen-extension.json with hooks as string path
+      // Create aether-extension.json with hooks as string path
       fs.writeFileSync(
         path.join(extensionDir, EXTENSIONS_CONFIG_FILENAME),
         JSON.stringify({

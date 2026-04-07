@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -8,8 +8,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type {
   Config,
   ServerGeminiStreamEvent,
-} from '@qwen-code/qwen-code-core';
-import { GeminiEventType, OutputFormat } from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
+import { GeminiEventType, OutputFormat } from '@aether/aether-core';
 import type { Part } from '@google/genai';
 import { JsonOutputAdapter } from './JsonOutputAdapter.js';
 

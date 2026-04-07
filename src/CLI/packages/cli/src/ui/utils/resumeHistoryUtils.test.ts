@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Code
  * SPDX-License-Identifier: Apache-2.0
@@ -12,7 +12,7 @@ import type {
   Config,
   ConversationRecord,
   ResumedSessionData,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import type { Part } from '@google/genai';
 
 const makeConfig = (tools: Record<string, AnyDeclarativeTool>) =>
@@ -253,7 +253,7 @@ describe('resumeHistoryUtils', () => {
                   nodeVersion: '20.x',
                   npmVersion: '10.x',
                   sandboxEnv: 'none',
-                  modelVersion: 'qwen',
+                  modelVersion: 'aether',
                   selectedAuthType: 'none',
                   ideClient: 'none',
                   sessionId: 'abc',

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -8,7 +8,7 @@ import {
   ApprovalMode,
   AuthType,
   Config,
-  DEFAULT_QWEN_EMBEDDING_MODEL,
+  DEFAULT_AETHER_EMBEDDING_MODEL,
   FileDiscoveryService,
   getAllGeminiMdFilenames,
   loadServerHierarchicalMemory,
@@ -30,7 +30,7 @@ import {
   createDebugLogger,
   NativeLspService,
   isToolEnabled,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { extensionsCommand } from '../commands/extensions.js';
 import { hooksCommand } from '../commands/hooks.js';
 import type { Settings } from './settings.js';
@@ -184,7 +184,7 @@ export async function parseArguments(): Promise<CliArgs> {
   // hack: if the first argument is the CLI entry point, remove it
   if (
     rawArgv.length > 0 &&
-    (rawArgv[0].endsWith('/dist/qwen-cli/cli.js') ||
+    (rawArgv[0].endsWith('/dist/aether-cli/cli.js') ||
       rawArgv[0].endsWith('/dist/cli.js') ||
       rawArgv[0].endsWith('/dist/cli/cli.js'))
   ) {
@@ -193,9 +193,9 @@ export async function parseArguments(): Promise<CliArgs> {
 
   const yargsInstance = yargs(rawArgv)
     .locale('en')
-    .scriptName('qwen')
+    .scriptName('aether')
     .usage(
-      'Usage: qwen [options] [command]\n\nQwen Code - Launch an interactive CLI, use -p/--prompt for non-interactive mode',
+      'Usage: aether [options] [command]\n\nAether Code - Launch an interactive CLI, use -p/--prompt for non-interactive mode',
     )
     .option('telemetry', {
       type: 'boolean',
@@ -260,7 +260,7 @@ export async function parseArguments(): Promise<CliArgs> {
     })
     .option('proxy', {
       type: 'string',
-      description: 'Proxy for Qwen Code, like schema://user:password@host:port',
+      description: 'Proxy for Aether Code, like schema://user:password@host:port',
     })
     .deprecateOption(
       'proxy',
@@ -271,7 +271,7 @@ export async function parseArguments(): Promise<CliArgs> {
       description:
         'Enable chat recording to disk. If false, chat history is not saved and --continue/--resume will not work.',
     })
-    .command('$0 [query..]', 'Launch Qwen Code CLI', (yargsInstance: Argv) =>
+    .command('$0 [query..]', 'Launch Aether Code CLI', (yargsInstance: Argv) =>
       yargsInstance
         .positional('query', {
           description:
@@ -506,7 +506,7 @@ export async function parseArguments(): Promise<CliArgs> {
           choices: [
             AuthType.USE_OPENAI,
             AuthType.USE_ANTHROPIC,
-            AuthType.QWEN_OAUTH,
+            AuthType.AETHER_OAUTH,
             AuthType.USE_GEMINI,
             AuthType.USE_VERTEX_AI,
           ],
@@ -704,9 +704,9 @@ export async function loadCliConfig(
 ): Promise<Config> {
   const debugMode = isDebugMode(argv);
 
-  // Set runtime output directory from settings (env var QWEN_RUNTIME_DIR
+  // Set runtime output directory from settings (env var AETHER_RUNTIME_DIR
   // is auto-detected inside getRuntimeBaseDir() at each call site).
-  // Pass cwd so that relative paths like ".qwen" resolve per-project.
+  // Pass cwd so that relative paths like ".aether" resolve per-project.
   Storage.setRuntimeBaseDir(settings.advanced?.runtimeOutputDir, cwd);
 
   const ideMode = settings.ide?.enabled ?? false;
@@ -728,11 +728,11 @@ export async function loadCliConfig(
   // Automatically load output-language.md if it exists
   const projectStorage = new Storage(cwd);
   const projectOutputLanguagePath = path.join(
-    projectStorage.getQwenDir(),
+    projectStorage.getAetherDir(),
     'output-language.md',
   );
   const globalOutputLanguagePath = path.join(
-    Storage.getGlobalQwenDir(),
+    Storage.getGlobalAetherDir(),
     'output-language.md',
   );
 
@@ -993,7 +993,7 @@ export async function loadCliConfig(
       sessionId = argv.resume;
       sessionData = await sessionService.loadSession(argv.resume);
       if (!sessionData) {
-        const message = `No saved session found with ID ${argv.resume}. Run \`qwen --resume\` without an ID to choose from existing sessions.`;
+        const message = `No saved session found with ID ${argv.resume}. Run \`aether --resume\` without an ID to choose from existing sessions.`;
         writeStderrLine(message);
         process.exit(1);
       }
@@ -1016,7 +1016,7 @@ export async function loadCliConfig(
   const config = new Config({
     sessionId,
     sessionData,
-    embeddingModel: DEFAULT_QWEN_EMBEDDING_MODEL,
+    embeddingModel: DEFAULT_AETHER_EMBEDDING_MODEL,
     sandbox: sandboxConfig,
     targetDir: cwd,
     includeDirectories,

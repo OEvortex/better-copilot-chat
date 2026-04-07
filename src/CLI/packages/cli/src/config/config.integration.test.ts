@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -11,8 +11,8 @@ import { tmpdir } from 'node:os';
 import type {
   ConfigParameters,
   ContentGeneratorConfig,
-} from '@qwen-code/qwen-code-core';
-import { Config } from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
+import { Config } from '@aether/aether-core';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 export const server = setupServer();
@@ -39,8 +39,8 @@ const TEST_CONTENT_GENERATOR_CONFIG: ContentGeneratorConfig = {
 };
 
 // Mock file discovery service and tool registry
-vi.mock('@qwen-code/qwen-code-core', async () => {
-  const actual = await vi.importActual('@qwen-code/qwen-code-core');
+vi.mock('@aether/aether-core', async () => {
+  const actual = await vi.importActual('@aether/aether-core');
   return {
     ...actual,
     FileDiscoveryService: vi.fn().mockImplementation(() => ({
@@ -54,7 +54,7 @@ describe('Configuration Integration Tests', () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = fs.mkdtempSync(path.join(tmpdir(), 'qwen-code-test-'));
+    tempDir = fs.mkdtempSync(path.join(tmpdir(), 'aether-test-'));
     server.resetHandlers(http.post(CLEARCUT_URL, () => HttpResponse.text()));
 
     vi.stubEnv('GEMINI_API_KEY', 'test-api-key');

@@ -59,7 +59,7 @@ import { type AgentEventEmitter, AgentEventType } from './agent-events.js';
 import { AgentStatistics, type AgentStatsSummary } from './agent-statistics.js';
 import { AgentTool } from '../../tools/agent.js';
 import { ToolNames } from '../../tools/tool-names.js';
-import { DEFAULT_QWEN_MODEL } from '../../config/models.js';
+import { DEFAULT_AETHER_MODEL } from '../../config/models.js';
 import { type ContextState, templateString } from './agent-headless.js';
 
 /**
@@ -395,7 +395,7 @@ export class AgentCore {
       const responseStream = await chat.sendMessageStream(
         this.modelConfig.model ||
           this.runtimeContext.getModel() ||
-          DEFAULT_QWEN_MODEL,
+          DEFAULT_AETHER_MODEL,
         messageParams,
         promptId,
       );
@@ -998,7 +998,7 @@ Important Rules:
  - When the task is complete, return the final result as a normal model response (not a tool call) and stop.`;
     }
 
-    // Append user memory (QWEN.md + output-language.md) to ensure subagent respects project conventions
+    // Append user memory (AGENTS.md + output-language.md) to ensure subagent respects project conventions
     const userMemory = this.runtimeContext.getUserMemory();
     if (userMemory && userMemory.trim().length > 0) {
       finalPrompt += `\n\n---\n\n${userMemory.trim()}`;

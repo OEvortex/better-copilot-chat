@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -11,7 +11,7 @@ import type {
   SlashCommand,
   SlashCommandActionReturn,
 } from './types.js';
-import { getCurrentGeminiMdFilename } from '@qwen-code/qwen-code-core';
+import { getCurrentGeminiMdFilename } from '@aether/aether-core';
 import { CommandKind } from './types.js';
 import { Text } from 'ink';
 import React from 'react';
@@ -20,7 +20,7 @@ import { t } from '../../i18n/index.js';
 export const initCommand: SlashCommand = {
   name: 'init',
   get description() {
-    return t('Analyzes the project and creates a tailored QWEN.md file.');
+    return t('Analyzes the project and creates a tailored AGENTS.md file.');
   },
   kind: CommandKind.BUILT_IN,
   action: async (
@@ -95,7 +95,7 @@ export const initCommand: SlashCommand = {
     return {
       type: 'submit_prompt',
       content: `
-You are Qwen Code, an interactive CLI agent. Analyze the current directory and generate a comprehensive ${contextFileName} file to be used as instructional context for future interactions.
+You are Aether Code, an interactive CLI agent. Analyze the current directory and generate a comprehensive ${contextFileName} file to be used as instructional context for future interactions.
 
 **Analysis Process:**
 

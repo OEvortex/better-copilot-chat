@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -10,8 +10,8 @@ import type { WizardStepProps } from '../types.js';
 import type {
   SubagentManager,
   SubagentConfig,
-} from '@qwen-code/qwen-code-core';
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
+import { createDebugLogger } from '@aether/aether-core';
 import { theme } from '../../../semantic-colors.js';
 import { shouldShowColor, getColorForDisplay } from '../utils.js';
 import { useLaunchEditor } from '../../../hooks/useLaunchEditor.js';
@@ -263,8 +263,8 @@ export function CreationSummary({
           <Text color={theme.text.primary}>{t('Location: ')}</Text>
           <Text>
             {state.location === 'project'
-              ? t('Project Level (.qwen/agents/)')
-              : t('User Level (~/.qwen/agents/)')}
+              ? t('Project Level (.aether/agents/)')
+              : t('User Level (~/.aether/agents/)')}
           </Text>
         </Box>
 

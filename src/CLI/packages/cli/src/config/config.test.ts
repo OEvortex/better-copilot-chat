@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -15,10 +15,10 @@ import {
   OutputFormat,
   NativeLspService,
   Storage,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { loadCliConfig, parseArguments, type CliArgs } from './config.js';
 import type { Settings } from './settings.js';
-import * as ServerConfig from '@qwen-code/qwen-code-core';
+import * as ServerConfig from '@aether/aether-core';
 import { isWorkspaceTrusted } from './trustedFolders.js';
 
 const mockWriteStderrLine = vi.hoisted(() => vi.fn());
@@ -115,7 +115,7 @@ vi.mock('read-package-up', () => ({
   ),
 }));
 
-vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
+vi.mock('@aether/aether-core', async (importOriginal) => {
   const actualServer = await importOriginal<typeof ServerConfig>();
   const SkillManagerMock = vi.fn();
   SkillManagerMock.prototype.startWatching = vi
@@ -588,7 +588,7 @@ describe('loadCliConfig', () => {
     vi.restoreAllMocks();
   });
 
-  it('should reset context file names to QWEN.md and AGENTS.md by default', async () => {
+  it('should reset context file names to AGENTS.md and AGENTS.md by default', async () => {
     process.argv = ['node', 'script.js'];
     const argv = await parseArguments();
     const settings: Settings = {};
@@ -648,7 +648,7 @@ describe('loadCliConfig', () => {
     process.argv = ['node', 'script.js'];
     const argv = await parseArguments();
     const settings: Settings = {};
-    const defaultContextFiles = ['QWEN.md', 'AGENTS.md'];
+    const defaultContextFiles = ['AGENTS.md', 'AGENTS.md'];
     const getAllSpy = vi
       .spyOn(ServerConfig, 'getAllGeminiMdFilenames')
       .mockReturnValue(defaultContextFiles);
@@ -1455,7 +1455,7 @@ describe('loadCliConfig model selection', () => {
     const config = await loadCliConfig(
       {
         model: {
-          name: 'qwen3-coder-plus',
+          name: 'aether3-coder-plus',
         },
       },
       argv,
@@ -1463,7 +1463,7 @@ describe('loadCliConfig model selection', () => {
       [],
     );
 
-    expect(config.getModel()).toBe('qwen3-coder-plus');
+    expect(config.getModel()).toBe('aether3-coder-plus');
   });
 
   it.skip('uses the default gemini model if nothing is set', async () => {
@@ -1488,13 +1488,13 @@ describe('loadCliConfig model selection', () => {
       '--auth-type',
       'openai',
       '--model',
-      'qwen3-coder-plus',
+      'aether3-coder-plus',
     ];
     const argv = await parseArguments();
     const config = await loadCliConfig(
       {
         model: {
-          name: 'qwen3-coder-flash',
+          name: 'aether3-coder-flash',
         },
       },
       argv,
@@ -1502,7 +1502,7 @@ describe('loadCliConfig model selection', () => {
       [],
     );
 
-    expect(config.getModel()).toBe('qwen3-coder-plus');
+    expect(config.getModel()).toBe('aether3-coder-plus');
   });
 
   it('selects the model from argvs if provided', async () => {
@@ -1512,7 +1512,7 @@ describe('loadCliConfig model selection', () => {
       '--auth-type',
       'openai',
       '--model',
-      'qwen3-coder-plus',
+      'aether3-coder-plus',
     ];
     const argv = await parseArguments();
     const config = await loadCliConfig(
@@ -1524,7 +1524,7 @@ describe('loadCliConfig model selection', () => {
       [],
     );
 
-    expect(config.getModel()).toBe('qwen3-coder-plus');
+    expect(config.getModel()).toBe('aether3-coder-plus');
   });
 });
 
@@ -2443,21 +2443,21 @@ describe('Telemetry configuration via environment variables', () => {
 
 describe('loadCliConfig runtimeOutputDir', () => {
   const originalArgv = process.argv;
-  const originalRuntimeEnv = process.env['QWEN_RUNTIME_DIR'];
+  const originalRuntimeEnv = process.env['AETHER_RUNTIME_DIR'];
 
   beforeEach(() => {
     process.argv = ['node', 'script.js'];
     Storage.setRuntimeBaseDir(null);
-    delete process.env['QWEN_RUNTIME_DIR'];
+    delete process.env['AETHER_RUNTIME_DIR'];
   });
 
   afterEach(() => {
     process.argv = originalArgv;
     Storage.setRuntimeBaseDir(null);
     if (originalRuntimeEnv !== undefined) {
-      process.env['QWEN_RUNTIME_DIR'] = originalRuntimeEnv;
+      process.env['AETHER_RUNTIME_DIR'] = originalRuntimeEnv;
     } else {
-      delete process.env['QWEN_RUNTIME_DIR'];
+      delete process.env['AETHER_RUNTIME_DIR'];
     }
     vi.unstubAllEnvs();
     vi.restoreAllMocks();
@@ -2476,24 +2476,24 @@ describe('loadCliConfig runtimeOutputDir', () => {
   it('should resolve relative runtimeOutputDir against cwd', async () => {
     const argv = await parseArguments();
     const settings: Settings = {
-      advanced: { runtimeOutputDir: '.qwen' },
+      advanced: { runtimeOutputDir: '.aether' },
     };
     const cwd = path.resolve('workspace', 'my-project');
     await loadCliConfig(settings, argv, cwd);
-    expect(Storage.getRuntimeBaseDir()).toBe(path.join(cwd, '.qwen'));
+    expect(Storage.getRuntimeBaseDir()).toBe(path.join(cwd, '.aether'));
   });
 
   it('should not set runtime base dir when runtimeOutputDir is absent', async () => {
     const argv = await parseArguments();
     const settings: Settings = {};
     await loadCliConfig(settings, argv);
-    expect(Storage.getRuntimeBaseDir()).toBe(Storage.getGlobalQwenDir());
+    expect(Storage.getRuntimeBaseDir()).toBe(Storage.getGlobalAetherDir());
   });
 
-  it('should let QWEN_RUNTIME_DIR env var take priority over settings', async () => {
+  it('should let AETHER_RUNTIME_DIR env var take priority over settings', async () => {
     const envDir = path.resolve('from-env');
     const settingsDir = path.resolve('from-settings');
-    process.env['QWEN_RUNTIME_DIR'] = envDir;
+    process.env['AETHER_RUNTIME_DIR'] = envDir;
     const argv = await parseArguments();
     const settings: Settings = {
       advanced: { runtimeOutputDir: settingsDir },
@@ -2513,6 +2513,6 @@ describe('loadCliConfig runtimeOutputDir', () => {
     expect(Storage.getRuntimeBaseDir()).toBe(firstRuntimeDir);
 
     await loadCliConfig({}, argv);
-    expect(Storage.getRuntimeBaseDir()).toBe(Storage.getGlobalQwenDir());
+    expect(Storage.getRuntimeBaseDir()).toBe(Storage.getGlobalAetherDir());
   });
 });

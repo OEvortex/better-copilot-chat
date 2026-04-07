@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { appEvents } from './../../utils/events.js';
 import { Box, Text } from 'ink';
 import { useConfig } from '../contexts/ConfigContext.js';
-import { type McpClient, MCPServerStatus } from '@qwen-code/qwen-code-core';
+import { type McpClient, MCPServerStatus } from '@aether/aether-core';
 import { GeminiSpinner } from './GeminiRespondingSpinner.js';
 import { theme } from '../semantic-colors.js';
 import { t } from '../../i18n/index.js';

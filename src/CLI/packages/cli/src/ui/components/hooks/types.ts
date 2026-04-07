@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2026 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -8,7 +8,7 @@ import type {
   HookConfig,
   HooksConfigSource,
   HookEventName,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 /**
  * Exit code description for hooks

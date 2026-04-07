@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { describe, expect, it } from 'vitest';
-import { ToolConfirmationOutcome } from '@qwen-code/qwen-code-core';
+import { ToolConfirmationOutcome } from '@aether/aether-core';
 import { toPermissionOptions } from './permissionUtils.js';
 
 describe('permissionUtils', () => {

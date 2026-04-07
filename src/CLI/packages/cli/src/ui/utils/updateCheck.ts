@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -8,7 +8,7 @@ import type { UpdateInfo } from 'update-notifier';
 import updateNotifier from 'update-notifier';
 import semver from 'semver';
 import { getPackageJson } from '../../utils/package.js';
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+import { createDebugLogger } from '@aether/aether-core';
 
 const debugLogger = createDebugLogger('UPDATE_CHECK');
 
@@ -78,7 +78,7 @@ export async function checkForUpdates(): Promise<UpdateObject | null> {
       );
 
       if (bestUpdate && semver.gt(bestUpdate.latest, currentVersion)) {
-        const message = `A new version of Qwen Code is available! ${currentVersion} → ${bestUpdate.latest}`;
+        const message = `A new version of Aether is available! ${currentVersion} → ${bestUpdate.latest}`;
         return {
           message,
           update: { ...bestUpdate, current: currentVersion },
@@ -88,7 +88,7 @@ export async function checkForUpdates(): Promise<UpdateObject | null> {
       const updateInfo = await createNotifier('latest').fetchInfo();
 
       if (updateInfo && semver.gt(updateInfo.latest, currentVersion)) {
-        const message = `Qwen Code update available! ${currentVersion} → ${updateInfo.latest}`;
+        const message = `Aether update available! ${currentVersion} → ${updateInfo.latest}`;
         return {
           message,
           update: { ...updateInfo, current: currentVersion },

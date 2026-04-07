@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import React, { useContext } from 'react';
-import { type Config } from '@qwen-code/qwen-code-core';
+import { type Config } from '@aether/aether-core';
 
 export const ConfigContext = React.createContext<Config | undefined>(undefined);
 

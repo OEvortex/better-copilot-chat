@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /**
- * Converter for Gemini extensions to Qwen Code format.
+ * Converter for Gemini extensions to Aether format.
  */
 
 import * as fs from 'node:fs';
@@ -28,7 +28,7 @@ export interface GeminiExtensionConfig {
 }
 
 /**
- * Converts a Gemini extension config to Qwen Code format.
+ * Converts a Gemini extension config to Aether format.
  * @param extensionDir Path to the Gemini extension directory
  * @returns Qwen ExtensionConfig
  */
@@ -58,9 +58,9 @@ export function convertGeminiToQwenConfig(
 }
 
 /**
- * Converts a complete Gemini extension package to Qwen Code format.
+ * Converts a complete Gemini extension package to Aether format.
  * Creates a new temporary directory with:
- * 1. Converted qwen-extension.json
+ * 1. Converted aether-extension.json
  * 2. Commands converted from TOML to MD
  * 3. All other files/folders preserved
  *
@@ -85,10 +85,10 @@ export async function convertGeminiExtensionPackage(
       await convertCommandsDirectory(commandsDir);
     }
 
-    // Step 3: Create qwen-extension.json with converted config
-    const qwenConfigPath = path.join(tmpDir, 'qwen-extension.json');
+    // Step 3: Create aether-extension.json with converted config
+    const aetherConfigPath = path.join(tmpDir, 'aether-extension.json');
     fs.writeFileSync(
-      qwenConfigPath,
+      aetherConfigPath,
       JSON.stringify(geminiConfig, null, 2),
       'utf-8',
     );

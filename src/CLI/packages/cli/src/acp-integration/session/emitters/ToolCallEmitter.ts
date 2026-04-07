@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -23,7 +23,7 @@ import {
   TodoWriteTool,
   Kind,
   ExitPlanModeTool,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 /**
  * Unified tool call event emitter.

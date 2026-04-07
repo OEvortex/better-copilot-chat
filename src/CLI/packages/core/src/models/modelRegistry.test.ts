@@ -1,28 +1,28 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ModelRegistry, QWEN_OAUTH_MODELS } from './modelRegistry.js';
+import { ModelRegistry, AETHER_OAUTH_MODELS } from './modelRegistry.js';
 import { AuthType } from '../core/contentGenerator.js';
 import type { ModelProvidersConfig } from './types.js';
 
 describe('ModelRegistry', () => {
   describe('initialization', () => {
-    it('should always include hard-coded qwen-oauth models', () => {
+    it('should always include hard-coded aether-oauth models', () => {
       const registry = new ModelRegistry();
 
-      const qwenModels = registry.getModelsForAuthType(AuthType.QWEN_OAUTH);
-      expect(qwenModels.length).toBe(QWEN_OAUTH_MODELS.length);
-      expect(qwenModels[0].id).toBe('coder-model');
+      const aetherModels = registry.getModelsForAuthType(AuthType.AETHER_OAUTH);
+      expect(aetherModels.length).toBe(AETHER_OAUTH_MODELS.length);
+      expect(aetherModels[0].id).toBe('coder-model');
     });
 
     it('should initialize with empty config', () => {
       const registry = new ModelRegistry();
-      expect(registry.getModelsForAuthType(AuthType.QWEN_OAUTH).length).toBe(
-        QWEN_OAUTH_MODELS.length,
+      expect(registry.getModelsForAuthType(AuthType.AETHER_OAUTH).length).toBe(
+        AETHER_OAUTH_MODELS.length,
       );
       expect(registry.getModelsForAuthType(AuthType.USE_OPENAI).length).toBe(0);
     });
@@ -45,11 +45,11 @@ describe('ModelRegistry', () => {
       expect(openaiModels[0].id).toBe('gpt-4-turbo');
     });
 
-    it('should ignore qwen-oauth models in config (hard-coded)', () => {
+    it('should ignore aether-oauth models in config (hard-coded)', () => {
       const modelProvidersConfig: ModelProvidersConfig = {
-        'qwen-oauth': [
+        'aether-oauth': [
           {
-            id: 'custom-qwen',
+            id: 'custom-aether',
             name: 'Custom Qwen',
           },
         ],
@@ -57,10 +57,10 @@ describe('ModelRegistry', () => {
 
       const registry = new ModelRegistry(modelProvidersConfig);
 
-      // Should still use hard-coded qwen-oauth models
-      const qwenModels = registry.getModelsForAuthType(AuthType.QWEN_OAUTH);
-      expect(qwenModels.length).toBe(QWEN_OAUTH_MODELS.length);
-      expect(qwenModels.find((m) => m.id === 'custom-qwen')).toBeUndefined();
+      // Should still use hard-coded aether-oauth models
+      const aetherModels = registry.getModelsForAuthType(AuthType.AETHER_OAUTH);
+      expect(aetherModels.length).toBe(AETHER_OAUTH_MODELS.length);
+      expect(aetherModels.find((m) => m.id === 'custom-aether')).toBeUndefined();
     });
   });
 
@@ -187,10 +187,10 @@ describe('ModelRegistry', () => {
   });
 
   describe('getDefaultModelForAuthType', () => {
-    it('should return coder-model for qwen-oauth', () => {
+    it('should return coder-model for aether-oauth', () => {
       const registry = new ModelRegistry();
       const defaultModel = registry.getDefaultModelForAuthType(
-        AuthType.QWEN_OAUTH,
+        AuthType.AETHER_OAUTH,
       );
       expect(defaultModel?.id).toBe('coder-model');
     });
@@ -222,10 +222,10 @@ describe('ModelRegistry', () => {
   });
 
   describe('default base URLs', () => {
-    it('should apply default dashscope URL for qwen-oauth', () => {
+    it('should apply default dashscope URL for aether-oauth', () => {
       const registry = new ModelRegistry();
-      const model = registry.getModel(AuthType.QWEN_OAUTH, 'coder-model');
-      expect(model?.baseUrl).toBe('DYNAMIC_QWEN_OAUTH_BASE_URL');
+      const model = registry.getModel(AuthType.AETHER_OAUTH, 'coder-model');
+      expect(model?.baseUrl).toBe('DYNAMIC_AETHER_OAUTH_BASE_URL');
     });
 
     it('should apply default openai URL when not specified', () => {
@@ -404,25 +404,25 @@ describe('ModelRegistry', () => {
       expect(registry.getModel(AuthType.USE_OPENAI, 'gpt-3.5')).toBeDefined();
     });
 
-    it('should preserve hard-coded qwen-oauth models after reload', () => {
+    it('should preserve hard-coded aether-oauth models after reload', () => {
       const registry = new ModelRegistry({
         openai: [{ id: 'gpt-4', name: 'GPT-4' }],
       });
 
-      expect(registry.getModelsForAuthType(AuthType.QWEN_OAUTH).length).toBe(
-        QWEN_OAUTH_MODELS.length,
+      expect(registry.getModelsForAuthType(AuthType.AETHER_OAUTH).length).toBe(
+        AETHER_OAUTH_MODELS.length,
       );
 
       registry.reloadModels({
         openai: [{ id: 'gpt-3.5', name: 'GPT-3.5' }],
       });
 
-      // qwen-oauth models should still exist
-      expect(registry.getModelsForAuthType(AuthType.QWEN_OAUTH).length).toBe(
-        QWEN_OAUTH_MODELS.length,
+      // aether-oauth models should still exist
+      expect(registry.getModelsForAuthType(AuthType.AETHER_OAUTH).length).toBe(
+        AETHER_OAUTH_MODELS.length,
       );
       expect(
-        registry.getModel(AuthType.QWEN_OAUTH, 'coder-model'),
+        registry.getModel(AuthType.AETHER_OAUTH, 'coder-model'),
       ).toBeDefined();
     });
 
@@ -441,23 +441,23 @@ describe('ModelRegistry', () => {
       expect(registry.getModelsForAuthType(AuthType.USE_OPENAI).length).toBe(0);
       expect(registry.getModelsForAuthType(AuthType.USE_GEMINI).length).toBe(0);
 
-      // qwen-oauth models should still exist
-      expect(registry.getModelsForAuthType(AuthType.QWEN_OAUTH).length).toBe(
-        QWEN_OAUTH_MODELS.length,
+      // aether-oauth models should still exist
+      expect(registry.getModelsForAuthType(AuthType.AETHER_OAUTH).length).toBe(
+        AETHER_OAUTH_MODELS.length,
       );
     });
 
-    it('should ignore qwen-oauth models in reload config', () => {
+    it('should ignore aether-oauth models in reload config', () => {
       const registry = new ModelRegistry();
 
       registry.reloadModels({
-        'qwen-oauth': [{ id: 'custom-qwen', name: 'Custom Qwen' }],
+        'aether-oauth': [{ id: 'custom-aether', name: 'Custom Qwen' }],
       });
 
-      // qwen-oauth should still use hard-coded models
-      const qwenModels = registry.getModelsForAuthType(AuthType.QWEN_OAUTH);
-      expect(qwenModels.length).toBe(QWEN_OAUTH_MODELS.length);
-      expect(qwenModels.find((m) => m.id === 'custom-qwen')).toBeUndefined();
+      // aether-oauth should still use hard-coded models
+      const aetherModels = registry.getModelsForAuthType(AuthType.AETHER_OAUTH);
+      expect(aetherModels.length).toBe(AETHER_OAUTH_MODELS.length);
+      expect(aetherModels.find((m) => m.id === 'custom-aether')).toBeUndefined();
     });
 
     it('should handle reload with multiple authTypes', () => {
@@ -507,9 +507,9 @@ describe('ModelRegistry', () => {
 
       // All user-configured models should be cleared
       expect(registry.getModelsForAuthType(AuthType.USE_OPENAI).length).toBe(0);
-      // qwen-oauth models should still exist
-      expect(registry.getModelsForAuthType(AuthType.QWEN_OAUTH).length).toBe(
-        QWEN_OAUTH_MODELS.length,
+      // aether-oauth models should still exist
+      expect(registry.getModelsForAuthType(AuthType.AETHER_OAUTH).length).toBe(
+        AETHER_OAUTH_MODELS.length,
       );
     });
 

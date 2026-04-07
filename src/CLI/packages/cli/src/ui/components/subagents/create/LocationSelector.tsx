@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -17,13 +17,13 @@ interface LocationOption {
 const locationOptions: LocationOption[] = [
   {
     get label() {
-      return t('Project Level (.qwen/agents/)');
+      return t('Project Level (.aether/agents/)');
     },
     value: 'project',
   },
   {
     get label() {
-      return t('User Level (~/.qwen/agents/)');
+      return t('User Level (~/.aether/agents/)');
     },
     value: 'user',
   },

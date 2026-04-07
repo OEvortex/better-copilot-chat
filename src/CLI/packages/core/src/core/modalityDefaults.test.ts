@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -105,7 +105,7 @@ describe('defaultModalities', () => {
     });
   });
 
-  describe('Qwen', () => {
+  describe('Aether', () => {
     it('returns image + video for qwen-vl-max', () => {
       const m = defaultModalities('qwen-vl-max');
       expect(m.image).toBe(true);
@@ -114,25 +114,25 @@ describe('defaultModalities', () => {
       expect(m.audio).toBeUndefined();
     });
 
-    it('returns image + video for qwen3-vl-plus', () => {
-      const m = defaultModalities('qwen3-vl-plus');
+    it('returns image + video for aether3-vl-plus', () => {
+      const m = defaultModalities('aether3-vl-plus');
       expect(m.image).toBe(true);
       expect(m.video).toBe(true);
     });
 
-    it('returns text-only for qwen3-coder-plus', () => {
-      expect(defaultModalities('qwen3-coder-plus')).toEqual({});
+    it('returns text-only for aether3-coder-plus', () => {
+      expect(defaultModalities('aether3-coder-plus')).toEqual({});
     });
 
-    it('returns image + video for coder-model (same as qwen3.5-plus)', () => {
+    it('returns image + video for coder-model (same as aether3.5-plus)', () => {
       expect(defaultModalities('coder-model')).toEqual({
         image: true,
         video: true,
       });
     });
 
-    it('returns image + video for qwen3.5-plus', () => {
-      const m = defaultModalities('qwen3.5-plus');
+    it('returns image + video for aether3.5-plus', () => {
+      const m = defaultModalities('aether3.5-plus');
       expect(m.image).toBe(true);
       expect(m.video).toBe(true);
       expect(m.pdf).toBeUndefined();

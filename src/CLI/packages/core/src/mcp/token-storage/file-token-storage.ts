@@ -17,14 +17,14 @@ export class FileTokenStorage extends BaseTokenStorage {
 
   constructor(serviceName: string) {
     super(serviceName);
-    const configDir = path.join(os.homedir(), '.qwen');
+    const configDir = path.join(os.homedir(), '.aether');
     this.tokenFilePath = path.join(configDir, 'mcp-oauth-tokens-v2.json');
     this.encryptionKey = this.deriveEncryptionKey();
   }
 
   private deriveEncryptionKey(): Buffer {
-    const salt = `${os.hostname()}-${os.userInfo().username}-qwen-code`;
-    return crypto.scryptSync('qwen-code-oauth', salt, 32);
+    const salt = `${os.hostname()}-${os.userInfo().username}-aether-cli`;
+    return crypto.scryptSync('aether-cli-oauth', salt, 32);
   }
 
   private encrypt(text: string): string {

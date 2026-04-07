@@ -53,7 +53,7 @@ describe('BaseTokenStorage', () => {
   let storage: TestTokenStorage;
 
   beforeEach(() => {
-    storage = new TestTokenStorage('qwen-code-mcp-oauth');
+    storage = new TestTokenStorage('aether-cli-mcp-oauth');
   });
 
   describe('validateCredentials', () => {

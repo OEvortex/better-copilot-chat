@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -15,8 +15,8 @@ import {
   SETTINGS_DIRECTORY_NAME,
 } from '../config/settings.js';
 import { promisify } from 'node:util';
-import type { Config, SandboxConfig } from '@qwen-code/qwen-code-core';
-import { FatalSandboxError } from '@qwen-code/qwen-code-core';
+import type { Config, SandboxConfig } from '@aether/aether-core';
+import { FatalSandboxError } from '@aether/aether-core';
 import { randomBytes } from 'node:crypto';
 import { writeStderrLine } from './stdioHelpers.js';
 
@@ -35,9 +35,9 @@ function getContainerPath(hostPath: string): string {
   return hostPath;
 }
 
-const LOCAL_DEV_SANDBOX_IMAGE_NAME = 'qwen-code-sandbox';
-const SANDBOX_NETWORK_NAME = 'qwen-code-sandbox';
-const SANDBOX_PROXY_NAME = 'qwen-code-sandbox-proxy';
+const LOCAL_DEV_SANDBOX_IMAGE_NAME = 'aether-sandbox';
+const SANDBOX_NETWORK_NAME = 'aether-sandbox';
+const SANDBOX_PROXY_NAME = 'aether-sandbox-proxy';
 const BUILTIN_SEATBELT_PROFILES = [
   'permissive-open',
   'permissive-closed',
@@ -165,8 +165,8 @@ function entrypoint(workdir: string, cliArgs: string[]): string[] {
         ? 'npm run debug --'
         : 'npm rebuild && npm run start --'
       : process.env['DEBUG']
-        ? `node --inspect-brk=0.0.0.0:${process.env['DEBUG_PORT'] || '9229'} $(which qwen)`
-        : 'qwen';
+        ? `node --inspect-brk=0.0.0.0:${process.env['DEBUG_PORT'] || '9229'} $(which aether)`
+        : 'aether';
 
   const args = [...shellCmds, cliCmd, ...quotedCliArgs];
   return ['bash', '-c', args.join(' ')];
@@ -263,8 +263,8 @@ export async function start_sandbox(
         ...finalArgv.map((arg) => quote([arg])),
       ].join(' '),
     );
-    // start and set up proxy if QWEN_SANDBOX_PROXY_COMMAND is set
-    const proxyCommand = process.env['QWEN_SANDBOX_PROXY_COMMAND'];
+    // start and set up proxy if AETHER_SANDBOX_PROXY_COMMAND is set
+    const proxyCommand = process.env['AETHER_SANDBOX_PROXY_COMMAND'];
     let proxyProcess: ChildProcess | undefined = undefined;
     let sandboxProcess: ChildProcess | undefined = undefined;
     const sandboxEnv = { ...process.env };
@@ -337,7 +337,7 @@ export async function start_sandbox(
 
   writeStderrLine(`hopping into sandbox (command: ${config.command}) ...`);
 
-  // determine full path for qwen-code to distinguish linked vs installed setting
+  // determine full path for aether to distinguish linked vs installed setting
   const gcPath = fs.realpathSync(process.argv[1]);
 
   const projectSandboxDockerfile = path.join(
@@ -350,14 +350,14 @@ export async function start_sandbox(
   const workdir = path.resolve(process.cwd());
   const containerWorkdir = getContainerPath(workdir);
 
-  // if BUILD_SANDBOX is set, then call scripts/build_sandbox.js under qwen-code repo
+  // if BUILD_SANDBOX is set, then call scripts/build_sandbox.js under aether repo
   //
-  // note this can only be done with binary linked from qwen-code repo
+  // note this can only be done with binary linked from aether repo
   if (process.env['BUILD_SANDBOX']) {
-    if (!gcPath.includes('qwen-code/packages/')) {
+    if (!gcPath.includes('aether/packages/')) {
       throw new FatalSandboxError(
-        'Cannot build sandbox using installed Qwen Code binary; ' +
-          'run `npm link ./packages/cli` under QwenCode-cli repo to switch to linked binary.',
+        'Cannot build sandbox using installed Aether binary; ' +
+          'run `npm link ./packages/cli` under AetherCli-cli repo to switch to linked binary.',
       );
     } else {
       writeStderrLine('building sandbox ...');
@@ -378,7 +378,7 @@ export async function start_sandbox(
           stdio: 'inherit',
           env: {
             ...process.env,
-            QWEN_SANDBOX: config.command, // in case sandbox is enabled via flags (see config.ts under cli package)
+            AETHER_SANDBOX: config.command, // in case sandbox is enabled via flags (see config.ts under cli package)
           },
         },
       );
@@ -389,8 +389,8 @@ export async function start_sandbox(
   if (!(await ensureSandboxImageIsPresent(config.command, image))) {
     const remedy =
       image === LOCAL_DEV_SANDBOX_IMAGE_NAME
-        ? 'Try running `npm run build:all` or `npm run build:sandbox` under the qwen-code repo to build it locally, or check the image name and your network connection.'
-        : 'Please check the image name, your network connection, or notify qwen-code-dev@service.alibaba.com if the issue persists.';
+        ? 'Try running `npm run build:all` or `npm run build:sandbox` under the aether repo to build it locally, or check the image name and your network connection.'
+        : 'Please check the image name, your network connection, or notify aether-dev@service.alibaba.com if the issue persists.';
     throw new FatalSandboxError(
       `Sandbox image '${image}' is missing or could not be pulled. ${remedy}`,
     );
@@ -498,8 +498,8 @@ export async function start_sandbox(
 
   // copy proxy environment variables, replacing localhost with SANDBOX_PROXY_NAME
   // copy as both upper-case and lower-case as is required by some utilities
-  // QWEN_SANDBOX_PROXY_COMMAND implies HTTPS_PROXY unless HTTP_PROXY is set
-  const proxyCommand = process.env['QWEN_SANDBOX_PROXY_COMMAND'];
+  // AETHER_SANDBOX_PROXY_COMMAND implies HTTPS_PROXY unless HTTP_PROXY is set
+  const proxyCommand = process.env['AETHER_SANDBOX_PROXY_COMMAND'];
 
   if (proxyCommand) {
     let proxy =
@@ -541,10 +541,10 @@ export async function start_sandbox(
   // name container after image, plus random suffix to avoid conflicts
   const imageName = parseImageName(image);
   const isIntegrationTest =
-    process.env['QWEN_CODE_INTEGRATION_TEST'] === 'true';
+    process.env['aether_cli_INTEGRATION_TEST'] === 'true';
   let containerName;
   if (isIntegrationTest) {
-    containerName = `qwen-code-integration-test-${randomBytes(4).toString(
+    containerName = `aether-integration-test-${randomBytes(4).toString(
       'hex',
     )}`;
     writeStderrLine(`ContainerName: ${containerName}`);
@@ -563,11 +563,11 @@ export async function start_sandbox(
   }
   args.push('--name', containerName, '--hostname', containerName);
 
-  // copy QWEN_CODE_TEST_VAR for integration tests
-  if (process.env['QWEN_CODE_TEST_VAR']) {
+  // copy aether_cli_TEST_VAR for integration tests
+  if (process.env['aether_cli_TEST_VAR']) {
     args.push(
       '--env',
-      `QWEN_CODE_TEST_VAR=${process.env['QWEN_CODE_TEST_VAR']}`,
+      `aether_cli_TEST_VAR=${process.env['aether_cli_TEST_VAR']}`,
     );
   }
 
@@ -579,7 +579,7 @@ export async function start_sandbox(
     args.push('--env', `GOOGLE_API_KEY=${process.env['GOOGLE_API_KEY']}`);
   }
 
-  // copy OPENAI_API_KEY and related env vars for Qwen
+  // copy OPENAI_API_KEY and related env vars for Aether
   if (process.env['OPENAI_API_KEY']) {
     args.push('--env', `OPENAI_API_KEY=${process.env['OPENAI_API_KEY']}`);
   }
@@ -641,8 +641,8 @@ export async function start_sandbox(
 
   // Pass through IDE mode environment variables
   for (const envVar of [
-    'QWEN_CODE_IDE_SERVER_PORT',
-    'QWEN_CODE_IDE_WORKSPACE_PATH',
+    'aether_cli_IDE_SERVER_PORT',
+    'aether_cli_IDE_WORKSPACE_PATH',
     'TERM_PROGRAM',
   ]) {
     if (process.env[envVar]) {
@@ -718,13 +718,13 @@ export async function start_sandbox(
 
   // Check if we should use current user's UID/GID in sandbox
   // In integration test mode, we still respect SANDBOX_SET_UID_GID to allow
-  // tests that need to access host's ~/.qwen (e.g., --resume functionality)
+  // tests that need to access host's ~/.aether (e.g., --resume functionality)
   const useCurrentUser = await shouldUseCurrentUserInSandbox();
 
   if (useCurrentUser) {
     // SANDBOX_SET_UID_GID is enabled: create user with host's UID/GID
     // This includes integration test mode with SANDBOX_SET_UID_GID=true,
-    // allowing tests that need to access host's ~/.qwen (e.g., --resume) to work.
+    // allowing tests that need to access host's ~/.aether (e.g., --resume) to work.
     // For the user-creation logic to work, the container must start as root.
     // The entrypoint script then handles dropping privileges to the correct user.
     args.push('--user', 'root');
@@ -734,10 +734,10 @@ export async function start_sandbox(
 
     // Instead of passing --user to the main sandbox container, we let it
     // start as root, then create a user with the host's UID/GID, and
-    // finally switch to that user to run the qwen process. This is
+    // finally switch to that user to run the aether process. This is
     // necessary on Linux to ensure the user exists within the
     // container's /etc/passwd file, which is required by os.userInfo().
-    const username = 'qwen';
+    const username = 'aether';
     const homeDir = getContainerPath(os.homedir());
 
     const setupUserCommands = [
@@ -773,7 +773,7 @@ export async function start_sandbox(
   // push container entrypoint (including args)
   args.push(...finalEntrypoint);
 
-  // start and set up proxy if QWEN_SANDBOX_PROXY_COMMAND is set
+  // start and set up proxy if AETHER_SANDBOX_PROXY_COMMAND is set
   let proxyProcess: ChildProcess | undefined = undefined;
   let sandboxProcess: ChildProcess | undefined = undefined;
 

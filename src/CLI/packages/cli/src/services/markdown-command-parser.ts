@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -8,7 +8,7 @@ import { z } from 'zod';
 import {
   parse as parseYaml,
   normalizeContent,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 /**
  * Defines the Zod schema for a Markdown command definition file.

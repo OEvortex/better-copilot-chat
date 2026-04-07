@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen team
  * SPDX-License-Identifier: Apache-2.0
@@ -28,7 +28,7 @@ import {
   resolveOutputLanguage,
   updateOutputLanguageFile,
 } from '../../utils/languageUtils.js';
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+import { createDebugLogger } from '@aether/aether-core';
 
 const debugLogger = createDebugLogger('LANGUAGE_COMMAND');
 

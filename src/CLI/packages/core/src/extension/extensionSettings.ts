@@ -49,7 +49,7 @@ const getKeychainStorageName = (
   extensionId: string,
   scope: ExtensionSettingScope,
 ): string => {
-  const base = `Qwen Code Extensions ${extensionName} ${extensionId}`;
+  const base = `Aether Extensions ${extensionName} ${extensionId}`;
   if (scope === ExtensionSettingScope.WORKSPACE) {
     return `${base} ${process.cwd()}`;
   }

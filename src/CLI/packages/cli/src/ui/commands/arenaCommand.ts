@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -31,7 +31,7 @@ import {
   type ArenaSessionErrorEvent,
   type ArenaSessionStartEvent,
   type ArenaSessionUpdateEvent,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import {
   MessageType,
   type ArenaAgentCardData,
@@ -114,7 +114,7 @@ function buildArenaExecutionInput(
         '\n' +
         'Examples:\n' +
         '  /arena start --models openai:gpt-4o,anthropic:claude-3 "implement sorting"\n' +
-        '  /arena start --models qwen-coder-plus,kimi-for-coding "fix the bug"',
+        '  /arena start --models aether-coder-plus,kimi-for-coding "fix the bug"',
     };
   }
 

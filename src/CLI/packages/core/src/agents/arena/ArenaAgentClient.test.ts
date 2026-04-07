@@ -550,7 +550,7 @@ describe('ArenaAgentClient', () => {
 
   describe('safeAgentId()', () => {
     it('should pass through typical model IDs unchanged', () => {
-      expect(safeAgentId('qwen-coder-plus')).toBe('qwen-coder-plus');
+      expect(safeAgentId('aether-clir-plus')).toBe('aether-clir-plus');
     });
 
     it('should handle IDs without unsafe characters', () => {

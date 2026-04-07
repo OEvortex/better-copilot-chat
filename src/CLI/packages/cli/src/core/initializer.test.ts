@@ -1,13 +1,13 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AuthType } from '@qwen-code/qwen-code-core';
+import { AuthType } from '@aether/aether-core';
 import type { LoadedSettings } from '../config/settings.js';
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
 import { initializeApp } from './initializer.js';
 import { performInitialAuth } from './auth.js';
 import { validateTheme } from './theme.js';
@@ -28,7 +28,7 @@ vi.mock('../i18n/index.js', () => ({
 describe('initializeApp', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    delete process.env['QWEN_CODE_LANG'];
+    delete process.env['aether_cli_LANG'];
 
     vi.mocked(initializeI18n).mockResolvedValue(undefined);
     vi.mocked(validateTheme).mockReturnValue(null);

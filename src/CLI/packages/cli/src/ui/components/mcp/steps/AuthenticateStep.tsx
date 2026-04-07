@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -15,8 +15,8 @@ import {
   MCPOAuthProvider,
   MCPOAuthTokenStorage,
   getErrorMessage,
-} from '@qwen-code/qwen-code-core';
-import type { OAuthDisplayPayload } from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
+import type { OAuthDisplayPayload } from '@aether/aether-core';
 import { appEvents, AppEvent } from '../../../../utils/events.js';
 
 type AuthState = 'idle' | 'authenticating' | 'success' | 'error';

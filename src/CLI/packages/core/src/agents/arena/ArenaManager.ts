@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -98,10 +98,10 @@ export class ArenaManager {
     this.callbacks = callbacks;
     this.eventEmitter = new ArenaEventEmitter();
     const arenaSettings = config.getAgentsSettings().arena;
-    // Use the user-configured base dir, or default to ~/.qwen/arena.
+    // Use the user-configured base dir, or default to ~/.aether/arena.
     this.arenaBaseDir =
       arenaSettings?.worktreeBaseDir ??
-      path.join(Storage.getGlobalQwenDir(), 'arena');
+      path.join(Storage.getGlobalAetherDir(), 'arena');
     this.worktreeService = new GitWorktreeService(
       config.getWorkingDir(),
       this.arenaBaseDir,
@@ -1022,7 +1022,7 @@ export class ArenaManager {
     // Construct env vars for the agent
     const arenaSessionDir = this.getArenaSessionDir();
     const env: Record<string, string> = {
-      QWEN_CODE: '1',
+      aether_cli: '1',
       ARENA_AGENT_ID: agentId,
       ARENA_SESSION_ID: this.arenaConfig?.sessionId ?? '',
       ARENA_SESSION_DIR: arenaSessionDir,
@@ -1225,7 +1225,7 @@ export class ArenaManager {
    * All status and control files are stored here.
    *
    * Returns the absolute path to the session directory, e.g.
-   * `~/.qwen/worktrees/<sessionId>/`.  The directory contains:
+   * `~/.aether/worktrees/<sessionId>/`.  The directory contains:
    * - `config.json` — consolidated session config + per-agent status
    * - `agents/<safeAgentId>.json` — individual agent status files
    * - `control/` — control signals (shutdown, cancel)

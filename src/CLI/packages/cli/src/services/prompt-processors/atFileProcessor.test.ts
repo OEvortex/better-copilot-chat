@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -9,12 +9,12 @@ import { createMockCommandContext } from '../../test-utils/mockCommandContext.js
 import { type CommandContext } from '../../ui/commands/types.js';
 import { AtFileProcessor } from './atFileProcessor.js';
 import { MessageType } from '../../ui/types.js';
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
 import type { PartUnion } from '@google/genai';
 
 // Mock the core dependency
 const mockReadPathFromWorkspace = vi.hoisted(() => vi.fn());
-vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
+vi.mock('@aether/aether-core', async (importOriginal) => {
   const original = await importOriginal<object>();
   return {
     ...original,
@@ -205,7 +205,7 @@ describe('AtFileProcessor', () => {
       expect(context.ui.addItem).toHaveBeenCalledWith(
         {
           type: MessageType.INFO,
-          text: "File '@{ignored.txt}' was ignored by .gitignore or .qwenignore and was not included in the prompt.",
+          text: "File '@{ignored.txt}' was ignored by .gitignore or .aetherignore and was not included in the prompt.",
         },
         expect.any(Number),
       );

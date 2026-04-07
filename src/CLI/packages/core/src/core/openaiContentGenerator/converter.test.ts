@@ -871,7 +871,7 @@ describe('OpenAIContentConverter', () => {
 
   describe('MCP multi-part tool results (issue #1520)', () => {
     /**
-     * Regression tests for https://github.com/QwenLM/qwen-code/issues/1520
+     * Regression tests for https://github.com/oewortex/aether-cli/issues/1520
      *
      * Ensures that when an MCP tool returns multiple content blocks
      * (e.g., text + image, or multiple text sections), all content
@@ -1693,7 +1693,7 @@ describe('OpenAIContentConverter', () => {
 
 describe('MCP tool result end-to-end through OpenAI converter (issue #1520)', () => {
   /**
-   * End-to-end regression tests for https://github.com/QwenLM/qwen-code/issues/1520
+   * End-to-end regression tests for https://github.com/oewortex/aether-cli/issues/1520
    *
    * Simulates the full pipeline:
    *   transformMcpContentToParts → convertToFunctionResponse → OpenAI converter

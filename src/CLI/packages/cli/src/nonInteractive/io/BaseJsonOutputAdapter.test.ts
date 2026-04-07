@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -11,7 +11,7 @@ import {
   type ServerGeminiStreamEvent,
   type ToolCallRequestInfo,
   type AgentResultDisplay,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import type { Part, GenerateContentResponseUsageMetadata } from '@google/genai';
 import type {
   CLIMessage,

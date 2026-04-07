@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -6,18 +6,18 @@
 
 import type { CommandModule, Argv } from 'yargs';
 import {
-  handleQwenAuth,
+  handleAetherAuth,
   runInteractiveAuth,
   showAuthStatus,
 } from './auth/handler.js';
 import { t } from '../i18n/index.js';
 
 // Define subcommands separately
-const qwenOauthCommand = {
-  command: 'qwen-oauth',
-  describe: t('Authenticate using Qwen OAuth'),
+const aetherOAuthCommand = {
+  command: 'aether-oauth',
+  describe: t('Authenticate using Aether OAuth'),
   handler: async () => {
-    await handleQwenAuth('qwen-oauth', {});
+    await handleAetherAuth('aether-oauth', {});
   },
 };
 
@@ -42,10 +42,10 @@ const codePlanCommand = {
 
     // If region and key are provided, use them directly
     if (region && key) {
-      await handleQwenAuth('coding-plan', { region, key });
+      await handleAetherAuth('coding-plan', { region, key });
     } else {
       // Otherwise, prompt interactively
-      await handleQwenAuth('coding-plan', {});
+      await handleAetherAuth('coding-plan', {});
     }
   },
 };
@@ -61,11 +61,11 @@ const statusCommand = {
 export const authCommand: CommandModule = {
   command: 'auth',
   describe: t(
-    'Configure Qwen authentication information with Qwen-OAuth or Alibaba Cloud Coding Plan',
+    'Configure Aether authentication information with aether-oauth or Alibaba Cloud Coding Plan',
   ),
   builder: (yargs: Argv) =>
     yargs
-      .command(qwenOauthCommand)
+      .command(aetherOAuthCommand)
       .command(codePlanCommand)
       .command(statusCommand)
       .demandCommand(0) // Don't require a subcommand

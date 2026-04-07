@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -11,7 +11,7 @@ import * as path from 'node:path';
 import { restoreCommand } from './restoreCommand.js';
 import { type CommandContext } from './types.js';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
-import type { Config, GitService } from '@qwen-code/qwen-code-core';
+import type { Config, GitService } from '@aether/aether-core';
 
 describe('restoreCommand', () => {
   let mockContext: CommandContext;
@@ -89,7 +89,7 @@ describe('restoreCommand', () => {
       ).toEqual({
         type: 'message',
         messageType: 'error',
-        content: 'Could not determine the .qwen directory path.',
+        content: 'Could not determine the .aether directory path.',
       });
     });
 

@@ -26,7 +26,7 @@ export class TrustedHooksManager {
 
   constructor() {
     this.configPath = path.join(
-      Storage.getGlobalQwenDir(),
+      Storage.getGlobalAetherDir(),
       'trusted_hooks.json',
     );
     this.load();

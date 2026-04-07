@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -20,7 +20,7 @@
 
 import { Box, Text } from 'ink';
 import { useState, useEffect, useCallback } from 'react';
-import { AgentStatus, AgentEventType } from '@qwen-code/qwen-code-core';
+import { AgentStatus, AgentEventType } from '@aether/aether-core';
 import {
   useAgentViewState,
   useAgentViewActions,

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+﻿import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
@@ -38,7 +38,7 @@ import {
 const originalKill = process.kill;
 
 function getPidFilePath() {
-  return join(homedir(), '.qwen', 'channels', 'service.pid');
+  return join(homedir(), '.aether', 'channels', 'service.pid');
 }
 
 beforeEach(() => {

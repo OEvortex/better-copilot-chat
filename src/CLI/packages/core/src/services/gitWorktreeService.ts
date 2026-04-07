@@ -23,7 +23,7 @@ export const BASELINE_COMMIT_MESSAGE = 'baseline (dirty state overlay)';
 
 /**
  * Default directory and branch-prefix name used for worktrees.
- * Changing this value affects the on-disk layout (`~/.qwen/<WORKTREES_DIR>/`)
+ * Changing this value affects the on-disk layout (`~/.aether/<WORKTREES_DIR>/`)
  * **and** the default git branch prefix (`<WORKTREES_DIR>/<sessionId>/…`).
  */
 export const WORKTREES_DIR = 'worktrees';
@@ -108,7 +108,7 @@ export class GitWorktreeService {
     if (customDir) {
       return path.resolve(customDir);
     }
-    return path.join(Storage.getGlobalQwenDir(), WORKTREES_DIR);
+    return path.join(Storage.getGlobalAetherDir(), WORKTREES_DIR);
   }
 
   /**

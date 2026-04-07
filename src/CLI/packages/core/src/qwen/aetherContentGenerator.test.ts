@@ -1,12 +1,12 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { IQwenOAuth2Client } from './qwenOAuth2.js';
-import { type QwenCredentials, type ErrorData } from './qwenOAuth2.js';
+import type { IAetherOAuth2Client } from './aetherOAuth2.js';
+import { type AetherCredentials, type ErrorData } from './aetherOAuth2.js';
 import type {
   GenerateContentParameters,
   GenerateContentResponse,
@@ -16,7 +16,7 @@ import type {
   EmbedContentResponse,
 } from '@google/genai';
 import { FinishReason } from '@google/genai';
-import { QwenContentGenerator } from './qwenContentGenerator.js';
+import { AetherContentGenerator } from './aetherContentGenerator.js';
 import { SharedTokenManager } from './sharedTokenManager.js';
 import type { Config } from '../config/config.js';
 import { AuthType } from '../core/contentGenerator.js';
@@ -114,7 +114,7 @@ vi.mock('../core/openaiContentGenerator/pipeline.js', () => ({
 vi.mock('./sharedTokenManager.js', () => ({
   SharedTokenManager: class {
     private static instance: unknown = null;
-    private mockCredentials: QwenCredentials | null = null;
+    private mockCredentials: AetherCredentials | null = null;
     private shouldThrowError: boolean = false;
     private errorToThrow: Error | null = null;
 
@@ -126,8 +126,8 @@ vi.mock('./sharedTokenManager.js', () => ({
     }
 
     async getValidCredentials(
-      qwenClient: IQwenOAuth2Client,
-    ): Promise<QwenCredentials> {
+      aetherClient: IAetherOAuth2Client,
+    ): Promise<AetherCredentials> {
       // If we're configured to throw an error, do so
       if (this.shouldThrowError && this.errorToThrow) {
         throw this.errorToThrow;
@@ -135,9 +135,9 @@ vi.mock('./sharedTokenManager.js', () => ({
 
       // Try to get credentials from the mock client first to trigger auth errors
       try {
-        const { token } = await qwenClient.getAccessToken();
+        const { token } = await aetherClient.getAccessToken();
         if (token) {
-          const credentials = qwenClient.getCredentials();
+          const credentials = aetherClient.getCredentials();
           return credentials;
         }
       } catch (error) {
@@ -160,10 +160,10 @@ vi.mock('./sharedTokenManager.js', () => ({
         if (isAuthError) {
           // Try to refresh the token through the client
           try {
-            const refreshResult = await qwenClient.refreshAccessToken();
+            const refreshResult = await aetherClient.refreshAccessToken();
             if (refreshResult && !('error' in refreshResult)) {
               // Refresh succeeded, update client credentials and return them
-              const updatedCredentials = qwenClient.getCredentials();
+              const updatedCredentials = aetherClient.getCredentials();
               return updatedCredentials;
             } else {
               // Refresh failed, throw appropriate error
@@ -196,7 +196,7 @@ vi.mock('./sharedTokenManager.js', () => ({
       };
     }
 
-    getCurrentCredentials(): QwenCredentials | null {
+    getCurrentCredentials(): AetherCredentials | null {
       return this.mockCredentials;
     }
 
@@ -205,7 +205,7 @@ vi.mock('./sharedTokenManager.js', () => ({
     }
 
     // Helper method for tests to set credentials
-    setMockCredentials(credentials: QwenCredentials | null): void {
+    setMockCredentials(credentials: AetherCredentials | null): void {
       this.mockCredentials = credentials;
     }
 
@@ -290,12 +290,12 @@ const createMockResponse = (text: string): GenerateContentResponse =>
     codeExecutionResult: '',
   }) as GenerateContentResponse;
 
-describe('QwenContentGenerator', () => {
-  let mockQwenClient: IQwenOAuth2Client;
-  let qwenContentGenerator: QwenContentGenerator;
+describe('AetherContentGenerator', () => {
+  let mockQwenClient: IAetherOAuth2Client;
+  let aetherContentGenerator: AetherContentGenerator;
   let mockConfig: Config;
 
-  const mockCredentials: QwenCredentials = {
+  const mockCredentials: AetherCredentials = {
     access_token: 'test-access-token',
     refresh_token: 'test-refresh-token',
     resource_url: 'https://test-endpoint.com/v1',
@@ -307,9 +307,9 @@ describe('QwenContentGenerator', () => {
     // Mock Config
     mockConfig = {
       getContentGeneratorConfig: vi.fn().mockReturnValue({
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         apiKey: 'test-api-key',
-        authType: 'qwen',
+        authType: 'aether',
         baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
         enableOpenAILogging: false,
         timeout: 120000,
@@ -325,7 +325,7 @@ describe('QwenContentGenerator', () => {
       getUsageStatisticsEnabled: vi.fn().mockReturnValue(false),
     } as unknown as Config;
 
-    // Mock QwenOAuth2Client
+    // Mock AetherOAuth2Client
     mockQwenClient = {
       getAccessToken: vi.fn(),
       getCredentials: vi.fn(),
@@ -335,16 +335,16 @@ describe('QwenContentGenerator', () => {
       pollDeviceToken: vi.fn(),
     };
 
-    // Create QwenContentGenerator instance
+    // Create AetherContentGenerator instance
     const contentGeneratorConfig = {
-      model: 'qwen-turbo',
+      model: 'aether-turbo',
       apiKey: 'test-api-key',
-      authType: AuthType.QWEN_OAUTH,
+      authType: AuthType.AETHER_OAUTH,
       baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
       timeout: 120000,
       maxRetries: 3,
     };
-    qwenContentGenerator = new QwenContentGenerator(
+    aetherContentGenerator = new AetherContentGenerator(
       mockQwenClient,
       contentGeneratorConfig,
       mockConfig,
@@ -363,11 +363,11 @@ describe('QwenContentGenerator', () => {
       vi.mocked(mockQwenClient.getCredentials).mockReturnValue(mockCredentials);
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
-      const result = await qwenContentGenerator.generateContent(
+      const result = await aetherContentGenerator.generateContent(
         request,
         'test-prompt-id',
       );
@@ -383,11 +383,11 @@ describe('QwenContentGenerator', () => {
       vi.mocked(mockQwenClient.getCredentials).mockReturnValue(mockCredentials);
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello stream' }] }],
       };
 
-      const stream = await qwenContentGenerator.generateContentStream(
+      const stream = await aetherContentGenerator.generateContentStream(
         request,
         'test-prompt-id',
       );
@@ -406,11 +406,11 @@ describe('QwenContentGenerator', () => {
       vi.clearAllMocks();
 
       const request: CountTokensParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Count me' }] }],
       };
 
-      const result = await qwenContentGenerator.countTokens(request);
+      const result = await aetherContentGenerator.countTokens(request);
 
       expect(result.totalTokens).toBe(15);
       // countTokens is a local operation and should not require OAuth credentials
@@ -424,11 +424,11 @@ describe('QwenContentGenerator', () => {
       vi.mocked(mockQwenClient.getCredentials).mockReturnValue(mockCredentials);
 
       const request: EmbedContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ parts: [{ text: 'Embed me' }] }],
       };
 
-      const result = await qwenContentGenerator.embedContent(request);
+      const result = await aetherContentGenerator.embedContent(request);
 
       expect(result.embeddings).toHaveLength(1);
       expect(result.embeddings?.[0]?.values).toEqual([0.1, 0.2, 0.3]);
@@ -463,11 +463,11 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
-      const result = await qwenContentGenerator.generateContent(
+      const result = await aetherContentGenerator.generateContent(
         request,
         'test-prompt-id',
       );
@@ -505,11 +505,11 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello stream' }] }],
       };
 
-      const stream = await qwenContentGenerator.generateContentStream(
+      const stream = await aetherContentGenerator.generateContentStream(
         request,
         'test-prompt-id',
       );
@@ -535,12 +535,12 @@ describe('QwenContentGenerator', () => {
       );
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
       await expect(
-        qwenContentGenerator.generateContent(request, 'test-prompt-id'),
+        aetherContentGenerator.generateContent(request, 'test-prompt-id'),
       ).rejects.toThrow(
         'Failed to obtain valid Qwen access token. Please re-authenticate.',
       );
@@ -559,11 +559,11 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
-      await qwenContentGenerator.generateContent(request, 'test-prompt-id');
+      await aetherContentGenerator.generateContent(request, 'test-prompt-id');
 
       expect(mockQwenClient.getCredentials).toHaveBeenCalled();
     });
@@ -584,11 +584,11 @@ describe('QwenContentGenerator', () => {
 
       // Mock the parent's generateContent to capture the baseURL during the call
       const parentPrototype = Object.getPrototypeOf(
-        Object.getPrototypeOf(qwenContentGenerator),
+        Object.getPrototypeOf(aetherContentGenerator),
       );
       const originalGenerateContent = parentPrototype.generateContent;
       parentPrototype.generateContent = vi.fn().mockImplementation(function (
-        this: QwenContentGenerator,
+        this: AetherContentGenerator,
       ) {
         capturedBaseURL = (
           this as unknown as { pipeline: { client: { baseURL: string } } }
@@ -597,11 +597,11 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
-      await qwenContentGenerator.generateContent(request, 'test-prompt-id');
+      await aetherContentGenerator.generateContent(request, 'test-prompt-id');
 
       // Should use default endpoint with /v1 suffix
       expect(capturedBaseURL).toBe(
@@ -625,11 +625,11 @@ describe('QwenContentGenerator', () => {
 
       // Mock the parent's generateContent to capture the baseURL during the call
       const parentPrototype = Object.getPrototypeOf(
-        Object.getPrototypeOf(qwenContentGenerator),
+        Object.getPrototypeOf(aetherContentGenerator),
       );
       const originalGenerateContent = parentPrototype.generateContent;
       parentPrototype.generateContent = vi.fn().mockImplementation(function (
-        this: QwenContentGenerator,
+        this: AetherContentGenerator,
       ) {
         capturedBaseURL = (
           this as unknown as { pipeline: { client: { baseURL: string } } }
@@ -638,11 +638,11 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
-      await qwenContentGenerator.generateContent(request, 'test-prompt-id');
+      await aetherContentGenerator.generateContent(request, 'test-prompt-id');
 
       // Should add https:// and /v1
       expect(capturedBaseURL).toBe('https://custom-endpoint.com/v1');
@@ -664,11 +664,11 @@ describe('QwenContentGenerator', () => {
 
       // Mock the parent's generateContent to capture the baseURL during the call
       const parentPrototype = Object.getPrototypeOf(
-        Object.getPrototypeOf(qwenContentGenerator),
+        Object.getPrototypeOf(aetherContentGenerator),
       );
       const originalGenerateContent = parentPrototype.generateContent;
       parentPrototype.generateContent = vi.fn().mockImplementation(function (
-        this: QwenContentGenerator,
+        this: AetherContentGenerator,
       ) {
         capturedBaseURL = (
           this as unknown as { pipeline: { client: { baseURL: string } } }
@@ -677,11 +677,11 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
-      await qwenContentGenerator.generateContent(request, 'test-prompt-id');
+      await aetherContentGenerator.generateContent(request, 'test-prompt-id');
 
       // Should preserve https:// and add /v1
       expect(capturedBaseURL).toBe('https://custom-endpoint.com/v1');
@@ -703,11 +703,11 @@ describe('QwenContentGenerator', () => {
 
       // Mock the parent's generateContent to capture the baseURL during the call
       const parentPrototype = Object.getPrototypeOf(
-        Object.getPrototypeOf(qwenContentGenerator),
+        Object.getPrototypeOf(aetherContentGenerator),
       );
       const originalGenerateContent = parentPrototype.generateContent;
       parentPrototype.generateContent = vi.fn().mockImplementation(function (
-        this: QwenContentGenerator,
+        this: AetherContentGenerator,
       ) {
         capturedBaseURL = (
           this as unknown as { pipeline: { client: { baseURL: string } } }
@@ -716,11 +716,11 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
-      await qwenContentGenerator.generateContent(request, 'test-prompt-id');
+      await aetherContentGenerator.generateContent(request, 'test-prompt-id');
 
       // Should not duplicate /v1
       expect(capturedBaseURL).toBe('https://custom-endpoint.com/v1');
@@ -733,7 +733,7 @@ describe('QwenContentGenerator', () => {
   describe('Client State Management', () => {
     it('should set dynamic credentials during operations', async () => {
       const client = (
-        qwenContentGenerator as unknown as {
+        aetherContentGenerator as unknown as {
           pipeline: { client: { apiKey: string; baseURL: string } };
         }
       ).pipeline.client;
@@ -748,11 +748,11 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
-      await qwenContentGenerator.generateContent(request, 'test-prompt-id');
+      await aetherContentGenerator.generateContent(request, 'test-prompt-id');
 
       // Should have dynamic credentials set
       expect(client.apiKey).toBe('temp-token');
@@ -761,7 +761,7 @@ describe('QwenContentGenerator', () => {
 
     it('should set credentials even when operation throws', async () => {
       const client = (
-        qwenContentGenerator as unknown as {
+        aetherContentGenerator as unknown as {
           pipeline: { client: { apiKey: string; baseURL: string } };
         }
       ).pipeline.client;
@@ -777,18 +777,18 @@ describe('QwenContentGenerator', () => {
       // Mock the parent method to throw an error
       const mockError = new Error('Network error');
       const parentPrototype = Object.getPrototypeOf(
-        Object.getPrototypeOf(qwenContentGenerator),
+        Object.getPrototypeOf(aetherContentGenerator),
       );
       const originalGenerateContent = parentPrototype.generateContent;
       parentPrototype.generateContent = vi.fn().mockRejectedValue(mockError);
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
       try {
-        await qwenContentGenerator.generateContent(request, 'test-prompt-id');
+        await aetherContentGenerator.generateContent(request, 'test-prompt-id');
       } catch (error) {
         expect(error).toBe(mockError);
       }
@@ -814,7 +814,7 @@ describe('QwenContentGenerator', () => {
 
       // Replace the parent method
       const parentPrototype = Object.getPrototypeOf(
-        Object.getPrototypeOf(qwenContentGenerator),
+        Object.getPrototypeOf(aetherContentGenerator),
       );
       const originalGenerateContent = parentPrototype.generateContent;
       parentPrototype.generateContent = mockGenerateContent;
@@ -844,11 +844,11 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
-      const result = await qwenContentGenerator.generateContent(
+      const result = await aetherContentGenerator.generateContent(
         request,
         'test-prompt-id',
       );
@@ -866,7 +866,7 @@ describe('QwenContentGenerator', () => {
 
       const mockGenerateContent = vi.fn().mockRejectedValue(networkError);
       const parentPrototype = Object.getPrototypeOf(
-        Object.getPrototypeOf(qwenContentGenerator),
+        Object.getPrototypeOf(aetherContentGenerator),
       );
       const originalGenerateContent = parentPrototype.generateContent;
       parentPrototype.generateContent = mockGenerateContent;
@@ -877,12 +877,12 @@ describe('QwenContentGenerator', () => {
       vi.mocked(mockQwenClient.getCredentials).mockReturnValue(mockCredentials);
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
       await expect(
-        qwenContentGenerator.generateContent(request, 'test-prompt-id'),
+        aetherContentGenerator.generateContent(request, 'test-prompt-id'),
       ).rejects.toThrow('Network timeout');
       expect(mockGenerateContent).toHaveBeenCalledTimes(1);
       expect(mockQwenClient.refreshAccessToken).not.toHaveBeenCalled();
@@ -901,45 +901,45 @@ describe('QwenContentGenerator', () => {
       } as ErrorData);
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
       await expect(
-        qwenContentGenerator.generateContent(request, 'test-prompt-id'),
+        aetherContentGenerator.generateContent(request, 'test-prompt-id'),
       ).rejects.toThrow('Failed to obtain valid Qwen access token');
     });
   });
 
   describe('Token State Management', () => {
     it('should cache and return current token', () => {
-      expect(qwenContentGenerator.getCurrentToken()).toBeNull();
+      expect(aetherContentGenerator.getCurrentToken()).toBeNull();
 
       // Simulate setting a token internally
       (
-        qwenContentGenerator as unknown as { currentToken: string }
+        aetherContentGenerator as unknown as { currentToken: string }
       ).currentToken = 'cached-token';
 
-      expect(qwenContentGenerator.getCurrentToken()).toBe('cached-token');
+      expect(aetherContentGenerator.getCurrentToken()).toBe('cached-token');
     });
 
     it('should clear token on clearToken()', () => {
       // Simulate having cached token value
-      const qwenInstance = qwenContentGenerator as unknown as {
+      const aetherInstance = aetherContentGenerator as unknown as {
         currentToken: string;
       };
-      qwenInstance.currentToken = 'cached-token';
+      aetherInstance.currentToken = 'cached-token';
 
-      qwenContentGenerator.clearToken();
+      aetherContentGenerator.clearToken();
 
-      expect(qwenContentGenerator.getCurrentToken()).toBeNull();
+      expect(aetherContentGenerator.getCurrentToken()).toBeNull();
     });
 
     it('should handle concurrent token refresh requests', async () => {
       let refreshCallCount = 0;
 
       // Clear any existing cached token first
-      qwenContentGenerator.clearToken();
+      aetherContentGenerator.clearToken();
 
       // Mock to simulate auth error on first parent call, which should trigger refresh
       const authError = { status: 401, message: 'Unauthorized' };
@@ -962,7 +962,7 @@ describe('QwenContentGenerator', () => {
 
       // Mock the parent method to fail first then succeed
       const parentPrototype = Object.getPrototypeOf(
-        Object.getPrototypeOf(qwenContentGenerator),
+        Object.getPrototypeOf(aetherContentGenerator),
       );
       const originalGenerateContent = parentPrototype.generateContent;
       parentPrototype.generateContent = vi.fn().mockImplementation(async () => {
@@ -974,15 +974,15 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
       // Make multiple concurrent requests - should all use the same refresh promise
       const promises = [
-        qwenContentGenerator.generateContent(request, 'test-prompt-id'),
-        qwenContentGenerator.generateContent(request, 'test-prompt-id'),
-        qwenContentGenerator.generateContent(request, 'test-prompt-id'),
+        aetherContentGenerator.generateContent(request, 'test-prompt-id'),
+        aetherContentGenerator.generateContent(request, 'test-prompt-id'),
+        aetherContentGenerator.generateContent(request, 'test-prompt-id'),
       ];
 
       const results = await Promise.all(promises);
@@ -1014,7 +1014,7 @@ describe('QwenContentGenerator', () => {
 
       authErrors.forEach((error) => {
         const shouldSuppress = (
-          qwenContentGenerator as unknown as {
+          aetherContentGenerator as unknown as {
             shouldSuppressErrorLogging: (
               error: unknown,
               request: GenerateContentParameters,
@@ -1035,7 +1035,7 @@ describe('QwenContentGenerator', () => {
 
       nonAuthErrors.forEach((error) => {
         const shouldSuppress = (
-          qwenContentGenerator as unknown as {
+          aetherContentGenerator as unknown as {
             shouldSuppressErrorLogging: (
               error: unknown,
               request: GenerateContentParameters,
@@ -1062,7 +1062,7 @@ describe('QwenContentGenerator', () => {
       });
 
       const parentPrototype = Object.getPrototypeOf(
-        Object.getPrototypeOf(qwenContentGenerator),
+        Object.getPrototypeOf(aetherContentGenerator),
       );
       parentPrototype.generateContent = mockGenerateContent;
 
@@ -1092,11 +1092,11 @@ describe('QwenContentGenerator', () => {
       });
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Test message' }] }],
       };
 
-      const result = await qwenContentGenerator.generateContent(
+      const result = await aetherContentGenerator.generateContent(
         request,
         'test-prompt-id',
       );
@@ -1126,14 +1126,14 @@ describe('QwenContentGenerator', () => {
         .mockReturnValue(mockTokenManager);
 
       // Create new instance to pick up the mock
-      const newGenerator = new QwenContentGenerator(
+      const newGenerator = new AetherContentGenerator(
         mockQwenClient,
-        { model: 'qwen-turbo', authType: AuthType.QWEN_OAUTH },
+        { model: 'aether-turbo', authType: AuthType.AETHER_OAUTH },
         mockConfig,
       );
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
@@ -1161,14 +1161,14 @@ describe('QwenContentGenerator', () => {
         .fn()
         .mockReturnValue(mockTokenManager);
 
-      const newGenerator = new QwenContentGenerator(
+      const newGenerator = new AetherContentGenerator(
         mockQwenClient,
-        { model: 'qwen-turbo', authType: AuthType.QWEN_OAUTH },
+        { model: 'aether-turbo', authType: AuthType.AETHER_OAUTH },
         mockConfig,
       );
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
@@ -1194,14 +1194,14 @@ describe('QwenContentGenerator', () => {
         .fn()
         .mockReturnValue(mockTokenManager);
 
-      const newGenerator = new QwenContentGenerator(
+      const newGenerator = new AetherContentGenerator(
         mockQwenClient,
-        { model: 'qwen-turbo', authType: AuthType.QWEN_OAUTH },
+        { model: 'aether-turbo', authType: AuthType.AETHER_OAUTH },
         mockConfig,
       );
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
@@ -1240,7 +1240,7 @@ describe('QwenContentGenerator', () => {
           resource_url: input,
         });
 
-        const generator = qwenContentGenerator as unknown as {
+        const generator = aetherContentGenerator as unknown as {
           getCurrentEndpoint: (resourceUrl?: string) => string;
         };
 
@@ -1265,7 +1265,7 @@ describe('QwenContentGenerator', () => {
       ];
 
       endpoints.forEach(({ input, expected }) => {
-        const generator = qwenContentGenerator as unknown as {
+        const generator = aetherContentGenerator as unknown as {
           getCurrentEndpoint: (resourceUrl?: string) => string;
         };
 
@@ -1274,7 +1274,7 @@ describe('QwenContentGenerator', () => {
     });
 
     it('should handle undefined resource URL', () => {
-      const generator = qwenContentGenerator as unknown as {
+      const generator = aetherContentGenerator as unknown as {
         getCurrentEndpoint: (resourceUrl?: string) => string;
       };
 
@@ -1284,7 +1284,7 @@ describe('QwenContentGenerator', () => {
     });
 
     it('should handle empty resource URL', () => {
-      const generator = qwenContentGenerator as unknown as {
+      const generator = aetherContentGenerator as unknown as {
         getCurrentEndpoint: (resourceUrl?: string) => string;
       };
 
@@ -1305,7 +1305,7 @@ describe('QwenContentGenerator', () => {
       ];
 
       authErrors.forEach((error) => {
-        const generator = qwenContentGenerator as unknown as {
+        const generator = aetherContentGenerator as unknown as {
           isAuthError: (error: unknown) => boolean;
         };
         expect(generator.isAuthError(error)).toBe(true);
@@ -1313,7 +1313,7 @@ describe('QwenContentGenerator', () => {
 
       // 400 is not typically an auth error, it's bad request
       const nonAuthError = { status: 400 };
-      const generator = qwenContentGenerator as unknown as {
+      const generator = aetherContentGenerator as unknown as {
         isAuthError: (error: unknown) => boolean;
       };
       expect(generator.isAuthError(nonAuthError)).toBe(false);
@@ -1334,7 +1334,7 @@ describe('QwenContentGenerator', () => {
 
       authMessages.forEach((message) => {
         const error = new Error(message);
-        const generator = qwenContentGenerator as unknown as {
+        const generator = aetherContentGenerator as unknown as {
           isAuthError: (error: unknown) => boolean;
         };
         expect(generator.isAuthError(error)).toBe(true);
@@ -1356,7 +1356,7 @@ describe('QwenContentGenerator', () => {
       ];
 
       nonAuthErrors.forEach((error) => {
-        const generator = qwenContentGenerator as unknown as {
+        const generator = aetherContentGenerator as unknown as {
           isAuthError: (error: unknown) => boolean;
         };
         expect(generator.isAuthError(error)).toBe(false);
@@ -1372,7 +1372,7 @@ describe('QwenContentGenerator', () => {
 
       // These should not be identified as auth errors because the method only looks at top-level properties
       complexErrors.forEach((error) => {
-        const generator = qwenContentGenerator as unknown as {
+        const generator = aetherContentGenerator as unknown as {
           isAuthError: (error: unknown) => boolean;
         };
         expect(generator.isAuthError(error)).toBe(false);
@@ -1383,7 +1383,7 @@ describe('QwenContentGenerator', () => {
   describe('Stream Error Handling', () => {
     it('should set credentials when stream generation fails', async () => {
       const client = (
-        qwenContentGenerator as unknown as {
+        aetherContentGenerator as unknown as {
           pipeline: { client: { apiKey: string; baseURL: string } };
         }
       ).pipeline.client;
@@ -1399,7 +1399,7 @@ describe('QwenContentGenerator', () => {
 
       // Mock parent method to throw error
       const parentPrototype = Object.getPrototypeOf(
-        Object.getPrototypeOf(qwenContentGenerator),
+        Object.getPrototypeOf(aetherContentGenerator),
       );
       const originalGenerateContentStream =
         parentPrototype.generateContentStream;
@@ -1408,12 +1408,12 @@ describe('QwenContentGenerator', () => {
         .mockRejectedValue(new Error('Stream error'));
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Stream test' }] }],
       };
 
       try {
-        await qwenContentGenerator.generateContentStream(
+        await aetherContentGenerator.generateContentStream(
           request,
           'test-prompt-id',
         );
@@ -1431,7 +1431,7 @@ describe('QwenContentGenerator', () => {
 
     it('should set credentials for successful streams', async () => {
       const client = (
-        qwenContentGenerator as unknown as {
+        aetherContentGenerator as unknown as {
           pipeline: { client: { apiKey: string; baseURL: string } };
         }
       ).pipeline.client;
@@ -1453,16 +1453,16 @@ describe('QwenContentGenerator', () => {
 
       // Set the SharedTokenManager mock to return stream credentials
       const mockTokenManager = SharedTokenManager.getInstance() as unknown as {
-        setMockCredentials: (credentials: QwenCredentials | null) => void;
+        setMockCredentials: (credentials: AetherCredentials | null) => void;
       };
       mockTokenManager.setMockCredentials(streamCredentials);
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Stream test' }] }],
       };
 
-      const stream = await qwenContentGenerator.generateContentStream(
+      const stream = await aetherContentGenerator.generateContentStream(
         request,
         'test-prompt-id',
       );
@@ -1498,9 +1498,9 @@ describe('QwenContentGenerator', () => {
         .fn()
         .mockReturnValue(mockTokenManager);
 
-      const newGenerator = new QwenContentGenerator(
+      const newGenerator = new AetherContentGenerator(
         mockQwenClient,
-        { model: 'qwen-turbo', authType: AuthType.QWEN_OAUTH },
+        { model: 'aether-turbo', authType: AuthType.AETHER_OAUTH },
         mockConfig,
       );
 
@@ -1519,9 +1519,9 @@ describe('QwenContentGenerator', () => {
         .fn()
         .mockReturnValue(mockTokenManager);
 
-      const newGenerator = new QwenContentGenerator(
+      const newGenerator = new AetherContentGenerator(
         mockQwenClient,
-        { model: 'qwen-turbo', authType: AuthType.QWEN_OAUTH },
+        { model: 'aether-turbo', authType: AuthType.AETHER_OAUTH },
         mockConfig,
       );
 
@@ -1542,9 +1542,9 @@ describe('QwenContentGenerator', () => {
         .fn()
         .mockReturnValue(mockTokenManager);
 
-      const newGenerator = new QwenContentGenerator(
+      const newGenerator = new AetherContentGenerator(
         mockQwenClient,
-        { model: 'qwen-turbo', authType: AuthType.QWEN_OAUTH },
+        { model: 'aether-turbo', authType: AuthType.AETHER_OAUTH },
         mockConfig,
       );
 
@@ -1563,9 +1563,9 @@ describe('QwenContentGenerator', () => {
         .fn()
         .mockReturnValue(mockTokenManager);
 
-      const newGenerator = new QwenContentGenerator(
+      const newGenerator = new AetherContentGenerator(
         mockQwenClient,
-        { model: 'qwen-turbo', authType: AuthType.QWEN_OAUTH },
+        { model: 'aether-turbo', authType: AuthType.AETHER_OAUTH },
         mockConfig,
       );
 
@@ -1579,11 +1579,11 @@ describe('QwenContentGenerator', () => {
 
   describe('Constructor and Initialization', () => {
     it('should initialize with configured base URL when provided', () => {
-      const generator = new QwenContentGenerator(
+      const generator = new AetherContentGenerator(
         mockQwenClient,
         {
-          model: 'qwen-turbo',
-          authType: AuthType.QWEN_OAUTH,
+          model: 'aether-turbo',
+          authType: AuthType.AETHER_OAUTH,
           baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
           apiKey: 'test-key',
         },
@@ -1599,9 +1599,9 @@ describe('QwenContentGenerator', () => {
     });
 
     it('should get SharedTokenManager instance', () => {
-      const generator = new QwenContentGenerator(
+      const generator = new AetherContentGenerator(
         mockQwenClient,
-        { model: 'qwen-turbo', authType: AuthType.QWEN_OAUTH },
+        { model: 'aether-turbo', authType: AuthType.AETHER_OAUTH },
         mockConfig,
       );
 
@@ -1625,14 +1625,14 @@ describe('QwenContentGenerator', () => {
         .fn()
         .mockReturnValue(mockTokenManager);
 
-      const newGenerator = new QwenContentGenerator(
+      const newGenerator = new AetherContentGenerator(
         mockQwenClient,
-        { model: 'qwen-turbo', authType: AuthType.QWEN_OAUTH },
+        { model: 'aether-turbo', authType: AuthType.AETHER_OAUTH },
         mockConfig,
       );
 
       const request: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
@@ -1654,24 +1654,24 @@ describe('QwenContentGenerator', () => {
         .fn()
         .mockReturnValue(mockTokenManager);
 
-      const newGenerator = new QwenContentGenerator(
+      const newGenerator = new AetherContentGenerator(
         mockQwenClient,
-        { model: 'qwen-turbo', authType: AuthType.QWEN_OAUTH },
+        { model: 'aether-turbo', authType: AuthType.AETHER_OAUTH },
         mockConfig,
       );
 
       const generateRequest: GenerateContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
       };
 
       const countRequest: CountTokensParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ role: 'user', parts: [{ text: 'Count' }] }],
       };
 
       const embedRequest: EmbedContentParameters = {
-        model: 'qwen-turbo',
+        model: 'aether-turbo',
         contents: [{ parts: [{ text: 'Embed' }] }],
       };
 

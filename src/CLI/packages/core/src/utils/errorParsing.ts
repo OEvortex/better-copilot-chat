@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -31,8 +31,8 @@ export function parseAndFormatApiError(
   authType?: AuthType,
 ): string {
   if (isStructuredError(error)) {
-    // Qwen OAuth quota errors have their own user-friendly message; don't wrap them
-    if (error.message.startsWith('Qwen OAuth quota exceeded:')) {
+    // Aether OAuth quota errors have their own user-friendly message; don't wrap them
+    if (error.message.startsWith('Aether OAuth quota exceeded:')) {
       return error.message;
     }
 

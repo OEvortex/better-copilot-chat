@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -12,7 +12,7 @@ import {
   AuthType,
   type ContentGeneratorConfig,
   type Config,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 // Helper function to create a mock config
 function createMockConfig(
@@ -77,10 +77,10 @@ describe('modelCommand', () => {
     });
   });
 
-  it('should return dialog action for QWEN_OAUTH auth type', async () => {
+  it('should return dialog action for AETHER_OAUTH auth type', async () => {
     const mockConfig = createMockConfig({
       model: 'test-model',
-      authType: AuthType.QWEN_OAUTH,
+      authType: AuthType.AETHER_OAUTH,
     });
     mockContext.services.config = mockConfig as Config;
 

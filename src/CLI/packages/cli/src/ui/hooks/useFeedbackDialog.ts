@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+﻿import { useState, useCallback, useEffect } from 'react';
 import * as fs from 'node:fs';
 import {
   type Config,
@@ -8,7 +8,7 @@ import {
   type UserFeedbackRating,
   isNodeError,
   AuthType,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { StreamingState, MessageType, type HistoryItem } from '../types.js';
 import {
   SettingScope,
@@ -147,7 +147,7 @@ export const useFeedbackDialog = ({
     const checkAndShowFeedback = () => {
       if (streamingState === StreamingState.Idle && history.length > 0) {
         // Show feedback dialog if:
-        // 1. User is authenticated via QWEN_OAUTH
+        // 1. User is authenticated via AETHER_OAUTH
         // 2. Qwen logger is enabled (required for feedback submission)
         // 3. User feedback is enabled in settings
         // 4. The last message is an AI response
@@ -156,7 +156,7 @@ export const useFeedbackDialog = ({
         // 7. Fatigue mechanism allows showing (not shown recently across sessions)
         // 8. Not temporarily dismissed
         if (
-          config.getAuthType() !== AuthType.QWEN_OAUTH ||
+          config.getAuthType() !== AuthType.AETHER_OAUTH ||
           !config.getUsageStatisticsEnabled() ||
           settings.merged.ui?.enableUserFeedback === false ||
           !lastMessageIsAIResponse(history) ||

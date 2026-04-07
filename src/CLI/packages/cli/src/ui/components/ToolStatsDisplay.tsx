@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -16,7 +16,7 @@ import {
   USER_AGREEMENT_RATE_MEDIUM,
 } from '../utils/displayUtils.js';
 import { useSessionStats } from '../contexts/SessionContext.js';
-import type { ToolCallStats } from '@qwen-code/qwen-code-core';
+import type { ToolCallStats } from '@aether/aether-core';
 import { t } from '../../i18n/index.js';
 
 const TOOL_NAME_COL_WIDTH = 25;

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -53,7 +53,7 @@ import {
   IDLE_SPECULATION,
   ApprovalMode,
   type PermissionMode,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { buildResumedHistoryItems } from './utils/resumeHistoryUtils.js';
 import { validateAuthMethod } from '../config/auth.js';
 import { loadHierarchicalGeminiMemory } from '../config/config.js';
@@ -465,7 +465,7 @@ export const AppContainer = (props: AppContainerProps) => {
     isAuthDialogOpen,
     isAuthenticating,
     pendingAuthType,
-    qwenAuthState,
+    aetherAuthState,
     handleAuthSelect,
     handleCodingPlanSubmit,
     handleAlibabaStandardSubmit,
@@ -661,7 +661,7 @@ export const AppContainer = (props: AppContainerProps) => {
     historyManager.addItem(
       {
         type: MessageType.INFO,
-        text: 'Refreshing hierarchical memory (QWEN.md or other context files)...',
+        text: 'Refreshing hierarchical memory (AGENTS.md or other context files)...',
       },
       Date.now(),
     );
@@ -1793,8 +1793,8 @@ export const AppContainer = (props: AppContainerProps) => {
       authError,
       isAuthDialogOpen,
       pendingAuthType,
-      // Qwen OAuth state
-      qwenAuthState,
+      // Aether OAuth state
+      aetherAuthState,
       editorError,
       isEditorDialogOpen,
       debugMessage,
@@ -1899,8 +1899,8 @@ export const AppContainer = (props: AppContainerProps) => {
       authError,
       isAuthDialogOpen,
       pendingAuthType,
-      // Qwen OAuth state
-      qwenAuthState,
+      // Aether OAuth state
+      aetherAuthState,
       editorError,
       isEditorDialogOpen,
       debugMessage,

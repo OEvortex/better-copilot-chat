@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -418,7 +418,7 @@ describe('convertClaudePluginPackage', () => {
       'crlf-agents-plugin',
     );
 
-    // Verify: agent file was properly parsed and converted into .qwen/agents folder structure
+    // Verify: agent file was properly parsed and converted into .aether/agents folder structure
     const convertedAgentsDir = path.join(result.convertedDir, 'agents');
     expect(fs.existsSync(convertedAgentsDir)).toBe(true);
 
@@ -526,7 +526,7 @@ describe('performVariableReplacement for Claude extensions', () => {
     }
   });
 
-  it('should replace .claude with .qwen in shell scripts', () => {
+  it('should replace .claude with .aether in shell scripts', () => {
     const extDir = path.join(testDir, 'ext-sh');
     fs.mkdirSync(extDir, { recursive: true });
 
@@ -539,9 +539,9 @@ describe('performVariableReplacement for Claude extensions', () => {
     performVariableReplacement(extDir);
 
     const result = fs.readFileSync(path.join(extDir, 'setup.sh'), 'utf-8');
-    expect(result).toContain('$HOME/.qwen/config');
-    expect(result).toContain('~/.qwen/cache');
-    expect(result).toContain('./.qwen/local');
+    expect(result).toContain('$HOME/.aether/config');
+    expect(result).toContain('~/.aether/cache');
+    expect(result).toContain('./.aether/local');
     expect(result).not.toContain('.claude');
   });
 

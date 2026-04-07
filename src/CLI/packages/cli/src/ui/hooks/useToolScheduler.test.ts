@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -24,18 +24,18 @@ import type {
   Status as ToolCallStatusType,
   AnyDeclarativeTool,
   AnyToolInvocation,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import {
   DEFAULT_TRUNCATE_TOOL_OUTPUT_LINES,
   DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD,
   ApprovalMode,
   MockTool,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { ToolCallStatus } from '../types.js';
 
 // Mocks
-vi.mock('@qwen-code/qwen-code-core', async () => {
-  const actual = await vi.importActual('@qwen-code/qwen-code-core');
+vi.mock('@aether/aether-core', async () => {
+  const actual = await vi.importActual('@aether/aether-core');
   return {
     ...actual,
     ToolRegistry: vi.fn(),

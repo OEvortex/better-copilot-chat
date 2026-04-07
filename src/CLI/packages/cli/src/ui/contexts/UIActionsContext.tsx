@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -13,7 +13,7 @@ import {
   type AuthType,
   type EditorType,
   type ApprovalMode,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { type SettingScope } from '../../config/settings.js';
 import { type CodingPlanRegion } from '../../constants/codingPlan.js';
 import { type AlibabaStandardRegion } from '../../constants/alibabaStandardApiKey.js';

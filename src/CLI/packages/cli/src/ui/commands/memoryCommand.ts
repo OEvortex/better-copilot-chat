@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -8,8 +8,8 @@ import {
   getErrorMessage,
   getAllGeminiMdFilenames,
   loadServerHierarchicalMemory,
-  QWEN_DIR,
-} from '@qwen-code/qwen-code-core';
+  AETHER_DIR,
+} from '@aether/aether-core';
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
@@ -118,7 +118,7 @@ export const memoryCommand: SlashCommand = {
           },
           kind: CommandKind.BUILT_IN,
           action: async (context) => {
-            const globalDir = path.join(os.homedir(), QWEN_DIR);
+            const globalDir = path.join(os.homedir(), AETHER_DIR);
             const results = await findAllExistingMemoryFiles(globalDir);
 
             if (results.length > 0) {

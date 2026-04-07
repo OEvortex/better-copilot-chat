@@ -105,8 +105,8 @@ export interface LogResponse {
 
 // Singleton class for batch posting log events to RUM. When a new event comes in, the elapsed time
 // is checked and events are flushed to RUM if at least a minute has passed since the last flush.
-export class QwenLogger {
-  private static instance: QwenLogger;
+export class AetherLogger {
+  private static instance: AetherLogger;
   private config?: Config;
   private debugLogger: DebugLogger;
   private readonly installationManager: InstallationManager;
@@ -165,14 +165,14 @@ export class QwenLogger {
     return `user-${installationId ?? 'unknown'}`;
   }
 
-  static getInstance(config?: Config): QwenLogger | undefined {
+  static getInstance(config?: Config): AetherLogger | undefined {
     if (config === undefined || !config?.getUsageStatisticsEnabled())
       return undefined;
-    if (!QwenLogger.instance) {
-      QwenLogger.instance = new QwenLogger(config);
+    if (!AetherLogger.instance) {
+      AetherLogger.instance = new AetherLogger(config);
     }
 
-    return QwenLogger.instance;
+    return AetherLogger.instance;
   }
 
   enqueueLogEvent(event: RumEvent): void {
@@ -188,11 +188,11 @@ export class QwenLogger {
 
       if (wasAtCapacity) {
         this.debugLogger.debug(
-          `QwenLogger: Dropped old event to prevent memory leak (queue size: ${this.events.size})`,
+          `AetherLogger: Dropped old event to prevent memory leak (queue size: ${this.events.size})`,
         );
       }
     } catch (error) {
-      this.debugLogger.error('QwenLogger: Failed to enqueue log event.', error);
+      this.debugLogger.error('AetherLogger: Failed to enqueue log event.', error);
     }
   }
 
@@ -272,7 +272,7 @@ export class QwenLogger {
       },
       view: {
         id: this.sessionId || this.config?.getSessionId(),
-        name: 'qwen-code-cli',
+        name: 'aether-cli-cli',
       },
       os: osMetadata,
 
@@ -288,7 +288,7 @@ export class QwenLogger {
           ? { channel: this.config.getChannel() }
           : {}),
       },
-      _v: `qwen-code@${version}`,
+      _v: `aether-cli@${version}`,
     } as RumPayload;
   }
 
@@ -302,7 +302,7 @@ export class QwenLogger {
 
   readSourceInfo(): string {
     try {
-      const sourceJsonPath = path.join(os.homedir(), '.qwen', 'source.json');
+      const sourceJsonPath = path.join(os.homedir(), '.aether', 'source.json');
       if (fs.existsSync(sourceJsonPath)) {
         const sourceJsonContent = fs.readFileSync(sourceJsonPath, 'utf8');
         const sourceData = JSON.parse(sourceJsonContent);
@@ -324,7 +324,7 @@ export class QwenLogger {
   async flushToRum(): Promise<LogResponse> {
     if (this.isFlushInProgress) {
       this.debugLogger.debug(
-        'QwenLogger: Flush already in progress, marking pending flush.',
+        'AetherLogger: Flush already in progress, marking pending flush.',
       );
       this.pendingFlush = true;
       return Promise.resolve({});
@@ -1047,7 +1047,7 @@ export class QwenLogger {
     // Log a warning if we're dropping events
     if (eventsToSend.length > MAX_RETRY_EVENTS) {
       this.debugLogger.warn(
-        `QwenLogger: Dropping ${
+        `AetherLogger: Dropping ${
           eventsToSend.length - MAX_RETRY_EVENTS
         } events due to retry queue limit. Total events: ${
           eventsToSend.length
@@ -1079,7 +1079,7 @@ export class QwenLogger {
     }
 
     this.debugLogger.debug(
-      `QwenLogger: Re-queued ${numEventsToRequeue} events for retry (queue size: ${this.events.size})`,
+      `AetherLogger: Re-queued ${numEventsToRequeue} events for retry (queue size: ${this.events.size})`,
     );
   }
 }

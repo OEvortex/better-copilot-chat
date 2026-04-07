@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -108,11 +108,11 @@ export async function retryWithBackoff<T>(
     } catch (error) {
       const errorStatus = getErrorStatus(error);
 
-      // Check for Qwen OAuth quota exceeded error - throw immediately without retry
-      if (authType === AuthType.QWEN_OAUTH && isQwenQuotaExceededError(error)) {
+      // Check for Aether OAuth quota exceeded error - throw immediately without retry
+      if (authType === AuthType.AETHER_OAUTH && isQwenQuotaExceededError(error)) {
         throw new Error(
-          `Qwen OAuth quota exceeded: Your free daily quota has been reached.\n\n` +
-            `To continue using Qwen Code without waiting, upgrade to the Alibaba Cloud Coding Plan:\n` +
+          `Aether OAuth quota exceeded: Your free daily quota has been reached.\n\n` +
+            `To continue using Aether without waiting, upgrade to the Alibaba Cloud Coding Plan:\n` +
             `  China:       https://help.aliyun.com/zh/model-studio/coding-plan\n` +
             `  Global/Intl: https://www.alibabacloud.com/help/en/model-studio/coding-plan\n\n` +
             `After subscribing, run /auth to configure your Coding Plan API key.`,

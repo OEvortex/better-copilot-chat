@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -7,29 +7,29 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   getAvailableModelsForAuthType,
-  getFilteredQwenModels,
+  getFilteredAetherModels,
   getOpenAIAvailableModelFromEnv,
 } from './availableModels.js';
-import { AuthType, type Config } from '@qwen-code/qwen-code-core';
+import { AuthType, type Config } from '@aether/aether-core';
 
 describe('availableModels', () => {
   describe('Qwen models', () => {
-    const qwenModels = getFilteredQwenModels();
+    const aetherModels = getFilteredAetherModels();
 
     it('should include only coder-model', () => {
-      expect(qwenModels.length).toBe(1);
-      expect(qwenModels[0].id).toBe('coder-model');
+      expect(aetherModels.length).toBe(1);
+      expect(aetherModels[0].id).toBe('coder-model');
     });
 
     it('should have coder-model with vision capability', () => {
-      const coderModel = qwenModels[0];
+      const coderModel = aetherModels[0];
       expect(coderModel.isVision).toBe(true);
     });
   });
 
-  describe('getFilteredQwenModels', () => {
+  describe('getFilteredAetherModels', () => {
     it('should return coder-model with vision capability', () => {
-      const models = getFilteredQwenModels();
+      const models = getFilteredAetherModels();
       expect(models.length).toBe(1);
       expect(models[0].id).toBe('coder-model');
       expect(models[0].isVision).toBe(true);
@@ -77,28 +77,28 @@ describe('availableModels', () => {
       process.env = originalEnv;
     });
 
-    it('should return hard-coded qwen models for qwen-oauth', () => {
-      const models = getAvailableModelsForAuthType(AuthType.QWEN_OAUTH);
+    it('should return hard-coded qwen models for aether-oauth', () => {
+      const models = getAvailableModelsForAuthType(AuthType.AETHER_OAUTH);
       expect(models.length).toBe(1);
       expect(models[0].id).toBe('coder-model');
       expect(models[0].isVision).toBe(true);
     });
 
-    it('should use config models for qwen-oauth when config is provided', () => {
+    it('should use config models for aether-oauth when config is provided', () => {
       const mockConfig = {
         getAvailableModelsForAuthType: vi.fn().mockReturnValue([
           {
             id: 'custom',
             label: 'Custom',
             description: 'Custom model',
-            authType: AuthType.QWEN_OAUTH,
+            authType: AuthType.AETHER_OAUTH,
             isVision: false,
           },
         ]),
       } as unknown as Config;
 
       const models = getAvailableModelsForAuthType(
-        AuthType.QWEN_OAUTH,
+        AuthType.AETHER_OAUTH,
         mockConfig,
       );
       expect(models).toEqual([

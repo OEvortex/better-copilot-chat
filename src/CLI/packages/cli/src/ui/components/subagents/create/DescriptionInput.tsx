@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -9,7 +9,7 @@ import { Box, Text } from 'ink';
 import Spinner from 'ink-spinner';
 import type { WizardStepProps, WizardAction } from '../types.js';
 import { sanitizeInput } from '../utils.js';
-import { type Config, subagentGenerator } from '@qwen-code/qwen-code-core';
+import { type Config, subagentGenerator } from '@aether/aether-core';
 import { useKeypress, type Key } from '../../../hooks/useKeypress.js';
 import { keyMatchers, Command } from '../../../keyMatchers.js';
 import { theme } from '../../../semantic-colors.js';

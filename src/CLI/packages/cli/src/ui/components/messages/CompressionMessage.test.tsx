@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -7,7 +7,7 @@
 import { render } from 'ink-testing-library';
 import type { CompressionDisplayProps } from './CompressionMessage.js';
 import { CompressionMessage } from './CompressionMessage.js';
-import { CompressionStatus } from '@qwen-code/qwen-code-core';
+import { CompressionStatus } from '@aether/aether-core';
 import type { CompressionProps } from '../../types.js';
 import { describe, it, expect } from 'vitest';
 

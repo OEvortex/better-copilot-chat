@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -6,7 +6,7 @@
 
 import type React from 'react';
 import { useState } from 'react';
-import { AuthType } from '@qwen-code/qwen-code-core';
+import { AuthType } from '@aether/aether-core';
 import { Box, Text } from 'ink';
 import Link from 'ink-link';
 import { theme } from '../semantic-colors.js';
@@ -28,7 +28,7 @@ import {
 } from '../../constants/alibabaStandardApiKey.js';
 
 const MODEL_PROVIDERS_DOCUMENTATION_URL =
-  'https://qwenlm.github.io/qwen-code-docs/en/users/configuration/model-providers/';
+  'https://OEvortex.github.io/aether-docs/en/users/configuration/model-providers/';
 
 function parseDefaultAuthType(
   defaultAuthType: string | undefined,
@@ -43,7 +43,7 @@ function parseDefaultAuthType(
 }
 
 // Main menu option type
-type MainOption = typeof AuthType.QWEN_OAUTH | 'CODING_PLAN' | 'API_KEY';
+type MainOption = typeof AuthType.AETHER_OAUTH | 'CODING_PLAN' | 'API_KEY';
 type ApiKeyOption = 'ALIBABA_STANDARD_API_KEY' | 'CUSTOM_API_KEY';
 
 // View level for navigation
@@ -57,7 +57,7 @@ type ViewLevel =
   | 'alibaba-standard-model-id-input'
   | 'custom-info';
 
-const ALIBABA_STANDARD_MODEL_IDS_PLACEHOLDER = 'qwen3.5-plus,glm-5,kimi-k2.5';
+const ALIBABA_STANDARD_MODEL_IDS_PLACEHOLDER = 'aether3.5-plus,glm-5,kimi-k2.5';
 const ALIBABA_STANDARD_API_DOCUMENTATION_URLS: Record<
   AlibabaStandardRegion,
   string
@@ -103,13 +103,13 @@ export function AuthDialog(): React.JSX.Element {
   // Main authentication entries (flat three-option layout)
   const mainItems = [
     {
-      key: AuthType.QWEN_OAUTH,
-      title: t('Qwen OAuth'),
-      label: t('Qwen OAuth'),
+      key: AuthType.AETHER_OAUTH,
+      title: t('Aether OAuth'),
+      label: t('Aether OAuth'),
       description: t(
-        'Free \u00B7 Up to 1,000 requests/day \u00B7 Qwen latest models',
+        'Free \u00B7 Up to 1,000 requests/day \u00B7 Aether latest models',
       ),
-      value: AuthType.QWEN_OAUTH as MainOption,
+      value: AuthType.AETHER_OAUTH as MainOption,
     },
     {
       key: 'CODING_PLAN',
@@ -232,7 +232,7 @@ export function AuthDialog(): React.JSX.Element {
   ];
 
   // Map an AuthType to the corresponding main menu option.
-  // QWEN_OAUTH maps directly; USE_OPENAI maps to:
+  // AETHER_OAUTH maps directly; USE_OPENAI maps to:
   // - CODING_PLAN when current config matches coding plan
   // - API_KEY for other OpenAI / Anthropic / Gemini-compatible configs
   const contentGenConfig = config.getContentGeneratorConfig();
@@ -242,7 +242,7 @@ export function AuthDialog(): React.JSX.Element {
       contentGenConfig?.apiKeyEnvKey,
     ) !== false;
   const authTypeToMainOption = (authType: AuthType): MainOption => {
-    if (authType === AuthType.QWEN_OAUTH) return AuthType.QWEN_OAUTH;
+    if (authType === AuthType.AETHER_OAUTH) return AuthType.AETHER_OAUTH;
     if (authType === AuthType.USE_OPENAI && isCurrentlyCodingPlan) {
       return 'CODING_PLAN';
     }
@@ -263,16 +263,16 @@ export function AuthDialog(): React.JSX.Element {
         return item.value === authTypeToMainOption(currentAuthType);
       }
 
-      // Priority 3: QWEN_DEFAULT_AUTH_TYPE env var
+      // Priority 3: AETHER_DEFAULT_AUTH_TYPE env var
       const defaultAuthType = parseDefaultAuthType(
-        process.env['QWEN_DEFAULT_AUTH_TYPE'],
+        process.env['AETHER_DEFAULT_AUTH_TYPE'],
       );
       if (defaultAuthType) {
         return item.value === authTypeToMainOption(defaultAuthType);
       }
 
-      // Priority 4: default to QWEN_OAUTH
-      return item.value === AuthType.QWEN_OAUTH;
+      // Priority 4: default to AETHER_OAUTH
+      return item.value === AuthType.AETHER_OAUTH;
     }),
   );
 
@@ -291,7 +291,7 @@ export function AuthDialog(): React.JSX.Element {
       return;
     }
 
-    // For Qwen OAuth, proceed directly
+    // For Aether OAuth, proceed directly
     await onAuthSelect(value);
   };
 
@@ -588,7 +588,7 @@ export function AuthDialog(): React.JSX.Element {
       <Box marginTop={1}>
         <Text color={theme.text.secondary}>
           {t(
-            'You can enter multiple model IDs, separated by commas. Examples: qwen3.5-plus,glm-5,kimi-k2.5',
+            'You can enter multiple model IDs, separated by commas. Examples: aether3.5-plus,glm-5,kimi-k2.5',
           )}
         </Text>
       </Box>
@@ -712,11 +712,11 @@ export function AuthDialog(): React.JSX.Element {
           </Box>
           <Box>
             <Link
-              url="https://qwenlm.github.io/qwen-code-docs/en/users/support/tos-privacy/"
+              url="https://OEvortex.github.io/aether-docs/en/users/support/tos-privacy/"
               fallback={false}
             >
               <Text color={theme.text.secondary} underline>
-                https://qwenlm.github.io/qwen-code-docs/en/users/support/tos-privacy/
+                https://OEvortex.github.io/aether-docs/en/users/support/tos-privacy/
               </Text>
             </Link>
           </Box>

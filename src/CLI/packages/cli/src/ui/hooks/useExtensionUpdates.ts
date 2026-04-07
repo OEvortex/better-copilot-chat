@@ -1,10 +1,10 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { ExtensionManager } from '@qwen-code/qwen-code-core';
+import type { ExtensionManager } from '@aether/aether-core';
 import { getErrorMessage } from '../../utils/errors.js';
 import {
   ExtensionUpdateState,

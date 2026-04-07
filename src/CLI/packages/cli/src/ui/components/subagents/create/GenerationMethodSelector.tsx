@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -11,15 +11,15 @@ import { t } from '../../../../i18n/index.js';
 
 interface GenerationOption {
   label: string;
-  value: 'qwen' | 'manual';
+  value: 'aether' | 'manual';
 }
 
 const generationOptions: GenerationOption[] = [
   {
     get label() {
-      return t('Generate with Qwen Code (Recommended)');
+      return t('Generate with Aether Code (Recommended)');
     },
-    value: 'qwen',
+    value: 'aether',
   },
   {
     get label() {
@@ -39,7 +39,7 @@ export function GenerationMethodSelector({
   onPrevious: _onPrevious,
 }: WizardStepProps) {
   const handleSelect = (selectedValue: string) => {
-    const method = selectedValue as 'qwen' | 'manual';
+    const method = selectedValue as 'aether' | 'manual';
     dispatch({ type: 'SET_GENERATION_METHOD', method });
     onNext();
   };

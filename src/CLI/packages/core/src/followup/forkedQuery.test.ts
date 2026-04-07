@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -28,7 +28,7 @@ describe('CacheSafeParams', () => {
 
       const params = getCacheSafeParams();
       expect(params).not.toBeNull();
-      expect(params!.model).toBe('qwen-max');
+      expect(params!.model).toBe('aether-max');
       expect(params!.history).toEqual([]);
       expect(params!.version).toBeGreaterThan(0);
     });

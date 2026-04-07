@@ -1,5 +1,5 @@
-import type { CommandModule } from 'yargs';
-import { PairingStore } from '@qwen-code/channel-base';
+﻿import type { CommandModule } from 'yargs';
+import { PairingStore } from '@aether/channel-base';
 import { writeStderrLine, writeStdoutLine } from '../../utils/stdioHelpers.js';
 
 export const pairingListCommand: CommandModule<object, { name: string }> = {

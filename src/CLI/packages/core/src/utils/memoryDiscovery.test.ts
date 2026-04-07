@@ -14,7 +14,7 @@ import {
   DEFAULT_CONTEXT_FILENAME,
 } from '../tools/memoryTool.js';
 import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
-import { QWEN_DIR } from './paths.js';
+import { AETHER_DIR } from './paths.js';
 
 vi.mock('os', async (importOriginal) => {
   const actualOs = await importOriginal<typeof os>();
@@ -103,7 +103,7 @@ describe('loadServerHierarchicalMemory', () => {
         'Src directory memory',
       ); // Untrusted
 
-      const filepath = path.join(homedir, QWEN_DIR, DEFAULT_CONTEXT_FILENAME);
+      const filepath = path.join(homedir, AETHER_DIR, DEFAULT_CONTEXT_FILENAME);
       await createTestFile(filepath, 'default context content'); // In user home dir (outside untrusted space).
       const { fileCount, memoryContent } = await loadServerHierarchicalMemory(
         cwd,
@@ -135,7 +135,7 @@ describe('loadServerHierarchicalMemory', () => {
 
   it('should load only the global context file if present and others are not (default filename)', async () => {
     const defaultContextFile = await createTestFile(
-      path.join(homedir, QWEN_DIR, DEFAULT_CONTEXT_FILENAME),
+      path.join(homedir, AETHER_DIR, DEFAULT_CONTEXT_FILENAME),
       'default context content',
     );
 
@@ -158,7 +158,7 @@ describe('loadServerHierarchicalMemory', () => {
     setGeminiMdFilename(customFilename);
 
     const customContextFile = await createTestFile(
-      path.join(homedir, QWEN_DIR, customFilename),
+      path.join(homedir, AETHER_DIR, customFilename),
       'custom context content',
     );
 
@@ -279,7 +279,7 @@ describe('loadServerHierarchicalMemory', () => {
 
   it('should load and correctly order global and upward context files', async () => {
     const defaultContextFile = await createTestFile(
-      path.join(homedir, QWEN_DIR, DEFAULT_CONTEXT_FILENAME),
+      path.join(homedir, AETHER_DIR, DEFAULT_CONTEXT_FILENAME),
       'default context content',
     );
     const rootGeminiFile = await createTestFile(
@@ -316,7 +316,7 @@ describe('loadServerHierarchicalMemory', () => {
 
   it('should load extension context file paths', async () => {
     const extensionFilePath = await createTestFile(
-      path.join(testRootDir, 'extensions/ext1/QWEN.md'),
+      path.join(testRootDir, 'extensions/ext1/AGENTS.md'),
       'Extension memory content',
     );
 

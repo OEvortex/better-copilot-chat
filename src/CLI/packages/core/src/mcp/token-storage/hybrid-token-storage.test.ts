@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -101,8 +101,8 @@ describe('HybridTokenStorage', () => {
       expect(await storage.getStorageType()).toBe(TokenStorageType.KEYCHAIN);
     });
 
-    it('should use file storage when QWEN_CODE_FORCE_FILE_STORAGE is set', async () => {
-      process.env['QWEN_CODE_FORCE_FILE_STORAGE'] = 'true';
+    it('should use file storage when aether_cli_FORCE_FILE_STORAGE is set', async () => {
+      process.env['aether_cli_FORCE_FILE_STORAGE'] = 'true';
       mockFileStorage.getCredentials.mockResolvedValue(null);
 
       await storage.getCredentials('test-server');

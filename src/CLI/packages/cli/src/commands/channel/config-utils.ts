@@ -1,4 +1,4 @@
-import type { ChannelConfig } from '@qwen-code/channel-base';
+﻿import type { ChannelConfig } from '@aether/channel-base';
 import * as path from 'node:path';
 import { getPlugin, supportedTypes } from './channel-registry.js';
 

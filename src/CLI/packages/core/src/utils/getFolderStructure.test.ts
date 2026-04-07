@@ -282,7 +282,7 @@ ${testRootDir}${path.sep}
       const structure = await getFolderStructure(testRootDir, {
         fileService,
         fileFilteringOptions: {
-          respectQwenIgnore: false,
+          respectAetherIgnore: false,
           respectGitIgnore: false,
         },
       });
@@ -292,10 +292,10 @@ ${testRootDir}${path.sep}
     });
   });
 
-  describe('with qwenignore', () => {
-    it('should ignore qwenignore files by default', async () => {
+  describe('with aetherignore', () => {
+    it('should ignore aetherignore files by default', async () => {
       await fsPromises.writeFile(
-        nodePath.join(testRootDir, '.qwenignore'),
+        nodePath.join(testRootDir, '.aetherignore'),
         'ignored.txt\nnode_modules/\n.gemini/\n!/.gemini/config.yaml',
       );
       await createTestFile('file1.txt');
@@ -313,9 +313,9 @@ ${testRootDir}${path.sep}
       expect(structure).not.toContain('logs.json');
     });
 
-    it('should not ignore files if respectQwenIgnore is false', async () => {
+    it('should not ignore files if respectAetherIgnore is false', async () => {
       await fsPromises.writeFile(
-        nodePath.join(testRootDir, '.qwenignore'),
+        nodePath.join(testRootDir, '.aetherignore'),
         'ignored.txt\nnode_modules/\n.gemini/\n!/.gemini/config.yaml',
       );
       await createTestFile('file1.txt');
@@ -328,7 +328,7 @@ ${testRootDir}${path.sep}
       const structure = await getFolderStructure(testRootDir, {
         fileService,
         fileFilteringOptions: {
-          respectQwenIgnore: false,
+          respectAetherIgnore: false,
           respectGitIgnore: true, // Explicitly disable gemini ignore only
         },
       });

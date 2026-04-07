@@ -1,10 +1,10 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { IdeInfo } from '@qwen-code/qwen-code-core';
+import type { IdeInfo } from '@aether/aether-core';
 import { Box, Text } from 'ink';
 import type { RadioSelectItem } from './components/shared/RadioButtonSelect.js';
 import { RadioButtonSelect } from './components/shared/RadioButtonSelect.js';
@@ -41,8 +41,8 @@ export function IdeIntegrationNudge({
   const isInSandbox = !!process.env['SANDBOX'];
   // Assume extension is already installed if the env variables are set.
   const isExtensionPreInstalled =
-    !!process.env['QWEN_CODE_IDE_SERVER_PORT'] &&
-    !!process.env['QWEN_CODE_IDE_WORKSPACE_PATH'];
+    !!process.env['aether_cli_IDE_SERVER_PORT'] &&
+    !!process.env['aether_cli_IDE_WORKSPACE_PATH'];
 
   const OPTIONS: Array<RadioSelectItem<IdeIntegrationNudgeResult>> = [
     {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -32,10 +32,10 @@ vi.mock('../utils/shell-utils.js', () => ({
   isCommandAvailable: vi.fn(),
 }));
 
-const hoistedMockGetGlobalQwenDir = vi.hoisted(() => vi.fn());
+const hoistedMockGetGlobalAetherDir = vi.hoisted(() => vi.fn());
 vi.mock('../config/storage.js', () => ({
   Storage: {
-    getGlobalQwenDir: hoistedMockGetGlobalQwenDir,
+    getGlobalAetherDir: hoistedMockGetGlobalAetherDir,
   },
 }));
 
@@ -65,7 +65,7 @@ describe('GitWorktreeService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    hoistedMockGetGlobalQwenDir.mockReturnValue('/mock-qwen');
+    hoistedMockGetGlobalAetherDir.mockReturnValue('/mock-aether');
     (isCommandAvailable as Mock).mockReturnValue({ available: true });
 
     hoistedMockSimpleGit.mockImplementation(() => ({
@@ -141,7 +141,7 @@ describe('GitWorktreeService', () => {
     const result = await service.createWorktree('s1', 'Model A');
 
     const expectedPath = path.join(
-      '/mock-qwen',
+      '/mock-aether',
       'worktrees',
       's1',
       'worktrees',
@@ -390,7 +390,7 @@ describe('GitWorktreeService', () => {
       return {
         id: `${sessionId}/${name}`,
         name,
-        path: `/mock-qwen/worktrees/${sessionId}/worktrees/${name}`,
+        path: `/mock-aether/worktrees/${sessionId}/worktrees/${name}`,
         branch: `worktrees/${sessionId}/${name}`,
         isActive: true,
         createdAt: 1,

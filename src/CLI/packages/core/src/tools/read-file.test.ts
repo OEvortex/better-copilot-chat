@@ -40,7 +40,7 @@ describe('ReadFileTool', () => {
       getWorkspaceContext: () => createMockWorkspaceContext(tempRootDir),
       storage: {
         getProjectTempDir: () => path.join(tempRootDir, '.temp'),
-        getUserSkillsDirs: () => [path.join(os.homedir(), '.qwen', 'skills')],
+        getUserSkillsDirs: () => [path.join(os.homedir(), '.aether', 'skills')],
       },
       getTruncateToolOutputThreshold: () => 2500,
       getTruncateToolOutputLines: () => 500,
@@ -485,21 +485,21 @@ describe('ReadFileTool', () => {
       }
     });
 
-    describe('with .qwenignore', () => {
+    describe('with .aetherignore', () => {
       beforeEach(async () => {
         await fsp.writeFile(
-          path.join(tempRootDir, '.qwenignore'),
+          path.join(tempRootDir, '.aetherignore'),
           ['foo.*', 'ignored/'].join('\n'),
         );
       });
 
-      it('should throw error if path is ignored by a .qwenignore pattern', async () => {
+      it('should throw error if path is ignored by a .aetherignore pattern', async () => {
         const ignoredFilePath = path.join(tempRootDir, 'foo.bar');
         await fsp.writeFile(ignoredFilePath, 'content', 'utf-8');
         const params: ReadFileToolParams = {
           file_path: ignoredFilePath,
         };
-        const expectedError = `File path '${ignoredFilePath}' is ignored by .qwenignore pattern(s).`;
+        const expectedError = `File path '${ignoredFilePath}' is ignored by .aetherignore pattern(s).`;
         expect(() => tool.build(params)).toThrow(expectedError);
       });
 
@@ -511,7 +511,7 @@ describe('ReadFileTool', () => {
         const params: ReadFileToolParams = {
           file_path: ignoredFilePath,
         };
-        const expectedError = `File path '${ignoredFilePath}' is ignored by .qwenignore pattern(s).`;
+        const expectedError = `File path '${ignoredFilePath}' is ignored by .aetherignore pattern(s).`;
         expect(() => tool.build(params)).toThrow(expectedError);
       });
 

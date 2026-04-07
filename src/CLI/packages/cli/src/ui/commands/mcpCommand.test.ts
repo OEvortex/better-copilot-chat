@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -12,11 +12,11 @@ import {
   MCPDiscoveryState,
   getMCPServerStatus,
   getMCPDiscoveryState,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
-vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
+vi.mock('@aether/aether-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@qwen-code/qwen-code-core')>();
+    await importOriginal<typeof import('@aether/aether-core')>();
   const mockAuthenticate = vi.fn();
   return {
     ...actual,

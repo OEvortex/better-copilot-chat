@@ -75,7 +75,7 @@ export function HooksDisabledStep({
       <Box marginBottom={1}>
         <Text color={theme.text.secondary}>
           {t(
-            'To re-enable hooks, remove "disableAllHooks" from settings.json or ask Qwen Code.',
+            'To re-enable hooks, remove "disableAllHooks" from settings.json or ask Aether Code.',
           )}
         </Text>
       </Box>

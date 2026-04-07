@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -7,9 +7,9 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import { join as pathJoin } from 'node:path';
-import { getErrorMessage } from '@qwen-code/qwen-code-core';
+import { getErrorMessage } from '@aether/aether-core';
 
-const warningsFilePath = pathJoin(os.tmpdir(), 'qwen-code-warnings.txt');
+const warningsFilePath = pathJoin(os.tmpdir(), 'aether-warnings.txt');
 
 export async function getStartupWarnings(): Promise<string[]> {
   try {

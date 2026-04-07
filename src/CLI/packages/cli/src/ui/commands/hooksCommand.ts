@@ -1,6 +1,6 @@
-/**
+﻿/**
  * @license
- * Copyright 2026 Qwen Team
+ * Copyright 2026 Aether Team
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -12,7 +12,7 @@ import type {
 } from './types.js';
 import { CommandKind } from './types.js';
 import { t } from '../../i18n/index.js';
-import type { HookRegistryEntry } from '@qwen-code/qwen-code-core';
+import type { HookRegistryEntry } from '@aether/aether-core';
 
 /**
  * Format hook source for display
@@ -117,7 +117,7 @@ const listCommand: SlashCommand = {
 export const hooksCommand: SlashCommand = {
   name: 'hooks',
   get description() {
-    return t('Manage Qwen Code hooks');
+    return t('Manage Aether Code hooks');
   },
   kind: CommandKind.BUILT_IN,
   action: async (

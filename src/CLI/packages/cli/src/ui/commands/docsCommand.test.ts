@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -35,7 +35,7 @@ describe('docsCommand', () => {
       throw new Error('docsCommand must have an action.');
     }
 
-    const docsUrl = 'https://qwenlm.github.io/qwen-code-docs/en';
+    const docsUrl = 'https://OEvortex.github.io/aether-docs/en';
 
     await docsCommand.action(mockContext, '');
 
@@ -57,7 +57,7 @@ describe('docsCommand', () => {
 
     // Simulate a sandbox environment
     vi.stubEnv('SANDBOX', 'gemini-sandbox');
-    const docsUrl = 'https://qwenlm.github.io/qwen-code-docs/en';
+    const docsUrl = 'https://OEvortex.github.io/aether-docs/en';
 
     await docsCommand.action(mockContext, '');
 
@@ -80,7 +80,7 @@ describe('docsCommand', () => {
 
     // Simulate the specific 'sandbox-exec' environment
     vi.stubEnv('SANDBOX', 'sandbox-exec');
-    const docsUrl = 'https://qwenlm.github.io/qwen-code-docs/en';
+    const docsUrl = 'https://OEvortex.github.io/aether-docs/en';
 
     await docsCommand.action(mockContext, '');
 

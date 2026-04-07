@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -10,7 +10,7 @@ import { theme } from '../semantic-colors.js';
 import {
   type IdeContext,
   type MCPServerConfig,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { isNarrowWidth } from '../utils/isNarrowWidth.js';
 import { t } from '../../i18n/index.js';

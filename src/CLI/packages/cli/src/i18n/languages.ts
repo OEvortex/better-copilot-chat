@@ -1,26 +1,19 @@
 /**
  * @license
- * Copyright 2025 Qwen team
+ * Copyright 2025 Aether team
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type SupportedLanguage =
-  | 'en'
-  | 'zh'
-  | 'ru'
-  | 'de'
-  | 'ja'
-  | 'pt'
-  | string;
+export type SupportedLanguage = 'en' | string;
 
 export interface LanguageDefinition {
-  /** The internal locale code used by the i18n system (e.g., 'en', 'zh'). */
+  /** The internal locale code used by the i18n system (e.g., 'en'). */
   code: SupportedLanguage;
-  /** The standard name used in UI settings (e.g., 'en-US', 'zh-CN'). */
+  /** The standard name used in UI settings (e.g., 'en-US'). */
   id: string;
-  /** The full English name of the language (e.g., 'English', 'Chinese'). */
+  /** The full English name of the language (e.g., 'English'). */
   fullName: string;
-  /** The native name of the language (e.g., 'English', '中文'). */
+  /** The native name of the language (e.g., 'English'). */
   nativeName?: string;
 }
 
@@ -30,36 +23,6 @@ export const SUPPORTED_LANGUAGES: readonly LanguageDefinition[] = [
     id: 'en-US',
     fullName: 'English',
     nativeName: 'English',
-  },
-  {
-    code: 'zh',
-    id: 'zh-CN',
-    fullName: 'Chinese',
-    nativeName: '中文',
-  },
-  {
-    code: 'ru',
-    id: 'ru-RU',
-    fullName: 'Russian',
-    nativeName: 'Русский',
-  },
-  {
-    code: 'de',
-    id: 'de-DE',
-    fullName: 'German',
-    nativeName: 'Deutsch',
-  },
-  {
-    code: 'ja',
-    id: 'ja-JP',
-    fullName: 'Japanese',
-    nativeName: '日本語',
-  },
-  {
-    code: 'pt',
-    id: 'pt-BR',
-    fullName: 'Portuguese',
-    nativeName: 'Português',
   },
 ];
 

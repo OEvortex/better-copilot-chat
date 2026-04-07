@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -17,7 +17,7 @@ import type {
   ToolResult,
   ChatRecord,
   AgentEventEmitter,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import {
   AuthType,
   ApprovalMode,
@@ -43,7 +43,7 @@ import {
   injectPermissionRulesIfMissing,
   NotificationType,
   persistPermissionOutcome,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 import { RequestError } from '@agentclientprotocol/sdk';
 import type {
@@ -677,7 +677,7 @@ export class Session implements SessionContext {
       selectedAuthType,
       parsed.modelId,
       selectedAuthType !== previousAuthType &&
-        selectedAuthType === AuthType.QWEN_OAUTH
+        selectedAuthType === AuthType.AETHER_OAUTH
         ? { requireCachedCredentials: true }
         : undefined,
     );
@@ -722,7 +722,7 @@ export class Session implements SessionContext {
       return;
     }
 
-    const { IdeClient } = await import('@qwen-code/qwen-code-core');
+    const { IdeClient } = await import('@aether/aether-core');
     const ideClient = await IdeClient.getInstance();
     const cliOutcome =
       outcome === ToolConfirmationOutcome.Cancel ? 'rejected' : 'accepted';
@@ -1225,7 +1225,7 @@ export class Session implements SessionContext {
         return normalizePartList(result.content);
 
       case 'message': {
-        await this.client.extNotification('_qwencode/slash_command', {
+        await this.client.extNotification('_AetherCli/slash_command', {
           sessionId: this.sessionId,
           command: originalPrompt
             .filter((block) => block.type === 'text')
@@ -1252,7 +1252,7 @@ export class Session implements SessionContext {
 
         // Stream all messages to the client
         for await (const msg of result.messages) {
-          await this.client.extNotification('_qwencode/slash_command', {
+          await this.client.extNotification('_AetherCli/slash_command', {
             sessionId: this.sessionId,
             command,
             messageType: msg.messageType,

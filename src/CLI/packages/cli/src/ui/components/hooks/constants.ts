@@ -1,10 +1,10 @@
-/**
+﻿/**
  * @license
  * Copyright 2026 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { HooksConfigSource, HookEventName } from '@qwen-code/qwen-code-core';
+import { HooksConfigSource, HookEventName } from '@aether/aether-core';
 import type { HookExitCode, HookEventDisplayInfo } from './types.js';
 import { t } from '../../../i18n/index.js';
 
@@ -44,7 +44,7 @@ export function getHookExitCodes(eventName: string): HookExitCode[] {
       { code: 'Other', description: t('show stderr to user only') },
     ],
     [HookEventName.UserPromptSubmit]: [
-      { code: 0, description: t('stdout shown to Qwen') },
+      { code: 0, description: t('stdout shown to Aether') },
       {
         code: 2,
         description: t(
@@ -54,7 +54,7 @@ export function getHookExitCodes(eventName: string): HookExitCode[] {
       { code: 'Other', description: t('show stderr to user only') },
     ],
     [HookEventName.SessionStart]: [
-      { code: 0, description: t('stdout shown to Qwen') },
+      { code: 0, description: t('stdout shown to Aether') },
       {
         code: 'Other',
         description: t('show stderr to user only (blocking errors ignored)'),
@@ -109,7 +109,7 @@ export function getHookShortDescription(eventName: string): string {
     [HookEventName.Notification]: t('When notifications are sent'),
     [HookEventName.UserPromptSubmit]: t('When the user submits a prompt'),
     [HookEventName.SessionStart]: t('When a new session is started'),
-    [HookEventName.Stop]: t('Right before Qwen Code concludes its response'),
+    [HookEventName.Stop]: t('Right before Aether Code concludes its response'),
     [HookEventName.SubagentStart]: t(
       'When a subagent (Agent tool call) is started',
     ),

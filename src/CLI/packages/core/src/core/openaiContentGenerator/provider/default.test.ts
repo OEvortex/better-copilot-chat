@@ -81,7 +81,7 @@ describe('DefaultOpenAICompatibleProvider', () => {
       const headers = provider.buildHeaders();
 
       expect(headers).toEqual({
-        'User-Agent': `QwenCode/1.0.0 (${process.platform}; ${process.arch})`,
+        'User-Agent': `AetherCode/1.0.0 (${process.platform}; ${process.arch})`,
       });
     });
 
@@ -115,7 +115,7 @@ describe('DefaultOpenAICompatibleProvider', () => {
       const headers = provider.buildHeaders();
 
       expect(headers).toEqual({
-        'User-Agent': `QwenCode/unknown (${process.platform}; ${process.arch})`,
+        'User-Agent': `AetherCode/unknown (${process.platform}; ${process.arch})`,
       });
     });
   });
@@ -131,7 +131,7 @@ describe('DefaultOpenAICompatibleProvider', () => {
           timeout: 60000,
           maxRetries: 2,
           defaultHeaders: {
-            'User-Agent': `QwenCode/1.0.0 (${process.platform}; ${process.arch})`,
+            'User-Agent': `AetherCode/1.0.0 (${process.platform}; ${process.arch})`,
           },
         }),
       );
@@ -152,7 +152,7 @@ describe('DefaultOpenAICompatibleProvider', () => {
           timeout: DEFAULT_TIMEOUT,
           maxRetries: DEFAULT_MAX_RETRIES,
           defaultHeaders: {
-            'User-Agent': `QwenCode/1.0.0 (${process.platform}; ${process.arch})`,
+            'User-Agent': `AetherCode/1.0.0 (${process.platform}; ${process.arch})`,
           },
         }),
       );

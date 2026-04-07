@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -16,7 +16,7 @@ import type { CommandContext } from '../ui/commands/types.js';
 import { createMockCommandContext } from '../test-utils/mockCommandContext.js';
 import * as child_process from 'node:child_process';
 import os from 'node:os';
-import { IdeClient } from '@qwen-code/qwen-code-core';
+import { IdeClient } from '@aether/aether-core';
 import * as versionUtils from './version.js';
 import type { ExecSyncOptions } from 'node:child_process';
 
@@ -32,9 +32,9 @@ vi.mock('./version.js', () => ({
   getCliVersion: vi.fn(),
 }));
 
-vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
+vi.mock('@aether/aether-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@qwen-code/qwen-code-core')>();
+    await importOriginal<typeof import('@aether/aether-core')>();
   return {
     ...actual,
     IdeClient: {
@@ -159,17 +159,17 @@ describe('systemInfo', () => {
     });
 
     it('should return sandbox name without prefix when stripPrefix is true', () => {
-      process.env['SANDBOX'] = 'qwen-code-test-sandbox';
+      process.env['SANDBOX'] = 'aether-test-sandbox';
       expect(getSandboxEnv(true)).toBe('test-sandbox');
     });
 
     it('should return sandbox name with prefix when stripPrefix is false', () => {
-      process.env['SANDBOX'] = 'qwen-code-test-sandbox';
-      expect(getSandboxEnv(false)).toBe('qwen-code-test-sandbox');
+      process.env['SANDBOX'] = 'aether-test-sandbox';
+      expect(getSandboxEnv(false)).toBe('aether-test-sandbox');
     });
 
-    it('should handle qwen- prefix removal', () => {
-      process.env['SANDBOX'] = 'qwen-custom-sandbox';
+    it('should handle aether- prefix removal', () => {
+      process.env['SANDBOX'] = 'aether-custom-sandbox';
       expect(getSandboxEnv(true)).toBe('custom-sandbox');
     });
   });
@@ -272,7 +272,7 @@ describe('systemInfo', () => {
         },
       );
 
-      const { AuthType } = await import('@qwen-code/qwen-code-core');
+      const { AuthType } = await import('@aether/aether-core');
       // Update the mock context to use OpenAI auth
       mockContext.services.settings.merged.security!.auth!.selectedType =
         AuthType.USE_OPENAI;
@@ -288,7 +288,7 @@ describe('systemInfo', () => {
     });
 
     it('should use sandbox env without prefix for bug reports', async () => {
-      process.env['SANDBOX'] = 'qwen-code-test-sandbox';
+      process.env['SANDBOX'] = 'aether-test-sandbox';
       vi.mocked(IdeClient.getInstance).mockResolvedValue({
         getDetectedIdeDisplayName: vi.fn().mockReturnValue(''),
       } as unknown as IdeClient);

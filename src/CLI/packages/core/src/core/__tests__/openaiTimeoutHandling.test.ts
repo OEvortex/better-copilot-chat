@@ -69,7 +69,7 @@ describe('OpenAIContentGenerator Timeout Handling', () => {
     // Create mock provider
     mockProvider = {
       buildHeaders: vi.fn().mockReturnValue({
-        'User-Agent': 'QwenCode/1.0.0 (test; test)',
+        'User-Agent': 'AetherCode/1.0.0 (test; test)',
       }),
       buildClient: vi.fn().mockReturnValue(mockOpenAIClient),
       buildRequest: vi.fn().mockImplementation((req) => req),
@@ -296,7 +296,7 @@ describe('OpenAIContentGenerator Timeout Handling', () => {
       // Create a custom mock provider for this test
       const customMockProvider: OpenAICompatibleProvider = {
         buildHeaders: vi.fn().mockReturnValue({
-          'User-Agent': 'QwenCode/1.0.0 (test; test)',
+          'User-Agent': 'AetherCode/1.0.0 (test; test)',
         }),
         buildClient: vi.fn().mockReturnValue(mockOpenAIClient),
         buildRequest: vi.fn().mockImplementation((req) => req),
@@ -331,7 +331,7 @@ describe('OpenAIContentGenerator Timeout Handling', () => {
       // Create a custom mock provider for this test
       const noTimeoutMockProvider: OpenAICompatibleProvider = {
         buildHeaders: vi.fn().mockReturnValue({
-          'User-Agent': 'QwenCode/1.0.0 (test; test)',
+          'User-Agent': 'AetherCode/1.0.0 (test; test)',
         }),
         buildClient: vi.fn().mockReturnValue(mockOpenAIClient),
         buildRequest: vi.fn().mockImplementation((req) => req),

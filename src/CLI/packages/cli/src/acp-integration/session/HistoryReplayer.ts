@@ -1,10 +1,10 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { ChatRecord, AgentResultDisplay } from '@qwen-code/qwen-code-core';
+import type { ChatRecord, AgentResultDisplay } from '@aether/aether-core';
 import type {
   Content,
   GenerateContentResponseUsageMetadata,

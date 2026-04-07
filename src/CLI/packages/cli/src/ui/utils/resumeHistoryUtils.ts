@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Code
  * SPDX-License-Identifier: Apache-2.0
@@ -14,7 +14,7 @@ import type {
   ToolResultDisplay,
   SlashCommandRecordPayload,
   AtCommandRecordPayload,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import type {
   HistoryItem,
   HistoryItemWithoutId,

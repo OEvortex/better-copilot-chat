@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -115,8 +115,8 @@ export default {
   // ============================================================================
   // Commands - General
   // ============================================================================
-  'Analyzes the project and creates a tailored QWEN.md file.':
-    'Analyzes the project and creates a tailored QWEN.md file.',
+  'Analyzes the project and creates a tailored AGENTS.md file.':
+    'Analyzes the project and creates a tailored AGENTS.md file.',
   'List available Qwen Code tools. Usage: /tools [desc]':
     'List available Qwen Code tools. Usage: /tools [desc]',
   'List available skills.': 'List available skills.',
@@ -211,8 +211,8 @@ export default {
   // ============================================================================
   // Agents - Creation Wizard
   // ============================================================================
-  'Project Level (.qwen/agents/)': 'Project Level (.qwen/agents/)',
-  'User Level (~/.qwen/agents/)': 'User Level (~/.qwen/agents/)',
+  'Project Level (.aether/agents/)': 'Project Level (.aether/agents/)',
+  'User Level (~/.aether/agents/)': 'User Level (~/.aether/agents/)',
   '✅ Subagent Created Successfully!': '✅ Subagent Created Successfully!',
   'Subagent "{{name}}" has been saved to {{level}} level.':
     'Subagent "{{name}}" has been saved to {{level}} level.',
@@ -415,7 +415,7 @@ export default {
   'Load Memory From Include Directories':
     'Load Memory From Include Directories',
   'Respect .gitignore': 'Respect .gitignore',
-  'Respect .qwenignore': 'Respect .qwenignore',
+  'Respect .aetherignore': 'Respect .aetherignore',
   'Enable Recursive File Search': 'Enable Recursive File Search',
   'Disable Fuzzy Search': 'Disable Fuzzy Search',
   'Interactive Shell (PTY)': 'Interactive Shell (PTY)',
@@ -509,8 +509,8 @@ export default {
   remote: 'remote',
   'This extension will add the following commands: {{commands}}.':
     'This extension will add the following commands: {{commands}}.',
-  'This extension will append info to your QWEN.md context using {{fileName}}':
-    'This extension will append info to your QWEN.md context using {{fileName}}',
+  'This extension will append info to your AGENTS.md context using {{fileName}}':
+    'This extension will append info to your AGENTS.md context using {{fileName}}',
   'This extension will exclude the following core tools: {{tools}}':
     'This extension will exclude the following core tools: {{tools}}',
   'This extension will install the following skills:':
@@ -699,8 +699,8 @@ export default {
   'Extension:': 'Extension:',
   'Desc:': 'Desc:',
   'No hook config selected': 'No hook config selected',
-  'To modify or remove this hook, edit settings.json directly or ask Qwen to help.':
-    'To modify or remove this hook, edit settings.json directly or ask Qwen to help.',
+  'To modify or remove this hook, edit settings.json directly or ask Aether to help.':
+    'To modify or remove this hook, edit settings.json directly or ask Aether to help.',
   // Hooks - Disabled Step
   'Hook Configuration - Disabled': 'Hook Configuration - Disabled',
   'All hooks are currently disabled. You have {{count}} that are not running.':
@@ -1037,7 +1037,7 @@ export default {
   servers: 'servers',
   'Add MCP servers to your settings to get started.':
     'Add MCP servers to your settings to get started.',
-  'Run qwen --debug to see error logs': 'Run qwen --debug to see error logs',
+  'Run aether --debug to see error logs': 'Run aether --debug to see error logs',
 
   // MCP OAuth Authentication
   'OAuth Authentication': 'OAuth Authentication',
@@ -1132,8 +1132,8 @@ export default {
   // ============================================================================
   // Commands - Summary
   // ============================================================================
-  'Generate a project summary and save it to .qwen/PROJECT_SUMMARY.md':
-    'Generate a project summary and save it to .qwen/PROJECT_SUMMARY.md',
+  'Generate a project summary and save it to .aether/PROJECT_SUMMARY.md':
+    'Generate a project summary and save it to .aether/PROJECT_SUMMARY.md',
   'No chat client available to generate summary.':
     'No chat client available to generate summary.',
   'Already generating summary, wait for previous request to complete':
@@ -1195,8 +1195,8 @@ export default {
   'The /directory add command is not supported in restrictive sandbox profiles. Please use --include-directories when starting the session instead.':
     'The /directory add command is not supported in restrictive sandbox profiles. Please use --include-directories when starting the session instead.',
   "Error adding '{{path}}': {{error}}": "Error adding '{{path}}': {{error}}",
-  'Successfully added QWEN.md files from the following directories if there are:\n- {{directories}}':
-    'Successfully added QWEN.md files from the following directories if there are:\n- {{directories}}',
+  'Successfully added AGENTS.md files from the following directories if there are:\n- {{directories}}':
+    'Successfully added AGENTS.md files from the following directories if there are:\n- {{directories}}',
   'Error refreshing memory: {{error}}': 'Error refreshing memory: {{error}}',
   'Successfully added directories:\n- {{directories}}':
     'Successfully added directories:\n- {{directories}}',
@@ -1293,7 +1293,7 @@ export default {
     'You must select an auth method to proceed. Press Ctrl+C again to exit.',
   'Terms of Services and Privacy Notice':
     'Terms of Services and Privacy Notice',
-  'Qwen OAuth': 'Qwen OAuth',
+  'Aether OAuth': 'Aether OAuth',
   'Free \u00B7 Up to 1,000 requests/day \u00B7 Qwen latest models':
     'Free \u00B7 Up to 1,000 requests/day \u00B7 Qwen latest models',
   'Login with QwenChat account to use daily free quota.':
@@ -1310,27 +1310,27 @@ export default {
     'Failed to login. Message: {{message}}',
   'Authentication is enforced to be {{enforcedType}}, but you are currently using {{currentType}}.':
     'Authentication is enforced to be {{enforcedType}}, but you are currently using {{currentType}}.',
-  'Qwen OAuth authentication timed out. Please try again.':
-    'Qwen OAuth authentication timed out. Please try again.',
-  'Qwen OAuth authentication cancelled.':
-    'Qwen OAuth authentication cancelled.',
-  'Qwen OAuth Authentication': 'Qwen OAuth Authentication',
+  'Aether OAuth authentication timed out. Please try again.':
+    'Aether OAuth authentication timed out. Please try again.',
+  'Aether OAuth authentication cancelled.':
+    'Aether OAuth authentication cancelled.',
+  'Aether OAuth Authentication': 'Aether OAuth Authentication',
   'Please visit this URL to authorize:': 'Please visit this URL to authorize:',
   'Or scan the QR code below:': 'Or scan the QR code below:',
   'Waiting for authorization': 'Waiting for authorization',
   'Time remaining:': 'Time remaining:',
   '(Press ESC or CTRL+C to cancel)': '(Press ESC or CTRL+C to cancel)',
-  'Qwen OAuth Authentication Timeout': 'Qwen OAuth Authentication Timeout',
+  'Aether OAuth Authentication Timeout': 'Aether OAuth Authentication Timeout',
   'OAuth token expired (over {{seconds}} seconds). Please select authentication method again.':
     'OAuth token expired (over {{seconds}} seconds). Please select authentication method again.',
   'Press any key to return to authentication type selection.':
     'Press any key to return to authentication type selection.',
-  'Waiting for Qwen OAuth authentication...':
-    'Waiting for Qwen OAuth authentication...',
-  'Note: Your existing API key in settings.json will not be cleared when using Qwen OAuth. You can switch back to OpenAI authentication later if needed.':
-    'Note: Your existing API key in settings.json will not be cleared when using Qwen OAuth. You can switch back to OpenAI authentication later if needed.',
-  'Note: Your existing API key will not be cleared when using Qwen OAuth.':
-    'Note: Your existing API key will not be cleared when using Qwen OAuth.',
+  'Waiting for Aether OAuth authentication...':
+    'Waiting for Aether OAuth authentication...',
+  'Note: Your existing API key in settings.json will not be cleared when using Aether OAuth. You can switch back to OpenAI authentication later if needed.':
+    'Note: Your existing API key in settings.json will not be cleared when using Aether OAuth. You can switch back to OpenAI authentication later if needed.',
+  'Note: Your existing API key will not be cleared when using Aether OAuth.':
+    'Note: Your existing API key will not be cleared when using Aether OAuth.',
   'Authentication timed out. Please try again.':
     'Authentication timed out. Please try again.',
   'Waiting for auth... (Press ESC or CTRL+C to cancel)':
@@ -1354,8 +1354,8 @@ export default {
     'Failed to authenticate. Message: {{message}}',
   'Authenticated successfully with {{authType}} credentials.':
     'Authenticated successfully with {{authType}} credentials.',
-  'Invalid QWEN_DEFAULT_AUTH_TYPE value: "{{value}}". Valid values are: {{validValues}}':
-    'Invalid QWEN_DEFAULT_AUTH_TYPE value: "{{value}}". Valid values are: {{validValues}}',
+  'Invalid AETHER_DEFAULT_AUTH_TYPE value: "{{value}}". Valid values are: {{validValues}}':
+    'Invalid AETHER_DEFAULT_AUTH_TYPE value: "{{value}}". Valid values are: {{validValues}}',
   'OpenAI Configuration Required': 'OpenAI Configuration Required',
   'Please enter your OpenAI configuration. You can get an API key from':
     'Please enter your OpenAI configuration. You can get an API key from',
@@ -1393,8 +1393,8 @@ export default {
     "Failed to switch model to '{{modelId}}'.\n\n{{error}}",
   'Qwen 3.6 Plus — efficient hybrid model with leading coding performance':
     'Qwen 3.6 Plus — efficient hybrid model with leading coding performance',
-  'The latest Qwen Vision model from Alibaba Cloud ModelStudio (version: qwen3-vl-plus-2025-09-23)':
-    'The latest Qwen Vision model from Alibaba Cloud ModelStudio (version: qwen3-vl-plus-2025-09-23)',
+  'The latest Qwen Vision model from Alibaba Cloud ModelStudio (version: aether3-vl-plus-2025-09-23)':
+    'The latest Qwen Vision model from Alibaba Cloud ModelStudio (version: aether3-vl-plus-2025-09-23)',
 
   // ============================================================================
   // Dialogs - Permissions
@@ -1420,11 +1420,11 @@ export default {
   'From project settings': 'From project settings',
   'From session': 'From session',
   'Project settings (local)': 'Project settings (local)',
-  'Saved in .qwen/settings.local.json': 'Saved in .qwen/settings.local.json',
+  'Saved in .aether/settings.local.json': 'Saved in .aether/settings.local.json',
   'Project settings': 'Project settings',
-  'Checked in at .qwen/settings.json': 'Checked in at .qwen/settings.json',
+  'Checked in at .aether/settings.json': 'Checked in at .aether/settings.json',
   'User settings': 'User settings',
-  'Saved in at ~/.qwen/settings.json': 'Saved in at ~/.qwen/settings.json',
+  'Saved in at ~/.aether/settings.json': 'Saved in at ~/.aether/settings.json',
   'Add a new rule…': 'Add a new rule…',
   'Add {{type}} permission rule': 'Add {{type}} permission rule',
   'Permission rules are a tool name, optionally followed by a specifier in parentheses.':
@@ -1544,8 +1544,8 @@ export default {
     'You can run any shell commands from Qwen Code using ! (e.g. !ls).',
   'Type / to open the command popup; Tab autocompletes slash commands and saved prompts.':
     'Type / to open the command popup; Tab autocompletes slash commands and saved prompts.',
-  'You can resume a previous conversation by running qwen --continue or qwen --resume.':
-    'You can resume a previous conversation by running qwen --continue or qwen --resume.',
+  'You can resume a previous conversation by running aether --continue or aether --resume.':
+    'You can resume a previous conversation by running aether --continue or aether --resume.',
   'You can switch permission mode quickly with Shift+Tab or /approval-mode.':
     'You can switch permission mode quickly with Shift+Tab or /approval-mode.',
   'You can switch permission mode quickly with Tab or /approval-mode.':
@@ -1939,9 +1939,9 @@ export default {
   // ============================================================================
   // Commands - Auth
   // ============================================================================
-  'Configure Qwen authentication information with Qwen-OAuth or Alibaba Cloud Coding Plan':
-    'Configure Qwen authentication information with Qwen-OAuth or Alibaba Cloud Coding Plan',
-  'Authenticate using Qwen OAuth': 'Authenticate using Qwen OAuth',
+  'Configure Aether authentication information with aether-oauth or Alibaba Cloud Coding Plan':
+    'Configure Aether authentication information with aether-oauth or Alibaba Cloud Coding Plan',
+  'Authenticate using Aether OAuth': 'Authenticate using Aether OAuth',
   'Authenticate using Alibaba Cloud Coding Plan':
     'Authenticate using Alibaba Cloud Coding Plan',
   'Region for Coding Plan (china/global)':
@@ -1950,12 +1950,12 @@ export default {
   'Show current authentication status': 'Show current authentication status',
   'Authentication completed successfully.':
     'Authentication completed successfully.',
-  'Starting Qwen OAuth authentication...':
-    'Starting Qwen OAuth authentication...',
-  'Successfully authenticated with Qwen OAuth.':
-    'Successfully authenticated with Qwen OAuth.',
-  'Failed to authenticate with Qwen OAuth: {{error}}':
-    'Failed to authenticate with Qwen OAuth: {{error}}',
+  'Starting Aether OAuth authentication...':
+    'Starting Aether OAuth authentication...',
+  'Successfully authenticated with Aether OAuth.':
+    'Successfully authenticated with Aether OAuth.',
+  'Failed to authenticate with Aether OAuth: {{error}}':
+    'Failed to authenticate with Aether OAuth: {{error}}',
   'Processing Alibaba Cloud Coding Plan authentication...':
     'Processing Alibaba Cloud Coding Plan authentication...',
   'Successfully authenticated with Alibaba Cloud Coding Plan.':
@@ -1974,17 +1974,17 @@ export default {
     '⚠️  No authentication method configured.\n',
   'Run one of the following commands to get started:\n':
     'Run one of the following commands to get started:\n',
-  '  qwen auth qwen-oauth     - Authenticate with Qwen OAuth (free tier)':
-    '  qwen auth qwen-oauth     - Authenticate with Qwen OAuth (free tier)',
-  '  qwen auth coding-plan      - Authenticate with Alibaba Cloud Coding Plan\n':
-    '  qwen auth coding-plan      - Authenticate with Alibaba Cloud Coding Plan\n',
+  '  aether auth aether-oauth     - Authenticate with Aether OAuth (free tier)':
+    '  aether auth aether-oauth     - Authenticate with Aether OAuth (free tier)',
+  '  aether auth coding-plan      - Authenticate with Alibaba Cloud Coding Plan\n':
+    '  aether auth coding-plan      - Authenticate with Alibaba Cloud Coding Plan\n',
   'Or simply run:': 'Or simply run:',
-  '  qwen auth                - Interactive authentication setup\n':
-    '  qwen auth                - Interactive authentication setup\n',
-  '✓ Authentication Method: Qwen OAuth': '✓ Authentication Method: Qwen OAuth',
+  '  aether auth                - Interactive authentication setup\n':
+    '  aether auth                - Interactive authentication setup\n',
+  '✓ Authentication Method: Aether OAuth': '✓ Authentication Method: Aether OAuth',
   '  Type: Free tier': '  Type: Free tier',
   '  Limit: Up to 1,000 requests/day': '  Limit: Up to 1,000 requests/day',
-  '  Models: Qwen latest models\n': '  Models: Qwen latest models\n',
+  '  Models: Aether latest models\n': '  Models: Aether latest models\n',
   '✓ Authentication Method: Alibaba Cloud Coding Plan':
     '✓ Authentication Method: Alibaba Cloud Coding Plan',
   '中国 (China) - 阿里云百炼': '中国 (China) - 阿里云百炼',
@@ -1997,8 +1997,8 @@ export default {
     '⚠️  Authentication Method: Alibaba Cloud Coding Plan (Incomplete)',
   '  Issue: API key not found in environment or settings\n':
     '  Issue: API key not found in environment or settings\n',
-  '  Run `qwen auth coding-plan` to re-configure.\n':
-    '  Run `qwen auth coding-plan` to re-configure.\n',
+  '  Run `aether auth coding-plan` to re-configure.\n':
+    '  Run `aether auth coding-plan` to re-configure.\n',
   '✓ Authentication Method: {{type}}': '✓ Authentication Method: {{type}}',
   '  Status: Configured\n': '  Status: Configured\n',
   'Failed to check authentication status: {{error}}':

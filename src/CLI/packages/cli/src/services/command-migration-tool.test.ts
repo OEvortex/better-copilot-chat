@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -18,7 +18,7 @@ describe('command-migration-tool', () => {
   let tempDir: string;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'qwen-migration-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'aether-migration-test-'));
   });
 
   afterEach(async () => {
@@ -226,7 +226,7 @@ description = "Test description"`;
       expect(prompt).toContain('Found 2 command file(s)');
       expect(prompt).toContain('cmd1.toml');
       expect(prompt).toContain('cmd2.toml');
-      expect(prompt).toContain('qwen-code migrate-commands');
+      expect(prompt).toContain('aether migrate-commands');
     });
 
     it('should truncate file list for many files', () => {

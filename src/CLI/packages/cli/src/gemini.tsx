@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -11,7 +11,7 @@ import {
   Storage,
   type Config,
   createDebugLogger,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { render } from 'ink';
 import dns from 'node:dns';
 import os from 'node:os';
@@ -96,7 +96,7 @@ function getNodeMemoryArgs(isDebugMode: boolean): string[] {
     );
   }
 
-  if (process.env['QWEN_CODE_NO_RELAUNCH']) {
+  if (process.env['aether_cli_NO_RELAUNCH']) {
     return [];
   }
 
@@ -348,7 +348,7 @@ export async function main() {
   }
 
   // We are now past the logic handling potentially launching a child process
-  // to run Qwen Code. It is now safe to perform expensive initialization that
+  // to run Aether Code. It is now safe to perform expensive initialization that
   // may have side effects.
 
   // Initialize output language file before config loads to ensure it's included in context

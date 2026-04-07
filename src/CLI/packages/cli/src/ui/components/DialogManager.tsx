@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -15,7 +15,7 @@ import { SettingInputPrompt } from './SettingInputPrompt.js';
 import { PluginChoicePrompt } from './PluginChoicePrompt.js';
 import { ThemeDialog } from './ThemeDialog.js';
 import { SettingsDialog } from './SettingsDialog.js';
-import { QwenOAuthProgress } from './QwenOAuthProgress.js';
+import { AetherOAuthProgress } from './AetherOAuthProgress.js';
 import { AuthDialog } from '../auth/AuthDialog.js';
 import { EditorSettingsDialog } from './EditorSettingsDialog.js';
 import { TrustDialog } from './TrustDialog.js';
@@ -32,7 +32,7 @@ import { useUIActions } from '../contexts/UIActionsContext.js';
 import { useConfig } from '../contexts/ConfigContext.js';
 import { useSettings } from '../contexts/SettingsContext.js';
 import { AuthState } from '../types.js';
-import { AuthType } from '@qwen-code/qwen-code-core';
+import { AuthType } from '@aether/aether-core';
 import process from 'node:process';
 import { type UseHistoryManagerReturn } from '../hooks/useHistoryManager.js';
 import { IdeTrustChangeDialog } from './IdeTrustChangeDialog.js';
@@ -301,15 +301,15 @@ export const DialogManager = ({
 
   if (uiState.isAuthenticating) {
     // OpenAI authentication now handled through AuthDialog with coding-plan/custom sub-modes
-    // Qwen OAuth remains as a separate flow
-    if (uiState.pendingAuthType === AuthType.QWEN_OAUTH) {
+    // Aether OAuth remains as a separate flow
+    if (uiState.pendingAuthType === AuthType.AETHER_OAUTH) {
       return (
-        <QwenOAuthProgress
-          deviceAuth={uiState.qwenAuthState.deviceAuth || undefined}
-          authStatus={uiState.qwenAuthState.authStatus}
-          authMessage={uiState.qwenAuthState.authMessage}
+        <AetherOAuthProgress
+          deviceAuth={uiState.aetherAuthState.deviceAuth || undefined}
+          authStatus={uiState.aetherAuthState.authStatus}
+          authMessage={uiState.aetherAuthState.authMessage}
           onTimeout={() => {
-            uiActions.onAuthError('Qwen OAuth authentication timed out.');
+            uiActions.onAuthError('Aether OAuth authentication timed out.');
             uiActions.cancelAuthentication();
             uiActions.setAuthState(AuthState.Updating);
           }}

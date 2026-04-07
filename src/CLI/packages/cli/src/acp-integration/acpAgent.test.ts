@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -51,7 +51,7 @@ vi.mock('node:stream', async (importOriginal) => {
 });
 
 // Mock core dependencies
-vi.mock('@qwen-code/qwen-code-core', () => ({
+vi.mock('@aether/aether-core', () => ({
   createDebugLogger: () => ({
     debug: vi.fn(),
     error: vi.fn(),
@@ -61,8 +61,8 @@ vi.mock('@qwen-code/qwen-code-core', () => ({
   APPROVAL_MODES: [],
   AuthType: {},
   clearCachedCredentialFile: vi.fn(),
-  QwenOAuth2Event: {},
-  qwenOAuth2Events: { on: vi.fn(), off: vi.fn() },
+  aetherOAuth2Event: {},
+  aetherOAuth2Events: { on: vi.fn(), off: vi.fn() },
   MCPServerConfig: {},
   SessionService: vi.fn(),
   tokenLimit: vi.fn(),
@@ -80,7 +80,7 @@ vi.mock('../utils/acpModelUtils.js', () => ({
 }));
 
 import { runAcpAgent } from './acpAgent.js';
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
 import type { LoadedSettings } from '../config/settings.js';
 import type { CliArgs } from '../config/config.js';
 

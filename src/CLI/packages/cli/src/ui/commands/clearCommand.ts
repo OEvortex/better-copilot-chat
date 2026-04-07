@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -14,7 +14,7 @@ import {
   ToolNames,
   SkillTool,
   type PermissionMode,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 export const clearCommand: SlashCommand = {
   name: 'clear',

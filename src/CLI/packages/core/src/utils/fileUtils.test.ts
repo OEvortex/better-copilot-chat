@@ -59,7 +59,7 @@ describe('fileUtils', () => {
     getTruncateToolOutputThreshold: () => 2500,
     getTruncateToolOutputLines: () => 500,
     getTargetDir: () => tempRootDir,
-    getModel: () => 'qwen3.5-plus',
+    getModel: () => 'aether3.5-plus',
     getContentGeneratorConfig: () => ({
       modalities: { image: true, video: true },
     }),

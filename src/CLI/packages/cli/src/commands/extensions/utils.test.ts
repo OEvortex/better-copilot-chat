@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -6,14 +6,14 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getExtensionManager, extensionToOutputString } from './utils.js';
-import type { Extension, ExtensionManager } from '@qwen-code/qwen-code-core';
+import type { Extension, ExtensionManager } from '@aether/aether-core';
 
 const mockRefreshCache = vi.fn();
 const mockExtensionManagerInstance = {
   refreshCache: mockRefreshCache,
 };
 
-vi.mock('@qwen-code/qwen-code-core', () => ({
+vi.mock('@aether/aether-core', () => ({
   ExtensionManager: vi
     .fn()
     .mockImplementation(() => mockExtensionManagerInstance),
@@ -55,7 +55,7 @@ describe('getExtensionManager', () => {
   });
 
   it('should use current working directory as workspace', async () => {
-    const { ExtensionManager } = await import('@qwen-code/qwen-code-core');
+    const { ExtensionManager } = await import('@aether/aether-core');
 
     await getExtensionManager();
 

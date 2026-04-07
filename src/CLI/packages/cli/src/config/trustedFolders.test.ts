@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import * as osActual from 'node:os';
-import { FatalConfigError, ideContextStore } from '@qwen-code/qwen-code-core';
+import { FatalConfigError, ideContextStore } from '@aether/aether-core';
 import {
   describe,
   it,
@@ -158,9 +158,9 @@ describe('Trusted Folders Loading', () => {
     expect(errors[0].message).toContain('Unexpected token');
   });
 
-  it('should use QWEN_CODE_TRUSTED_FOLDERS_PATH env var if set', () => {
+  it('should use aether_cli_TRUSTED_FOLDERS_PATH env var if set', () => {
     const customPath = '/custom/path/to/trusted_folders.json';
-    process.env['QWEN_CODE_TRUSTED_FOLDERS_PATH'] = customPath;
+    process.env['aether_cli_TRUSTED_FOLDERS_PATH'] = customPath;
 
     (mockFsExistsSync as Mock).mockImplementation((p) => p === customPath);
     const userContent = {
@@ -180,7 +180,7 @@ describe('Trusted Folders Loading', () => {
     ]);
     expect(errors).toEqual([]);
 
-    delete process.env['QWEN_CODE_TRUSTED_FOLDERS_PATH'];
+    delete process.env['aether_cli_TRUSTED_FOLDERS_PATH'];
   });
 
   it('setValue should update the user config and save it', () => {

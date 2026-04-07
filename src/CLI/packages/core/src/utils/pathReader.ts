@@ -74,7 +74,7 @@ export async function readPathFromWorkspace(
     );
     const filteredFiles = fileService.filterFiles(relativeFiles, {
       respectGitIgnore: true,
-      respectQwenIgnore: true,
+      respectAetherIgnore: true,
     });
     const finalFiles = filteredFiles.map((p) =>
       path.resolve(config.getTargetDir(), p),
@@ -95,7 +95,7 @@ export async function readPathFromWorkspace(
     const relativePath = path.relative(config.getTargetDir(), absolutePath);
     const filtered = fileService.filterFiles([relativePath], {
       respectGitIgnore: true,
-      respectQwenIgnore: true,
+      respectAetherIgnore: true,
     });
 
     if (filtered.length === 0) {

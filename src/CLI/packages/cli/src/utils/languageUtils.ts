@@ -1,25 +1,21 @@
-/**
+﻿/**
  * @license
- * Copyright 2025 Qwen team
+ * Copyright 2025 Aether team
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /**
  * Utilities for managing the LLM output language rule file.
- * This file handles the creation and maintenance of ~/.qwen/output-language.md
+ * This file handles the creation and maintenance of ~/.aether/output-language.md
  * which instructs the LLM to respond in the user's preferred language.
  */
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { Storage } from '@qwen-code/qwen-code-core';
-import {
-  detectSystemLanguage,
-  getLanguageNameFromLocale,
-} from '../i18n/index.js';
+import { Storage } from '@aether/aether-core';
 
 const LLM_OUTPUT_LANGUAGE_RULE_FILENAME = 'output-language.md';
-const LLM_OUTPUT_LANGUAGE_MARKER_PREFIX = 'qwen-code:llm-output-language:';
+const LLM_OUTPUT_LANGUAGE_MARKER_PREFIX = 'aether:llm-output-language:';
 
 /** Special value meaning "detect from system settings" */
 export const OUTPUT_LANGUAGE_AUTO = 'auto';
@@ -33,17 +29,11 @@ export function isAutoLanguage(value: string | undefined | null): boolean {
 
 /**
  * Normalizes a language input to its canonical form.
- * Converts known locale codes (e.g., "zh", "ru") to full names (e.g., "Chinese", "Russian").
- * Unknown inputs are returned as-is to support any language name.
+ * The language string is passed through as-is to support any language name
+ * (English, Spanish, French, Japanese, etc).
  */
 export function normalizeOutputLanguage(language: string): string {
-  const lowered = language.toLowerCase();
-  const fullName = getLanguageNameFromLocale(lowered);
-  // getLanguageNameFromLocale returns 'English' as default for unknown codes.
-  // Only use the result if it's a known code or explicitly 'en'.
-  if (fullName !== 'English' || lowered === 'en') {
-    return fullName;
-  }
+  if (!language) return 'English';
   return language;
 }
 
@@ -54,18 +44,17 @@ export function resolveOutputLanguage(
   value: string | undefined | null,
 ): string {
   if (isAutoLanguage(value)) {
-    const detectedLocale = detectSystemLanguage();
-    return getLanguageNameFromLocale(detectedLocale);
+    return 'English';
   }
   return normalizeOutputLanguage(value!);
 }
 
 /**
- * Returns the path to the LLM output language rule file (~/.qwen/output-language.md).
+ * Returns the path to the LLM output language rule file (~/.aether/output-language.md).
  */
 function getOutputLanguageFilePath(): string {
   return path.join(
-    Storage.getGlobalQwenDir(),
+    Storage.getGlobalAetherDir(),
     LLM_OUTPUT_LANGUAGE_RULE_FILENAME,
   );
 }
@@ -75,10 +64,7 @@ function getOutputLanguageFilePath(): string {
  * Removes characters that could break HTML comment syntax.
  */
 function sanitizeForMarker(language: string): string {
-  return language
-    .replace(/[\r\n]/g, ' ')
-    .replace(/--!?>/g, '')
-    .replace(/--/g, '');
+  return language.replace(/[\r\n]/g, ' ').replace(/--!?>/g, '').replace(/--/g, '');
 }
 
 /**
@@ -94,7 +80,7 @@ You MUST always respond in **${language}** regardless of the user's input langua
 This is a mandatory requirement, not a preference.
 
 ## Exception
-If the user **explicitly** requests a response in a specific language (e.g., "please reply in English", "用中文回答"), switch to the user's requested language for the remainder of the conversation.
+If the user **explicitly** requests a response in a specific language (e.g., "please reply in English"), switch to the user's requested language for the remainder of the conversation.
 
 ## Keep technical artifacts unchanged
 Do **not** translate or rewrite:
@@ -111,7 +97,7 @@ Raw tool/system outputs may contain fixed-format English. Preserve them verbatim
  * Supports both the new marker format and legacy heading format.
  */
 function parseOutputLanguageFromContent(content: string): string | null {
-  // Primary: machine-readable marker (e.g., <!-- qwen-code:llm-output-language: 中文 -->)
+  // Primary: machine-readable marker (e.g., <!-- aether:llm-output-language: English -->)
   const markerRegex = new RegExp(
     String.raw`<!--\s*${LLM_OUTPUT_LANGUAGE_MARKER_PREFIX}\s*(.*?)\s*-->`,
     'i',
@@ -121,7 +107,7 @@ function parseOutputLanguageFromContent(content: string): string | null {
     return markerMatch[1].trim();
   }
 
-  // Fallback: legacy heading format (e.g., # CRITICAL: Chinese Output Language Rule)
+  // Fallback: legacy heading format (e.g., # CRITICAL: English Output Language Rule)
   const headingMatch = content.match(
     /^#.*?CRITICAL:\s*(.*?)\s+Output Language Rule\b/im,
   );
@@ -172,11 +158,11 @@ export function updateOutputLanguageFile(settingValue: string): void {
 /**
  * Initializes the LLM output language rule file on application startup.
  *
- * @param outputLanguage - The output language setting value (e.g., 'auto', 'Chinese', etc.)
+ * @param outputLanguage - The output language setting value (e.g., 'auto', 'English', etc.)
  *
  * Behavior:
  * - If the rule file already exists and contains a valid language setting, do nothing (preserve user modifications)
- * - If the rule file doesn't exist, create it with the resolved language ('auto' -> detected system language, or use as-is)
+ * - If the rule file doesn't exist, create it with the resolved language ('auto' -> English, or use as-is)
  */
 export function initializeLlmOutputLanguage(outputLanguage?: string): void {
   // Check if the file already exists and has valid content

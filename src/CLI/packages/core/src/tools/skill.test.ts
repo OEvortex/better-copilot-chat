@@ -52,14 +52,14 @@ describe('SkillTool', () => {
       name: 'code-review',
       description: 'Specialized skill for reviewing code quality',
       level: 'project',
-      filePath: '/project/.qwen/skills/code-review/SKILL.md',
+      filePath: '/project/.aether/skills/code-review/SKILL.md',
       body: 'Review code for quality and best practices.',
     },
     {
       name: 'testing',
       description: 'Skill for writing and running tests',
       level: 'user',
-      filePath: '/home/user/.qwen/skills/testing/SKILL.md',
+      filePath: '/home/user/.aether/skills/testing/SKILL.md',
       body: 'Help write comprehensive tests.',
       allowedTools: ['read_file', 'write_file', 'shell'],
     },
@@ -249,7 +249,7 @@ describe('SkillTool', () => {
           name: 'new-skill',
           description: 'A brand new skill',
           level: 'project',
-          filePath: '/project/.qwen/skills/new-skill/SKILL.md',
+          filePath: '/project/.aether/skills/new-skill/SKILL.md',
           body: 'New skill content.',
         },
       ];
@@ -272,7 +272,7 @@ describe('SkillTool', () => {
           name: 'test-skill',
           description: 'A test skill',
           level: 'project',
-          filePath: '/project/.qwen/skills/test-skill/SKILL.md',
+          filePath: '/project/.aether/skills/test-skill/SKILL.md',
           body: 'Test content.',
         },
       ];
@@ -313,7 +313,7 @@ describe('SkillTool', () => {
 
       const llmText = partToString(result.llmContent);
       expect(llmText).toContain(
-        'Base directory for this skill: /project/.qwen/skills/code-review',
+        'Base directory for this skill: /project/.aether/skills/code-review',
       );
       expect(llmText.trim()).toContain(
         'Review code for quality and best practices.',

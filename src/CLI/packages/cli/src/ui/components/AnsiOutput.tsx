@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -10,7 +10,7 @@ import type {
   AnsiLine,
   AnsiOutput,
   AnsiToken,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 const DEFAULT_HEIGHT = 24;
 

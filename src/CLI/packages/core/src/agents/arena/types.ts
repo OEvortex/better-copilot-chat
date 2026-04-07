@@ -36,7 +36,7 @@ export enum ArenaSessionStatus {
  * Configuration for a model participating in the Arena.
  */
 export interface ArenaModelConfig {
-  /** Model identifier (e.g., 'qwen-coder-plus', 'gpt-4') */
+  /** Model identifier (e.g., 'aether-clir-plus', 'gpt-4') */
   modelId: string;
   /** Authentication type for this model */
   authType: string;
@@ -242,7 +242,7 @@ export interface ArenaControlSignal {
 }
 
 /**
- * Convert an agentId (e.g. "arena-xxx/qwen-coder-plus") to a filename-safe
+ * Convert an agentId (e.g. "arena-xxx/aether-clir-plus") to a filename-safe
  * string by replacing path-unsafe characters with "--".
  */
 export function safeAgentId(agentId: string): string {

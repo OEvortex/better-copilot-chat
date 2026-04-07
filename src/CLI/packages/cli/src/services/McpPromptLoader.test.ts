@@ -1,15 +1,15 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { McpPromptLoader } from './McpPromptLoader.js';
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
 import type { PromptArgument } from '@modelcontextprotocol/sdk/types.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CommandKind, type CommandContext } from '../ui/commands/types.js';
-import * as cliCore from '@qwen-code/qwen-code-core';
+import * as cliCore from '@aether/aether-core';
 
 // Define the mock prompt data at a higher scope
 const mockPrompt = {

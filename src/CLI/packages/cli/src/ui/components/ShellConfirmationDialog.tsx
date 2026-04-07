@@ -1,10 +1,10 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ToolConfirmationOutcome } from '@qwen-code/qwen-code-core';
+import { ToolConfirmationOutcome } from '@aether/aether-core';
 import { Box, Text } from 'ink';
 import type React from 'react';
 import { theme } from '../semantic-colors.js';

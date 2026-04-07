@@ -26,7 +26,7 @@ import { SKILL_PROVIDER_CONFIG_DIRS } from '../config/storage.js';
 
 const debugLogger = createDebugLogger('SKILL_MANAGER');
 
-const QWEN_CONFIG_DIR = '.qwen';
+const AETHER_CONFIG_DIR = '.aether';
 const SKILLS_CONFIG_DIR = 'skills';
 const SKILL_MANIFEST_FILE = 'SKILL.md';
 
@@ -502,7 +502,7 @@ export class SkillManager {
 
     // Iterate provider directories in PROVIDER_CONFIG_DIRS order.
     // The first directory that contains a skill with a given name wins,
-    // so the order defines implicit precedence (.qwen > .agent > .cursor > ...).
+    // so the order defines implicit precedence (.aether > .agent > .cursor > ...).
     const baseDirs = this.getSkillsBaseDirs(level);
     const skills: SkillConfig[] = [];
     const seenNames = new Set<string>();
@@ -699,7 +699,7 @@ export class SkillManager {
   }
 
   private async ensureUserSkillsDir(): Promise<void> {
-    const baseDir = path.join(os.homedir(), QWEN_CONFIG_DIR, SKILLS_CONFIG_DIR);
+    const baseDir = path.join(os.homedir(), AETHER_CONFIG_DIR, SKILLS_CONFIG_DIR);
     try {
       await fs.mkdir(baseDir, { recursive: true });
     } catch (error) {

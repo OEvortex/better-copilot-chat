@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -54,7 +54,7 @@ export class GitService {
     // We don't want to inherit the user's name, email, or gpg signing
     // preferences for the shadow repository, so we create a dedicated gitconfig.
     const gitConfigContent =
-      '[user]\n  name = Qwen Code\n  email = qwen-code@qwen.ai\n[commit]\n  gpgsign = false\n';
+      '[user]\n  name = Qwen Code\n  email = aether-cli@oewortex.dev\n[commit]\n  gpgsign = false\n';
     await fs.writeFile(gitConfigPath, gitConfigContent);
 
     const repo = simpleGit(repoDir);

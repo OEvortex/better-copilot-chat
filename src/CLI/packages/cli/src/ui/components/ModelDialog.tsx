@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -15,7 +15,7 @@ import {
   type AvailableModel as CoreAvailableModel,
   type ContentGeneratorConfig,
   type InputModalities,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { theme } from '../semantic-colors.js';
 import { DescriptiveRadioButtonSelect } from './shared/DescriptiveRadioButtonSelect.js';
@@ -162,9 +162,9 @@ export function ModelDialog({
       modelsByAuthTypeMap.get(authType)!.push(model);
     }
 
-    // Fixed order: qwen-oauth first, then others in a stable order
+    // Fixed order: aether-oauth first, then others in a stable order
     const authTypeOrder: AuthType[] = [
-      AuthType.QWEN_OAUTH,
+      AuthType.AETHER_OAUTH,
       AuthType.USE_OPENAI,
       AuthType.USE_ANTHROPIC,
       AuthType.USE_GEMINI,
@@ -364,7 +364,7 @@ export function ModelDialog({
           selectedAuthType,
           modelId,
           selectedAuthType !== authType &&
-            selectedAuthType === AuthType.QWEN_OAUTH
+            selectedAuthType === AuthType.AETHER_OAUTH
             ? { requireCachedCredentials: true }
             : undefined,
         );
@@ -471,7 +471,7 @@ export function ModelDialog({
               highlightedEntry.model.contextWindowSize,
             )}
           />
-          {highlightedEntry.authType !== AuthType.QWEN_OAUTH && (
+          {highlightedEntry.authType !== AuthType.AETHER_OAUTH && (
             <>
               <DetailRow
                 label="Base URL"

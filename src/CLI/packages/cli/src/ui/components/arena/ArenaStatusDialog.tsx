@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -15,7 +15,7 @@ import {
   isSettledStatus,
   ArenaSessionStatus,
   DISPLAY_MODE,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { theme } from '../../semantic-colors.js';
 import { useKeypress } from '../../hooks/useKeypress.js';
 import { formatDuration } from '../../utils/formatters.js';

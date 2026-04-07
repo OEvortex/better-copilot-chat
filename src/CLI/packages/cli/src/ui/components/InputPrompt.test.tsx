@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -9,8 +9,8 @@ import { waitFor, act } from '@testing-library/react';
 import type { InputPromptProps } from './InputPrompt.js';
 import { InputPrompt } from './InputPrompt.js';
 import type { TextBuffer } from './shared/text-buffer.js';
-import type { Config } from '@qwen-code/qwen-code-core';
-import { ApprovalMode } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
+import { ApprovalMode } from '@aether/aether-core';
 import * as path from 'node:path';
 import type { CommandContext, SlashCommand } from '../commands/types.js';
 import { CommandKind } from '../commands/types.js';
@@ -453,7 +453,7 @@ describe('InputPrompt', () => {
       async () => {
         vi.mocked(clipboardUtils.clipboardHasImage).mockResolvedValue(true);
         vi.mocked(clipboardUtils.saveClipboardImage).mockResolvedValue(
-          '/Users/mochi/.qwen/tmp/clipboard-123.png',
+          '/Users/mochi/.aether/tmp/clipboard-123.png',
         );
 
         const { stdin, unmount } = renderWithProviders(
@@ -476,7 +476,7 @@ describe('InputPrompt', () => {
     it('should handle Cmd+V when clipboard has an image', async () => {
       vi.mocked(clipboardUtils.clipboardHasImage).mockResolvedValue(true);
       vi.mocked(clipboardUtils.saveClipboardImage).mockResolvedValue(
-        '/Users/mochi/.qwen/tmp/clipboard-456.png',
+        '/Users/mochi/.aether/tmp/clipboard-456.png',
       );
 
       const { stdin, unmount } = renderWithProviders(
@@ -533,7 +533,7 @@ describe('InputPrompt', () => {
     });
 
     it('should insert image path at cursor position with proper spacing', async () => {
-      const imagePath = '/Users/mochi/.qwen/tmp/clipboard-456.png';
+      const imagePath = '/Users/mochi/.aether/tmp/clipboard-456.png';
       vi.mocked(clipboardUtils.clipboardHasImage).mockResolvedValue(true);
       vi.mocked(clipboardUtils.saveClipboardImage).mockResolvedValue(imagePath);
 

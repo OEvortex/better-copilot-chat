@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -11,7 +11,7 @@ import {
   CommandKind,
   type SlashCommandActionReturn,
 } from './types.js';
-import { getProjectSummaryPrompt } from '@qwen-code/qwen-code-core';
+import { getProjectSummaryPrompt } from '@aether/aether-core';
 import type { HistoryItemSummary } from '../types.js';
 import { t } from '../../i18n/index.js';
 
@@ -19,7 +19,7 @@ export const summaryCommand: SlashCommand = {
   name: 'summary',
   get description() {
     return t(
-      'Generate a project summary and save it to .qwen/PROJECT_SUMMARY.md',
+      'Generate a project summary and save it to .aether/PROJECT_SUMMARY.md',
     );
   },
   kind: CommandKind.BUILT_IN,
@@ -132,17 +132,17 @@ export const summaryCommand: SlashCommand = {
       filePathForDisplay: string;
       fullPath: string;
     }> => {
-      // Ensure .qwen directory exists
+      // Ensure .aether directory exists
       const projectRoot = config.getProjectRoot();
-      const qwenDir = path.join(projectRoot, '.qwen');
+      const aetherDir = path.join(projectRoot, '.aether');
       try {
-        await fsPromises.mkdir(qwenDir, { recursive: true });
+        await fsPromises.mkdir(aetherDir, { recursive: true });
       } catch (_err) {
         // Directory might already exist, ignore error
       }
 
       // Save the summary to PROJECT_SUMMARY.md
-      const summaryPath = path.join(qwenDir, 'PROJECT_SUMMARY.md');
+      const summaryPath = path.join(aetherDir, 'PROJECT_SUMMARY.md');
       const summaryContent = `${markdownSummary}
 
 ---
@@ -154,7 +154,7 @@ export const summaryCommand: SlashCommand = {
       await fsPromises.writeFile(summaryPath, summaryContent, 'utf8');
 
       return {
-        filePathForDisplay: '.qwen/PROJECT_SUMMARY.md',
+        filePathForDisplay: '.aether/PROJECT_SUMMARY.md',
         fullPath: summaryPath,
       };
     };

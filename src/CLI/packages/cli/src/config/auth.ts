@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -9,7 +9,7 @@ import {
   type Config,
   type ModelProvidersConfig,
   type ProviderModelConfig,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { loadEnvironment, loadSettings, type Settings } from './settings.js';
 import { t } from '../i18n/index.js';
 
@@ -168,8 +168,8 @@ export function validateAuthMethod(
     return null;
   }
 
-  if (authMethod === AuthType.QWEN_OAUTH) {
-    // Qwen OAuth doesn't require any environment variables for basic setup
+  if (authMethod === AuthType.AETHER_OAUTH) {
+    // Aether OAuth doesn't require any environment variables for basic setup
     // The OAuth flow will handle authentication
     return null;
   }

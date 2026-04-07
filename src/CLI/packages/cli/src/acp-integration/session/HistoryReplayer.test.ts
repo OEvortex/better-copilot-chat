@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -13,7 +13,7 @@ import type {
   ToolRegistry,
   ToolResultDisplay,
   TodoResultDisplay,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 describe('HistoryReplayer', () => {
   let mockContext: SessionContext;

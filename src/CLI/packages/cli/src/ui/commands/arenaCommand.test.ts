@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -9,7 +9,7 @@ import {
   type ArenaManager,
   AgentStatus,
   ArenaSessionStatus,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { arenaCommand } from './arenaCommand.js';
 import type {
   CommandContext,

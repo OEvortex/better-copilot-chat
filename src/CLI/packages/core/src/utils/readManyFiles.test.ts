@@ -38,7 +38,7 @@ describe('readManyFiles', () => {
       getFileService: () => new FileDiscoveryService(rootDir),
       getFileFilteringOptions: () => ({
         respectGitIgnore: true,
-        respectQwenIgnore: true,
+        respectAetherIgnore: true,
       }),
       getTargetDir: () => rootDir,
       getProjectRoot: () => rootDir,

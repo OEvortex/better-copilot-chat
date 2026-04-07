@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 
 /**
  * @license
@@ -8,7 +8,7 @@
 
 import './src/gemini.js';
 import { main } from './src/gemini.js';
-import { FatalError } from '@qwen-code/qwen-code-core';
+import { FatalError } from '@aether/aether-core';
 import { writeStderrLine } from './src/utils/stdioHelpers.js';
 
 // --- Global Entry Point ---

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -6,7 +6,7 @@
 
 import type { SpawnOptions } from 'node:child_process';
 import { spawn } from 'node:child_process';
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+import { createDebugLogger } from '@aether/aether-core';
 
 /**
  * Common Windows console code pages (CP) used for encoding conversions.

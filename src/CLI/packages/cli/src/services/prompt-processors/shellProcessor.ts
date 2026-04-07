@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -12,7 +12,7 @@ import {
   ShellExecutionService,
   flatMapTextParts,
   checkArgumentSafety,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 import type { CommandContext } from '../../ui/commands/types.js';
 import type { IPromptProcessor, PromptPipelineContent } from './types.js';

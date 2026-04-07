@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -15,7 +15,7 @@ import {
   getToolInvalidReasons,
 } from './utils.js';
 import type { MCPServerDisplayInfo } from './types.js';
-import { MCPServerStatus } from '@qwen-code/qwen-code-core';
+import { MCPServerStatus } from '@aether/aether-core';
 
 describe('MCP utils', () => {
   describe('groupServersBySource', () => {

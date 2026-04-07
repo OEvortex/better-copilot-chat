@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -9,6 +9,6 @@ export * from './base-token-storage.js';
 export * from './file-token-storage.js';
 export * from './hybrid-token-storage.js';
 
-export const DEFAULT_SERVICE_NAME = 'qwen-code-oauth';
+export const DEFAULT_SERVICE_NAME = 'aether-cli-oauth';
 export const FORCE_ENCRYPTED_FILE_ENV_VAR =
-  'QWEN_CODE_FORCE_ENCRYPTED_FILE_STORAGE';
+  'aether_cli_FORCE_ENCRYPTED_FILE_STORAGE';

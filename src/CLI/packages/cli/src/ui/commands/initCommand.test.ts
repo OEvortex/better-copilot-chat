@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -34,7 +34,7 @@ vi.mock('fs', async (importOriginal) => {
 describe('initCommand', () => {
   let mockContext: CommandContext;
   const targetDir = '/test/dir';
-  const DEFAULT_CONTEXT_FILENAME = 'QWEN.md';
+  const DEFAULT_CONTEXT_FILENAME = 'AGENTS.md';
   const geminiMdPath = path.join(targetDir, DEFAULT_CONTEXT_FILENAME);
 
   beforeEach(() => {
@@ -97,7 +97,7 @@ describe('initCommand', () => {
       expect.objectContaining({
         type: 'submit_prompt',
         content: expect.stringContaining(
-          'You are Qwen Code, an interactive CLI agent',
+          'You are Aether, an interactive CLI agent',
         ),
       }),
     );
@@ -143,7 +143,7 @@ describe('initCommand', () => {
       expect.objectContaining({
         type: 'submit_prompt',
         content: expect.stringContaining(
-          'You are Qwen Code, an interactive CLI agent',
+          'You are Aether, an interactive CLI agent',
         ),
       }),
     );

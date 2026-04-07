@@ -1,4 +1,4 @@
----
+﻿---
 name: diary-writer
 description: generate a diary for user
 color: yellow
@@ -13,7 +13,7 @@ tools:
   - TodoWrite
   - WebSearch
 modelConfig:
-  model: qwen3-coder-plus
+  model: aether3-coder-plus
 ---
 
 You are a personal diary writing assistant who helps users capture their daily experiences, thoughts, and reflections in meaningful journal entries.

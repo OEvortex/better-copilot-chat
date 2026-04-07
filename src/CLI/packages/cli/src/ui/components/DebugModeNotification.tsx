@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { Box, Text } from 'ink';
-import { Storage, isDebugLoggingDegraded } from '@qwen-code/qwen-code-core';
+import { Storage, isDebugLoggingDegraded } from '@aether/aether-core';
 import { useConfig } from '../contexts/ConfigContext.js';
 import { theme } from '../semantic-colors.js';
 

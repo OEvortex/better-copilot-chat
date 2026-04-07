@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /**
- * Converter for Claude Code plugins to Qwen Code format.
+ * Converter for Claude Code plugins to Aether format.
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -155,7 +155,7 @@ function parseStringOrArray(value: unknown): string[] | undefined {
 }
 
 /**
- * Converts a Claude agent config to Qwen Code subagent format.
+ * Converts a Claude agent config to Aether subagent format.
  * @param claudeAgent Claude agent configuration
  * @returns Converted agent config compatible with Qwen Code SubagentConfig
  */
@@ -163,46 +163,46 @@ export function convertClaudeAgentConfig(
   claudeAgent: ClaudeAgentConfig,
 ): Record<string, unknown> {
   // Base config with required fields
-  const qwenAgent: Record<string, unknown> = {
+  const aetherAgent: Record<string, unknown> = {
     name: claudeAgent.name,
     description: claudeAgent.description,
   };
 
   if (claudeAgent.color) {
-    qwenAgent['color'] = claudeAgent.color;
+    aetherAgent['color'] = claudeAgent.color;
   }
 
   // Convert system prompt if present
   if (claudeAgent.systemPrompt) {
-    qwenAgent['systemPrompt'] = claudeAgent.systemPrompt;
+    aetherAgent['systemPrompt'] = claudeAgent.systemPrompt;
   }
 
   // Convert tools using claudeBuildInToolsTransform
   if (claudeAgent.tools && claudeAgent.tools.length > 0) {
-    qwenAgent['tools'] = claudeBuildInToolsTransform(claudeAgent.tools);
+    aetherAgent['tools'] = claudeBuildInToolsTransform(claudeAgent.tools);
   }
 
   // Preserve Claude's top-level model selector.
   if (claudeAgent.model) {
-    qwenAgent['model'] = claudeAgent.model;
+    aetherAgent['model'] = claudeAgent.model;
   }
 
   // Preserve unsupported fields as-is for potential future compatibility
   // These fields are not supported by Qwen Code SubagentConfig but we keep them
   if (claudeAgent.permissionMode) {
-    qwenAgent['permissionMode'] = claudeAgent.permissionMode;
+    aetherAgent['permissionMode'] = claudeAgent.permissionMode;
   }
   if (claudeAgent.hooks) {
-    qwenAgent['hooks'] = claudeAgent.hooks;
+    aetherAgent['hooks'] = claudeAgent.hooks;
   }
   if (claudeAgent.skills && claudeAgent.skills.length > 0) {
-    qwenAgent['skills'] = claudeAgent.skills;
+    aetherAgent['skills'] = claudeAgent.skills;
   }
   if (claudeAgent.disallowedTools && claudeAgent.disallowedTools.length > 0) {
-    qwenAgent['disallowedTools'] = claudeAgent.disallowedTools;
+    aetherAgent['disallowedTools'] = claudeAgent.disallowedTools;
   }
 
-  return qwenAgent;
+  return aetherAgent;
 }
 
 /**
@@ -254,11 +254,11 @@ async function convertAgentFiles(agentsDir: string): Promise<void> {
       };
 
       // Convert to Qwen format
-      const qwenAgent = convertClaudeAgentConfig(claudeAgent);
+      const aetherAgent = convertClaudeAgentConfig(claudeAgent);
 
       // Build new frontmatter (excluding systemPrompt as it goes in body)
       const newFrontmatter: Record<string, unknown> = {};
-      for (const [key, value] of Object.entries(qwenAgent)) {
+      for (const [key, value] of Object.entries(aetherAgent)) {
         if (key !== 'systemPrompt' && value !== undefined) {
           newFrontmatter[key] = value;
         }
@@ -266,7 +266,7 @@ async function convertAgentFiles(agentsDir: string): Promise<void> {
 
       // Write converted content back
       const newYaml = stringifyYaml(newFrontmatter);
-      const systemPrompt = (qwenAgent['systemPrompt'] as string) || body.trim();
+      const systemPrompt = (aetherAgent['systemPrompt'] as string) || body.trim();
       const newContent = `---
 ${newYaml}
 ---
@@ -284,7 +284,7 @@ ${systemPrompt}
 }
 
 /**
- * Converts a Claude plugin config to Qwen Code format.
+ * Converts a Claude plugin config to Aether format.
  * @param claudeConfig Claude plugin configuration
  * @returns Qwen ExtensionConfig
  */
@@ -340,9 +340,9 @@ export function convertClaudeToQwenConfig(
 }
 
 /**
- * Converts a complete Claude plugin package to Qwen Code format.
+ * Converts a complete Claude plugin package to Aether format.
  * Creates a new temporary directory with:
- * 1. Converted qwen-extension.json
+ * 1. Converted aether-extension.json
  * 2. Commands, skills, and agents collected to respective folders
  * 3. MCP servers resolved from JSON files if needed
  * 4. All other files preserved
@@ -508,18 +508,18 @@ export async function convertClaudePluginPackage(
     await convertAgentFiles(agentsDestDir);
 
     // Step 10: Convert to Qwen format config
-    const qwenConfig = convertClaudeToQwenConfig(mergedConfig);
+    const aetherConfig = convertClaudeToQwenConfig(mergedConfig);
 
-    // Step 11: Write qwen-extension.json
-    const qwenConfigPath = path.join(tmpDir, 'qwen-extension.json');
+    // Step 11: Write aether-extension.json
+    const aetherConfigPath = path.join(tmpDir, 'aether-extension.json');
     fs.writeFileSync(
-      qwenConfigPath,
-      JSON.stringify(qwenConfig, null, 2),
+      aetherConfigPath,
+      JSON.stringify(aetherConfig, null, 2),
       'utf-8',
     );
 
     return {
-      config: qwenConfig,
+      config: aetherConfig,
       convertedDir: tmpDir,
     };
   } catch (error) {

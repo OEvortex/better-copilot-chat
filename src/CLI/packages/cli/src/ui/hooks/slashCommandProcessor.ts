@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -18,7 +18,7 @@ import {
   SlashCommandStatus,
   ToolConfirmationOutcome,
   IdeClient,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { useSessionStats } from '../contexts/SessionContext.js';
 import type {
   Message,

@@ -307,7 +307,7 @@ describe('readPathFromWorkspace', () => {
         ['ignored.txt'],
         {
           respectGitIgnore: true,
-          respectQwenIgnore: true,
+          respectAetherIgnore: true,
         },
       );
     });

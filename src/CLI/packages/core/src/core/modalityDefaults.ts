@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -40,17 +40,17 @@ const MODALITY_PATTERNS: Array<[RegExp, InputModalities]> = [
   // -------------------
   // Alibaba / Qwen
   // -------------------
-  // Qwen3.5-Plus: image support
-  [/^qwen3\.5-plus/, { image: true, video: true }],
+  // aether3.5-Plus: image support
+  [/^aether3\.5-plus/, { image: true, video: true }],
   [/^coder-model$/, { image: true, video: true }],
 
   // Qwen VL (vision-language) models: image + video
   [/^qwen-vl-/, { image: true, video: true }],
-  [/^qwen3-vl-/, { image: true, video: true }],
+  [/^aether3-vl-/, { image: true, video: true }],
 
   // Qwen coder / text models: text-only
-  [/^qwen3-coder-/, {}],
-  [/^qwen/, {}],
+  [/^aether3-coder-/, {}],
+  [/^aether/, {}],
 
   // -------------------
   // DeepSeek — text-only

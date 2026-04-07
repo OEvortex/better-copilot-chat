@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -16,7 +16,7 @@ import { isNarrowWidth } from '../utils/isNarrowWidth.js';
 import { useUIState } from '../contexts/UIStateContext.js';
 import { useConfig } from '../contexts/ConfigContext.js';
 import { useVimMode } from '../contexts/VimModeContext.js';
-import { ApprovalMode } from '@qwen-code/qwen-code-core';
+import { ApprovalMode } from '@aether/aether-core';
 import { t } from '../../i18n/index.js';
 
 export const Footer: React.FC = () => {
@@ -37,7 +37,7 @@ export const Footer: React.FC = () => {
   const sandboxInfo = sandboxEnv
     ? sandboxEnv === 'sandbox-exec'
       ? 'seatbelt'
-      : sandboxEnv.startsWith('qwen-code')
+      : sandboxEnv.startsWith('aether')
         ? 'docker'
         : sandboxEnv
     : null;

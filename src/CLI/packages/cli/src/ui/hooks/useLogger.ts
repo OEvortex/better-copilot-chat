@@ -1,12 +1,12 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { useState, useEffect } from 'react';
-import type { Storage } from '@qwen-code/qwen-code-core';
-import { Logger } from '@qwen-code/qwen-code-core';
+import type { Storage } from '@aether/aether-core';
+import { Logger } from '@aether/aether-core';
 
 /**
  * Hook to manage the logger instance.

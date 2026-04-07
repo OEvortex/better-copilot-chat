@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -13,7 +13,7 @@
  */
 
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import type { MCPServerConfig } from '@qwen-code/qwen-code-core';
+import type { MCPServerConfig } from '@aether/aether-core';
 import type { PermissionSuggestion } from '../../types.js';
 
 /**

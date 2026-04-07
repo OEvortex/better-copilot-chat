@@ -641,7 +641,7 @@ describe('shortenPath', () => {
   });
 
   it('shortens long paths by showing start and end with ellipsis in between', () => {
-    const longPath = `${sep}home${sep}user${sep}projects${sep}qwen-code${sep}packages${sep}core${sep}src${sep}file.ts`;
+    const longPath = `${sep}home${sep}user${sep}projects${sep}aether-cli${sep}packages${sep}core${sep}src${sep}file.ts`;
     const result = shortenPath(longPath, 40);
 
     // Should include root + first segment and ellipsis

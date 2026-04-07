@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -16,8 +16,8 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import type { DebugLogger } from '@qwen-code/qwen-code-core';
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+import type { DebugLogger } from '@aether/aether-core';
+import { createDebugLogger } from '@aether/aether-core';
 import type { IControlContext } from '../ControlContext.js';
 import type {
   ControlRequestPayload,

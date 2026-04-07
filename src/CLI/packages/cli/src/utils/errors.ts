@@ -1,10 +1,10 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
 import {
   OutputFormat,
   JsonFormatter,
@@ -13,7 +13,7 @@ import {
   FatalCancellationError,
   ToolErrorType,
   createDebugLogger,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { writeStderrLine } from './stdioHelpers.js';
 
 const debugLogger = createDebugLogger('CLI_ERRORS');
@@ -143,7 +143,7 @@ export function handleToolError(
     const warningMessage =
       `Warning: Tool "${toolName}" requires user approval but cannot execute in non-interactive mode.\n` +
       `To enable automatic tool execution, use the -y flag (YOLO mode):\n` +
-      `Example: qwen -p 'your prompt' -y\n\n`;
+      `Example: aether -p 'your prompt' -y\n\n`;
     process.stderr.write(warningMessage);
   }
 

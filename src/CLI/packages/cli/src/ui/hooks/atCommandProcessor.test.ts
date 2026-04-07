@@ -7,13 +7,13 @@
 import type { Mock } from 'vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { handleAtCommand } from './atCommandProcessor.js';
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
 import {
   FileDiscoveryService,
   StandardFileSystemService,
   COMMON_IGNORE_PATTERNS,
   // DEFAULT_FILE_EXCLUDES,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import * as os from 'node:os';
 import { ToolCallStatus } from '../types.js';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
@@ -50,10 +50,10 @@ describe('handleAtCommand', () => {
       isSandboxed: () => false,
       getFileService: () => new FileDiscoveryService(testRootDir),
       getFileFilteringRespectGitIgnore: () => true,
-      getFileFilteringRespectQwenIgnore: () => true,
+      getFileFilteringRespectAetherIgnore: () => true,
       getFileFilteringOptions: () => ({
         respectGitIgnore: true,
-        respectQwenIgnore: true,
+        respectAetherIgnore: true,
       }),
       getFileSystemService: () => new StandardFileSystemService(),
       getEnableRecursiveFileSearch: vi.fn(() => true),
@@ -521,17 +521,17 @@ describe('handleAtCommand', () => {
     });
   });
 
-  describe('qwen-ignore filtering', () => {
-    it('should skip qwen-ignored files in @ commands', async () => {
+  describe('aether-ignore filtering', () => {
+    it('should skip aether-ignored files in @ commands', async () => {
       await createTestFile(
-        path.join(testRootDir, '.qwenignore'),
+        path.join(testRootDir, '.aetherignore'),
         'build/output.js',
       );
-      const qwenIgnoredFile = await createTestFile(
+      const aetherIgnoredFile = await createTestFile(
         path.join(testRootDir, 'build', 'output.js'),
         'console.log("Hello");',
       );
-      const query = `@${qwenIgnoredFile}`;
+      const query = `@${aetherIgnoredFile}`;
 
       const result = await handleAtCommand({
         query,
@@ -546,16 +546,16 @@ describe('handleAtCommand', () => {
         shouldProceed: true,
       });
       expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Path ${qwenIgnoredFile} is qwen-ignored and will be skipped.`,
+        `Path ${aetherIgnoredFile} is aether-ignored and will be skipped.`,
       );
       expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Ignored 1 files:\nQwen-ignored: ${qwenIgnoredFile}`,
+        `Ignored 1 files:\naether-ignored: ${aetherIgnoredFile}`,
       );
     });
   });
-  it('should process non-ignored files when .qwenignore is present', async () => {
+  it('should process non-ignored files when .aetherignore is present', async () => {
     await createTestFile(
-      path.join(testRootDir, '.qwenignore'),
+      path.join(testRootDir, '.aetherignore'),
       'build/output.js',
     );
     const validFile = await createTestFile(
@@ -584,20 +584,20 @@ describe('handleAtCommand', () => {
     });
   });
 
-  it('should handle mixed qwen-ignored and valid files', async () => {
+  it('should handle mixed aether-ignored and valid files', async () => {
     await createTestFile(
-      path.join(testRootDir, '.qwenignore'),
+      path.join(testRootDir, '.aetherignore'),
       'dist/bundle.js',
     );
     const validFile = await createTestFile(
       path.join(testRootDir, 'src', 'main.ts'),
       '// Main application entry',
     );
-    const qwenIgnoredFile = await createTestFile(
+    const aetherIgnoredFile = await createTestFile(
       path.join(testRootDir, 'dist', 'bundle.js'),
       'console.log("bundle");',
     );
-    const query = `@${validFile} @${qwenIgnoredFile}`;
+    const query = `@${validFile} @${aetherIgnoredFile}`;
 
     const result = await handleAtCommand({
       query,
@@ -609,7 +609,7 @@ describe('handleAtCommand', () => {
 
     expect(result).toMatchObject({
       processedQuery: [
-        { text: `@${validFile} @${qwenIgnoredFile}` },
+        { text: `@${validFile} @${aetherIgnoredFile}` },
         { text: '\n--- Content from referenced files ---' },
         { text: `\nContent from ${validFile}:\n` },
         { text: '// Main application entry' },
@@ -618,10 +618,10 @@ describe('handleAtCommand', () => {
       shouldProceed: true,
     });
     expect(mockOnDebugMessage).toHaveBeenCalledWith(
-      `Path ${qwenIgnoredFile} is qwen-ignored and will be skipped.`,
+      `Path ${aetherIgnoredFile} is aether-ignored and will be skipped.`,
     );
     expect(mockOnDebugMessage).toHaveBeenCalledWith(
-      `Ignored 1 files:\nQwen-ignored: ${qwenIgnoredFile}`,
+      `Ignored 1 files:\naether-ignored: ${aetherIgnoredFile}`,
     );
   });
 

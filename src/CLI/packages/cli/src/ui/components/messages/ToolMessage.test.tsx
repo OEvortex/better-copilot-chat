@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -16,7 +16,7 @@ import type {
   AnsiOutput,
   AnsiOutputDisplay,
   Config,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import type { LoadedSettings } from '../../../config/settings.js';
 
 vi.mock('../TerminalOutput.js', () => ({

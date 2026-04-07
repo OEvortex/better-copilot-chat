@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -38,7 +38,7 @@ describe('ExtensionStorage', () => {
     vi.mocked(Storage).mockImplementation(
       () =>
         ({
-          getExtensionsDir: () => path.join(mockHomeDir, '.qwen', 'extensions'),
+          getExtensionsDir: () => path.join(mockHomeDir, '.aether', 'extensions'),
         }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     );
     storage = new ExtensionStorage(extensionName);
@@ -51,7 +51,7 @@ describe('ExtensionStorage', () => {
   it('should return the correct extension directory', () => {
     const expectedDir = path.join(
       mockHomeDir,
-      '.qwen',
+      '.aether',
       'extensions',
       extensionName,
     );
@@ -61,7 +61,7 @@ describe('ExtensionStorage', () => {
   it('should return the correct config path', () => {
     const expectedPath = path.join(
       mockHomeDir,
-      '.qwen',
+      '.aether',
       'extensions',
       extensionName,
       EXTENSIONS_CONFIG_FILENAME, // EXTENSIONS_CONFIG_FILENAME
@@ -72,7 +72,7 @@ describe('ExtensionStorage', () => {
   it('should return the correct env file path', () => {
     const expectedPath = path.join(
       mockHomeDir,
-      '.qwen',
+      '.aether',
       'extensions',
       extensionName,
       EXTENSION_SETTINGS_FILENAME, // EXTENSION_SETTINGS_FILENAME
@@ -81,12 +81,12 @@ describe('ExtensionStorage', () => {
   });
 
   it('should return the correct user extensions directory', () => {
-    const expectedDir = path.join(mockHomeDir, '.qwen', 'extensions');
+    const expectedDir = path.join(mockHomeDir, '.aether', 'extensions');
     expect(ExtensionStorage.getUserExtensionsDir()).toBe(expectedDir);
   });
 
   it('should create a temporary directory', async () => {
-    const mockTmpDir = '/tmp/qwen-extension-123';
+    const mockTmpDir = '/tmp/aether-extension-123';
     vi.mocked(fs.promises.mkdtemp).mockResolvedValue(mockTmpDir);
     vi.mocked(os.tmpdir).mockReturnValue('/tmp');
 

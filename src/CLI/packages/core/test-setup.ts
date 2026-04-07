@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -13,8 +13,8 @@ import { setSimulate429 } from './src/utils/testUtils.js';
 
 // Avoid writing per-session debug log files during tests.
 // Unit tests can opt-in by overriding this env var.
-if (process.env['QWEN_DEBUG_LOG_FILE'] === undefined) {
-  process.env['QWEN_DEBUG_LOG_FILE'] = '0';
+if (process.env['AETHER_DEBUG_LOG_FILE'] === undefined) {
+  process.env['AETHER_DEBUG_LOG_FILE'] = '0';
 }
 
 // Disable 429 simulation globally for all tests

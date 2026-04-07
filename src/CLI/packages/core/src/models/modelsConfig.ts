@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -9,7 +9,7 @@ import process from 'node:process';
 import { AuthType } from '../core/contentGenerator.js';
 import type { ContentGeneratorConfig } from '../core/contentGenerator.js';
 import type { ContentGeneratorConfigSources } from '../core/contentGenerator.js';
-import { DEFAULT_QWEN_MODEL } from '../config/models.js';
+import { DEFAULT_AETHER_MODEL } from '../config/models.js';
 import { tokenLimit } from '../core/tokenLimits.js';
 import { defaultModalities } from '../core/modalityDefaults.js';
 
@@ -82,8 +82,8 @@ export class ModelsConfig {
   // Flag for strict model provider selection
   private strictModelProviderSelection: boolean = false;
 
-  // One-shot flag for qwen-oauth credential caching
-  private requireCachedQwenCredentialsOnce: boolean = false;
+  // One-shot flag for aether-oauth credential caching
+  private requireCachedAetherCredentialsOnce: boolean = false;
 
   // One-shot flag indicating credentials were manually set via updateCredentials()
   // When true, syncAfterAuthRefresh should NOT override these credentials with
@@ -172,7 +172,7 @@ export class ModelsConfig {
     generationConfig: Partial<ContentGeneratorConfig>;
     generationConfigSources: ContentGeneratorConfigSources;
     strictModelProviderSelection: boolean;
-    requireCachedQwenCredentialsOnce: boolean;
+    requireCachedAetherCredentialsOnce: boolean;
     hasManualCredentials: boolean;
     activeRuntimeModelSnapshotId: string | undefined;
   } {
@@ -183,7 +183,7 @@ export class ModelsConfig {
         this.generationConfigSources,
       ),
       strictModelProviderSelection: this.strictModelProviderSelection,
-      requireCachedQwenCredentialsOnce: this.requireCachedQwenCredentialsOnce,
+      requireCachedAetherCredentialsOnce: this.requireCachedAetherCredentialsOnce,
       hasManualCredentials: this.hasManualCredentials,
       activeRuntimeModelSnapshotId: this.activeRuntimeModelSnapshotId,
     };
@@ -202,8 +202,8 @@ export class ModelsConfig {
     this._generationConfig = snapshot.generationConfig;
     this.generationConfigSources = snapshot.generationConfigSources;
     this.strictModelProviderSelection = snapshot.strictModelProviderSelection;
-    this.requireCachedQwenCredentialsOnce =
-      snapshot.requireCachedQwenCredentialsOnce;
+    this.requireCachedAetherCredentialsOnce =
+      snapshot.requireCachedAetherCredentialsOnce;
     this.hasManualCredentials = snapshot.hasManualCredentials;
     this.activeRuntimeModelSnapshotId = snapshot.activeRuntimeModelSnapshotId;
   }
@@ -212,7 +212,7 @@ export class ModelsConfig {
    * Get current model ID
    */
   getModel(): string {
-    return this._generationConfig.model || DEFAULT_QWEN_MODEL;
+    return this._generationConfig.model || DEFAULT_AETHER_MODEL;
   }
 
   /**
@@ -251,7 +251,7 @@ export class ModelsConfig {
    *
    * Notes:
    * - By default, returns models across all authTypes.
-   * - qwen-oauth models are always ordered first.
+   * - aether-oauth models are always ordered first.
    * - Runtime model option (if active) is included before registry models of the same authType.
    */
   getAllConfiguredModels(authTypes?: AuthType[]): AvailableModel[] {
@@ -268,13 +268,13 @@ export class ModelsConfig {
       }
     }
 
-    // Force qwen-oauth to the front (if requested / defaulted in).
+    // Force aether-oauth to the front (if requested / defaulted in).
     const orderedAuthTypes: AuthType[] = [];
-    if (uniqueAuthTypes.includes(AuthType.QWEN_OAUTH)) {
-      orderedAuthTypes.push(AuthType.QWEN_OAUTH);
+    if (uniqueAuthTypes.includes(AuthType.AETHER_OAUTH)) {
+      orderedAuthTypes.push(AuthType.AETHER_OAUTH);
     }
     for (const authType of uniqueAuthTypes) {
-      if (authType !== AuthType.QWEN_OAUTH) {
+      if (authType !== AuthType.AETHER_OAUTH) {
         orderedAuthTypes.push(authType);
       }
     }
@@ -320,11 +320,11 @@ export class ModelsConfig {
     newModel: string,
     metadata?: ModelSwitchMetadata,
   ): Promise<void> {
-    // Special case: qwen-oauth model switch - hot update in place
+    // Special case: aether-oauth model switch - hot update in place
     // coder-model supports vision capabilities and can be hot-updated
     if (
-      this.currentAuthType === AuthType.QWEN_OAUTH &&
-      newModel === DEFAULT_QWEN_MODEL
+      this.currentAuthType === AuthType.AETHER_OAUTH &&
+      newModel === DEFAULT_AETHER_MODEL
     ) {
       this.strictModelProviderSelection = false;
       this._generationConfig.model = newModel;
@@ -335,7 +335,7 @@ export class ModelsConfig {
 
       // Notify Config to update contentGeneratorConfig
       if (this.onModelChange) {
-        await this.onModelChange(AuthType.QWEN_OAUTH, false);
+        await this.onModelChange(AuthType.AETHER_OAUTH, false);
       }
       return;
     }
@@ -382,8 +382,8 @@ export class ModelsConfig {
     }
 
     const rollbackSnapshot = this.createStateSnapshotForRollback();
-    if (authType === AuthType.QWEN_OAUTH && options?.requireCachedCredentials) {
-      this.requireCachedQwenCredentialsOnce = true;
+    if (authType === AuthType.AETHER_OAUTH && options?.requireCachedCredentials) {
+      this.requireCachedAetherCredentialsOnce = true;
     }
 
     try {
@@ -684,8 +684,8 @@ export class ModelsConfig {
    * Check and consume the one-shot cached credentials flag
    */
   consumeRequireCachedCredentialsFlag(): boolean {
-    const value = this.requireCachedQwenCredentialsOnce;
-    this.requireCachedQwenCredentialsOnce = false;
+    const value = this.requireCachedAetherCredentialsOnce;
+    this.requireCachedAetherCredentialsOnce = false;
     return value;
   }
 
@@ -708,17 +708,17 @@ export class ModelsConfig {
 
     // Clear credentials to avoid reusing previous model's API key
 
-    // For Qwen OAuth, apiKey must always be a placeholder. It will be dynamically
+    // For Aether OAuth, apiKey must always be a placeholder. It will be dynamically
     // replaced when building requests. Do not preserve any previous key or read
     // from envKey.
     //
     // (OpenAI client instantiation requires an apiKey even though it will be
     // replaced later.)
-    if (this.currentAuthType === AuthType.QWEN_OAUTH) {
-      this._generationConfig.apiKey = 'QWEN_OAUTH_DYNAMIC_TOKEN';
+    if (this.currentAuthType === AuthType.AETHER_OAUTH) {
+      this._generationConfig.apiKey = 'AETHER_OAUTH_DYNAMIC_TOKEN';
       this.generationConfigSources['apiKey'] = {
         kind: 'computed',
-        detail: 'Qwen OAuth placeholder token',
+        detail: 'Aether OAuth placeholder token',
       };
       this._generationConfig.apiKeyEnvKey = undefined;
       delete this.generationConfigSources['apiKeyEnvKey'];
@@ -804,13 +804,13 @@ export class ModelsConfig {
    * - We're checking if switching between two models within the SAME authType needs refresh
    *
    * Examples:
-   * - Qwen OAuth: coder-model switches (same authType, hot-update safe)
+   * - Aether OAuth: coder-model switches (same authType, hot-update safe)
    * - OpenAI: model-a -> model-b with same envKey (same authType, hot-update safe)
    * - OpenAI: gpt-4 -> deepseek-chat with different envKey (same authType, needs refresh)
    *
    * Cross-authType scenarios:
-   * - OpenAI -> Qwen OAuth: handled by switchModel(authType, modelId), always refreshes
-   * - Qwen OAuth -> OpenAI: handled by switchModel(authType, modelId), always refreshes
+   * - OpenAI -> Aether OAuth: handled by switchModel(authType, modelId), always refreshes
+   * - Aether OAuth -> OpenAI: handled by switchModel(authType, modelId), always refreshes
    */
   private checkRequiresRefresh(previousModelId: string): boolean {
     // Defensive: this method is only called after switchModel() sets currentAuthType,
@@ -820,9 +820,9 @@ export class ModelsConfig {
       return true;
     }
 
-    // For Qwen OAuth, model switches within the same authType can always be hot-updated
+    // For Aether OAuth, model switches within the same authType can always be hot-updated
     // (coder-model supports vision capabilities and doesn't require ContentGenerator recreation)
-    if (authType === AuthType.QWEN_OAUTH) {
+    if (authType === AuthType.AETHER_OAUTH) {
       return false;
     }
 
@@ -1138,7 +1138,7 @@ export class ModelsConfig {
       label: snapshot.modelId,
       authType: snapshot.authType,
       /**
-       * `isVision` is for automatic switching of qwen-oauth vision model.
+       * `isVision` is for automatic switching of aether-oauth vision model.
        * Runtime models are basically specified via CLI arguments, env variables,
        * or settings for other auth types.
        */

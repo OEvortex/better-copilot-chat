@@ -16,11 +16,11 @@ import {
   TokenError,
 } from './sharedTokenManager.js';
 import type {
-  IQwenOAuth2Client,
-  QwenCredentials,
+  IAetherOAuth2Client,
+  AetherCredentials,
   TokenRefreshData,
   ErrorData,
-} from './qwenOAuth2.js';
+} from './aetherOAuth2.js';
 
 // Mock external dependencies
 vi.mock('node:fs', () => ({
@@ -61,12 +61,12 @@ function setPrivateProperty<T>(obj: unknown, property: string, value: T): void {
 }
 
 /**
- * Creates a mock QwenOAuth2Client for testing
+ * Creates a mock AetherOAuth2Client for testing
  */
 function createMockQwenClient(
-  initialCredentials: Partial<QwenCredentials> = {},
-): IQwenOAuth2Client {
-  let credentials: QwenCredentials = {
+  initialCredentials: Partial<AetherCredentials> = {},
+): IAetherOAuth2Client {
+  let credentials: AetherCredentials = {
     access_token: 'mock_access_token',
     refresh_token: 'mock_refresh_token',
     token_type: 'Bearer',
@@ -76,7 +76,7 @@ function createMockQwenClient(
   };
 
   return {
-    setCredentials: vi.fn((creds: QwenCredentials) => {
+    setCredentials: vi.fn((creds: AetherCredentials) => {
       credentials = { ...credentials, ...creds };
     }),
     getCredentials: vi.fn(() => credentials),
@@ -91,8 +91,8 @@ function createMockQwenClient(
  * Creates valid mock credentials
  */
 function createValidCredentials(
-  overrides: Partial<QwenCredentials> = {},
-): QwenCredentials {
+  overrides: Partial<AetherCredentials> = {},
+): AetherCredentials {
   return {
     access_token: 'valid_access_token',
     refresh_token: 'valid_refresh_token',
@@ -107,8 +107,8 @@ function createValidCredentials(
  * Creates expired mock credentials
  */
 function createExpiredCredentials(
-  overrides: Partial<QwenCredentials> = {},
-): QwenCredentials {
+  overrides: Partial<AetherCredentials> = {},
+): AetherCredentials {
   return {
     access_token: 'expired_access_token',
     refresh_token: 'expired_refresh_token',
@@ -176,7 +176,7 @@ describe('SharedTokenManager', () => {
     mockPath.dirname.mockImplementation((filePath) => {
       // Handle undefined/null input gracefully
       if (!filePath || typeof filePath !== 'string') {
-        return '/home/user/.qwen'; // Return the expected directory path
+        return '/home/user/.aether'; // Return the expected directory path
       }
       const parts = filePath.split('/');
       const result = parts.slice(0, -1).join('/');
@@ -226,7 +226,7 @@ describe('SharedTokenManager', () => {
       // Manually set cached credentials
       tokenManager.clearCache();
       const memoryCache = getPrivateProperty<{
-        credentials: QwenCredentials | null;
+        credentials: AetherCredentials | null;
         fileModTime: number;
         lastCheck: number;
       }>(tokenManager, 'memoryCache');
@@ -385,7 +385,7 @@ describe('SharedTokenManager', () => {
       // Set some cache data
       tokenManager.clearCache();
       const memoryCache = getPrivateProperty<{
-        credentials: QwenCredentials | null;
+        credentials: AetherCredentials | null;
       }>(tokenManager, 'memoryCache');
       memoryCache.credentials = createValidCredentials();
 
@@ -399,7 +399,7 @@ describe('SharedTokenManager', () => {
 
       tokenManager.clearCache();
       const memoryCache = getPrivateProperty<{
-        credentials: QwenCredentials | null;
+        credentials: AetherCredentials | null;
       }>(tokenManager, 'memoryCache');
       memoryCache.credentials = credentials;
 
@@ -469,7 +469,7 @@ describe('SharedTokenManager', () => {
 
       tokenManager.clearCache();
       const memoryCache = getPrivateProperty<{
-        credentials: QwenCredentials | null;
+        credentials: AetherCredentials | null;
       }>(tokenManager, 'memoryCache');
       memoryCache.credentials = credentials;
 
@@ -487,7 +487,7 @@ describe('SharedTokenManager', () => {
 
       tokenManager.clearCache();
       const memoryCache = getPrivateProperty<{
-        credentials: QwenCredentials | null;
+        credentials: AetherCredentials | null;
       }>(tokenManager, 'memoryCache');
       memoryCache.credentials = expiredCredentials;
 
@@ -551,7 +551,7 @@ describe('SharedTokenManager', () => {
 
       // Set valid credentials in cache
       const memoryCache = getPrivateProperty<{
-        credentials: QwenCredentials | null;
+        credentials: AetherCredentials | null;
       }>(tokenManager, 'memoryCache');
       memoryCache.credentials = validCredentials;
 
@@ -791,7 +791,7 @@ describe('SharedTokenManager', () => {
 
   describe('CredentialsClearRequiredError handling', () => {
     it('should clear memory cache when CredentialsClearRequiredError is thrown during refresh', async () => {
-      const { CredentialsClearRequiredError } = await import('./qwenOAuth2.js');
+      const { CredentialsClearRequiredError } = await import('./aetherOAuth2.js');
 
       const tokenManager = SharedTokenManager.getInstance();
       tokenManager.clearCache();
@@ -805,7 +805,7 @@ describe('SharedTokenManager', () => {
       };
 
       const memoryCache = getPrivateProperty<{
-        credentials: QwenCredentials | null;
+        credentials: AetherCredentials | null;
         fileModTime: number;
       }>(tokenManager, 'memoryCache');
       memoryCache.credentials = mockCredentials;
@@ -846,7 +846,7 @@ describe('SharedTokenManager', () => {
         fileModTime: number;
       }>(tokenManager, 'memoryCache');
       const refreshPromise =
-        getPrivateProperty<Promise<QwenCredentials> | null>(
+        getPrivateProperty<Promise<AetherCredentials> | null>(
           tokenManager,
           'refreshPromise',
         );
@@ -855,7 +855,7 @@ describe('SharedTokenManager', () => {
     });
 
     it('should convert CredentialsClearRequiredError to TokenManagerError', async () => {
-      const { CredentialsClearRequiredError } = await import('./qwenOAuth2.js');
+      const { CredentialsClearRequiredError } = await import('./aetherOAuth2.js');
 
       const tokenManager = SharedTokenManager.getInstance();
       tokenManager.clearCache();
@@ -925,7 +925,7 @@ describe('SharedTokenManager', () => {
       const checkMethod = getPrivateProperty(
         tokenManager,
         'checkAndReloadIfNeeded',
-      ) as (client?: IQwenOAuth2Client) => Promise<void>;
+      ) as (client?: IAetherOAuth2Client) => Promise<void>;
       await checkMethod.call(tokenManager, mockClient);
 
       // Verify that clearTimeout was called to clean up the timer

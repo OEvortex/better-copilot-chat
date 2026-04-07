@@ -219,7 +219,7 @@ function filterMcpConfig(original: MCPServerConfig): MCPServerConfig {
 
 function getContextFileNames(config: ExtensionConfig): string[] {
   if (!config.contextFileName || config.contextFileName.length === 0) {
-    return ['QWEN.md'];
+    return ['AGENTS.md'];
   } else if (!Array.isArray(config.contextFileName)) {
     return [config.contextFileName];
   }
@@ -269,7 +269,7 @@ async function convertGeminiOrClaudeExtension(
   pluginName?: string,
 ): Promise<{ extensionDir: string; originSource: ExtensionOriginSource }> {
   let newExtensionDir = extensionDir;
-  let originSource: ExtensionOriginSource = 'QwenCode';
+  let originSource: ExtensionOriginSource = 'Aether';
   const configFilePath = path.join(extensionDir, EXTENSIONS_CONFIG_FILENAME);
   if (fs.existsSync(configFilePath)) {
     newExtensionDir = extensionDir;
@@ -1206,7 +1206,7 @@ export class ExtensionManager {
         const installMetadata: ExtensionInstallMetadata = {
           source: extension.path,
           type: 'local',
-          originSource: extension.installMetadata?.originSource || 'QwenCode',
+          originSource: extension.installMetadata?.originSource || 'Aether',
         };
         await this.installExtension(
           installMetadata,

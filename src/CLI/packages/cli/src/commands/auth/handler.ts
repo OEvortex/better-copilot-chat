@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -9,7 +9,7 @@ import {
   getErrorMessage,
   type Config,
   type ProviderModelConfig as ModelConfig,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { writeStdoutLine, writeStderrLine } from '../../utils/stdioHelpers.js';
 import { t } from '../../i18n/index.js';
 import {
@@ -25,7 +25,7 @@ import { loadCliConfig } from '../../config/config.js';
 import type { CliArgs } from '../../config/config.js';
 import { InteractiveSelector } from './interactiveSelector.js';
 
-interface QwenAuthOptions {
+interface AetherAuthOptions {
   region?: string;
   key?: string;
 }
@@ -52,9 +52,9 @@ interface MergedSettingsWithCodingPlan {
 /**
  * Handles the authentication process based on the specified command and options
  */
-export async function handleQwenAuth(
-  command: 'qwen-oauth' | 'coding-plan',
-  options: QwenAuthOptions,
+export async function handleAetherAuth(
+  command: 'aether-oauth' | 'coding-plan',
+  options: AetherAuthOptions,
 ) {
   try {
     const settings = loadSettings();
@@ -119,8 +119,8 @@ export async function handleQwenAuth(
       [], // No extensions for auth command
     );
 
-    if (command === 'qwen-oauth') {
-      await handleQwenOAuth(config, settings);
+    if (command === 'aether-oauth') {
+      await handleaetherOAuth(config, settings);
     } else if (command === 'coding-plan') {
       await handleCodePlanAuth(config, settings, options);
     }
@@ -135,30 +135,30 @@ export async function handleQwenAuth(
 }
 
 /**
- * Handles Qwen OAuth authentication
+ * Handles Aether OAuth authentication
  */
-async function handleQwenOAuth(
+async function handleaetherOAuth(
   config: Config,
   settings: LoadedSettings,
 ): Promise<void> {
-  writeStdoutLine(t('Starting Qwen OAuth authentication...'));
+  writeStdoutLine(t('Starting Aether OAuth authentication...'));
 
   try {
-    await config.refreshAuth(AuthType.QWEN_OAUTH);
+    await config.refreshAuth(AuthType.AETHER_OAUTH);
 
     // Persist the auth type
     const authTypeScope = getPersistScopeForModelSelection(settings);
     settings.setValue(
       authTypeScope,
       'security.auth.selectedType',
-      AuthType.QWEN_OAUTH,
+      AuthType.AETHER_OAUTH,
     );
 
-    writeStdoutLine(t('Successfully authenticated with Qwen OAuth.'));
+    writeStdoutLine(t('Successfully authenticated with Aether OAuth.'));
     process.exit(0);
   } catch (error) {
     writeStderrLine(
-      t('Failed to authenticate with Qwen OAuth: {{error}}', {
+      t('Failed to authenticate with Aether OAuth: {{error}}', {
         error: getErrorMessage(error),
       }),
     );
@@ -172,7 +172,7 @@ async function handleQwenOAuth(
 async function handleCodePlanAuth(
   config: Config,
   settings: LoadedSettings,
-  options: QwenAuthOptions,
+  options: AetherAuthOptions,
 ): Promise<void> {
   const { region, key } = options;
 
@@ -368,9 +368,9 @@ export async function runInteractiveAuth() {
   const selector = new InteractiveSelector(
     [
       {
-        value: 'qwen-oauth' as const,
-        label: t('Qwen OAuth'),
-        description: t('Free · Up to 1,000 requests/day · Qwen latest models'),
+        value: 'aether-oauth' as const,
+        label: t('Aether OAuth'),
+        description: t('Free · Up to 1,000 requests/day · Aether latest models'),
       },
       {
         value: 'coding-plan' as const,
@@ -386,9 +386,9 @@ export async function runInteractiveAuth() {
   const choice = await selector.select();
 
   if (choice === 'coding-plan') {
-    await handleQwenAuth('coding-plan', {});
+    await handleAetherAuth('coding-plan', {});
   } else {
-    await handleQwenAuth('qwen-oauth', {});
+    await handleAetherAuth('aether-oauth', {});
   }
 }
 
@@ -410,27 +410,27 @@ export async function showAuthStatus(): Promise<void> {
       writeStdoutLine(t('Run one of the following commands to get started:\n'));
       writeStdoutLine(
         t(
-          '  qwen auth qwen-oauth     - Authenticate with Qwen OAuth (free tier)',
+          '  aether auth aether-oauth     - Authenticate with Aether OAuth (free tier)',
         ),
       );
       writeStdoutLine(
         t(
-          '  qwen auth coding-plan      - Authenticate with Alibaba Cloud Coding Plan\n',
+          '  aether auth coding-plan      - Authenticate with Alibaba Cloud Coding Plan\n',
         ),
       );
       writeStdoutLine(t('Or simply run:'));
       writeStdoutLine(
-        t('  qwen auth                - Interactive authentication setup\n'),
+        t('  aether auth                - Interactive authentication setup\n'),
       );
       process.exit(0);
     }
 
     // Display status based on auth type
-    if (selectedType === AuthType.QWEN_OAUTH) {
-      writeStdoutLine(t('✓ Authentication Method: Qwen OAuth'));
+    if (selectedType === AuthType.AETHER_OAUTH) {
+      writeStdoutLine(t('✓ Authentication Method: Aether OAuth'));
       writeStdoutLine(t('  Type: Free tier'));
       writeStdoutLine(t('  Limit: Up to 1,000 requests/day'));
-      writeStdoutLine(t('  Models: Qwen latest models\n'));
+      writeStdoutLine(t('  Models: Aether latest models\n'));
     } else if (selectedType === AuthType.USE_OPENAI) {
       // Check for Coding Plan configuration
       const codingPlanRegion = mergedSettings.codingPlan?.region;
@@ -479,7 +479,7 @@ export async function showAuthStatus(): Promise<void> {
         writeStdoutLine(
           t('  Issue: API key not found in environment or settings\n'),
         );
-        writeStdoutLine(t('  Run `qwen auth coding-plan` to re-configure.\n'));
+        writeStdoutLine(t('  Run `aether auth coding-plan` to re-configure.\n'));
       }
     } else {
       writeStdoutLine(

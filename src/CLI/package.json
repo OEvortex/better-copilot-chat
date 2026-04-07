@@ -1,5 +1,5 @@
 {
-  "name": "@qwen-code/qwen-code",
+  "name": "@aether/aether",
   "version": "0.14.1",
   "engines": {
     "node": ">=20.0.0"
@@ -15,10 +15,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QwenLM/qwen-code.git"
+    "url": "git+https://github.com/OEvortex/copilot-helper.git"
   },
   "config": {
-    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.14.1"
+    "sandboxImageUri": "ghcr.io/oewortex/aether:0.14.1"
   },
   "scripts": {
     "start": "cross-env node scripts/start.js",
@@ -38,15 +38,15 @@
     "test:scripts": "vitest run --config ./scripts/tests/vitest.config.ts",
     "test:e2e": "cross-env VERBOSE=true KEEP_OUTPUT=true npm run test:integration:sandbox:none",
     "test:integration:all": "npm run test:integration:sandbox:none && npm run test:integration:sandbox:docker && npm run test:integration:sandbox:podman",
-    "test:integration:sandbox:none": "cross-env QWEN_SANDBOX=false vitest run --root ./integration-tests",
-    "test:integration:sandbox:docker": "cross-env QWEN_SANDBOX=docker npm run build:sandbox && QWEN_SANDBOX=docker vitest run --root ./integration-tests",
-    "test:integration:sandbox:podman": "cross-env QWEN_SANDBOX=podman vitest run --root ./integration-tests",
-    "test:integration:sdk:sandbox:none": "cross-env QWEN_SANDBOX=false vitest run --root ./integration-tests --poolOptions.threads.maxThreads 2 sdk-typescript",
-    "test:integration:sdk:sandbox:docker": "cross-env QWEN_SANDBOX=docker npm run build:sandbox && QWEN_SANDBOX=docker vitest run --root ./integration-tests --poolOptions.threads.maxThreads 2 sdk-typescript",
-    "test:integration:cli:sandbox:none": "cross-env QWEN_SANDBOX=false vitest run --root ./integration-tests cli",
-    "test:integration:cli:sandbox:docker": "cross-env QWEN_SANDBOX=docker npm run build:sandbox && QWEN_SANDBOX=docker vitest run --root ./integration-tests cli",
-    "test:integration:interactive:sandbox:none": "cross-env QWEN_SANDBOX=false vitest run --root ./integration-tests interactive",
-    "test:integration:interactive:sandbox:docker": "cross-env QWEN_SANDBOX=docker npm run build:sandbox && QWEN_SANDBOX=docker vitest run --root ./integration-tests interactive",
+    "test:integration:sandbox:none": "cross-env AETHER_SANDBOX=false vitest run --root ./integration-tests",
+    "test:integration:sandbox:docker": "cross-env AETHER_SANDBOX=docker npm run build:sandbox && AETHER_SANDBOX=docker vitest run --root ./integration-tests",
+    "test:integration:sandbox:podman": "cross-env AETHER_SANDBOX=podman vitest run --root ./integration-tests",
+    "test:integration:sdk:sandbox:none": "cross-env AETHER_SANDBOX=false vitest run --root ./integration-tests --poolOptions.threads.maxThreads 2 sdk-typescript",
+    "test:integration:sdk:sandbox:docker": "cross-env AETHER_SANDBOX=docker npm run build:sandbox && AETHER_SANDBOX=docker vitest run --root ./integration-tests --poolOptions.threads.maxThreads 2 sdk-typescript",
+    "test:integration:cli:sandbox:none": "cross-env AETHER_SANDBOX=false vitest run --root ./integration-tests cli",
+    "test:integration:cli:sandbox:docker": "cross-env AETHER_SANDBOX=docker npm run build:sandbox && AETHER_SANDBOX=docker vitest run --root ./integration-tests cli",
+    "test:integration:interactive:sandbox:none": "cross-env AETHER_SANDBOX=false vitest run --root ./integration-tests interactive",
+    "test:integration:interactive:sandbox:docker": "cross-env AETHER_SANDBOX=docker npm run build:sandbox && AETHER_SANDBOX=docker vitest run --root ./integration-tests interactive",
     "test:terminal-bench": "cross-env VERBOSE=true KEEP_OUTPUT=true vitest run --config ./vitest.terminal-bench.config.ts --root ./integration-tests",
     "test:terminal-bench:oracle": "cross-env VERBOSE=true KEEP_OUTPUT=true vitest run --config ./vitest.terminal-bench.config.ts --root ./integration-tests -t 'oracle'",
     "test:terminal-bench:qwen": "cross-env VERBOSE=true KEEP_OUTPUT=true vitest run --config ./vitest.terminal-bench.config.ts --root ./integration-tests -t 'qwen'",
@@ -75,7 +75,7 @@
     "baseline-browser-mapping": "^2.9.19"
   },
   "bin": {
-    "qwen": "dist/cli.js"
+    "aether": "dist/cli.js"
   },
   "files": [
     "dist/",

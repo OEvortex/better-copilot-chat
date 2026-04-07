@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -10,15 +10,15 @@ import {
   AuthType,
   clearCachedCredentialFile,
   createDebugLogger,
-  QwenOAuth2Event,
-  qwenOAuth2Events,
+  aetherOAuth2Event,
+  aetherOAuth2Events,
   MCPServerConfig,
   SessionService,
   tokenLimit,
   type Config,
   type ConversationRecord,
   type DeviceAuthorizationData,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import {
   AgentSideConnection,
   RequestError,
@@ -154,8 +154,8 @@ class QwenAgent implements Agent {
     return {
       protocolVersion: PROTOCOL_VERSION,
       agentInfo: {
-        name: 'qwen-code',
-        title: 'Qwen Code',
+        name: 'aether',
+        title: 'Aether Code',
         version,
       },
       authMethods,
@@ -185,8 +185,8 @@ class QwenAgent implements Agent {
       });
     };
 
-    if (method === AuthType.QWEN_OAUTH) {
-      qwenOAuth2Events.once(QwenOAuth2Event.AuthUri, authUriHandler);
+    if (method === AuthType.AETHER_OAUTH) {
+      aetherOAuth2Events.once(aetherOAuth2Event.AuthUri, authUriHandler);
     }
 
     await clearCachedCredentialFile();
@@ -198,8 +198,8 @@ class QwenAgent implements Agent {
         method,
       );
     } finally {
-      if (method === AuthType.QWEN_OAUTH) {
-        qwenOAuth2Events.off(QwenOAuth2Event.AuthUri, authUriHandler);
+      if (method === AuthType.AETHER_OAUTH) {
+        aetherOAuth2Events.off(aetherOAuth2Event.AuthUri, authUriHandler);
       }
     }
   }
@@ -417,7 +417,7 @@ class QwenAgent implements Agent {
     if (!selectedType) {
       throw RequestError.authRequired(
         { authMethods: this.pickAuthMethodsForAuthRequired() },
-        'Use Qwen Code CLI to authenticate first.',
+        'Use Aether Code CLI to authenticate first.',
       );
     }
 
@@ -441,13 +441,13 @@ class QwenAgent implements Agent {
     const authMethods = buildAuthMethods();
     const errorMessage = this.extractErrorMessage(error);
     if (
-      errorMessage?.includes('qwen-oauth') ||
-      errorMessage?.includes('Qwen OAuth')
+      errorMessage?.includes('aether-oauth') ||
+      errorMessage?.includes('Aether OAuth')
     ) {
-      const qwenOAuthMethods = authMethods.filter(
-        (m) => m.id === AuthType.QWEN_OAUTH,
+      const aetherOAuthMethods = authMethods.filter(
+        (m) => m.id === AuthType.AETHER_OAUTH,
       );
-      return qwenOAuthMethods.length ? qwenOAuthMethods : authMethods;
+      return aetherOAuthMethods.length ? aetherOAuthMethods : authMethods;
     }
 
     if (selectedType) {

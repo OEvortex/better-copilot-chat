@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -41,7 +41,7 @@ export const SessionSummaryDisplay: React.FC<SessionSummaryDisplayProps> = ({
           <Text color={theme.text.secondary}>
             {t('To continue this session, run')}{' '}
             <Text color={theme.text.accent}>
-              qwen --resume {stats.sessionId}
+              aether --resume {stats.sessionId}
             </Text>
           </Text>
         </Box>

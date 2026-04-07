@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -9,10 +9,10 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useAtCompletion } from './useAtCompletion.js';
-import type { Config, FileSearch } from '@qwen-code/qwen-code-core';
-import { FileSearchFactory } from '@qwen-code/qwen-code-core';
-import type { FileSystemStructure } from '@qwen-code/qwen-code-test-utils';
-import { createTmpDir, cleanupTmpDir } from '@qwen-code/qwen-code-test-utils';
+import type { Config, FileSearch } from '@aether/aether-core';
+import { FileSearchFactory } from '@aether/aether-core';
+import type { FileSystemStructure } from '@aether/aether-test-utils';
+import { createTmpDir, cleanupTmpDir } from '@aether/aether-test-utils';
 import { useState } from 'react';
 import type { Suggestion } from '../components/SuggestionsDisplay.js';
 

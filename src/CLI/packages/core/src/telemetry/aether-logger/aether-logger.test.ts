@@ -14,7 +14,7 @@ import {
   afterAll,
 } from 'vitest';
 import * as os from 'node:os';
-import { QwenLogger, TEST_ONLY } from './qwen-logger.js';
+import { AetherLogger, TEST_ONLY } from './aether-logger.js';
 import type { Config } from '../../config/config.js';
 import { AuthType } from '../../core/contentGenerator.js';
 import {
@@ -70,7 +70,7 @@ const makeFakeConfig = (overrides: Partial<Config> = {}): Config => {
     getCliVersion: () => '1.0.0',
     getProxy: () => undefined,
     getContentGeneratorConfig: () => ({ authType: 'test-auth' }),
-    getAuthType: () => AuthType.QWEN_OAUTH,
+    getAuthType: () => AuthType.AETHER_OAUTH,
     getMcpServers: () => ({}),
     getModel: () => 'test-model',
     getEmbeddingModel: () => 'test-embedding',
@@ -92,7 +92,7 @@ const makeFakeConfig = (overrides: Partial<Config> = {}): Config => {
   return defaults as Config;
 };
 
-describe('QwenLogger', () => {
+describe('AetherLogger', () => {
   let mockConfig: Config;
 
   beforeEach(() => {
@@ -105,7 +105,7 @@ describe('QwenLogger', () => {
     debugLoggerSpy.error.mockClear();
     // Clear singleton instance
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (QwenLogger as any).instance = undefined;
+    (AetherLogger as any).instance = undefined;
   });
 
   afterEach(() => {
@@ -115,31 +115,31 @@ describe('QwenLogger', () => {
 
   afterAll(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (QwenLogger as any).instance = undefined;
+    (AetherLogger as any).instance = undefined;
   });
 
   describe('getInstance', () => {
     it('returns undefined when usage statistics are disabled', () => {
       const config = makeFakeConfig({ getUsageStatisticsEnabled: () => false });
-      const logger = QwenLogger.getInstance(config);
+      const logger = AetherLogger.getInstance(config);
       expect(logger).toBeUndefined();
     });
 
     it('returns an instance when usage statistics are enabled', () => {
-      const logger = QwenLogger.getInstance(mockConfig);
-      expect(logger).toBeInstanceOf(QwenLogger);
+      const logger = AetherLogger.getInstance(mockConfig);
+      expect(logger).toBeInstanceOf(AetherLogger);
     });
 
     it('is a singleton', () => {
-      const logger1 = QwenLogger.getInstance(mockConfig);
-      const logger2 = QwenLogger.getInstance(mockConfig);
+      const logger1 = AetherLogger.getInstance(mockConfig);
+      const logger2 = AetherLogger.getInstance(mockConfig);
       expect(logger1).toBe(logger2);
     });
   });
 
   describe('createRumPayload', () => {
     it('includes os metadata in payload', async () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const payload = await (
         logger as unknown as {
           createRumPayload(): Promise<RumPayload>;
@@ -157,7 +157,7 @@ describe('QwenLogger', () => {
     it('includes source when source.json exists with valid source', async () => {
       // Note: Testing source information requires actual file system operations
       // This test verifies that the payload structure is correct
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       const payload = await (
         logger as unknown as { createRumPayload(): Promise<RumPayload> }
@@ -173,7 +173,7 @@ describe('QwenLogger', () => {
     });
 
     it('caches source info and does not read file on every payload creation', async () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       // Get the cached sourceInfo value
       const cachedSourceInfo = logger['sourceInfo'];
@@ -194,7 +194,7 @@ describe('QwenLogger', () => {
     it('does not include source when source.json does not exist', async () => {
       // Note: Testing source information requires actual file system operations
       // This test verifies the payload structure is correct
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       const payload = await (
         logger as unknown as { createRumPayload(): Promise<RumPayload> }
@@ -206,7 +206,7 @@ describe('QwenLogger', () => {
     it('does not include source when source value is unknown', async () => {
       // Note: Testing source information requires actual file system operations
       // This test verifies the payload structure is correct
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       const payload = await (
         logger as unknown as { createRumPayload(): Promise<RumPayload> }
@@ -218,7 +218,7 @@ describe('QwenLogger', () => {
     it('handles source.json parsing errors gracefully', async () => {
       // Note: Testing source information requires actual file system operations
       // This test verifies the payload structure is correct
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       const payload = await (
         logger as unknown as { createRumPayload(): Promise<RumPayload> }
@@ -232,7 +232,7 @@ describe('QwenLogger', () => {
 
   describe('event queue management', () => {
     it('should handle event overflow gracefully', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       // Fill the queue beyond capacity
       for (let i = 0; i < TEST_ONLY.MAX_EVENTS + 10; i++) {
@@ -253,7 +253,7 @@ describe('QwenLogger', () => {
     });
 
     it('should handle enqueue errors gracefully', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       // Mock the events deque to throw an error
       const originalPush = logger['events'].push;
@@ -277,7 +277,7 @@ describe('QwenLogger', () => {
 
   describe('concurrent flush protection', () => {
     it('should handle concurrent flush requests', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       // Manually set the flush in progress flag to simulate concurrent access
       logger['isFlushInProgress'] = true;
@@ -297,7 +297,7 @@ describe('QwenLogger', () => {
 
   describe('failed event retry mechanism', () => {
     it('should requeue failed events with size limits', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       const failedEvents: RumEvent[] = [];
       for (let i = 0; i < TEST_ONLY.MAX_RETRY_EVENTS + 50; i++) {
@@ -317,7 +317,7 @@ describe('QwenLogger', () => {
     });
 
     it('should handle empty retry queue gracefully', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       // Fill the queue to capacity first
       for (let i = 0; i < TEST_ONLY.MAX_EVENTS; i++) {
@@ -348,7 +348,7 @@ describe('QwenLogger', () => {
 
   describe('event handlers', () => {
     it('should log IDE connection events', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       const event = new IdeConnectionEvent(IdeConnectionType.SESSION);
@@ -368,7 +368,7 @@ describe('QwenLogger', () => {
     });
 
     it('should log Kitty sequence overflow events', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       const event = new KittySequenceOverflowEvent(1024, 'truncated...');
@@ -392,7 +392,7 @@ describe('QwenLogger', () => {
     });
 
     it('should flush start session events immediately', async () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const flushSpy = vi.spyOn(logger, 'flushToRum').mockResolvedValue({});
 
       const testConfig = makeFakeConfig({
@@ -407,7 +407,7 @@ describe('QwenLogger', () => {
     });
 
     it('should re-read source info when starting a new session', async () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const readSourceInfoSpy = vi.spyOn(
         logger as unknown as { readSourceInfo(): string },
         'readSourceInfo',
@@ -429,7 +429,7 @@ describe('QwenLogger', () => {
     });
 
     it('should flush end session events immediately', async () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const flushSpy = vi.spyOn(logger, 'flushToRum').mockResolvedValue({});
 
       const event = new EndSessionEvent(mockConfig);
@@ -442,7 +442,7 @@ describe('QwenLogger', () => {
 
   describe('flush timing', () => {
     it('should not flush if interval has not passed', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const flushSpy = vi.spyOn(logger, 'flushToRum');
 
       // Add an event and try to flush immediately
@@ -459,7 +459,7 @@ describe('QwenLogger', () => {
     });
 
     it('should flush when interval has passed', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const flushSpy = vi.spyOn(logger, 'flushToRum').mockResolvedValue({});
 
       // Add an event
@@ -481,7 +481,7 @@ describe('QwenLogger', () => {
 
   describe('error handling', () => {
     it('should handle flush errors gracefully with debug mode', async () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
 
       // Add an event first
       logger.enqueueLogEvent({
@@ -521,7 +521,7 @@ describe('QwenLogger', () => {
 
   describe('logHookCallEvent', () => {
     it('should log a successful hook call event', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       const event = new HookCallEvent(
@@ -561,7 +561,7 @@ describe('QwenLogger', () => {
       const configWithLogPrompts = makeFakeConfig({
         getTelemetryLogPromptsEnabled: () => true,
       });
-      const logger = QwenLogger.getInstance(configWithLogPrompts)!;
+      const logger = AetherLogger.getInstance(configWithLogPrompts)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       const event = new HookCallEvent(
@@ -603,8 +603,8 @@ describe('QwenLogger', () => {
         getTelemetryLogPromptsEnabled: () => false,
       });
       // Clear singleton to create new instance with different config
-      (QwenLogger as unknown as { instance: undefined }).instance = undefined;
-      const logger = QwenLogger.getInstance(configWithoutLogPrompts)!;
+      (AetherLogger as unknown as { instance: undefined }).instance = undefined;
+      const logger = AetherLogger.getInstance(configWithoutLogPrompts)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       const event = new HookCallEvent(
@@ -642,14 +642,14 @@ describe('QwenLogger', () => {
     });
 
     it('should sanitize hook name to remove sensitive information', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       // Hook name with full path and sensitive arguments
       const event = new HookCallEvent(
         'PreToolUse',
         'command',
-        '/home/user/.qwen/hooks/check-secrets.sh --api-key=secret123',
+        '/home/user/.aether/hooks/check-secrets.sh --api-key=secret123',
         { tool_name: 'read_file' },
         100,
         true,
@@ -668,7 +668,7 @@ describe('QwenLogger', () => {
     });
 
     it('should sanitize hook name with Windows path', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       const event = new HookCallEvent(
@@ -692,7 +692,7 @@ describe('QwenLogger', () => {
     });
 
     it('should handle empty hook name', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       const event = new HookCallEvent(
@@ -716,7 +716,7 @@ describe('QwenLogger', () => {
     });
 
     it('should handle hook name with only whitespace', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       const event = new HookCallEvent(
@@ -740,7 +740,7 @@ describe('QwenLogger', () => {
     });
 
     it('should handle hook name that is just a command without path', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       const event = new HookCallEvent(
@@ -765,7 +765,7 @@ describe('QwenLogger', () => {
     });
 
     it('should call flushIfNeeded after logging', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const flushSpy = vi.spyOn(logger, 'flushIfNeeded');
 
       const event = new HookCallEvent(
@@ -783,7 +783,7 @@ describe('QwenLogger', () => {
     });
 
     it('should handle all hook event types', () => {
-      const logger = QwenLogger.getInstance(mockConfig)!;
+      const logger = AetherLogger.getInstance(mockConfig)!;
       const enqueueSpy = vi.spyOn(logger, 'enqueueLogEvent');
 
       const eventTypes = [

@@ -28,7 +28,7 @@ import type { Content } from '@google/genai';
 
 import os from 'node:os';
 
-const GEMINI_DIR_NAME = '.qwen';
+const GEMINI_DIR_NAME = '.aether';
 const TMP_DIR_NAME = 'tmp';
 const LOG_FILE_NAME = 'logs.json';
 const CHECKPOINT_FILE_NAME = 'checkpoint.json';

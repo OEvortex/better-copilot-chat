@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -25,7 +25,7 @@ import {
   ToolNames,
   SkillTool,
   buildSkillLlmContent,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { t } from '../../i18n/index.js';
 
 /**

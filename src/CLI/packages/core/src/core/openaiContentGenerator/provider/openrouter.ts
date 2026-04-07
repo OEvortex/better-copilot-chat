@@ -24,8 +24,8 @@ export class OpenRouterOpenAICompatibleProvider extends DefaultOpenAICompatibleP
     // Add OpenRouter-specific headers
     return {
       ...baseHeaders,
-      'HTTP-Referer': 'https://github.com/QwenLM/qwen-code.git',
-      'X-OpenRouter-Title': 'Qwen Code',
+      'HTTP-Referer': 'https://github.com/oewortex/aether-cli.git',
+      'X-OpenRouter-Title': 'Aether',
     };
   }
 }

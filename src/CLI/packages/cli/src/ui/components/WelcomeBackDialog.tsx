@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -6,7 +6,7 @@
 
 import { Box, Text } from 'ink';
 import { Colors } from '../colors.js';
-import { type ProjectSummaryInfo } from '@qwen-code/qwen-code-core';
+import { type ProjectSummaryInfo } from '@aether/aether-core';
 import {
   RadioButtonSelect,
   type RadioSelectItem,

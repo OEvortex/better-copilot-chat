@@ -156,7 +156,7 @@ export class AnthropicContentGenerator implements ContentGenerator {
 
   private buildHeaders(): Record<string, string> {
     const version = this.cliConfig.getCliVersion() || 'unknown';
-    const userAgent = `QwenCode/${version} (${process.platform}; ${process.arch})`;
+    const userAgent = `AetherCode/${version} (${process.platform}; ${process.arch})`;
     const { customHeaders } = this.contentGeneratorConfig;
 
     const betas: string[] = [];

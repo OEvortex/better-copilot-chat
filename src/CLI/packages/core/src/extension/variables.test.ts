@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -91,7 +91,7 @@ describe('substituteHookVariables', () => {
   });
 
   it('should handle multiple event types with hooks', () => {
-    const basePath = '/home/user/.qwen/extensions/my-extension';
+    const basePath = '/home/user/.aether/extensions/my-extension';
 
     const hooks = {
       PreToolUse: [
@@ -127,11 +127,11 @@ describe('substituteHookVariables', () => {
     expect(result).toBeDefined();
     expect(result!['PreToolUse']).toHaveLength(1);
     expect(result!['PreToolUse']![0].hooks![0].command).toBe(
-      '/home/user/.qwen/extensions/my-extension/scripts/pre-start.sh',
+      '/home/user/.aether/extensions/my-extension/scripts/pre-start.sh',
     );
     expect(result!['UserPromptSubmit']).toHaveLength(1);
     expect(result!['UserPromptSubmit']![0].hooks![0].command).toBe(
-      '/home/user/.qwen/extensions/my-extension/setup/install.py',
+      '/home/user/.aether/extensions/my-extension/setup/install.py',
     );
   });
 
@@ -263,7 +263,7 @@ describe('performVariableReplacement', () => {
     expect(result).not.toContain('```!');
   });
 
-  it('should replace .claude with .qwen in markdown files', () => {
+  it('should replace .claude with .aether in markdown files', () => {
     const extDir = path.join(testDir, 'ext');
     fs.mkdirSync(extDir, { recursive: true });
 
@@ -284,10 +284,10 @@ describe('performVariableReplacement', () => {
     performVariableReplacement(extDir);
 
     const result = fs.readFileSync(path.join(extDir, 'cancel.md'), 'utf-8');
-    expect(result).toContain('.qwen/loop.local.md');
-    expect(result).toContain('rm .qwen/loop.local.md');
-    expect(result).toContain('$HOME/.qwen/cache');
-    expect(result).toContain('./.qwen/local');
+    expect(result).toContain('.aether/loop.local.md');
+    expect(result).toContain('rm .aether/loop.local.md');
+    expect(result).toContain('$HOME/.aether/cache');
+    expect(result).toContain('./.aether/local');
     expect(result).not.toContain('.claude/');
   });
 
@@ -329,7 +329,7 @@ describe('performVariableReplacement', () => {
     expect(result).not.toContain('.message.content');
   });
 
-  it('should replace .claude with .qwen in shell scripts', () => {
+  it('should replace .claude with .aether in shell scripts', () => {
     const extDir = path.join(testDir, 'ext');
     fs.mkdirSync(extDir, { recursive: true });
 
@@ -347,11 +347,11 @@ describe('performVariableReplacement', () => {
 
     const result = fs.readFileSync(path.join(extDir, 'setup.sh'), 'utf-8');
     expect(result).toContain('$HOME/.claude');
-    expect(result).toContain('~/.qwen/cache');
-    expect(result).toContain('./.qwen/local');
-    expect(result).toContain('.qwen/config');
+    expect(result).toContain('~/.aether/cache');
+    expect(result).toContain('./.aether/local');
+    expect(result).toContain('.aether/config');
     // Note: URLs are also being replaced in current implementation
-    expect(result).toContain('https://example.com/.qwen/page');
+    expect(result).toContain('https://example.com/.aether/page');
   });
 
   it('should handle multiple markdown files', () => {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -12,8 +12,8 @@ import type {
   ToolRegistry,
   AnyDeclarativeTool,
   AnyToolInvocation,
-} from '@qwen-code/qwen-code-core';
-import { Kind, TodoWriteTool } from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
+import { Kind, TodoWriteTool } from '@aether/aether-core';
 import type { Part } from '@google/genai';
 
 // Helper to create mock message parts for tests

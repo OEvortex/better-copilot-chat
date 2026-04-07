@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Code
  * SPDX-License-Identifier: Apache-2.0
@@ -9,7 +9,7 @@ import path from 'path';
 import {
   read as readJsonlFile,
   createDebugLogger,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import pLimit from 'p-limit';
 import type {
   InsightData,
@@ -33,7 +33,7 @@ import {
   getInsightPrompt,
   type Config,
   type ChatRecord,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 const logger = createDebugLogger('DataProcessor');
 

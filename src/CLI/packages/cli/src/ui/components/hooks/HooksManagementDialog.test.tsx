@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2026 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -95,9 +95,9 @@ vi.mock('../../semantic-colors.js', () => ({
 }));
 
 // Mock createDebugLogger
-vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
+vi.mock('@aether/aether-core', async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('@qwen-code/qwen-code-core')>();
+    await importOriginal<typeof import('@aether/aether-core')>();
   return {
     ...actual,
     createDebugLogger: vi.fn(() => ({

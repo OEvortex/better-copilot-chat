@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -108,7 +108,7 @@ describe('SMOKE TESTS — E2E Verification', () => {
       const writeArgs: Record<string, unknown> = { file_path: filePath };
       await rewritePathArgs(writeArgs, overlay);
       const op = writeArgs['file_path'] as string;
-      expect(op).toContain('qwen-speculation');
+      expect(op).toContain('aether-speculation');
       await writeFile(op, 'speculated content');
 
       const readArgs: Record<string, unknown> = { file_path: filePath };
@@ -143,7 +143,7 @@ describe('SMOKE TESTS — E2E Verification', () => {
 
       const p = getCacheSafeParams();
       expect(p).not.toBeNull();
-      expect(p!.model).toBe('qwen-max');
+      expect(p!.model).toBe('aether-max');
 
       (
         config.tools[0] as { functionDeclarations: unknown[] }

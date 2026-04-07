@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -9,9 +9,9 @@ import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { Session } from './Session.js';
-import type { Config, GeminiChat } from '@qwen-code/qwen-code-core';
-import { ApprovalMode, AuthType } from '@qwen-code/qwen-code-core';
-import * as core from '@qwen-code/qwen-code-core';
+import type { Config, GeminiChat } from '@aether/aether-core';
+import { ApprovalMode, AuthType } from '@aether/aether-core';
+import * as core from '@aether/aether-core';
 import type {
   AgentSideConnection,
   PromptRequest,
@@ -37,7 +37,7 @@ describe('Session', () => {
   let mockToolRegistry: { getTool: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    currentModel = 'qwen3-code-plus';
+    currentModel = 'aether3-code-plus';
     currentAuthType = AuthType.USE_OPENAI;
     switchModelSpy = vi
       .fn()
@@ -121,7 +121,7 @@ describe('Session', () => {
 
   describe('setModel', () => {
     it('sets model via config and returns current model', async () => {
-      const requested = `qwen3-coder-plus(${AuthType.USE_OPENAI})`;
+      const requested = `aether3-coder-plus(${AuthType.USE_OPENAI})`;
       await session.setModel({
         sessionId: 'test-session-id',
         modelId: `  ${requested}  `,
@@ -129,7 +129,7 @@ describe('Session', () => {
 
       expect(mockConfig.switchModel).toHaveBeenCalledWith(
         AuthType.USE_OPENAI,
-        'qwen3-coder-plus',
+        'aether3-coder-plus',
         undefined,
       );
     });
@@ -203,7 +203,7 @@ describe('Session', () => {
   describe('prompt', () => {
     it('passes resolved paths to read_many_files tool', async () => {
       const tempDir = await fs.mkdtemp(
-        path.join(os.tmpdir(), 'qwen-acp-session-'),
+        path.join(os.tmpdir(), 'aether-acp-session-'),
       );
       const fileName = 'README.md';
       const filePath = path.join(tempDir, fileName);

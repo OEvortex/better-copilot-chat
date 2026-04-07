@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -6,7 +6,7 @@
 
 import type { MutableRefObject, ReactNode } from 'react';
 import type { Content, PartListUnion } from '@google/genai';
-import type { Config, GitService, Logger } from '@qwen-code/qwen-code-core';
+import type { Config, GitService, Logger } from '@aether/aether-core';
 import type {
   HistoryItemWithoutId,
   HistoryItem,

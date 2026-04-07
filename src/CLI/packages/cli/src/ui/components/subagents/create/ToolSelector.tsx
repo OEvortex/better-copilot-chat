@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -8,7 +8,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import { RadioButtonSelect } from '../../shared/RadioButtonSelect.js';
 import type { ToolCategory } from '../types.js';
-import { Kind, type Config } from '@qwen-code/qwen-code-core';
+import { Kind, type Config } from '@aether/aether-core';
 import { theme } from '../../../semantic-colors.js';
 import { t } from '../../../../i18n/index.js';
 

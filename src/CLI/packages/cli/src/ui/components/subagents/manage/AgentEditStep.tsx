@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -10,7 +10,7 @@ import { RadioButtonSelect } from '../../shared/RadioButtonSelect.js';
 import { MANAGEMENT_STEPS } from '../types.js';
 import { theme } from '../../../semantic-colors.js';
 import { useLaunchEditor } from '../../../hooks/useLaunchEditor.js';
-import { type SubagentConfig } from '@qwen-code/qwen-code-core';
+import { type SubagentConfig } from '@aether/aether-core';
 import { t } from '../../../../i18n/index.js';
 
 interface EditOption {

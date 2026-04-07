@@ -1,18 +1,18 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+﻿import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import path from 'node:path';
-import { Storage } from '@qwen-code/qwen-code-core';
+import { Storage } from '@aether/aether-core';
 import type { LoadedSettings } from '../config/settings.js';
 import { runWithAcpRuntimeOutputDir } from './runtimeOutputDirContext.js';
 
 describe('runWithAcpRuntimeOutputDir', () => {
   beforeEach(() => {
     Storage.setRuntimeBaseDir(null);
-    delete process.env['QWEN_RUNTIME_DIR'];
+    delete process.env['AETHER_RUNTIME_DIR'];
   });
 
   afterEach(() => {
     Storage.setRuntimeBaseDir(null);
-    delete process.env['QWEN_RUNTIME_DIR'];
+    delete process.env['AETHER_RUNTIME_DIR'];
   });
 
   it('uses the merged runtimeOutputDir relative to cwd within the async context', async () => {
@@ -20,15 +20,15 @@ describe('runWithAcpRuntimeOutputDir', () => {
     const settings = {
       merged: {
         advanced: {
-          runtimeOutputDir: '.qwen-runtime',
+          runtimeOutputDir: '.aether-runtime',
         },
       },
     } as LoadedSettings;
 
     await runWithAcpRuntimeOutputDir(settings, cwd, async () => {
-      expect(Storage.getRuntimeBaseDir()).toBe(path.join(cwd, '.qwen-runtime'));
+      expect(Storage.getRuntimeBaseDir()).toBe(path.join(cwd, '.aether-runtime'));
     });
 
-    expect(Storage.getRuntimeBaseDir()).toBe(Storage.getGlobalQwenDir());
+    expect(Storage.getRuntimeBaseDir()).toBe(Storage.getGlobalAetherDir());
   });
 });

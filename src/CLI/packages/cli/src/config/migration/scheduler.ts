@@ -1,10 +1,10 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+import { createDebugLogger } from '@aether/aether-core';
 import type { SettingsMigration, MigrationResult } from './types.js';
 
 const debugLogger = createDebugLogger('SETTINGS_MIGRATION');

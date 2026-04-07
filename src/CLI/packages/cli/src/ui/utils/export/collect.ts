@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { randomUUID } from 'node:crypto';
-import type { Config, ChatRecord } from '@qwen-code/qwen-code-core';
+import type { Config, ChatRecord } from '@aether/aether-core';
 import type { GenerateContentResponseUsageMetadata } from '@google/genai';
 import type { SessionContext } from '../../../acp-integration/session/types.js';
 import type { SessionUpdate, ToolCall } from '@agentclientprotocol/sdk';
@@ -347,7 +347,7 @@ async function extractMetadata(
   // Get git repository name
   let gitRepo: string | undefined;
   if (cwd) {
-    const { getGitRepoName } = await import('@qwen-code/qwen-code-core');
+    const { getGitRepoName } = await import('@aether/aether-core');
     gitRepo = getGitRepoName(cwd);
   }
 

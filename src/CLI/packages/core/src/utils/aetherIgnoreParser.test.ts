@@ -5,12 +5,12 @@
  */
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { QwenIgnoreParser } from './qwenIgnoreParser.js';
+import { AetherIgnoreParser } from './aetherIgnoreParser.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as os from 'node:os';
 
-describe('QwenIgnoreParser', () => {
+describe('AetherIgnoreParser', () => {
   let projectRoot: string;
 
   async function createTestFile(filePath: string, content = '') {
@@ -20,7 +20,7 @@ describe('QwenIgnoreParser', () => {
   }
 
   beforeEach(async () => {
-    projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qwenignore-test-'));
+    projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'aetherignore-test-'));
   });
 
   afterEach(async () => {
@@ -28,10 +28,10 @@ describe('QwenIgnoreParser', () => {
     vi.restoreAllMocks();
   });
 
-  describe('when .qwenignore exists', () => {
+  describe('when .aetherignore exists', () => {
     beforeEach(async () => {
       await createTestFile(
-        '.qwenignore',
+        '.aetherignore',
         'ignored.txt\n# A comment\n/ignored_dir/\n',
       );
       await createTestFile('ignored.txt', 'ignored');
@@ -46,8 +46,8 @@ describe('QwenIgnoreParser', () => {
       );
     });
 
-    it('should ignore files specified in .qwenignore', () => {
-      const parser = new QwenIgnoreParser(projectRoot);
+    it('should ignore files specified in .aetherignore', () => {
+      const parser = new AetherIgnoreParser(projectRoot);
       expect(parser.getPatterns()).toEqual(['ignored.txt', '/ignored_dir/']);
       expect(parser.isIgnored('ignored.txt')).toBe(true);
       expect(parser.isIgnored('not_ignored.txt')).toBe(false);
@@ -58,9 +58,9 @@ describe('QwenIgnoreParser', () => {
     });
   });
 
-  describe('when .qwenignore does not exist', () => {
+  describe('when .aetherignore does not exist', () => {
     it('should not load any patterns and not ignore any files', () => {
-      const parser = new QwenIgnoreParser(projectRoot);
+      const parser = new AetherIgnoreParser(projectRoot);
       expect(parser.getPatterns()).toEqual([]);
       expect(parser.isIgnored('any_file.txt')).toBe(false);
     });

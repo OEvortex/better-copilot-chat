@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -11,11 +11,11 @@ import {
   AttentionNotificationReason,
 } from '../../utils/attentionNotification.js';
 import type { LoadedSettings } from '../../config/settings.js';
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
 import {
   fireNotificationHook,
   NotificationType,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
 export const LONG_TASK_NOTIFICATION_THRESHOLD_SECONDS = 20;
 

@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { useEffect, useState } from 'react';
-import { Storage } from '@qwen-code/qwen-code-core';
+import { Storage } from '@aether/aether-core';
 import { detectTomlCommands } from '../../services/command-migration-tool.js';
 import type { LoadedSettings } from '../../config/settings.js';
 
@@ -24,12 +24,12 @@ export function useCommandMigration(
     const checkTomlCommands = async () => {
       const allFiles: string[] = [];
 
-      // Check workspace commands directory (.qwen/commands)
+      // Check workspace commands directory (.aether/commands)
       const workspaceCommandsDir = storage.getProjectCommandsDir();
       const workspaceFiles = await detectTomlCommands(workspaceCommandsDir);
       allFiles.push(...workspaceFiles.map((f) => `workspace: ${f}`));
 
-      // Check user commands directory (~/.qwen/commands)
+      // Check user commands directory (~/.aether/commands)
       const userCommandsDir = Storage.getUserCommandsDir();
       const userFiles = await detectTomlCommands(userCommandsDir);
       allFiles.push(...userFiles.map((f) => `user: ${f}`));

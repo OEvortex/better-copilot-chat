@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen
  * SPDX-License-Identifier: Apache-2.0
@@ -7,12 +7,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
   AuthType,
-  qwenOAuth2Events,
-  QwenOAuth2Event,
+  aetherOAuth2Events,
+  aetherOAuth2Event,
   type DeviceAuthorizationData,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 
-export interface QwenAuthState {
+export interface aetherAuthState {
   deviceAuth: DeviceAuthorizationData | null;
   authStatus:
     | 'idle'
@@ -24,23 +24,23 @@ export interface QwenAuthState {
   authMessage: string | null;
 }
 
-export const useQwenAuth = (
+export const useAetherAuth = (
   pendingAuthType: AuthType | undefined,
   isAuthenticating: boolean,
 ) => {
-  const [qwenAuthState, setQwenAuthState] = useState<QwenAuthState>({
+  const [aetherAuthState, setAetherAuthState] = useState<aetherAuthState>({
     deviceAuth: null,
     authStatus: 'idle',
     authMessage: null,
   });
 
-  const isQwenAuth = pendingAuthType === AuthType.QWEN_OAUTH;
+  const isAetherAuth = pendingAuthType === AuthType.AETHER_OAUTH;
 
   // Set up event listeners when authentication starts
   useEffect(() => {
-    if (!isQwenAuth || !isAuthenticating) {
-      // Reset state when not authenticating or not Qwen auth
-      setQwenAuthState({
+    if (!isAetherAuth || !isAuthenticating) {
+      // Reset state when not authenticating or not Aether auth
+      setAetherAuthState({
         deviceAuth: null,
         authStatus: 'idle',
         authMessage: null,
@@ -48,14 +48,14 @@ export const useQwenAuth = (
       return;
     }
 
-    setQwenAuthState((prev) => ({
+    setAetherAuthState((prev) => ({
       ...prev,
       authStatus: 'idle',
     }));
 
     // Set up event listeners
     const handleDeviceAuth = (deviceAuth: DeviceAuthorizationData) => {
-      setQwenAuthState((prev) => ({
+      setAetherAuthState((prev) => ({
         ...prev,
         deviceAuth: {
           verification_uri: deviceAuth.verification_uri,
@@ -72,7 +72,7 @@ export const useQwenAuth = (
       status: 'success' | 'error' | 'polling' | 'timeout' | 'rate_limit',
       message?: string,
     ) => {
-      setQwenAuthState((prev) => ({
+      setAetherAuthState((prev) => ({
         ...prev,
         authStatus: status,
         authMessage: message || null,
@@ -80,21 +80,21 @@ export const useQwenAuth = (
     };
 
     // Add event listeners
-    qwenOAuth2Events.on(QwenOAuth2Event.AuthUri, handleDeviceAuth);
-    qwenOAuth2Events.on(QwenOAuth2Event.AuthProgress, handleAuthProgress);
+    aetherOAuth2Events.on(aetherOAuth2Event.AuthUri, handleDeviceAuth);
+    aetherOAuth2Events.on(aetherOAuth2Event.AuthProgress, handleAuthProgress);
 
     // Cleanup event listeners when component unmounts or auth finishes
     return () => {
-      qwenOAuth2Events.off(QwenOAuth2Event.AuthUri, handleDeviceAuth);
-      qwenOAuth2Events.off(QwenOAuth2Event.AuthProgress, handleAuthProgress);
+      aetherOAuth2Events.off(aetherOAuth2Event.AuthUri, handleDeviceAuth);
+      aetherOAuth2Events.off(aetherOAuth2Event.AuthProgress, handleAuthProgress);
     };
-  }, [isQwenAuth, isAuthenticating]);
+  }, [isAetherAuth, isAuthenticating]);
 
-  const cancelQwenAuth = useCallback(() => {
+  const cancelAetherAuth = useCallback(() => {
     // Emit cancel event to stop polling
-    qwenOAuth2Events.emit(QwenOAuth2Event.AuthCancel);
+    aetherOAuth2Events.emit(aetherOAuth2Event.AuthCancel);
 
-    setQwenAuthState({
+    setAetherAuthState({
       deviceAuth: null,
       authStatus: 'idle',
       authMessage: null,
@@ -102,7 +102,7 @@ export const useQwenAuth = (
   }, []);
 
   return {
-    qwenAuthState,
-    cancelQwenAuth,
+    aetherAuthState,
+    cancelAetherAuth,
   };
 };

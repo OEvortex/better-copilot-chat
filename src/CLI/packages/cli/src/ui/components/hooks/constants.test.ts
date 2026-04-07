@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @license
  * Copyright 2026 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { HookEventName, HooksConfigSource } from '@qwen-code/qwen-code-core';
+import { HookEventName, HooksConfigSource } from '@aether/aether-core';
 
 // Mock i18n module
 vi.mock('../../../i18n/index.js', () => ({
@@ -199,7 +199,7 @@ describe('hooks constants', () => {
 
       expect(info.event).toBe(HookEventName.Stop);
       expect(info.shortDescription).toBe(
-        'Right before Qwen Code concludes its response',
+        'Right before Aether Code concludes its response',
       );
       expect(info.description).toBe('');
       expect(info.exitCodes).toHaveLength(3);

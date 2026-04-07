@@ -35,7 +35,7 @@ import { AgentTerminateMode } from './agent-types.js';
 import { logSubagentExecution } from '../../telemetry/loggers.js';
 import { SubagentExecutionEvent } from '../../telemetry/types.js';
 import { AgentCore } from './agent-core.js';
-import { DEFAULT_QWEN_MODEL } from '../../config/models.js';
+import { DEFAULT_AETHER_MODEL } from '../../config/models.js';
 
 const debugLogger = createDebugLogger('SUBAGENT');
 
@@ -233,7 +233,7 @@ export class AgentHeadless {
         model:
           this.core.modelConfig.model ||
           this.core.runtimeContext.getModel() ||
-          DEFAULT_QWEN_MODEL,
+          DEFAULT_AETHER_MODEL,
         tools: (this.core.toolConfig?.tools || ['*']).map((t) =>
           typeof t === 'string' ? t : t.name,
         ),

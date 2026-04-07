@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -7,7 +7,7 @@
 import { type ColorsTheme, Theme } from './theme.js';
 import { lightSemanticColors } from './semantic-tokens.js';
 
-const qwenLightColors: ColorsTheme = {
+const aetherLightColors: ColorsTheme = {
   type: 'light',
   Background: '#f8f9fa',
   Foreground: '#5c6166',
@@ -27,92 +27,92 @@ const qwenLightColors: ColorsTheme = {
   GradientColors: ['#399ee6', '#86b300'],
 };
 
-export const QwenLight: Theme = new Theme(
-  'Qwen Light',
+export const AetherLight: Theme = new Theme(
+  'Aether Light',
   'light',
   {
     hljs: {
       display: 'block',
       overflowX: 'auto',
       padding: '0.5em',
-      background: qwenLightColors.Background,
-      color: qwenLightColors.Foreground,
+      background: aetherLightColors.Background,
+      color: aetherLightColors.Foreground,
     },
     'hljs-comment': {
-      color: qwenLightColors.Comment,
+      color: aetherLightColors.Comment,
       fontStyle: 'italic',
     },
     'hljs-quote': {
-      color: qwenLightColors.AccentCyan,
+      color: aetherLightColors.AccentCyan,
       fontStyle: 'italic',
     },
     'hljs-string': {
-      color: qwenLightColors.AccentGreen,
+      color: aetherLightColors.AccentGreen,
     },
     'hljs-constant': {
-      color: qwenLightColors.AccentCyan,
+      color: aetherLightColors.AccentCyan,
     },
     'hljs-number': {
-      color: qwenLightColors.AccentPurple,
+      color: aetherLightColors.AccentPurple,
     },
     'hljs-keyword': {
-      color: qwenLightColors.AccentYellow,
+      color: aetherLightColors.AccentYellow,
     },
     'hljs-selector-tag': {
-      color: qwenLightColors.AccentYellow,
+      color: aetherLightColors.AccentYellow,
     },
     'hljs-attribute': {
-      color: qwenLightColors.AccentYellow,
+      color: aetherLightColors.AccentYellow,
     },
     'hljs-variable': {
-      color: qwenLightColors.Foreground,
+      color: aetherLightColors.Foreground,
     },
     'hljs-variable.language': {
-      color: qwenLightColors.LightBlue,
+      color: aetherLightColors.LightBlue,
       fontStyle: 'italic',
     },
     'hljs-title': {
-      color: qwenLightColors.AccentBlue,
+      color: aetherLightColors.AccentBlue,
     },
     'hljs-section': {
-      color: qwenLightColors.AccentGreen,
+      color: aetherLightColors.AccentGreen,
       fontWeight: 'bold',
     },
     'hljs-type': {
-      color: qwenLightColors.LightBlue,
+      color: aetherLightColors.LightBlue,
     },
     'hljs-class .hljs-title': {
-      color: qwenLightColors.AccentBlue,
+      color: aetherLightColors.AccentBlue,
     },
     'hljs-tag': {
-      color: qwenLightColors.LightBlue,
+      color: aetherLightColors.LightBlue,
     },
     'hljs-name': {
-      color: qwenLightColors.AccentBlue,
+      color: aetherLightColors.AccentBlue,
     },
     'hljs-builtin-name': {
-      color: qwenLightColors.AccentYellow,
+      color: aetherLightColors.AccentYellow,
     },
     'hljs-meta': {
-      color: qwenLightColors.AccentYellow,
+      color: aetherLightColors.AccentYellow,
     },
     'hljs-symbol': {
-      color: qwenLightColors.AccentRed,
+      color: aetherLightColors.AccentRed,
     },
     'hljs-bullet': {
-      color: qwenLightColors.AccentYellow,
+      color: aetherLightColors.AccentYellow,
     },
     'hljs-regexp': {
-      color: qwenLightColors.AccentCyan,
+      color: aetherLightColors.AccentCyan,
     },
     'hljs-link': {
-      color: qwenLightColors.LightBlue,
+      color: aetherLightColors.LightBlue,
     },
     'hljs-deletion': {
-      color: qwenLightColors.AccentRed,
+      color: aetherLightColors.AccentRed,
     },
     'hljs-addition': {
-      color: qwenLightColors.AccentGreen,
+      color: aetherLightColors.AccentGreen,
     },
     'hljs-emphasis': {
       fontStyle: 'italic',
@@ -121,21 +121,21 @@ export const QwenLight: Theme = new Theme(
       fontWeight: 'bold',
     },
     'hljs-literal': {
-      color: qwenLightColors.AccentCyan,
+      color: aetherLightColors.AccentCyan,
     },
     'hljs-built_in': {
-      color: qwenLightColors.AccentRed,
+      color: aetherLightColors.AccentRed,
     },
     'hljs-doctag': {
-      color: qwenLightColors.AccentRed,
+      color: aetherLightColors.AccentRed,
     },
     'hljs-template-variable': {
-      color: qwenLightColors.AccentCyan,
+      color: aetherLightColors.AccentCyan,
     },
     'hljs-selector-id': {
-      color: qwenLightColors.AccentRed,
+      color: aetherLightColors.AccentRed,
     },
   },
-  qwenLightColors,
+  aetherLightColors,
   lightSemanticColors,
 );

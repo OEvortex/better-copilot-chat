@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -26,7 +26,7 @@ import {
   type AgentInteractive,
   type ApprovalMode,
   type Config,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { useArenaInProcess } from '../hooks/useArenaInProcess.js';
 
 // ─── Types ──────────────────────────────────────────────────

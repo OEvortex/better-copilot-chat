@@ -36,10 +36,10 @@ describe('debugLogger', () => {
     getSessionId: () => 'test-session-123',
   };
 
-  const previousDebugLogFileEnv = process.env['QWEN_DEBUG_LOG_FILE'];
+  const previousDebugLogFileEnv = process.env['AETHER_DEBUG_LOG_FILE'];
 
   beforeEach(() => {
-    process.env['QWEN_DEBUG_LOG_FILE'] = '1';
+    process.env['AETHER_DEBUG_LOG_FILE'] = '1';
     Storage.setRuntimeBaseDir(null);
     vi.clearAllMocks();
     vi.useFakeTimers();
@@ -53,9 +53,9 @@ describe('debugLogger', () => {
     setDebugLogSession(null);
     Storage.setRuntimeBaseDir(null);
     if (previousDebugLogFileEnv === undefined) {
-      delete process.env['QWEN_DEBUG_LOG_FILE'];
+      delete process.env['AETHER_DEBUG_LOG_FILE'];
     } else {
-      process.env['QWEN_DEBUG_LOG_FILE'] = previousDebugLogFileEnv;
+      process.env['AETHER_DEBUG_LOG_FILE'] = previousDebugLogFileEnv;
     }
   });
 
@@ -262,7 +262,7 @@ describe('debugLogger', () => {
     });
 
     it('does not create symlink when debug logging is disabled', async () => {
-      process.env['QWEN_DEBUG_LOG_FILE'] = '0';
+      process.env['AETHER_DEBUG_LOG_FILE'] = '0';
       vi.clearAllMocks();
       resetDebugLoggingState();
       setDebugLogSession(mockSession);

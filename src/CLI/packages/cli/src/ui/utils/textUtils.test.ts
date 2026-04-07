@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -8,7 +8,7 @@ import { describe, it, expect } from 'vitest';
 import type {
   ToolCallConfirmationDetails,
   ToolEditConfirmationDetails,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { escapeAnsiCtrlCodes, sanitizeSensitiveText } from './textUtils.js';
 
 describe('textUtils', () => {

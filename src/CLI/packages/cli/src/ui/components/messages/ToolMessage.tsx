@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -21,7 +21,7 @@ import type {
   AnsiOutput,
   Config,
   McpToolProgressData,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { AgentExecutionDisplay } from '../subagents/index.js';
 import { PlanSummaryDisplay } from '../PlanSummaryDisplay.js';
 import { ShellInputPrompt } from '../ShellInputPrompt.js';

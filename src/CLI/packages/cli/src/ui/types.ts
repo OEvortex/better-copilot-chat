@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -12,7 +12,7 @@ import type {
   ToolConfirmationOutcome,
   ToolResultDisplay,
   AgentStatus,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import type { PartListUnion } from '@google/genai';
 import { type ReactNode } from 'react';
 

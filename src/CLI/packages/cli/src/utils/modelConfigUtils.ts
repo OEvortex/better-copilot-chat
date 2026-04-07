@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -11,7 +11,7 @@ import {
   resolveModelConfig,
   type ModelConfigSourcesInput,
   type ProviderModelConfig,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import type { Settings } from '../config/settings.js';
 
 export interface CliGenerationConfigInputs {
@@ -46,8 +46,8 @@ export interface ResolvedCliGenerationConfig {
 }
 
 export function getAuthTypeFromEnv(): AuthType | undefined {
-  if (process.env['QWEN_OAUTH']) {
-    return AuthType.QWEN_OAUTH;
+  if (process.env['AETHER_OAUTH']) {
+    return AuthType.AETHER_OAUTH;
   }
 
   if (
@@ -81,7 +81,7 @@ export function getAuthTypeFromEnv(): AuthType | undefined {
  * Unified resolver for CLI generation config.
  *
  * Precedence (for OpenAI auth):
- * - model: argv.model > OPENAI_MODEL > QWEN_MODEL > settings.model.name
+ * - model: argv.model > OPENAI_MODEL > AETHER_MODEL > settings.model.name
  * - apiKey: argv.openaiApiKey > OPENAI_API_KEY > settings.security.auth.apiKey
  * - baseUrl: argv.openaiBaseUrl > OPENAI_BASE_URL > settings.security.auth.baseUrl
  *

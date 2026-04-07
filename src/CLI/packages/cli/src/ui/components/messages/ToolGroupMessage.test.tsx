@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -14,7 +14,7 @@ import { ToolCallStatus } from '../../types.js';
 import type {
   Config,
   ToolCallConfirmationDetails,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { TOOL_STATUS } from '../../constants.js';
 import { ConfigContext } from '../../contexts/ConfigContext.js';
 

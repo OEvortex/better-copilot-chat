@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -11,11 +11,11 @@ import { useKeypress } from '../hooks/useKeypress.js';
 import { DescriptiveRadioButtonSelect } from './shared/DescriptiveRadioButtonSelect.js';
 import { ConfigContext } from '../contexts/ConfigContext.js';
 import { SettingsContext } from '../contexts/SettingsContext.js';
-import type { Config } from '@qwen-code/qwen-code-core';
-import { AuthType, DEFAULT_QWEN_MODEL } from '@qwen-code/qwen-code-core';
+import type { Config } from '@aether/aether-core';
+import { AuthType, DEFAULT_QWEN_MODEL } from '@aether/aether-core';
 import type { LoadedSettings } from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
-import { getFilteredQwenModels } from '../models/availableModels.js';
+import { getFilteredAetherModels } from '../models/availableModels.js';
 
 vi.mock('../hooks/useKeypress.js', () => ({
   useKeypress: vi.fn(),
@@ -29,11 +29,11 @@ vi.mock('./shared/DescriptiveRadioButtonSelect.js', () => ({
 // Helper to create getAvailableModelsForAuthType mock
 const createMockGetAvailableModelsForAuthType = () =>
   vi.fn((t: AuthType) => {
-    if (t === AuthType.QWEN_OAUTH) {
-      return getFilteredQwenModels().map((m) => ({
+    if (t === AuthType.AETHER_OAUTH) {
+      return getFilteredAetherModels().map((m) => ({
         id: m.id,
         label: m.label,
-        authType: AuthType.QWEN_OAUTH,
+        authType: AuthType.AETHER_OAUTH,
       }));
     }
     return [];
@@ -61,13 +61,13 @@ const renderComponent = (
     getModel: vi.fn(() => DEFAULT_QWEN_MODEL),
     setModel: vi.fn().mockResolvedValue(undefined),
     switchModel: vi.fn().mockResolvedValue(undefined),
-    getAuthType: vi.fn(() => 'qwen-oauth'),
+    getAuthType: vi.fn(() => 'aether-oauth'),
     getAllConfiguredModels: vi.fn(() =>
-      getFilteredQwenModels().map((m) => ({
+      getFilteredAetherModels().map((m) => ({
         id: m.id,
         label: m.label,
         description: m.description || '',
-        authType: AuthType.QWEN_OAUTH,
+        authType: AuthType.AETHER_OAUTH,
       })),
     ),
 
@@ -76,7 +76,7 @@ const renderComponent = (
     getSessionId: vi.fn(() => 'mock-session-id'),
     getDebugMode: vi.fn(() => false),
     getContentGeneratorConfig: vi.fn(() => ({
-      authType: AuthType.QWEN_OAUTH,
+      authType: AuthType.AETHER_OAUTH,
       model: DEFAULT_QWEN_MODEL,
     })),
     getUseModelRouter: vi.fn(() => false),
@@ -124,10 +124,10 @@ describe('<ModelDialog />', () => {
     expect(mockedSelect).toHaveBeenCalledTimes(1);
 
     const props = mockedSelect.mock.calls[0][0];
-    expect(props.items).toHaveLength(getFilteredQwenModels().length);
+    expect(props.items).toHaveLength(getFilteredAetherModels().length);
     // coder-model is the only model and it has vision capability
     expect(props.items[0].value).toBe(
-      `${AuthType.QWEN_OAUTH}::${DEFAULT_QWEN_MODEL}`,
+      `${AuthType.AETHER_OAUTH}::${DEFAULT_QWEN_MODEL}`,
     );
     expect(props.showNumbers).toBe(true);
   });
@@ -145,8 +145,8 @@ describe('<ModelDialog />', () => {
 
     expect(mockGetModel).toHaveBeenCalled();
     // Calculate expected index dynamically based on model list
-    const qwenModels = getFilteredQwenModels();
-    const expectedIndex = qwenModels.findIndex(
+    const aetherModels = getFilteredAetherModels();
+    const expectedIndex = aetherModels.findIndex(
       (m) => m.id === DEFAULT_QWEN_MODEL,
     );
     expect(mockedSelect).toHaveBeenCalledWith(
@@ -197,11 +197,11 @@ describe('<ModelDialog />', () => {
       {},
       {
         getAvailableModelsForAuthType: vi.fn((t: AuthType) => {
-          if (t === AuthType.QWEN_OAUTH) {
-            return getFilteredQwenModels().map((m) => ({
+          if (t === AuthType.AETHER_OAUTH) {
+            return getFilteredAetherModels().map((m) => ({
               id: m.id,
               label: m.label,
-              authType: AuthType.QWEN_OAUTH,
+              authType: AuthType.AETHER_OAUTH,
             }));
           }
           return [];
@@ -212,10 +212,10 @@ describe('<ModelDialog />', () => {
     const childOnSelect = mockedSelect.mock.calls[0][0].onSelect;
     expect(childOnSelect).toBeDefined();
 
-    await childOnSelect(`${AuthType.QWEN_OAUTH}::${DEFAULT_QWEN_MODEL}`);
+    await childOnSelect(`${AuthType.AETHER_OAUTH}::${DEFAULT_QWEN_MODEL}`);
 
     expect(mockConfig?.switchModel).toHaveBeenCalledWith(
-      AuthType.QWEN_OAUTH,
+      AuthType.AETHER_OAUTH,
       DEFAULT_QWEN_MODEL,
       undefined,
     );
@@ -227,7 +227,7 @@ describe('<ModelDialog />', () => {
     expect(mockSettings.setValue).toHaveBeenCalledWith(
       SettingScope.User,
       'security.auth.selectedType',
-      AuthType.QWEN_OAUTH,
+      AuthType.AETHER_OAUTH,
     );
     expect(props.onClose).toHaveBeenCalledTimes(1);
   });
@@ -239,11 +239,11 @@ describe('<ModelDialog />', () => {
       if (t === AuthType.USE_OPENAI) {
         return [{ id: 'gpt-4', label: 'GPT-4', authType: t }];
       }
-      if (t === AuthType.QWEN_OAUTH) {
-        return getFilteredQwenModels().map((m) => ({
+      if (t === AuthType.AETHER_OAUTH) {
+        return getFilteredAetherModels().map((m) => ({
           id: m.id,
           label: m.label,
-          authType: AuthType.QWEN_OAUTH,
+          authType: AuthType.AETHER_OAUTH,
         }));
       }
       return [];
@@ -253,7 +253,7 @@ describe('<ModelDialog />', () => {
       getAuthType,
       getModel: vi.fn(() => 'gpt-4'),
       getContentGeneratorConfig: vi.fn(() => ({
-        authType: AuthType.QWEN_OAUTH,
+        authType: AuthType.AETHER_OAUTH,
         model: DEFAULT_QWEN_MODEL,
       })),
       // Add switchModel to the mock object (not the type)
@@ -268,10 +268,10 @@ describe('<ModelDialog />', () => {
     );
 
     const childOnSelect = mockedSelect.mock.calls[0][0].onSelect;
-    await childOnSelect(`${AuthType.QWEN_OAUTH}::${DEFAULT_QWEN_MODEL}`);
+    await childOnSelect(`${AuthType.AETHER_OAUTH}::${DEFAULT_QWEN_MODEL}`);
 
     expect(switchModel).toHaveBeenCalledWith(
-      AuthType.QWEN_OAUTH,
+      AuthType.AETHER_OAUTH,
       DEFAULT_QWEN_MODEL,
       { requireCachedCredentials: true },
     );
@@ -283,7 +283,7 @@ describe('<ModelDialog />', () => {
     expect(mockSettings.setValue).toHaveBeenCalledWith(
       SettingScope.User,
       'security.auth.selectedType',
-      AuthType.QWEN_OAUTH,
+      AuthType.AETHER_OAUTH,
     );
     expect(props.onClose).toHaveBeenCalledTimes(1);
   });
@@ -329,7 +329,7 @@ describe('<ModelDialog />', () => {
 
   it('updates initialIndex when config context changes', () => {
     const mockGetModel = vi.fn(() => DEFAULT_QWEN_MODEL);
-    const mockGetAuthType = vi.fn(() => 'qwen-oauth');
+    const mockGetAuthType = vi.fn(() => 'aether-oauth');
     const mockSettings = {
       isTrusted: true,
       user: { settings: {} },
@@ -346,11 +346,11 @@ describe('<ModelDialog />', () => {
               getAvailableModelsForAuthType:
                 createMockGetAvailableModelsForAuthType(),
               getAllConfiguredModels: vi.fn(() =>
-                getFilteredQwenModels().map((m) => ({
+                getFilteredAetherModels().map((m) => ({
                   id: m.id,
                   label: m.label,
                   description: m.description || '',
-                  authType: AuthType.QWEN_OAUTH,
+                  authType: AuthType.AETHER_OAUTH,
                 })),
               ),
             } as unknown as Config
@@ -370,11 +370,11 @@ describe('<ModelDialog />', () => {
       getAuthType: mockGetAuthType,
       getAvailableModelsForAuthType: createMockGetAvailableModelsForAuthType(),
       getAllConfiguredModels: vi.fn(() =>
-        getFilteredQwenModels().map((m) => ({
+        getFilteredAetherModels().map((m) => ({
           id: m.id,
           label: m.label,
           description: m.description || '',
-          authType: AuthType.QWEN_OAUTH,
+          authType: AuthType.AETHER_OAUTH,
         })),
       ),
     } as unknown as Config;
@@ -390,8 +390,8 @@ describe('<ModelDialog />', () => {
     // Should be called at least twice: initial render + re-render after context change
     expect(mockedSelect).toHaveBeenCalledTimes(2);
     // Calculate expected index for DEFAULT_QWEN_MODEL dynamically
-    const qwenModels = getFilteredQwenModels();
-    const expectedCoderIndex = qwenModels.findIndex(
+    const aetherModels = getFilteredAetherModels();
+    const expectedCoderIndex = aetherModels.findIndex(
       (m) => m.id === DEFAULT_QWEN_MODEL,
     );
     expect(mockedSelect.mock.calls[1][0].initialIndex).toBe(expectedCoderIndex);

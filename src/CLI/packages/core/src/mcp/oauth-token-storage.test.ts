@@ -10,7 +10,7 @@ import * as path from 'node:path';
 import { MCPOAuthTokenStorage } from './oauth-token-storage.js';
 import { FORCE_ENCRYPTED_FILE_ENV_VAR } from './token-storage/index.js';
 import type { OAuthCredentials, OAuthToken } from './token-storage/types.js';
-import { QWEN_DIR } from '../utils/paths.js';
+import { AETHER_DIR } from '../utils/paths.js';
 
 // Mock debugLogger
 const mockDebugLogger = vi.hoisted(() => ({
@@ -109,7 +109,7 @@ describe('MCPOAuthTokenStorage', () => {
         expect(tokens.size).toBe(1);
         expect(tokens.get('test-server')).toEqual(mockCredentials);
         expect(fs.readFile).toHaveBeenCalledWith(
-          path.join('/mock/home', QWEN_DIR, 'mcp-oauth-tokens.json'),
+          path.join('/mock/home', AETHER_DIR, 'mcp-oauth-tokens.json'),
           'utf-8',
         );
       });
@@ -152,11 +152,11 @@ describe('MCPOAuthTokenStorage', () => {
         );
 
         expect(fs.mkdir).toHaveBeenCalledWith(
-          path.join('/mock/home', QWEN_DIR),
+          path.join('/mock/home', AETHER_DIR),
           { recursive: true },
         );
         expect(fs.writeFile).toHaveBeenCalledWith(
-          path.join('/mock/home', QWEN_DIR, 'mcp-oauth-tokens.json'),
+          path.join('/mock/home', AETHER_DIR, 'mcp-oauth-tokens.json'),
           expect.stringContaining('test-server'),
           { mode: 0o600 },
         );
@@ -267,7 +267,7 @@ describe('MCPOAuthTokenStorage', () => {
         await tokenStorage.deleteCredentials('test-server');
 
         expect(fs.unlink).toHaveBeenCalledWith(
-          path.join('/mock/home', QWEN_DIR, 'mcp-oauth-tokens.json'),
+          path.join('/mock/home', AETHER_DIR, 'mcp-oauth-tokens.json'),
         );
         expect(fs.writeFile).not.toHaveBeenCalled();
       });
@@ -348,7 +348,7 @@ describe('MCPOAuthTokenStorage', () => {
         await tokenStorage.clearAll();
 
         expect(fs.unlink).toHaveBeenCalledWith(
-          path.join('/mock/home', QWEN_DIR, 'mcp-oauth-tokens.json'),
+          path.join('/mock/home', AETHER_DIR, 'mcp-oauth-tokens.json'),
         );
       });
 

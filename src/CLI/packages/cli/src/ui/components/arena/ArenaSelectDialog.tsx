@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
@@ -11,7 +11,7 @@ import {
   type ArenaManager,
   isSuccessStatus,
   type Config,
-} from '@qwen-code/qwen-code-core';
+} from '@aether/aether-core';
 import { theme } from '../../semantic-colors.js';
 import { useKeypress } from '../../hooks/useKeypress.js';
 import { MessageType, type HistoryItemWithoutId } from '../../types.js';
