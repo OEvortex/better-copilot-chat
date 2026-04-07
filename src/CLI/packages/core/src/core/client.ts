@@ -1,0 +1,990 @@
+/**
+ * @license
+ * Copyright 2026 Qwen Team
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+// External dependencies
+import type {
+  Content,
+  GenerateContentConfig,
+  GenerateContentResponse,
+  PartListUnion,
+  Tool,
+} from '@google/genai';
+
+// Config
+import { ApprovalMode, type Config } from '../config/config.js';
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const debugLogger = createDebugLogger('CLIENT');
+
+// Core modules
+import type { ContentGenerator } from './contentGenerator.js';
+import { GeminiChat } from './geminiChat.js';
+import {
+  getArenaSystemReminder,
+  getCoreSystemPrompt,
+  getCustomSystemPrompt,
+  getPlanModeSystemReminder,
+  getSubagentSystemReminder,
+} from './prompts.js';
+import {
+  CompressionStatus,
+  GeminiEventType,
+  Turn,
+  type ChatCompressionInfo,
+  type ServerGeminiStreamEvent,
+} from './turn.js';
+
+// Services
+import {
+  ChatCompressionService,
+  COMPRESSION_PRESERVE_THRESHOLD,
+  COMPRESSION_TOKEN_THRESHOLD,
+} from '../services/chatCompressionService.js';
+import { LoopDetectionService } from '../services/loopDetectionService.js';
+
+// Tools
+import { AgentTool } from '../tools/agent.js';
+
+// Telemetry
+import {
+  NextSpeakerCheckEvent,
+  logNextSpeakerCheck,
+} from '../telemetry/index.js';
+import { uiTelemetryService } from '../telemetry/uiTelemetry.js';
+
+// Forked query cache
+import {
+  saveCacheSafeParams,
+  clearCacheSafeParams,
+} from '../followup/forkedQuery.js';
+
+// Utilities
+import {
+  getDirectoryContextString,
+  getInitialChatHistory,
+} from '../utils/environmentContext.js';
+import {
+  buildApiHistoryFromConversation,
+  replayUiTelemetryFromConversation,
+} from '../services/sessionService.js';
+import { reportError } from '../utils/errorReporting.js';
+import { getErrorMessage } from '../utils/errors.js';
+import { checkNextSpeaker } from '../utils/nextSpeakerChecker.js';
+import { flatMapTextParts } from '../utils/partUtils.js';
+import { promptIdContext } from '../utils/promptIdContext.js';
+import { retryWithBackoff } from '../utils/retry.js';
+
+// Hook types and utilities
+import {
+  MessageBusType,
+  type HookExecutionRequest,
+  type HookExecutionResponse,
+} from '../confirmation-bus/types.js';
+import { partToString } from '../utils/partUtils.js';
+import { createHookOutput } from '../hooks/types.js';
+
+// IDE integration
+import { ideContextStore } from '../ide/ideContext.js';
+import { type File, type IdeContext } from '../ide/types.js';
+import type { StopHookOutput } from '../hooks/types.js';
+
+const MAX_TURNS = 100;
+
+export enum SendMessageType {
+  UserQuery = 'userQuery',
+  ToolResult = 'toolResult',
+  Retry = 'retry',
+  Hook = 'hook',
+  /** Cron-fired prompt. Behaves like UserQuery but skips UserPromptSubmit hook. */
+  Cron = 'cron',
+}
+
+export interface SendMessageOptions {
+  type: SendMessageType;
+  /** Track stop hook iterations to prevent infinite loops and display loop info */
+  stopHookState?: {
+    iterationCount: number;
+    reasons: string[];
+  };
+}
+
+export class GeminiClient {
+  private chat?: GeminiChat;
+  private sessionTurnCount = 0;
+
+  private readonly loopDetector: LoopDetectionService;
+  private lastPromptId: string | undefined = undefined;
+  private lastSentIdeContext: IdeContext | undefined;
+  private forceFullIdeContext = true;
+
+  /**
+   * At any point in this conversation, was compression triggered without
+   * being forced and did it fail?
+   */
+  private hasFailedCompressionAttempt = false;
+
+  constructor(private readonly config: Config) {
+    this.loopDetector = new LoopDetectionService(config);
+  }
+
+  async initialize() {
+    this.lastPromptId = this.config.getSessionId();
+
+    // Check if we're resuming from a previous session
+    const resumedSessionData = this.config.getResumedSessionData();
+    if (resumedSessionData) {
+      replayUiTelemetryFromConversation(resumedSessionData.conversation);
+      // Convert resumed session to API history format
+      // Each ChatRecord's message field is already a Content object
+      const resumedHistory = buildApiHistoryFromConversation(
+        resumedSessionData.conversation,
+      );
+      await this.startChat(resumedHistory);
+    } else {
+      await this.startChat();
+    }
+  }
+
+  private getContentGeneratorOrFail(): ContentGenerator {
+    if (!this.config.getContentGenerator()) {
+      throw new Error('Content generator not initialized');
+    }
+    return this.config.getContentGenerator();
+  }
+
+  async addHistory(content: Content) {
+    this.getChat().addHistory(content);
+  }
+
+  getChat(): GeminiChat {
+    if (!this.chat) {
+      throw new Error('Chat not initialized');
+    }
+    return this.chat;
+  }
+
+  isInitialized(): boolean {
+    return this.chat !== undefined;
+  }
+
+  getHistory(curated: boolean = false): Content[] {
+    return this.getChat().getHistory(curated);
+  }
+
+  stripThoughtsFromHistory() {
+    this.getChat().stripThoughtsFromHistory();
+  }
+
+  private stripOrphanedUserEntriesFromHistory() {
+    this.getChat().stripOrphanedUserEntriesFromHistory();
+  }
+
+  setHistory(history: Content[]) {
+    this.getChat().setHistory(history);
+    this.forceFullIdeContext = true;
+  }
+
+  setTools(): void {
+    if (!this.isInitialized()) {
+      return;
+    }
+
+    const toolRegistry = this.config.getToolRegistry();
+    const toolDeclarations = toolRegistry.getFunctionDeclarations();
+    const tools: Tool[] = [{ functionDeclarations: toolDeclarations }];
+    this.getChat().setTools(tools);
+  }
+
+  async resetChat(): Promise<void> {
+    await this.startChat();
+  }
+
+  getLoopDetectionService(): LoopDetectionService {
+    return this.loopDetector;
+  }
+
+  async addDirectoryContext(): Promise<void> {
+    if (!this.chat) {
+      return;
+    }
+
+    this.getChat().addHistory({
+      role: 'user',
+      parts: [{ text: await getDirectoryContextString(this.config) }],
+    });
+  }
+
+  private getMainSessionSystemInstruction(): string {
+    const userMemory = this.config.getUserMemory();
+    const overrideSystemPrompt = this.config.getSystemPrompt();
+    const appendSystemPrompt = this.config.getAppendSystemPrompt();
+
+    if (overrideSystemPrompt) {
+      return getCustomSystemPrompt(
+        overrideSystemPrompt,
+        userMemory,
+        appendSystemPrompt,
+      );
+    }
+
+    return getCoreSystemPrompt(
+      userMemory,
+      this.config.getModel(),
+      appendSystemPrompt,
+    );
+  }
+
+  async startChat(extraHistory?: Content[]): Promise<GeminiChat> {
+    this.forceFullIdeContext = true;
+    this.hasFailedCompressionAttempt = false;
+    // Clear stale cache params on session reset to prevent cross-session leakage
+    clearCacheSafeParams();
+
+    const history = await getInitialChatHistory(this.config, extraHistory);
+
+    try {
+      const systemInstruction = this.getMainSessionSystemInstruction();
+
+      this.chat = new GeminiChat(
+        this.config,
+        {
+          systemInstruction,
+        },
+        history,
+        this.config.getChatRecordingService(),
+        uiTelemetryService,
+      );
+
+      this.setTools();
+
+      return this.chat;
+    } catch (error) {
+      await reportError(
+        error,
+        'Error initializing chat session.',
+        history,
+        'startChat',
+      );
+      throw new Error(`Failed to initialize chat: ${getErrorMessage(error)}`);
+    }
+  }
+
+  private getIdeContextParts(forceFullContext: boolean): {
+    contextParts: string[];
+    newIdeContext: IdeContext | undefined;
+  } {
+    const currentIdeContext = ideContextStore.get();
+    if (!currentIdeContext) {
+      return { contextParts: [], newIdeContext: undefined };
+    }
+
+    if (forceFullContext || !this.lastSentIdeContext) {
+      // Send full context as plain text
+      const openFiles = currentIdeContext.workspaceState?.openFiles || [];
+      const activeFile = openFiles.find((f) => f.isActive);
+      const otherOpenFiles = openFiles
+        .filter((f) => !f.isActive)
+        .map((f) => f.path);
+
+      const contextLines: string[] = [];
+
+      if (activeFile) {
+        contextLines.push('Active file:');
+        contextLines.push(`  Path: ${activeFile.path}`);
+        if (activeFile.cursor) {
+          contextLines.push(
+            `  Cursor: line ${activeFile.cursor.line}, character ${activeFile.cursor.character}`,
+          );
+        }
+        if (activeFile.selectedText) {
+          contextLines.push('  Selected text:');
+          contextLines.push('```');
+          contextLines.push(activeFile.selectedText);
+          contextLines.push('```');
+        }
+      }
+
+      if (otherOpenFiles.length > 0) {
+        if (contextLines.length > 0) {
+          contextLines.push('');
+        }
+        contextLines.push('Other open files:');
+        for (const filePath of otherOpenFiles) {
+          contextLines.push(`  - ${filePath}`);
+        }
+      }
+
+      if (contextLines.length === 0) {
+        return { contextParts: [], newIdeContext: currentIdeContext };
+      }
+
+      const contextParts = [
+        "Here is the user's editor context. This is for your information only.",
+        contextLines.join('\n'),
+      ];
+
+      debugLogger.debug(contextParts.join('\n'));
+      return {
+        contextParts,
+        newIdeContext: currentIdeContext,
+      };
+    } else {
+      // Calculate and send delta as plain text
+      const changeLines: string[] = [];
+
+      const lastFiles = new Map(
+        (this.lastSentIdeContext.workspaceState?.openFiles || []).map(
+          (f: File) => [f.path, f],
+        ),
+      );
+      const currentFiles = new Map(
+        (currentIdeContext.workspaceState?.openFiles || []).map((f: File) => [
+          f.path,
+          f,
+        ]),
+      );
+
+      const openedFiles: string[] = [];
+      for (const [path] of currentFiles.entries()) {
+        if (!lastFiles.has(path)) {
+          openedFiles.push(path);
+        }
+      }
+      if (openedFiles.length > 0) {
+        changeLines.push('Files opened:');
+        for (const filePath of openedFiles) {
+          changeLines.push(`  - ${filePath}`);
+        }
+      }
+
+      const closedFiles: string[] = [];
+      for (const [path] of lastFiles.entries()) {
+        if (!currentFiles.has(path)) {
+          closedFiles.push(path);
+        }
+      }
+      if (closedFiles.length > 0) {
+        if (changeLines.length > 0) {
+          changeLines.push('');
+        }
+        changeLines.push('Files closed:');
+        for (const filePath of closedFiles) {
+          changeLines.push(`  - ${filePath}`);
+        }
+      }
+
+      const lastActiveFile = (
+        this.lastSentIdeContext.workspaceState?.openFiles || []
+      ).find((f: File) => f.isActive);
+      const currentActiveFile = (
+        currentIdeContext.workspaceState?.openFiles || []
+      ).find((f: File) => f.isActive);
+
+      if (currentActiveFile) {
+        if (!lastActiveFile || lastActiveFile.path !== currentActiveFile.path) {
+          if (changeLines.length > 0) {
+            changeLines.push('');
+          }
+          changeLines.push('Active file changed:');
+          changeLines.push(`  Path: ${currentActiveFile.path}`);
+          if (currentActiveFile.cursor) {
+            changeLines.push(
+              `  Cursor: line ${currentActiveFile.cursor.line}, character ${currentActiveFile.cursor.character}`,
+            );
+          }
+          if (currentActiveFile.selectedText) {
+            changeLines.push('  Selected text:');
+            changeLines.push('```');
+            changeLines.push(currentActiveFile.selectedText);
+            changeLines.push('```');
+          }
+        } else {
+          const lastCursor = lastActiveFile.cursor;
+          const currentCursor = currentActiveFile.cursor;
+          if (
+            currentCursor &&
+            (!lastCursor ||
+              lastCursor.line !== currentCursor.line ||
+              lastCursor.character !== currentCursor.character)
+          ) {
+            if (changeLines.length > 0) {
+              changeLines.push('');
+            }
+            changeLines.push('Cursor moved:');
+            changeLines.push(`  Path: ${currentActiveFile.path}`);
+            changeLines.push(
+              `  New position: line ${currentCursor.line}, character ${currentCursor.character}`,
+            );
+          }
+
+          const lastSelectedText = lastActiveFile.selectedText || '';
+          const currentSelectedText = currentActiveFile.selectedText || '';
+          if (lastSelectedText !== currentSelectedText) {
+            if (changeLines.length > 0) {
+              changeLines.push('');
+            }
+            changeLines.push('Selection changed:');
+            changeLines.push(`  Path: ${currentActiveFile.path}`);
+            if (currentSelectedText) {
+              changeLines.push('  Selected text:');
+              changeLines.push('```');
+              changeLines.push(currentSelectedText);
+              changeLines.push('```');
+            } else {
+              changeLines.push('  Selected text: (none)');
+            }
+          }
+        }
+      } else if (lastActiveFile) {
+        if (changeLines.length > 0) {
+          changeLines.push('');
+        }
+        changeLines.push('Active file changed:');
+        changeLines.push('  No active file');
+        changeLines.push(`  Previous path: ${lastActiveFile.path}`);
+      }
+
+      if (changeLines.length === 0) {
+        return { contextParts: [], newIdeContext: currentIdeContext };
+      }
+
+      const contextParts = [
+        "Here is a summary of changes in the user's editor context. This is for your information only.",
+        changeLines.join('\n'),
+      ];
+
+      debugLogger.debug(contextParts.join('\n'));
+      return {
+        contextParts,
+        newIdeContext: currentIdeContext,
+      };
+    }
+  }
+
+  async *sendMessageStream(
+    request: PartListUnion,
+    signal: AbortSignal,
+    prompt_id: string,
+    options?: SendMessageOptions,
+    turns: number = MAX_TURNS,
+  ): AsyncGenerator<ServerGeminiStreamEvent, Turn> {
+    const messageType = options?.type ?? SendMessageType.UserQuery;
+
+    if (messageType === SendMessageType.Retry) {
+      this.stripOrphanedUserEntriesFromHistory();
+    }
+
+    // Fire UserPromptSubmit hook through MessageBus (only if hooks are enabled)
+    const hooksEnabled = !this.config.getDisableAllHooks();
+    const messageBus = this.config.getMessageBus();
+    if (
+      messageType !== SendMessageType.Retry &&
+      messageType !== SendMessageType.Cron &&
+      hooksEnabled &&
+      messageBus &&
+      this.config.hasHooksForEvent('UserPromptSubmit')
+    ) {
+      const promptText = partToString(request);
+      const response = await messageBus.request<
+        HookExecutionRequest,
+        HookExecutionResponse
+      >(
+        {
+          type: MessageBusType.HOOK_EXECUTION_REQUEST,
+          eventName: 'UserPromptSubmit',
+          input: {
+            prompt: promptText,
+          },
+        },
+        MessageBusType.HOOK_EXECUTION_RESPONSE,
+      );
+      const hookOutput = response.output
+        ? createHookOutput('UserPromptSubmit', response.output)
+        : undefined;
+
+      if (
+        hookOutput?.isBlockingDecision() ||
+        hookOutput?.shouldStopExecution()
+      ) {
+        yield {
+          type: GeminiEventType.UserPromptSubmitBlocked,
+          value: {
+            reason: hookOutput.getEffectiveReason(),
+            originalPrompt: promptText,
+          },
+        };
+        return new Turn(this.getChat(), prompt_id);
+      }
+
+      // Add additional context from hooks to the request
+      const additionalContext = hookOutput?.getAdditionalContext();
+      if (additionalContext) {
+        const requestArray = Array.isArray(request) ? request : [request];
+        request = [...requestArray, { text: additionalContext }];
+      }
+    }
+
+    if (
+      messageType === SendMessageType.UserQuery ||
+      messageType === SendMessageType.Cron
+    ) {
+      this.loopDetector.reset(prompt_id);
+      this.lastPromptId = prompt_id;
+
+      // record user message for session management
+      this.config.getChatRecordingService()?.recordUserMessage(request);
+
+      // strip thoughts from history before sending the message
+      this.stripThoughtsFromHistory();
+    }
+    if (messageType !== SendMessageType.Retry) {
+      this.sessionTurnCount++;
+
+      if (
+        this.config.getMaxSessionTurns() > 0 &&
+        this.sessionTurnCount > this.config.getMaxSessionTurns()
+      ) {
+        yield { type: GeminiEventType.MaxSessionTurns };
+        return new Turn(this.getChat(), prompt_id);
+      }
+    }
+
+    // Ensure turns never exceeds MAX_TURNS to prevent infinite loops
+    const boundedTurns = Math.min(turns, MAX_TURNS);
+    if (!boundedTurns) {
+      return new Turn(this.getChat(), prompt_id);
+    }
+
+    const compressed = await this.tryCompressChat(prompt_id, false, signal);
+
+    if (compressed.compressionStatus === CompressionStatus.COMPRESSED) {
+      yield { type: GeminiEventType.ChatCompressed, value: compressed };
+    }
+
+    // Check session token limit after compression.
+    // `lastPromptTokenCount` is treated as authoritative for the (possibly compressed) history;
+    const sessionTokenLimit = this.config.getSessionTokenLimit();
+    if (sessionTokenLimit > 0) {
+      const lastPromptTokenCount = uiTelemetryService.getLastPromptTokenCount();
+      if (lastPromptTokenCount > sessionTokenLimit) {
+        yield {
+          type: GeminiEventType.SessionTokenLimitExceeded,
+          value: {
+            currentTokens: lastPromptTokenCount,
+            limit: sessionTokenLimit,
+            message:
+              `Session token limit exceeded: ${lastPromptTokenCount} tokens > ${sessionTokenLimit} limit. ` +
+              'Please start a new session or increase the sessionTokenLimit in your settings.json.',
+          },
+        };
+        return new Turn(this.getChat(), prompt_id);
+      }
+    }
+
+    // Prevent context updates from being sent while a tool call is
+    // waiting for a response. The Qwen API requires that a functionResponse
+    // part from the user immediately follows a functionCall part from the model
+    // in the conversation history . The IDE context is not discarded; it will
+    // be included in the next regular message sent to the model.
+    const history = this.getHistory();
+    const lastMessage =
+      history.length > 0 ? history[history.length - 1] : undefined;
+    const hasPendingToolCall =
+      !!lastMessage &&
+      lastMessage.role === 'model' &&
+      (lastMessage.parts?.some((p) => 'functionCall' in p) || false);
+
+    if (this.config.getIdeMode() && !hasPendingToolCall) {
+      const { contextParts, newIdeContext } = this.getIdeContextParts(
+        this.forceFullIdeContext || history.length === 0,
+      );
+      if (contextParts.length > 0) {
+        this.getChat().addHistory({
+          role: 'user',
+          parts: [{ text: contextParts.join('\n') }],
+        });
+      }
+      this.lastSentIdeContext = newIdeContext;
+      this.forceFullIdeContext = false;
+    }
+
+    // Check for arena control signal before starting a new turn
+    const arenaAgentClient = this.config.getArenaAgentClient();
+    if (arenaAgentClient) {
+      const controlSignal = await arenaAgentClient.checkControlSignal();
+      if (controlSignal) {
+        debugLogger.info(
+          `Arena control signal received: ${controlSignal.type} - ${controlSignal.reason}`,
+        );
+        await arenaAgentClient.reportCancelled();
+        return new Turn(this.getChat(), prompt_id);
+      }
+    }
+
+    const turn = new Turn(this.getChat(), prompt_id);
+
+    // append system reminders to the request
+    let requestToSent = await flatMapTextParts(request, async (text) => [text]);
+    if (
+      messageType === SendMessageType.UserQuery ||
+      messageType === SendMessageType.Cron
+    ) {
+      const systemReminders = [];
+
+      // add subagent system reminder if there are subagents
+      const hasAgentTool = this.config
+        .getToolRegistry()
+        .getTool(AgentTool.Name);
+      const subagents = (await this.config.getSubagentManager().listSubagents())
+        .filter((subagent) => subagent.level !== 'builtin')
+        .map((subagent) => subagent.name);
+
+      if (hasAgentTool && subagents.length > 0) {
+        systemReminders.push(getSubagentSystemReminder(subagents));
+      }
+
+      // add plan mode system reminder if approval mode is plan
+      if (this.config.getApprovalMode() === ApprovalMode.PLAN) {
+        systemReminders.push(
+          getPlanModeSystemReminder(this.config.getSdkMode()),
+        );
+      }
+
+      // add arena system reminder if an arena session is active
+      const arenaManager = this.config.getArenaManager();
+      if (arenaManager) {
+        try {
+          const sessionDir = arenaManager.getArenaSessionDir();
+          const configPath = `${sessionDir}/config.json`;
+          systemReminders.push(getArenaSystemReminder(configPath));
+        } catch {
+          // Arena config not yet initialized — skip
+        }
+      }
+
+      requestToSent = [...systemReminders, ...requestToSent];
+    }
+
+    const resultStream = turn.run(
+      this.config.getModel(),
+      requestToSent,
+      signal,
+    );
+    for await (const event of resultStream) {
+      if (!this.config.getSkipLoopDetection()) {
+        if (this.loopDetector.addAndCheck(event)) {
+          yield { type: GeminiEventType.LoopDetected };
+          if (arenaAgentClient) {
+            await arenaAgentClient.reportError('Loop detected');
+          }
+          return turn;
+        }
+      }
+      // Update arena status on Finished events — stats are derived
+      // automatically from uiTelemetryService by the reporter.
+      if (arenaAgentClient && event.type === GeminiEventType.Finished) {
+        await arenaAgentClient.updateStatus();
+      }
+
+      yield event;
+      if (event.type === GeminiEventType.Error) {
+        if (arenaAgentClient) {
+          const errorMsg =
+            event.value instanceof Error
+              ? event.value.message
+              : 'Unknown error';
+          await arenaAgentClient.reportError(errorMsg);
+        }
+        return turn;
+      }
+    }
+    // Fire Stop hook through MessageBus (only if hooks are enabled and registered)
+    // This must be done before any early returns to ensure hooks are always triggered
+    if (
+      hooksEnabled &&
+      messageBus &&
+      !turn.pendingToolCalls.length &&
+      signal &&
+      !signal.aborted &&
+      this.config.hasHooksForEvent('Stop')
+    ) {
+      // Get response text from the chat history
+      const history = this.getHistory();
+      const lastModelMessage = history
+        .filter((msg) => msg.role === 'model')
+        .pop();
+      const responseText =
+        lastModelMessage?.parts
+          ?.filter((p): p is { text: string } => 'text' in p)
+          .map((p) => p.text)
+          .join('') || '[no response text]';
+
+      const response = await messageBus.request<
+        HookExecutionRequest,
+        HookExecutionResponse
+      >(
+        {
+          type: MessageBusType.HOOK_EXECUTION_REQUEST,
+          eventName: 'Stop',
+          input: {
+            stop_hook_active: true,
+            last_assistant_message: responseText,
+          },
+          signal,
+        },
+        MessageBusType.HOOK_EXECUTION_RESPONSE,
+      );
+
+      // Check if aborted after hook execution
+      if (signal.aborted) {
+        return turn;
+      }
+
+      const hookOutput = response.output
+        ? createHookOutput('Stop', response.output)
+        : undefined;
+
+      const stopOutput = hookOutput as StopHookOutput | undefined;
+
+      // This should happen regardless of the hook's decision
+      if (stopOutput?.systemMessage) {
+        yield {
+          type: GeminiEventType.HookSystemMessage,
+          value: stopOutput.systemMessage,
+        };
+      }
+
+      // For Stop hooks, blocking/stop execution should force continuation
+      if (
+        stopOutput?.isBlockingDecision() ||
+        stopOutput?.shouldStopExecution()
+      ) {
+        // Check if aborted before continuing
+        if (signal.aborted) {
+          return turn;
+        }
+
+        const continueReason = stopOutput.getEffectiveReason();
+
+        // Track stop hook iterations
+        const currentIterationCount =
+          (options?.stopHookState?.iterationCount ?? 0) + 1;
+        const currentReasons = [
+          ...(options?.stopHookState?.reasons ?? []),
+          continueReason,
+        ];
+
+        // Emit StopHookLoop event for iterations after the first one.
+        // The first iteration (currentIterationCount === 1) is the initial request,
+        // so there's no prior stop hook execution to report. We only emit this event
+        // when stop hooks have been executed multiple times (loop detected).
+        if (currentIterationCount > 1) {
+          yield {
+            type: GeminiEventType.StopHookLoop,
+            value: {
+              iterationCount: currentIterationCount,
+              reasons: currentReasons,
+              stopHookCount: response.stopHookCount ?? 1,
+            },
+          };
+        }
+
+        const continueRequest = [{ text: continueReason }];
+        return yield* this.sendMessageStream(
+          continueRequest,
+          signal,
+          prompt_id,
+          {
+            type: SendMessageType.Hook,
+            stopHookState: {
+              iterationCount: currentIterationCount,
+              reasons: currentReasons,
+            },
+          },
+          boundedTurns - 1,
+        );
+      }
+    }
+
+    if (!turn.pendingToolCalls.length && signal && !signal.aborted) {
+      if (this.config.getSkipNextSpeakerCheck()) {
+        // Report completed before returning — agent has no more work to do
+        if (arenaAgentClient) {
+          await arenaAgentClient.reportCompleted();
+        }
+        return turn;
+      }
+
+      const nextSpeakerCheck = await checkNextSpeaker(
+        this.getChat(),
+        this.config,
+        signal,
+        prompt_id,
+      );
+      logNextSpeakerCheck(
+        this.config,
+        new NextSpeakerCheckEvent(
+          prompt_id,
+          turn.finishReason?.toString() || '',
+          nextSpeakerCheck?.next_speaker || '',
+        ),
+      );
+      if (nextSpeakerCheck?.next_speaker === 'model') {
+        const nextRequest = [{ text: 'Please continue.' }];
+        // This recursive call's events will be yielded out, and the final
+        // turn object from the recursive call will be returned.
+        return yield* this.sendMessageStream(
+          nextRequest,
+          signal,
+          prompt_id,
+          options,
+          boundedTurns - 1,
+        );
+      } else if (arenaAgentClient) {
+        // No continuation needed — agent completed its task
+        await arenaAgentClient.reportCompleted();
+      }
+    }
+
+    // Report cancelled to arena when user cancelled mid-stream
+    if (signal?.aborted && arenaAgentClient) {
+      await arenaAgentClient.reportCancelled();
+    }
+
+    // Save cache-safe params on successful completion (non-abort) for forked queries
+    if (!signal?.aborted && this.isInitialized()) {
+      try {
+        const chat = this.getChat();
+        // Clone history then truncate to last 40 entries to avoid full-session deep copy overhead
+        const fullHistory = chat.getHistory(true);
+        const maxHistoryForCache = 40;
+        const cachedHistory =
+          fullHistory.length > maxHistoryForCache
+            ? fullHistory.slice(-maxHistoryForCache)
+            : fullHistory;
+        saveCacheSafeParams(
+          chat.getGenerationConfig(),
+          cachedHistory,
+          this.config.getModel(),
+        );
+      } catch {
+        // Best-effort — don't block the main flow
+      }
+    }
+
+    return turn;
+  }
+
+  async generateContent(
+    contents: Content[],
+    generationConfig: GenerateContentConfig,
+    abortSignal: AbortSignal,
+    model: string,
+    promptIdOverride?: string,
+  ): Promise<GenerateContentResponse> {
+    let currentAttemptModel: string = model;
+    const promptId =
+      promptIdOverride ?? promptIdContext.getStore() ?? this.lastPromptId!;
+
+    try {
+      const userMemory = this.config.getUserMemory();
+      const finalSystemInstruction = generationConfig.systemInstruction
+        ? getCustomSystemPrompt(generationConfig.systemInstruction, userMemory)
+        : this.getMainSessionSystemInstruction();
+
+      const requestConfig: GenerateContentConfig = {
+        abortSignal,
+        ...generationConfig,
+        systemInstruction: finalSystemInstruction,
+      };
+
+      const apiCall = () => {
+        currentAttemptModel = model;
+
+        return this.getContentGeneratorOrFail().generateContent(
+          {
+            model,
+            config: requestConfig,
+            contents,
+          },
+          promptId,
+        );
+      };
+      const result = await retryWithBackoff(apiCall, {
+        authType: this.config.getContentGeneratorConfig()?.authType,
+      });
+      return result;
+    } catch (error: unknown) {
+      if (abortSignal.aborted) {
+        throw error;
+      }
+
+      await reportError(
+        error,
+        `Error generating content via API with model ${currentAttemptModel}.`,
+        {
+          requestContents: contents,
+          requestConfig: generationConfig,
+        },
+        'generateContent-api',
+      );
+      throw new Error(
+        `Failed to generate content with model ${currentAttemptModel}: ${getErrorMessage(error)}`,
+      );
+    }
+  }
+
+  async tryCompressChat(
+    prompt_id: string,
+    force: boolean = false,
+    signal?: AbortSignal,
+  ): Promise<ChatCompressionInfo> {
+    const compressionService = new ChatCompressionService();
+
+    const { newHistory, info } = await compressionService.compress(
+      this.getChat(),
+      prompt_id,
+      force,
+      this.config.getModel(),
+      this.config,
+      this.hasFailedCompressionAttempt,
+      signal,
+    );
+
+    // Handle compression result
+    if (info.compressionStatus === CompressionStatus.COMPRESSED) {
+      // Success: update chat with new compressed history
+      if (newHistory) {
+        const chatRecordingService = this.config.getChatRecordingService();
+        chatRecordingService?.recordChatCompression({
+          info,
+          compressedHistory: newHistory,
+        });
+
+        await this.startChat(newHistory);
+        uiTelemetryService.setLastPromptTokenCount(info.newTokenCount);
+        this.forceFullIdeContext = true;
+      }
+    } else if (
+      info.compressionStatus ===
+        CompressionStatus.COMPRESSION_FAILED_INFLATED_TOKEN_COUNT ||
+      info.compressionStatus ===
+        CompressionStatus.COMPRESSION_FAILED_EMPTY_SUMMARY
+    ) {
+      // Track failed attempts (only mark as failed if not forced)
+      if (!force) {
+        this.hasFailedCompressionAttempt = true;
+      }
+    }
+
+    return info;
+  }
+}
+
+export const TEST_ONLY = {
+  COMPRESSION_PRESERVE_THRESHOLD,
+  COMPRESSION_TOKEN_THRESHOLD,
+};

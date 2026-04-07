@@ -1,0 +1,160 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { createContext, useContext } from 'react';
+import type {
+  HistoryItem,
+  HistoryItemBtw,
+  ThoughtSummary,
+  ShellConfirmationRequest,
+  ConfirmationRequest,
+  LoopDetectionConfirmationRequest,
+  HistoryItemWithoutId,
+  StreamingState,
+  SettingInputRequest,
+  PluginChoiceRequest,
+} from '../types.js';
+import type { QwenAuthState } from '../hooks/useQwenAuth.js';
+import type { CommandContext, SlashCommand } from '../commands/types.js';
+import type { TextBuffer } from '../components/shared/text-buffer.js';
+import type {
+  AuthType,
+  IdeContext,
+  ApprovalMode,
+  IdeInfo,
+} from '@qwen-code/qwen-code-core';
+import type { DOMElement } from 'ink';
+import type { SessionStatsState } from '../contexts/SessionContext.js';
+import type { ExtensionUpdateState } from '../state/extensions.js';
+import type { UpdateObject } from '../utils/updateCheck.js';
+
+import { type UseHistoryManagerReturn } from '../hooks/useHistoryManager.js';
+import { type RestartReason } from '../hooks/useIdeTrustListener.js';
+import { type CodingPlanUpdateRequest } from '../hooks/useCodingPlanUpdates.js';
+import { type ArenaDialogType } from '../hooks/useArenaCommand.js';
+
+export interface UIState {
+  history: HistoryItem[];
+  historyManager: UseHistoryManagerReturn;
+  isThemeDialogOpen: boolean;
+  themeError: string | null;
+  isAuthenticating: boolean;
+  isConfigInitialized: boolean;
+  authError: string | null;
+  isAuthDialogOpen: boolean;
+  pendingAuthType: AuthType | undefined;
+  // Qwen OAuth state
+  qwenAuthState: QwenAuthState;
+  editorError: string | null;
+  isEditorDialogOpen: boolean;
+  debugMessage: string;
+  quittingMessages: HistoryItem[] | null;
+  isSettingsDialogOpen: boolean;
+  isModelDialogOpen: boolean;
+  isFastModelMode: boolean;
+  isTrustDialogOpen: boolean;
+  activeArenaDialog: ArenaDialogType;
+  isPermissionsDialogOpen: boolean;
+  isApprovalModeDialogOpen: boolean;
+  isResumeDialogOpen: boolean;
+  slashCommands: readonly SlashCommand[];
+  pendingSlashCommandHistoryItems: HistoryItemWithoutId[];
+  commandContext: CommandContext;
+  shellConfirmationRequest: ShellConfirmationRequest | null;
+  confirmationRequest: ConfirmationRequest | null;
+  confirmUpdateExtensionRequests: ConfirmationRequest[];
+  codingPlanUpdateRequest: CodingPlanUpdateRequest | undefined;
+  settingInputRequests: SettingInputRequest[];
+  pluginChoiceRequests: PluginChoiceRequest[];
+  loopDetectionConfirmationRequest: LoopDetectionConfirmationRequest | null;
+  geminiMdFileCount: number;
+  streamingState: StreamingState;
+  initError: string | null;
+  pendingGeminiHistoryItems: HistoryItemWithoutId[];
+  thought: ThoughtSummary | null;
+  shellModeActive: boolean;
+  userMessages: string[];
+  buffer: TextBuffer;
+  inputWidth: number;
+  suggestionsWidth: number;
+  isInputActive: boolean;
+  shouldShowIdePrompt: boolean;
+  shouldShowCommandMigrationNudge: boolean;
+  commandMigrationTomlFiles: string[];
+  isFolderTrustDialogOpen: boolean;
+  isTrustedFolder: boolean | undefined;
+  constrainHeight: boolean;
+  ideContextState: IdeContext | undefined;
+  showToolDescriptions: boolean;
+  ctrlCPressedOnce: boolean;
+  ctrlDPressedOnce: boolean;
+  showEscapePrompt: boolean;
+  elapsedTime: number;
+  currentLoadingPhrase: string;
+  historyRemountKey: number;
+  messageQueue: string[];
+  showAutoAcceptIndicator: ApprovalMode;
+  // Quota-related state
+  currentModel: string;
+  contextFileNames: string[];
+  availableTerminalHeight: number | undefined;
+  mainAreaWidth: number;
+  staticAreaMaxItemHeight: number;
+  staticExtraHeight: number;
+  dialogsVisible: boolean;
+  pendingHistoryItems: HistoryItemWithoutId[];
+  btwItem: HistoryItemBtw | null;
+  setBtwItem: (item: HistoryItemBtw | null) => void;
+  cancelBtw: () => void;
+  nightly: boolean;
+  branchName: string | undefined;
+  sessionStats: SessionStatsState;
+  terminalWidth: number;
+  terminalHeight: number;
+  mainControlsRef: React.MutableRefObject<DOMElement | null>;
+  currentIDE: IdeInfo | null;
+  updateInfo: UpdateObject | null;
+  showIdeRestartPrompt: boolean;
+  ideTrustRestartReason: RestartReason;
+  isRestarting: boolean;
+  extensionsUpdateState: Map<string, ExtensionUpdateState>;
+  activePtyId: number | undefined;
+  embeddedShellFocused: boolean;
+  // Welcome back dialog
+  showWelcomeBackDialog: boolean;
+  welcomeBackInfo: {
+    hasHistory: boolean;
+    lastPrompt?: string;
+  } | null;
+  welcomeBackChoice: 'continue' | 'restart' | null;
+  // Subagent dialogs
+  isSubagentCreateDialogOpen: boolean;
+  isAgentsManagerDialogOpen: boolean;
+  // Extensions manager dialog
+  isExtensionsManagerDialogOpen: boolean;
+  // MCP dialog
+  isMcpDialogOpen: boolean;
+  // Hooks dialog
+  isHooksDialogOpen: boolean;
+  // Feedback dialog
+  isFeedbackDialogOpen: boolean;
+  // Per-task token tracking
+  taskStartTokens: number;
+  // Prompt suggestion
+  promptSuggestion: string | null;
+  /** Dismiss prompt suggestion (clears state, aborts speculation) */
+  dismissPromptSuggestion: () => void;
+}
+
+export const UIStateContext = createContext<UIState | null>(null);
+
+export const useUIState = () => {
+  const context = useContext(UIStateContext);
+  if (!context) {
+    throw new Error('useUIState must be used within a UIStateProvider');
+  }
+  return context;
+};
