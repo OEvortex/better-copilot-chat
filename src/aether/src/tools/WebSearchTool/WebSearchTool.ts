@@ -2,6 +2,7 @@ import type {
   BetaContentBlock,
   BetaWebSearchTool20250305,
 } from '@anthropic-ai/sdk/resources/beta/messages/messages.mjs'
+import OpenAI from 'openai'
 import { getAPIProvider } from 'src/utils/model/providers.js'
 import type { PermissionResult } from 'src/utils/permissions/PermissionResult.js'
 
@@ -425,24 +426,23 @@ async function runCodexWebSearch(
     body.reasoning = request.reasoning
   }
 
-  const response = await fetch(`${request.baseUrl}/responses`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${credentials.apiKey}`,
+  const client = new OpenAI({
+    apiKey: credentials.apiKey,
+    baseURL: request.baseUrl,
+    defaultHeaders: {
       'chatgpt-account-id': credentials.accountId,
       originator: 'openclaude',
     },
-    body: JSON.stringify(body),
-    signal,
+    maxRetries: 0,
   })
-
-  if (!response.ok) {
-    const errorBody = await response.text().catch(() => 'unknown error')
-    throw new Error(`Codex web search error ${response.status}: ${errorBody}`)
-  }
-
-  const payload = await collectCodexCompletedResponse(response)
+  const { data } = await client.responses
+    .create(body as any, {
+      signal,
+    })
+    .withResponse()
+  const payload = await collectCodexCompletedResponse(
+    data as AsyncIterable<Record<string, any>>,
+  )
   const endTime = performance.now()
   return makeOutputFromCodexWebSearchResponse(
     payload,

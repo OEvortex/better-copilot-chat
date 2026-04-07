@@ -10,7 +10,12 @@ import type { BetaRawMessageStreamEvent, BetaMessage, Stream } from '@anthropic-
 
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { resolveCodexApiCredentials, resolveProviderRequest } from './providerConfig.js'
-import { codexStreamToAnthropic } from './codexShim.js'
+import {
+  codexStreamToAnthropic,
+  collectCodexCompletedResponse,
+  convertCodexResponseToAnthropicMessage,
+  performCodexRequest,
+} from './codexShim.js'
 import { sanitizeSchemaForOpenAICompat } from './openaiSchemaSanitizer.js'
 import { redactSecretValueForDisplay } from '../../utils/providerProfile.js'
 
@@ -18,7 +23,6 @@ import { redactSecretValueForDisplay } from '../../utils/providerProfile.js'
 // Config
 // ---------------------------------------------------------------------------
 
-const DEFAULT_CODEX_BASE_URL = 'https://chatgpt.com/backend-api/codex'
 const GITHUB_MODELS_BASE = 'https://models.github.ai/inference'
 const GITHUB_API_VERSION = '2022-11-28'
 
@@ -238,18 +242,6 @@ function hydrateKeys() {
 // Codex helpers
 // ---------------------------------------------------------------------------
 
-async function performCodexRequest(resolvedModel: string, signal?: AbortSignal): Promise<Response> {
-  const creds = resolveCodexApiCredentials()
-  if (!creds.apiKey) throw new Error(`Codex auth required for ${resolvedModel}. Set CODEX_API_KEY.`)
-  if (!creds.accountId) throw new Error('Codex auth missing chatgpt_account_id.')
-  return fetch(`${DEFAULT_CODEX_BASE_URL}/responses`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${creds.apiKey}`, 'Chatgpt-Account-Id': creds.accountId },
-    body: JSON.stringify({ model: resolvedModel, stream: true, input: [], tools: [] }),
-    signal,
-  })
-}
-
 // ---------------------------------------------------------------------------
 // Stream → Anthropic-event generator
 // ---------------------------------------------------------------------------
@@ -465,17 +457,34 @@ class OpenAIMessages {
 
     // ── Codex Responses API ──
     if (request.transport === 'codex_responses') {
+      const creds = resolveCodexApiCredentials()
+      if (!creds.apiKey) throw new Error(`Codex auth required for ${request.resolvedModel}. Set CODEX_API_KEY.`)
+      if (!creds.accountId) throw new Error('Codex auth missing chatgpt_account_id.')
+
       if (params.stream) {
-        const resp = await performCodexRequest(request.resolvedModel, options?.signal)
-        if (!resp.ok) throw new Error(`Codex error ${resp.status}: ${await resp.text()}`)
-        return new OpenAIStream(codexStreamToAnthropic(resp, request.resolvedModel) as AsyncGenerator<BetaRawMessageStreamEvent>, resp)
+        const { events, response } = await performCodexRequest({
+          request,
+          credentials: creds,
+          params,
+          defaultHeaders: this.defaultHeaders,
+          signal: options?.signal,
+        })
+        return new OpenAIStream(codexStreamToAnthropic(events, request.resolvedModel) as AsyncGenerator<BetaRawMessageStreamEvent>, response)
       }
-      const resp = await performCodexRequest(request.resolvedModel, options?.signal)
-      if (!resp.ok) throw new Error(`Codex error ${resp.status}: ${await resp.text()}`)
-      const data = await resp.json()
-      const msg = toNonStreaming(data, request.resolvedModel)
+      const { events, response } = await performCodexRequest({
+        request,
+        credentials: creds,
+        params: {
+          ...params,
+          stream: true,
+        },
+        defaultHeaders: this.defaultHeaders,
+        signal: options?.signal,
+      })
+      const data = await collectCodexCompletedResponse(events)
+      const msg = convertCodexResponseToAnthropicMessage(data, request.resolvedModel) as BetaMessage
       const result = Promise.resolve(msg)
-      ;(result as any).withResponse = async () => ({ data: msg, response: resp, request_id: makeMsgId() })
+      ;(result as any).withResponse = async () => ({ data: msg, response, request_id: makeMsgId() })
       return msg
     }
 
