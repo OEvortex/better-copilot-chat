@@ -335,9 +335,24 @@ export class OpenAIHandler {
         // If application/json is returned, read body and throw Error directly, letting upper layer chat receive exception
         if (contentType?.includes('application/json')) {
             const text = await response.text();
+            // Try to extract a human-readable message from the JSON error body
+            let errorMessage = text;
+            try {
+                const parsed = JSON.parse(text);
+                const msg =
+                    parsed?.error?.message ||
+                    parsed?.message ||
+                    parsed?.error ||
+                    parsed?.detail;
+                if (msg && typeof msg === 'string') {
+                    errorMessage = msg;
+                }
+            } catch {
+                // keep raw text if not valid JSON
+            }
             // Throw Error directly (upper layer will capture and display), do not swallow or construct fake Response
             throw new Error(
-                text || `HTTP ${response.status} ${response.statusText}`
+                errorMessage || `HTTP ${response.status} ${response.statusText}`
             );
         }
         // Only process SSE responses, other types return original response

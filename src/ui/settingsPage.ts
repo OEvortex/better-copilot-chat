@@ -300,7 +300,7 @@ export class SettingsPage {
         webview: vscode.Webview
     ): Promise<void> {
         try {
-            const config = vscode.workspace.getConfiguration('chp');
+            const config = vscode.workspace.getConfiguration('aether');
             const configInspect = config.inspect<boolean>('hideThinkingInUI');
 
             if (!configInspect) {
@@ -350,7 +350,7 @@ export class SettingsPage {
         Logger.debug(
             `[SettingsPage] Found ${providerConfigs.length} providers in registry: ${providerConfigs.map((p) => p.id).join(', ')}`
         );
-        const configSection = vscode.workspace.getConfiguration('chp');
+        const configSection = vscode.workspace.getConfiguration('aether');
 
         return Promise.all(
             providerConfigs.map(async (config) => {
@@ -664,7 +664,7 @@ export class SettingsPage {
         configSection?: vscode.WorkspaceConfiguration
     ): string {
         const config =
-            configSection || vscode.workspace.getConfiguration('chp');
+            configSection || vscode.workspace.getConfiguration('aether');
         if (providerId === 'zhipu') {
             return config.get<string>('zhipu.endpoint', 'open.bigmodel.cn');
         }
@@ -705,7 +705,7 @@ export class SettingsPage {
         configSection?: vscode.WorkspaceConfiguration
     ): string {
         const config =
-            configSection || vscode.workspace.getConfiguration('chp');
+            configSection || vscode.workspace.getConfiguration('aether');
         if (providerId === 'blackbox') {
             return config.get<string>('blackbox.sdkMode', 'oai-response');
         }
@@ -737,7 +737,7 @@ export class SettingsPage {
                 throw new Error(`Unknown provider: ${providerId}`);
             }
 
-            const config = vscode.workspace.getConfiguration('chp');
+            const config = vscode.workspace.getConfiguration('aether');
 
             if (
                 provider.features.supportsApiKey &&

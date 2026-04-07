@@ -113,19 +113,22 @@ export class ResponsesHandler {
         let activityInterval: NodeJS.Timeout | undefined;
         try {
             const client = await this.createOpenAIClient(modelConfig);
+            const { instructions, input } = this.convertMessagesToResponses(
+                messages,
+                model.capabilities || undefined,
+                modelConfig
+            );
             const createParams: OpenAI.Responses.ResponseCreateParamsStreaming =
                 {
                     model: requestModel,
-                    input: this.convertMessagesToResponses(
-                        messages,
-                        model.capabilities || undefined,
-                        modelConfig
-                    ),
+                    input,
+                    instructions: instructions ?? null,
                     max_output_tokens: ConfigManager.getMaxTokensForModel(
                         model.maxOutputTokens
                     ),
                     temperature: ConfigManager.getTemperature(),
                     top_p: ConfigManager.getTopP(),
+                    store: false,
                     stream: true
                 };
 
@@ -272,15 +275,29 @@ export class ResponsesHandler {
                         }
                         case 'response.failed': {
                             finalResponse = event.response;
+                            const failErr = (
+                                event.response as {
+                                    error?: { message?: string; code?: string };
+                                }
+                            ).error;
                             streamError = new Error(
-                                'OpenAI Responses stream failed.'
+                                failErr?.message
+                                    ? `OpenAI Responses stream failed: ${failErr.message}`
+                                    : 'OpenAI Responses stream failed.'
                             );
                             break;
                         }
                         case 'response.incomplete': {
                             finalResponse = event.response;
+                            const reason = (
+                                event.response as {
+                                    incomplete_details?: { reason?: string };
+                                }
+                            ).incomplete_details?.reason;
                             streamError = new Error(
-                                'OpenAI Responses stream ended incomplete.'
+                                reason
+                                    ? `OpenAI Responses stream ended incomplete: ${reason}`
+                                    : 'OpenAI Responses stream ended incomplete.'
                             );
                             break;
                         }
@@ -376,8 +393,27 @@ export class ResponsesHandler {
                 clearInterval(activityInterval);
             }
 
+            // Extract a human-readable message from OpenAI SDK API errors
+            let displayError = error;
+            if (
+                error instanceof Error &&
+                !(error instanceof vscode.CancellationError)
+            ) {
+                const apiErr = error as Error & {
+                    error?: { message?: string };
+                    status?: number;
+                };
+                if (apiErr.error?.message) {
+                    displayError = new Error(apiErr.error.message);
+                    (displayError as Error & { status?: number }).status =
+                        apiErr.status;
+                }
+            }
+
             const message =
-                error instanceof Error ? error.message : String(error);
+                displayError instanceof Error
+                    ? displayError.message
+                    : String(displayError);
             Logger.error(`${model.name} Responses request failed: ${message}`);
 
             if (error instanceof vscode.CancellationError) {
@@ -396,7 +432,7 @@ export class ResponsesHandler {
                     : message
             });
 
-            throw error;
+            throw displayError instanceof Error ? displayError : error;
         }
     }
 
@@ -404,18 +440,40 @@ export class ResponsesHandler {
         messages: readonly vscode.LanguageModelChatMessage[],
         capabilities?: vscode.LanguageModelChatCapabilities,
         modelConfig?: ModelConfig
-    ): OpenAI.Responses.ResponseInputItem[] {
+    ): {
+        instructions: string | undefined;
+        input: OpenAI.Responses.ResponseInputItem[];
+    } {
+        const systemParts: string[] = [];
         const items: OpenAI.Responses.ResponseInputItem[] = [];
+
         for (const message of messages) {
-            items.push(
-                ...this.convertSingleMessageToResponses(
-                    message,
-                    capabilities,
-                    modelConfig
-                )
-            );
+            if (message.role === vscode.LanguageModelChatMessageRole.System) {
+                // Collect all system message text for the instructions field
+                const text = message.content
+                    .filter((p) => p instanceof vscode.LanguageModelTextPart)
+                    .map((p) => (p as vscode.LanguageModelTextPart).value)
+                    .join('\n\n')
+                    .trim();
+                if (text) {
+                    systemParts.push(text);
+                }
+            } else {
+                items.push(
+                    ...this.convertSingleMessageToResponses(
+                        message,
+                        capabilities,
+                        modelConfig
+                    )
+                );
+            }
         }
-        return ResponsesHandler.balanceToolHistory(items);
+
+        return {
+            instructions:
+                systemParts.length > 0 ? systemParts.join('\n\n') : undefined,
+            input: ResponsesHandler.balanceToolHistory(items)
+        };
     }
 
     private convertSingleMessageToResponses(
@@ -427,18 +485,11 @@ export class ResponsesHandler {
             (part) => part instanceof vscode.LanguageModelToolResultPart
         );
 
-        if (
-            message.role === vscode.LanguageModelChatMessageRole.System ||
-            message.role === vscode.LanguageModelChatMessageRole.User
-        ) {
+        if (message.role === vscode.LanguageModelChatMessageRole.User) {
             if (hasToolResult) {
                 return this.convertToolResultMessages(message);
             }
 
-            const role =
-                message.role === vscode.LanguageModelChatMessageRole.System
-                    ? 'system'
-                    : 'user';
             const content = this.buildMessageContent(message, capabilities);
             if (!content) {
                 return [];
@@ -447,7 +498,7 @@ export class ResponsesHandler {
             return [
                 {
                     type: 'message',
-                    role,
+                    role: 'user',
                     content
                 }
             ];

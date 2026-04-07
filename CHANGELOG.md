@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.9] - Unreleased
+
+### Fixed
+
+- **OpenAI Responses API (`oai-response` mode) — System Messages**: System-role messages are now correctly sent via the `instructions` parameter of the Responses API instead of being embedded as `role: "system"` items inside the `input` array. This matches the Responses API spec and improves compatibility with providers that implement it.
+
+- **OpenAI Responses API — `store: false`**: Requests through the Responses API now explicitly set `store: false` so that conversations are not stored server-side without user consent.
+
+- **OpenAI Responses API — Richer error messages**: `response.failed` and `response.incomplete` stream events now include the server's error message/reason in the thrown error, making failures easier to diagnose.
+
+- **OpenAI Responses API — SDK-level error extraction**: When the OpenAI SDK raises an `APIError` (e.g. 4xx / 5xx from the provider), the human-readable `error.message` field is now extracted and surfaced to the user instead of the raw SDK error wrapper.
+
+- **Settings page config namespace**: Fixed four calls to `vscode.workspace.getConfiguration('chp')` in `settingsPage.ts` that were reading/writing the old `chp.*` namespace instead of the migrated `aether.*` namespace. This caused settings like `sdkMode`, `hideThinkingInUI`, and API keys to be read from the wrong location on fresh installs.
+
+- **Provider error messages**: When a provider returns HTTP 200 with a JSON error body (e.g. `{"error":{"message":"upstream service error…"}}`), the readable `error.message` field is now extracted and shown to the user instead of the raw JSON string that was previously thrown by `preprocessSSEResponse`.
+
 ## [0.3.8] - Unreleased
 
 ### Added
