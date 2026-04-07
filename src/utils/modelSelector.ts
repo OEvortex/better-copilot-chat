@@ -350,7 +350,6 @@ export class ModelSelector {
             );
             return ModelSelector.parseModelId(fullId) ?? undefined;
         }
-
         return undefined;
     }
 
