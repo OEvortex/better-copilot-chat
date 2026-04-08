@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const buildEntry = join(root, 'packages', 'cli', 'dist', 'packages', 'cli', 'index.js');
+const buildEntry = join(root, 'packages', 'cli', 'dist', 'CLI', 'packages', 'cli', 'index.js');
 
 if (!existsSync(buildEntry)) {
   throw new Error(

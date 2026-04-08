@@ -110,10 +110,13 @@ describe('AuthDialog', () => {
     const frame = lastFrame();
     expect(frame).toContain('Choose Provider');
     expect(frame).toContain('Aether OAuth');
-    expect(frame).toContain('OpenAI');
-    expect(frame).toContain('Anthropic');
-    expect(frame).toContain('Gemini');
-    expect(frame).toContain('Vertex AI');
+    expect(frame).toContain('AIHubMix');
+    expect(frame).toContain('Apertis AI');
+    expect(frame).toContain('DeepSeek');
+    expect(frame).toContain('OpenCode');
+    expect(frame).not.toContain('Anthropic API key');
+    expect(frame).not.toContain('Gemini API key');
+    expect(frame).not.toContain('Google Cloud Vertex AI credentials');
   });
 
   it('shows an error if escape is pressed before selecting a provider', async () => {
