@@ -294,6 +294,9 @@ class GlobToolInvocation extends BaseToolInvocation<
       respectAetherIgnore:
         options?.respectAetherIgnore ??
         DEFAULT_FILE_FILTERING_OPTIONS.respectAetherIgnore,
+      respectQwenIgnore:
+        options?.respectQwenIgnore ??
+        DEFAULT_FILE_FILTERING_OPTIONS.respectQwenIgnore,
     };
   }
 }

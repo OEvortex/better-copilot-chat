@@ -3,12 +3,12 @@ import * as os from 'node:os';
 import type { CommandModule } from 'yargs';
 import { loadSettings } from '../../config/settings.js';
 import { writeStderrLine, writeStdoutLine } from '../../utils/stdioHelpers.js';
-import { AcpBridge, SessionRouter } from '@aether/channel-base';
+import { AcpBridge, SessionRouter } from '../../../../channels/base/src/index.js';
 import type {
   ChannelBase,
   ChannelPlugin,
   ToolCallEvent,
-} from '@aether/channel-base';
+} from '../../../../channels/base/src/index.js';
 import { getPlugin, registerPlugin } from './channel-registry.js';
 import { findCliEntryPath, parseChannelConfig } from './config-utils.js';
 import {

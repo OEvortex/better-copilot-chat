@@ -1,0 +1,171 @@
+
+> @aether/aether@0.14.1 typecheck
+> npm run typecheck --workspaces --if-present
+
+
+> @aether/aether@0.14.1 typecheck
+> tsc --noEmit
+
+src/acp-integration/acpAgent.ts(11,3): error TS2305: Module '"@aether/aether-core"' has no exported member 'clearCachedCredentialFile'.
+src/acp-integration/acpAgent.ts(13,3): error TS2305: Module '"@aether/aether-core"' has no exported member 'aetherOAuth2Event'.
+src/acp-integration/acpAgent.ts(14,3): error TS2305: Module '"@aether/aether-core"' has no exported member 'aetherOAuth2Events'.
+src/acp-integration/acpAgent.ts(20,8): error TS2305: Module '"@aether/aether-core"' has no exported member 'DeviceAuthorizationData'.
+src/commands/channel/channel-registry.ts(1,36): error TS2307: Cannot find module '@aether/channel-base' or its corresponding type declarations.
+src/commands/channel/channel-registry.ts(2,42): error TS2307: Cannot find module '@aether/channel-telegram' or its corresponding type declarations.
+src/commands/channel/channel-registry.ts(3,40): error TS2307: Cannot find module '@aether/channel-weixin' or its corresponding type declarations.
+src/commands/channel/channel-registry.ts(4,42): error TS2307: Cannot find module '@aether/channel-dingtalk' or its corresponding type declarations.
+src/commands/channel/config-utils.ts(1,36): error TS2307: Cannot find module '@aether/channel-base' or its corresponding type declarations.
+src/commands/channel/configure.ts(8,8): error TS2307: Cannot find module '@aether/channel-weixin/accounts' or its corresponding type declarations.
+src/commands/channel/configure.ts(9,42): error TS2307: Cannot find module '@aether/channel-weixin/login' or its corresponding type declarations.
+src/commands/channel/pairing.ts(2,30): error TS2307: Cannot find module '@aether/channel-base' or its corresponding type declarations.
+src/commands/channel/start.ts(6,42): error TS2307: Cannot find module '@aether/channel-base' or its corresponding type declarations.
+src/commands/channel/start.ts(11,8): error TS2307: Cannot find module '@aether/channel-base' or its corresponding type declarations.
+src/commands/channel/status.ts(7,36): error TS2307: Cannot find module '@aether/channel-base' or its corresponding type declarations.
+src/commands/extensions/consent.test.ts(213,7): error TS2820: Type '"AetherCli"' is not assignable to type 'ExtensionOriginSource'. Did you mean '"Aether"'?
+src/commands/extensions/consent.test.ts(225,9): error TS2820: Type '"AetherCli"' is not assignable to type 'ExtensionOriginSource'. Did you mean '"Aether"'?
+src/commands/extensions/consent.test.ts(239,7): error TS2820: Type '"AetherCli"' is not assignable to type 'ExtensionOriginSource'. Did you mean '"Aether"'?
+src/commands/extensions/consent.test.ts(253,7): error TS2820: Type '"AetherCli"' is not assignable to type 'ExtensionOriginSource'. Did you mean '"Aether"'?
+src/services/FileCommandLoader-extension.test.ts(9,18): error TS2307: Cannot find module 'mock-fs' or its corresponding type declarations.
+src/services/insight/generators/TemplateRenderer.ts(7,41): error TS2307: Cannot find module '@aether/web-templates' or its corresponding type declarations.
+src/ui/commands/ideCommand.ts(16,3): error TS2724: '"@aether/aether-core"' has no exported member named 'aether_cli_COMPANION_EXTENSION_NAME'. Did you mean 'AETHER_CODE_COMPANION_EXTENSION_NAME'?
+src/ui/components/AetherOAuthProgress.test.tsx(11,15): error TS2305: Module '"@aether/aether-core"' has no exported member 'DeviceAuthorizationData'.
+src/ui/components/AetherOAuthProgress.tsx(12,15): error TS2305: Module '"@aether/aether-core"' has no exported member 'DeviceAuthorizationData'.
+src/ui/components/ModelDialog.test.tsx(15,20): error TS2305: Module '"@aether/aether-core"' has no exported member 'DEFAULT_QWEN_MODEL'.
+src/ui/components/subagents/create/AgentCreationWizard.tsx(60,38): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/create/AgentCreationWizard.tsx(90,38): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/create/AgentCreationWizard.tsx(121,32): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/create/AgentCreationWizard.tsx(126,38): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/create/AgentCreationWizard.tsx(131,29): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/create/AgentCreationWizard.tsx(136,44): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/create/AgentCreationWizard.tsx(160,52): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/create/AgentCreationWizard.tsx(163,36): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/create/GenerationMethodSelector.tsx(56,40): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/reducers.tsx(42,40): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/reducers.tsx(57,9): error TS2561: Object literal may only specify known properties, but 'generationMethod' does not exist in type 'CreationWizardState'. Did you mean to write 'generationmethod'?
+src/ui/components/subagents/reducers.tsx(130,49): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/components/subagents/reducers.tsx(164,34): error TS2551: Property 'generationMethod' does not exist on type 'CreationWizardState'. Did you mean 'generationmethod'?
+src/ui/hooks/atCommandProcessor.ts(206,9): error TS2353: Object literal may only specify known properties, and 'respectQwenIgnore' does not exist in type 'FilterFilesOptions'.
+src/ui/hooks/atCommandProcessor.ts(209,25): error TS2339: Property 'respectQwenIgnore' does not exist on type 'FileFilteringOptions'.
+src/ui/hooks/atCommandProcessor.ts(212,9): error TS2353: Object literal may only specify known properties, and 'respectQwenIgnore' does not exist in type 'FilterFilesOptions'.
+src/ui/hooks/useAetherAuth.test.ts(9,15): error TS2305: Module '"@aether/aether-core"' has no exported member 'DeviceAuthorizationData'.
+src/ui/hooks/useAetherAuth.test.ts(13,3): error TS2305: Module '"@aether/aether-core"' has no exported member 'aetherOAuth2Events'.
+src/ui/hooks/useAetherAuth.test.ts(14,3): error TS2305: Module '"@aether/aether-core"' has no exported member 'aetherOAuth2Event'.
+src/ui/hooks/useAetherAuth.test.ts(96,51): error TS7006: Parameter 'event' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(96,58): error TS7006: Parameter 'handler' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(119,51): error TS7006: Parameter 'event' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(119,58): error TS7006: Parameter 'handler' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(144,51): error TS7006: Parameter 'event' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(144,58): error TS7006: Parameter 'handler' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(169,51): error TS7006: Parameter 'event' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(169,58): error TS7006: Parameter 'handler' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(194,51): error TS7006: Parameter 'event' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(194,58): error TS7006: Parameter 'handler' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(222,51): error TS7006: Parameter 'event' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(222,58): error TS7006: Parameter 'handler' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(304,51): error TS7006: Parameter 'event' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(304,58): error TS7006: Parameter 'handler' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(341,51): error TS7006: Parameter 'event' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(341,58): error TS7006: Parameter 'handler' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(373,51): error TS7006: Parameter 'event' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.test.ts(373,58): error TS7006: Parameter 'handler' implicitly has an 'any' type.
+src/ui/hooks/useAetherAuth.ts(10,3): error TS2305: Module '"@aether/aether-core"' has no exported member 'aetherOAuth2Events'.
+src/ui/hooks/useAetherAuth.ts(11,3): error TS2305: Module '"@aether/aether-core"' has no exported member 'aetherOAuth2Event'.
+src/ui/hooks/useAetherAuth.ts(12,8): error TS2305: Module '"@aether/aether-core"' has no exported member 'DeviceAuthorizationData'.
+src/ui/hooks/useAtCompletion.ts(164,48): error TS2339: Property 'respectQwenIgnore' does not exist on type 'FileFilteringOptions'.
+src/ui/hooks/useGitBranchName.test.ts(12,25): error TS2307: Cannot find module 'memfs' or its corresponding type declarations.
+src/ui/hooks/useGitBranchName.test.ts(29,53): error TS2307: Cannot find module 'memfs' or its corresponding type declarations.
+src/ui/hooks/useGitBranchName.test.ts(37,53): error TS2307: Cannot find module 'memfs' or its corresponding type declarations.
+src/ui/utils/export/formatters/html.ts(8,55): error TS2307: Cannot find module '@aether/web-templates' or its corresponding type declarations.
+src/utils/systemInfo.ts(14,33): error TS2307: Cannot find module '../generated/git-commit.js' or its corresponding type declarations.
+npm error Lifecycle script `typecheck` failed with error:
+npm error code 1
+npm error path C:\Users\koula\Desktop\CODEBASE\Projects\OEvortex\copilot-helper\src\CLI\packages\cli
+npm error workspace @aether/aether@0.14.1
+npm error location C:\Users\koula\Desktop\CODEBASE\Projects\OEvortex\copilot-helper\src\CLI\packages\cli
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc --noEmit
+
+
+> @aether/aether-core@0.14.1 typecheck
+> tsc --noEmit
+
+src/core/contentGenerator.ts(316,7): error TS2307: Cannot find module '../aether/aetherOAuth2.js' or its corresponding type declarations.
+src/core/contentGenerator.ts(319,7): error TS2307: Cannot find module '../aether/aetherContentGenerator.js' or its corresponding type declarations.
+src/index.ts(259,15): error TS2307: Cannot find module './aether/aetherOAuth2.js' or its corresponding type declarations.
+src/lsp/LspConfigLoader.test.ts(8,18): error TS2307: Cannot find module 'mock-fs' or its corresponding type declarations.
+src/qwen/aetherContentGenerator.test.ts(20,36): error TS2307: Cannot find module './sharedTokenManager.js' or its corresponding type declarations.
+src/qwen/aetherContentGenerator.ts(10,36): error TS2307: Cannot find module './sharedTokenManager.js' or its corresponding type declarations.
+src/qwen/aetherOAuth2.test.ts(31,8): error TS2307: Cannot find module './sharedTokenManager.js' or its corresponding type declarations.
+src/qwen/aetherOAuth2.ts(22,8): error TS2307: Cannot find module './sharedTokenManager.js' or its corresponding type declarations.
+src/qwen/aetherOAuth2.ts(505,15): error TS18046: 'error' is of type 'unknown'.
+src/qwen/aetherSharedTokenManager.test.ts(17,8): error TS2307: Cannot find module './sharedTokenManager.js' or its corresponding type declarations.
+src/services/sessionService.test.ts(139,38): error TS2345: Argument of type 'Dirent<Buffer<ArrayBufferLike>>[]' is not assignable to parameter of type 'Dirent<NonSharedBuffer>[]'.
+  Type 'Dirent<Buffer<ArrayBufferLike>>' is not assignable to type 'Dirent<NonSharedBuffer>'.
+    Type 'Buffer<ArrayBufferLike>' is not assignable to type 'NonSharedBuffer'.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+src/services/sessionService.test.ts(172,38): error TS2345: Argument of type 'Dirent<Buffer<ArrayBufferLike>>[]' is not assignable to parameter of type 'Dirent<NonSharedBuffer>[]'.
+  Type 'Dirent<Buffer<ArrayBufferLike>>' is not assignable to type 'Dirent<NonSharedBuffer>'.
+    Type 'Buffer<ArrayBufferLike>' is not assignable to type 'NonSharedBuffer'.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+src/services/sessionService.test.ts(196,38): error TS2345: Argument of type 'Dirent<Buffer<ArrayBufferLike>>[]' is not assignable to parameter of type 'Dirent<NonSharedBuffer>[]'.
+  Type 'Dirent<Buffer<ArrayBufferLike>>' is not assignable to type 'Dirent<NonSharedBuffer>'.
+    Type 'Buffer<ArrayBufferLike>' is not assignable to type 'NonSharedBuffer'.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+src/services/sessionService.test.ts(214,38): error TS2345: Argument of type 'Dirent<Buffer<ArrayBufferLike>>[]' is not assignable to parameter of type 'Dirent<NonSharedBuffer>[]'.
+  Type 'Dirent<Buffer<ArrayBufferLike>>' is not assignable to type 'Dirent<NonSharedBuffer>'.
+    Type 'Buffer<ArrayBufferLike>' is not assignable to type 'NonSharedBuffer'.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+src/services/sessionService.test.ts(257,38): error TS2345: Argument of type 'Dirent<Buffer<ArrayBufferLike>>[]' is not assignable to parameter of type 'Dirent<NonSharedBuffer>[]'.
+  Type 'Dirent<Buffer<ArrayBufferLike>>' is not assignable to type 'Dirent<NonSharedBuffer>'.
+    Type 'Buffer<ArrayBufferLike>' is not assignable to type 'NonSharedBuffer'.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+src/services/sessionService.test.ts(285,38): error TS2345: Argument of type 'Dirent<Buffer<ArrayBufferLike>>[]' is not assignable to parameter of type 'Dirent<NonSharedBuffer>[]'.
+  Type 'Dirent<Buffer<ArrayBufferLike>>' is not assignable to type 'Dirent<NonSharedBuffer>'.
+    Type 'Buffer<ArrayBufferLike>' is not assignable to type 'NonSharedBuffer'.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+src/services/sessionService.test.ts(311,38): error TS2345: Argument of type 'Dirent<Buffer<ArrayBufferLike>>[]' is not assignable to parameter of type 'Dirent<NonSharedBuffer>[]'.
+  Type 'Dirent<Buffer<ArrayBufferLike>>' is not assignable to type 'Dirent<NonSharedBuffer>'.
+    Type 'Buffer<ArrayBufferLike>' is not assignable to type 'NonSharedBuffer'.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+src/services/sessionService.test.ts(559,38): error TS2345: Argument of type 'Dirent<Buffer<ArrayBufferLike>>[]' is not assignable to parameter of type 'Dirent<NonSharedBuffer>[]'.
+  Type 'Dirent<Buffer<ArrayBufferLike>>' is not assignable to type 'Dirent<NonSharedBuffer>'.
+    Type 'Buffer<ArrayBufferLike>' is not assignable to type 'NonSharedBuffer'.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+src/tools/web-search/providers/dashscope-provider.ts(16,40): error TS2307: Cannot find module '../../../aether/aetherOAuth2.js' or its corresponding type declarations.
+src/utils/filesearch/crawler.test.ts(12,45): error TS2307: Cannot find module '@aether/aether-test-utils' or its corresponding type declarations.
+src/utils/filesearch/fileSearch.test.ts(9,45): error TS2307: Cannot find module '@aether/aether-test-utils' or its corresponding type declarations.
+src/utils/filesearch/ignore.test.ts(9,45): error TS2307: Cannot find module '@aether/aether-test-utils' or its corresponding type declarations.
+src/utils/openaiLogger.ts(9,30): error TS7016: Could not find a declaration file for module 'uuid'. 'C:/Users/koula/Desktop/CODEBASE/Projects/OEvortex/copilot-helper/src/CLI/node_modules/uuid/wrapper.mjs' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`
+src/utils/pathReader.test.ts(8,18): error TS2307: Cannot find module 'mock-fs' or its corresponding type declarations.
+npm error Lifecycle script `typecheck` failed with error:
+npm error code 1
+npm error path C:\Users\koula\Desktop\CODEBASE\Projects\OEvortex\copilot-helper\src\CLI\packages\core
+npm error workspace @aether/aether-core@0.14.1
+npm error location C:\Users\koula\Desktop\CODEBASE\Projects\OEvortex\copilot-helper\src\CLI\packages\core
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc --noEmit

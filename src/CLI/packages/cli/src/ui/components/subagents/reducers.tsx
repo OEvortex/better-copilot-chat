@@ -14,7 +14,7 @@ import { getStepKind, getTotalSteps } from './utils.js';
 export const initialWizardState: CreationWizardState = {
   currentStep: WIZARD_STEPS.LOCATION_SELECTION,
   location: 'project',
-  generationmethod: 'aether',
+  generationMethod: 'aether',
   userDescription: '',
   generatedSystemPrompt: '',
   generatedDescription: '',

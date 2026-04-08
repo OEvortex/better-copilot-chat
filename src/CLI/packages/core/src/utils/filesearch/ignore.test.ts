@@ -6,7 +6,7 @@
 
 import { describe, it, expect, afterEach } from 'vitest';
 import { Ignore, loadIgnoreRules } from './ignore.js';
-import { createTmpDir, cleanupTmpDir } from '@aether/aether-test-utils';
+import { createTmpDir, cleanupTmpDir } from '../../aetherTestUtils.js';
 
 describe('Ignore', () => {
   describe('getDirectoryFilter', () => {

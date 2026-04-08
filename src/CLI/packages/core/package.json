@@ -7,7 +7,8 @@
     "url": "git+https://github.com/OEvortex/copilot-helper.git"
   },
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/CLI/packages/core/index.js",
+  "types": "dist/CLI/packages/core/index.d.ts",
   "scripts": {
     "build": "node ../../scripts/build_package.js",
     "lint": "eslint . --ext .ts,.tsx",

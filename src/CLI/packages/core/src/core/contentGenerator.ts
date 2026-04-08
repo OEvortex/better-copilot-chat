@@ -313,10 +313,10 @@ export async function createContentGenerator(
     baseGenerator = createOpenAIContentGenerator(generatorConfig, config);
   } else if (authType === AuthType.AETHER_OAUTH) {
     const { getaetherOAuthClient: getAetherOauthClient } = await import(
-      '../aether/aetherOAuth2.js'
+      '../qwen/aetherOAuth2.js'
     );
     const { AetherContentGenerator } = await import(
-      '../aether/aetherContentGenerator.js'
+      '../qwen/aetherContentGenerator.js'
     );
 
     try {

@@ -358,6 +358,7 @@ export interface ConfigParameters {
   fileFiltering?: {
     respectGitIgnore?: boolean;
     respectAetherIgnore?: boolean;
+    respectQwenIgnore?: boolean;
     enableRecursiveFileSearch?: boolean;
     enableFuzzySearch?: boolean;
   };
@@ -539,6 +540,7 @@ export class Config {
   private readonly fileFiltering: {
     respectGitIgnore: boolean;
     respectAetherIgnore: boolean;
+    respectQwenIgnore: boolean;
     enableRecursiveFileSearch: boolean;
     enableFuzzySearch: boolean;
   };
@@ -673,6 +675,7 @@ export class Config {
     this.fileFiltering = {
       respectGitIgnore: params.fileFiltering?.respectGitIgnore ?? true,
       respectAetherIgnore: params.fileFiltering?.respectAetherIgnore ?? true,
+      respectQwenIgnore: params.fileFiltering?.respectQwenIgnore ?? true,
       enableRecursiveFileSearch:
         params.fileFiltering?.enableRecursiveFileSearch ?? true,
       enableFuzzySearch: params.fileFiltering?.enableFuzzySearch ?? true,
@@ -1727,6 +1730,7 @@ export class Config {
     return {
       respectGitIgnore: this.fileFiltering.respectGitIgnore,
       respectAetherIgnore: this.fileFiltering.respectAetherIgnore,
+      respectQwenIgnore: this.fileFiltering.respectQwenIgnore,
     };
   }
 

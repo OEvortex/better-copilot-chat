@@ -1,4 +1,4 @@
-﻿import type { ChannelConfig } from '@aether/channel-base';
+﻿import type { ChannelConfig } from '../../../../channels/base/src/index.js';
 import * as path from 'node:path';
 import { getPlugin, supportedTypes } from './channel-registry.js';
 

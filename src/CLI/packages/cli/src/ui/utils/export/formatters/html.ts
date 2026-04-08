@@ -5,7 +5,7 @@
  */
 
 import type { ExportSessionData } from '../types.js';
-import { EXPORT_HTML_TEMPLATE as HTML_TEMPLATE } from '@aether/web-templates';
+import { EXPORT_HTML_TEMPLATE as HTML_TEMPLATE } from '../../../../web-templates.js';
 
 /**
  * Escapes JSON for safe embedding in HTML.

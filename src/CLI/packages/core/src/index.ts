@@ -22,6 +22,7 @@ export {
   DEFAULT_AETHER_EMBEDDING_MODEL,
   MAINLINE_CODER_MODEL,
 } from './config/models.js';
+export { DEFAULT_AETHER_MODEL as DEFAULT_QWEN_MODEL } from './config/models.js';
 export {
   type AvailableModel,
   type ModelCapabilities,
@@ -123,6 +124,7 @@ export * from './ide/ideContext.js';
 export * from './ide/ide-installer.js';
 export { IDE_DEFINITIONS, type IdeInfo } from './ide/detect-ide.js';
 export * from './ide/constants.js';
+export { AETHER_CODE_COMPANION_EXTENSION_NAME as aether_cli_COMPANION_EXTENSION_NAME } from './ide/constants.js';
 export * from './ide/types.js';
 
 // ============================================================================
@@ -256,7 +258,8 @@ export * from './utils/yaml-parser.js';
 // OAuth & Authentication
 // ============================================================================
 
-export * from './aether/aetherOAuth2.js';
+export * from './qwen/aetherOAuth2.js';
+export { AetherOAuth2Event as aetherOAuth2Event } from './qwen/aetherOAuth2.js';
 
 // ============================================================================
 // Testing Utilities

@@ -17,7 +17,7 @@ export interface CreationWizardState {
   location: SubagentLevel;
 
   /** Generation method selection */
-  generationmethod: 'aether' | 'manual';
+  generationMethod: 'aether' | 'manual';
 
   /** User's description input for the subagent */
   userDescription: string;

@@ -1,7 +1,7 @@
-﻿import type { ChannelPlugin } from '@aether/channel-base';
-import { plugin as telegramPlugin } from '@aether/channel-telegram';
-import { plugin as weixinPlugin } from '@aether/channel-weixin';
-import { plugin as dingtalkPlugin } from '@aether/channel-dingtalk';
+﻿import type { ChannelPlugin } from '../../../../channels/base/src/index.js';
+import { plugin as telegramPlugin } from '../../../../channels/telegram/src/index.js';
+import { plugin as weixinPlugin } from '../../../../channels/weixin/src/index.js';
+import { plugin as dingtalkPlugin } from '../../../../channels/dingtalk/src/index.js';
 
 const registry = new Map<string, ChannelPlugin>();
 

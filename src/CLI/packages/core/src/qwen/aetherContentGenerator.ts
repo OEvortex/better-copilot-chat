@@ -7,7 +7,7 @@
 import { OpenAIContentGenerator } from '../core/openaiContentGenerator/index.js';
 import { DashScopeOpenAICompatibleProvider } from '../core/openaiContentGenerator/provider/dashscope.js';
 import type { IAetherOAuth2Client } from './aetherOAuth2.js';
-import { SharedTokenManager } from './sharedTokenManager.js';
+import { SharedTokenManager } from './aetherSharedTokenManager.js';
 import { type Config } from '../config/config.js';
 import type {
   GenerateContentParameters,

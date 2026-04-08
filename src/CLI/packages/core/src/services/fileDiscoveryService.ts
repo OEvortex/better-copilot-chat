@@ -14,6 +14,7 @@ import * as path from 'node:path';
 export interface FilterFilesOptions {
   respectGitIgnore?: boolean;
   respectAetherIgnore?: boolean;
+  respectQwenIgnore?: boolean;
 }
 
 export interface FilterReport {
@@ -122,12 +123,16 @@ export class FileDiscoveryService {
     const {
       respectGitIgnore = true,
       respectAetherIgnore: respectAetherIgnore = true,
+      respectQwenIgnore: respectQwenIgnore = true,
     } = options;
 
     if (respectGitIgnore && this.shouldGitIgnoreFile(filePath)) {
       return true;
     }
-    if (respectAetherIgnore && this.shouldAetherIgnoreFile(filePath)) {
+    if (
+      (respectAetherIgnore || respectQwenIgnore) &&
+      this.shouldAetherIgnoreFile(filePath)
+    ) {
       return true;
     }
     return false;

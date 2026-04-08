@@ -1,7 +1,18 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "rootDir": "../..",
     "outDir": "dist",
+    "paths": {
+      "@aether/aether-core": ["../core/src/index.ts"],
+      "@aether/aether-test-utils": ["../core/src/aetherTestUtils.ts"],
+      "@aether/channel-base": ["../channels/base/src/index.ts"],
+      "@aether/channel-telegram": ["../channels/telegram/src/index.ts"],
+      "@aether/channel-weixin": ["../channels/weixin/src/index.ts"],
+      "@aether/channel-weixin/*": ["../channels/weixin/src/*"],
+      "@aether/channel-dingtalk": ["../channels/dingtalk/src/index.ts"],
+      "@aether/channel-dingtalk/*": ["../channels/dingtalk/src/*"]
+    },
     "jsx": "react-jsx",
     "lib": ["DOM", "DOM.Iterable", "ES2023"],
     "types": ["node", "vitest/globals"]
@@ -11,13 +22,25 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.json",
-    "./package.json",
-    "../core/src/utils/toml-to-markdown-converter.test.ts",
-    "../core/src/utils/toml-to-markdown-converter.ts"
+    "../core/src/**/*.ts",
+    "../channels/**/*.ts",
+    "./package.json"
   ],
   "exclude": [
     "node_modules",
     "dist",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "../core/src/**/*.test.ts",
+    "../core/src/**/*.test.tsx",
+    "../core/src/**/*.spec.ts",
+    "../core/src/**/*.spec.tsx",
+    "../channels/**/*.test.ts",
+    "../channels/**/*.test.tsx",
+    "../channels/**/*.spec.ts",
+    "../channels/**/*.spec.tsx",
     // TODO(5691): Fix type errors and remove excludes.
     "src/commands/mcp.test.ts",
     "src/commands/mcp/add.test.ts",
@@ -85,11 +108,5 @@
     "src/services/prompt-processors/shellProcessor.test.ts",
     "src/commands/extensions/examples/**"
   ],
-  "references": [
-    { "path": "../core" },
-    { "path": "../channels/base" },
-    { "path": "../channels/telegram" },
-    { "path": "../channels/weixin" },
-    { "path": "../channels/dingtalk" }
-  ]
+  "references": []
 }

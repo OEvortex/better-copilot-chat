@@ -6,12 +6,7 @@
   },
   "type": "module",
   "workspaces": [
-    "packages/*",
-    "packages/channels/base",
-    "packages/channels/telegram",
-    "packages/channels/weixin",
-    "packages/channels/dingtalk",
-    "packages/channels/plugin-example"
+    "packages/*"
   ],
   "repository": {
     "type": "git",

@@ -19,7 +19,7 @@ import {
   SharedTokenManager,
   TokenManagerError,
   TokenError,
-} from './sharedTokenManager.js';
+} from './aetherSharedTokenManager.js';
 
 const debugLogger = createDebugLogger('AETHER_OAUTH');
 
@@ -468,6 +468,8 @@ export enum AetherOAuth2Event {
   AuthProgress = 'auth-progress',
   AuthCancel = 'auth-cancel',
 }
+
+export const aetherOAuth2Event = AetherOAuth2Event;
 
 /**
  * Authentication result types to distinguish different failure reasons

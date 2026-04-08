@@ -284,6 +284,7 @@ ${testRootDir}${path.sep}
         fileFilteringOptions: {
           respectAetherIgnore: false,
           respectGitIgnore: false,
+          respectQwenIgnore: false,
         },
       });
 
@@ -330,6 +331,7 @@ ${testRootDir}${path.sep}
         fileFilteringOptions: {
           respectAetherIgnore: false,
           respectGitIgnore: true, // Explicitly disable gemini ignore only
+          respectQwenIgnore: false,
         },
       });
       expect(structure).toContain('ignored.txt');

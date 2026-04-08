@@ -1,0 +1,12 @@
+
+> @aether/aether@0.14.1 typecheck
+> npm run typecheck --workspaces --if-present
+
+
+> @aether/aether@0.14.1 typecheck
+> tsc --noEmit
+
+
+> @aether/aether-core@0.14.1 typecheck
+> tsc --noEmit
+

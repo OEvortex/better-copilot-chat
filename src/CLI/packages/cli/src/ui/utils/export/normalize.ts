@@ -228,10 +228,12 @@ function resolveToolMetadata(
     try {
       const invocation = tool.build(args);
       title = `${title}: ${invocation.getDescription()}`;
-      locations = invocation.toolLocations().map((loc) => ({
-        path: loc.path,
-        line: loc.line ?? null,
-      }));
+      locations = invocation.toolLocations().map(
+        (loc: { path: string; line?: number | null }) => ({
+          path: loc.path,
+          line: loc.line ?? null,
+        }),
+      );
     } catch {
       // Keep defaults on build failure
     }

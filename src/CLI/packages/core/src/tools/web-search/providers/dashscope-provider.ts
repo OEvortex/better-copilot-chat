@@ -13,7 +13,7 @@ import type {
   WebSearchResultItem,
   DashScopeProviderConfig,
 } from '../types.js';
-import type { AetherCredentials } from '../../../aether/aetherOAuth2.js';
+import type { AetherCredentials } from '../../../qwen/aetherOAuth2.js';
 
 interface DashScopeSearchItem {
   _id: string;

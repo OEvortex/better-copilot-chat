@@ -5,8 +5,8 @@ import {
   saveAccount,
   clearAccount,
   DEFAULT_BASE_URL,
-} from '@aether/channel-weixin/accounts';
-import { startLogin, waitForLogin } from '@aether/channel-weixin/login';
+} from '../../../../channels/weixin/src/accounts.js';
+import { startLogin, waitForLogin } from '../../../../channels/weixin/src/login.js';
 
 export const configureWeixinCommand: CommandModule<
   object,
