@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 Qwen
+ * Copyright 2026 OEvortex
  * SPDX-License-Identifier: Apache-2.0
  */
 

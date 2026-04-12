@@ -2,6 +2,13 @@
 
 All notable changes to the Aether CLI will be documented in this file.
 
+## [0.0.3] - 2026-04-12
+
+### Changed
+- Updated copyright headers to 2026 OEvortex
+- Added fuzzy matching search to model dialog
+- Fixed API key display in model dialog to show provider API key status
+
 ## [0.0.2] - 2025-04-12
 
 ### Changed
