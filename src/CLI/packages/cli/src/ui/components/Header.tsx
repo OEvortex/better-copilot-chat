@@ -30,6 +30,7 @@ interface HeaderProps {
   authDisplayType?: AuthDisplayType;
   model: string;
   workingDirectory: string;
+    provider?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -38,6 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
   authDisplayType,
   model,
   workingDirectory,
+    provider
 }) => {
   const { columns: terminalWidth } = useTerminalSize();
 
@@ -81,7 +83,10 @@ export const Header: React.FC<HeaderProps> = ({
     0,
     availableInfoPanelWidth - infoPanelChromeWidth,
   );
-  const authModelText = `${formattedAuthType} | ${model}`;
+
+    // Compose provider display
+    const providerText = provider ? ` | ${provider}` : '';
+    const authModelText = `${formattedAuthType} | ${model}${providerText}`;
   const modelHintText = ' (/model to change)';
   const showModelHint =
     infoPanelContentWidth > 0 &&

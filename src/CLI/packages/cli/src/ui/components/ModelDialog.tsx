@@ -149,7 +149,14 @@ export function ModelDialog({
       return [];
     }
 
-    const models = config.getAvailableModelsForAuthType(authType);
+      // Defensive: ensure all models have provider property
+      const models = config.getAvailableModelsForAuthType(authType).map((model) => {
+          if (!model.provider && selectedProvider) {
+              return { ...model, provider: selectedProvider };
+          }
+          return model;
+      });
+
     if (!selectedProvider) {
       return models;
     }

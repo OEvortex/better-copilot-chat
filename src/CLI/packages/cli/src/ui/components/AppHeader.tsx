@@ -12,6 +12,7 @@ import { useSettings } from '../contexts/SettingsContext.js';
 import { useConfig } from '../contexts/ConfigContext.js';
 import { useUIState } from '../contexts/UIStateContext.js';
 import { isCodingPlanConfig } from '../../constants/codingPlan.js';
+import { KnownProviders } from '../../../../../../utils/knownProvidersData.js';
 
 interface AppHeaderProps {
   version: string;
@@ -54,6 +55,13 @@ export const AppHeader = ({ version }: AppHeaderProps) => {
   const showBanner = !config.getScreenReader();
   const showTips = !(settings.merged.ui?.hideTips || config.getScreenReader());
 
+
+    // Get selected provider from settings and map to display name
+    const selectedProviderId = settings.merged?.security?.auth?.selectedProvider;
+    const selectedProviderDisplayName = selectedProviderId && KnownProviders[selectedProviderId]?.displayName
+        ? KnownProviders[selectedProviderId].displayName
+        : selectedProviderId;
+
   const authDisplayType = getAuthDisplayType(
     authType,
     contentGeneratorConfig?.baseUrl,
@@ -68,6 +76,7 @@ export const AppHeader = ({ version }: AppHeaderProps) => {
           authDisplayType={authDisplayType}
           model={model}
           workingDirectory={targetDir}
+                  provider={selectedProviderDisplayName}
         />
       )}
       {showTips && <Tips />}
