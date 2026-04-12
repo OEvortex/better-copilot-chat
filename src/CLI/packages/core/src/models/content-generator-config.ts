@@ -18,7 +18,6 @@ import {
   type ContentGeneratorConfig,
 } from '../core/contentGenerator.js';
 import {
-  AUTH_ENV_MAPPINGS,
   MODEL_GENERATION_CONFIG_FIELDS,
 } from './constants.js';
 import type { ResolvedModelConfig } from './types.js';
@@ -114,7 +113,6 @@ function applyResolvedModelConfig(
   if (resolvedModel.envKey) {
     targetConfig.apiKey =
       authOverrides.apiKey ??
-      process.env[resolvedModel.envKey] ??
       (sameProvider ? parentConfig.apiKey : undefined);
     targetConfig.apiKeyEnvKey = resolvedModel.envKey;
   } else {
@@ -143,7 +141,8 @@ function applyResolvedModelConfig(
 
 /**
  * Resolve a credential field (apiKey or baseUrl) with the following
- * priority: explicit override → same-provider parent value → env var.
+ * priority: explicit override → same-provider parent value.
+ * Note: Environment variables are no longer used - credentials must come from settings.
  */
 export function resolveCredentialField(
   explicitValue: string | undefined,
@@ -153,14 +152,5 @@ export function resolveCredentialField(
 ): string | undefined {
   if (explicitValue) return explicitValue;
   if (inheritedValue) return inheritedValue;
-
-  const envMapping =
-    AUTH_ENV_MAPPINGS[authType as keyof typeof AUTH_ENV_MAPPINGS];
-  if (!envMapping) return undefined;
-
-  for (const envKey of envMapping[field]) {
-    const value = process.env[envKey];
-    if (value) return value;
-  }
   return undefined;
 }

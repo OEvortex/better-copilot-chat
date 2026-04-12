@@ -10,7 +10,6 @@ import type {
   TelemetrySettings,
   AuthType,
   ChatCompressionSettings,
-  ModelProvidersConfig,
 } from '@aether/aether-core';
 import {
   ApprovalMode,
@@ -214,18 +213,6 @@ const SETTINGS_SCHEMA = {
     mergeStrategy: MergeStrategy.SHALLOW_MERGE,
   },
 
-  // Legacy runtime model provider configuration grouped by authType.
-  // Kept for compatibility with existing auth/model resolution code.
-  modelProviders: {
-    type: 'object',
-    label: 'Model Providers',
-    category: 'Model',
-    requiresRestart: false,
-    default: {} as ModelProvidersConfig,
-    description:
-      'Legacy runtime model-provider registry keyed by auth type. Each entry stores the model config array used by auth and model resolution.',
-    showInDialog: false,
-  },
 
   // Coding Plan configuration
   codingPlan: {

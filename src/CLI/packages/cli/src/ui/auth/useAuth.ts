@@ -20,10 +20,10 @@ import { useCallback, useEffect, useState } from 'react';
 import type { LoadedSettings } from '../../config/settings.js';
 import { getPersistScopeForModelSelection } from '../../config/modelProvidersScope.js';
 import {
-  buildProviderModelProvidersConfig,
+  buildModelProvidersConfigFromProviderRegistry,
   buildStoredProviderConfig,
-  getProviderAuthType,
   shouldPromptForProviderApiKey,
+  type StoredProviderConfig,
 } from './providerSelection.js';
 // OpenAICredentials type (previously imported from OpenAIKeyPrompt)
 export interface OpenAICredentials {
@@ -128,16 +128,6 @@ export const useAuthCommand = (
             credentials.providerId,
           );
 
-          const providerModelProviders =
-            buildProviderModelProvidersConfig(credentials.providerId);
-          if (providerModelProviders) {
-            settings.setValue(
-              authTypeScope,
-              `modelProviders.${getProviderAuthType(credentials.providerId)}`,
-              providerModelProviders[getProviderAuthType(credentials.providerId)],
-            );
-          }
-
           const storedProvider = buildStoredProviderConfig(
             credentials.providerId,
             credentials.apiKey,
@@ -232,9 +222,11 @@ export const useAuthCommand = (
         return false;
       }
 
-      const modelProviders = settings.merged.modelProviders as
-        | ModelProvidersConfig
-        | undefined;
+      const modelProviders = buildModelProvidersConfigFromProviderRegistry(
+        settings.merged.providers as
+          | Record<string, StoredProviderConfig | undefined>
+          | undefined,
+      );
       if (!modelProviders) {
         return false;
       }
@@ -271,30 +263,16 @@ export const useAuthCommand = (
         }
 
         const authTypeScope = getPersistScopeForModelSelection(settings);
-        const providerModelProviders =
-          buildProviderModelProvidersConfig(credentials.providerId);
         const storedProvider = buildStoredProviderConfig(
           credentials.providerId,
           credentials.apiKey,
           credentials.baseUrl,
         );
-        const updatedModelProviders: ModelProvidersConfig = {
-          ...(settings.merged.modelProviders as ModelProvidersConfig | undefined),
-        };
         settings.setValue(
           authTypeScope,
           'security.auth.selectedProvider',
           credentials.providerId,
         );
-        if (providerModelProviders) {
-          updatedModelProviders[authType] =
-            providerModelProviders[authType] ?? [];
-          settings.setValue(
-            authTypeScope,
-            `modelProviders.${authType}`,
-            updatedModelProviders[authType],
-          );
-        }
         if (storedProvider) {
           settings.setValue(
             authTypeScope,
@@ -302,7 +280,11 @@ export const useAuthCommand = (
             storedProvider,
           );
         }
-        config.reloadModelProvidersConfig(updatedModelProviders);
+        config.reloadModelProvidersConfig(
+          buildModelProvidersConfigFromProviderRegistry(
+            settings.merged.providers as any,
+          ),
+        );
       }
 
       if (
@@ -408,26 +390,26 @@ export const useAuthCommand = (
           }),
         );
 
-        // Get existing configs
+        // Get existing configs from providers
+        const providers = settings.merged.providers as
+          | Record<string, unknown>
+          | undefined;
+        const modelProvidersConfig = buildModelProvidersConfigFromProviderRegistry(
+          providers as any,
+        );
         const existingConfigs =
-          (
-            settings.merged.modelProviders as ModelProvidersConfig | undefined
-          )?.[AuthType.USE_OPENAI] || [];
+          modelProvidersConfig?.[AuthType.USE_OPENAI] || [];
 
         // Filter out all existing Coding Plan configs (mutually exclusive)
         const nonCodingPlanConfigs = existingConfigs.filter(
-          (existing) => !isCodingPlanConfig(existing.baseUrl, existing.envKey),
+          (existing: ProviderModelConfig) => !isCodingPlanConfig(existing.baseUrl, existing.envKey),
         );
 
         // Add new Coding Plan configs at the beginning
         const updatedConfigs = [...newConfigs, ...nonCodingPlanConfigs];
 
-        // Persist to modelProviders
-        settings.setValue(
-          persistScope,
-          `modelProviders.${AuthType.USE_OPENAI}`,
-          updatedConfigs,
-        );
+        // Note: We don't persist to modelProviders anymore
+        // The Coding Plan configs are managed via the providers system
 
         // Also persist authType
         settings.setValue(
@@ -450,9 +432,7 @@ export const useAuthCommand = (
         // Hot-reload model providers configuration before refreshAuth
         // This ensures ModelsConfig has the latest configuration from settings.json
         const updatedModelProviders: ModelProvidersConfig = {
-          ...(settings.merged.modelProviders as
-            | ModelProvidersConfig
-            | undefined),
+          ...(modelProvidersConfig as ModelProvidersConfig | undefined),
           [AuthType.USE_OPENAI]: updatedConfigs,
         };
         config.reloadModelProvidersConfig(updatedModelProviders);
@@ -554,13 +534,18 @@ export const useAuthCommand = (
           envKey: DASHSCOPE_STANDARD_API_KEY_ENV_KEY,
         }));
 
+        // Get existing configs from providers
+        const providers = settings.merged.providers as
+          | Record<string, unknown>
+          | undefined;
+        const modelProvidersConfig = buildModelProvidersConfigFromProviderRegistry(
+          providers as any,
+        );
         const existingConfigs =
-          (
-            settings.merged.modelProviders as ModelProvidersConfig | undefined
-          )?.[AuthType.USE_OPENAI] || [];
+          modelProvidersConfig?.[AuthType.USE_OPENAI] || [];
 
         const nonAlibabaStandardConfigs = existingConfigs.filter(
-          (existing) =>
+          (existing: ProviderModelConfig) =>
             !(
               existing.envKey === DASHSCOPE_STANDARD_API_KEY_ENV_KEY &&
               typeof existing.baseUrl === 'string' &&
@@ -572,11 +557,9 @@ export const useAuthCommand = (
 
         const updatedConfigs = [...newConfigs, ...nonAlibabaStandardConfigs];
 
-        settings.setValue(
-          persistScope,
-          `modelProviders.${AuthType.USE_OPENAI}`,
-          updatedConfigs,
-        );
+        // Note: We don't persist to modelProviders anymore
+        // The configs are managed via the providers system
+
         settings.setValue(
           persistScope,
           'security.auth.selectedType',
@@ -585,9 +568,7 @@ export const useAuthCommand = (
         settings.setValue(persistScope, 'model.name', modelIds[0]);
 
         const updatedModelProviders: ModelProvidersConfig = {
-          ...(settings.merged.modelProviders as
-            | ModelProvidersConfig
-            | undefined),
+          ...(modelProvidersConfig as ModelProvidersConfig | undefined),
           [AuthType.USE_OPENAI]: updatedConfigs,
         };
         config.reloadModelProvidersConfig(updatedModelProviders);

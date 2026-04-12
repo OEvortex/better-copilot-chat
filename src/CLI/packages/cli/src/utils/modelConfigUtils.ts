@@ -10,6 +10,7 @@ import {
   type ContentGeneratorConfigSources,
   resolveModelConfig,
   type ModelConfigSourcesInput,
+  type ModelProvidersConfig,
   type ProviderModelConfig,
 } from '@aether/aether-core';
 import type { Settings } from '../config/settings.js';
@@ -24,6 +25,7 @@ export interface CliGenerationConfigInputs {
   };
   settings: Settings;
   selectedAuthType: AuthType | undefined;
+  modelProvidersConfig?: ModelProvidersConfig | undefined;
   /**
    * Injectable env for testability. Defaults to process.env at callsites.
    */
@@ -92,13 +94,14 @@ export function resolveCliGenerationConfig(
 ): ResolvedCliGenerationConfig {
   const { argv, settings, selectedAuthType } = inputs;
   const env = inputs.env ?? (process.env as Record<string, string | undefined>);
+  const modelProvidersConfig = inputs.modelProvidersConfig;
 
   const authType = selectedAuthType;
 
-  // Find modelProvider from settings.modelProviders based on authType and model
+  // Find modelProvider from providers (converted to modelProvidersConfig) based on authType and model
   let modelProvider: ProviderModelConfig | undefined;
-  if (authType && settings.modelProviders) {
-    const providers = settings.modelProviders[authType];
+  if (authType && modelProvidersConfig) {
+    const providers = modelProvidersConfig[authType];
     if (providers && Array.isArray(providers)) {
       // Try to find by requested model (from CLI or settings)
       const requestedModel = argv.model || settings.model?.name;

@@ -212,6 +212,7 @@ async function fetchRuntimeModelsForConfig(
       fetchModels: false,
       modelsEndpoint: undefined,
       modelParser: undefined,
+      apiKey: model.apiKey || fallbackApiKey,
       generationConfig: {
         ...(model.generationConfig || {}),
         ...(runtimeModel.contextWindowSize !== undefined

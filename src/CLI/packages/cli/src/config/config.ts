@@ -40,6 +40,10 @@ import {
   resolveCliGenerationConfig,
   getAuthTypeFromEnv,
 } from '../utils/modelConfigUtils.js';
+import {
+  buildModelProvidersConfigFromProviderRegistry,
+  type StoredProviderConfig,
+} from '../ui/auth/providerSelection.js';
 import yargs, { type Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import * as fs from 'node:fs';
@@ -955,6 +959,10 @@ export async function loadCliConfig(
     /* getAuthTypeFromEnv means no authType was explicitly provided, we infer the authType from env vars */
     getAuthTypeFromEnv();
 
+  const runtimeModelProvidersConfig = buildModelProvidersConfigFromProviderRegistry(
+    settings.providers as Record<string, StoredProviderConfig | undefined> | undefined,
+  );
+
   // Unified resolution of generation config with source attribution
   const resolvedCliConfig = resolveCliGenerationConfig({
     argv: {
@@ -966,6 +974,7 @@ export async function loadCliConfig(
     },
     settings,
     selectedAuthType,
+    modelProvidersConfig: runtimeModelProvidersConfig,
     env: process.env as Record<string, string | undefined>,
   });
 
@@ -1011,7 +1020,7 @@ export async function loadCliConfig(
     sessionId = argv['sessionId'];
   }
 
-  const modelProvidersConfig = settings.modelProviders;
+  const modelProvidersConfig = runtimeModelProvidersConfig;
 
   const config = new Config({
     sessionId,

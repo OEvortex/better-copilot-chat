@@ -24,6 +24,9 @@ import { loadSettings, type LoadedSettings } from '../../config/settings.js';
 import { loadCliConfig } from '../../config/config.js';
 import type { CliArgs } from '../../config/config.js';
 import { InteractiveSelector } from './interactiveSelector.js';
+import {
+  buildModelProvidersConfigFromProviderRegistry,
+} from '../../ui/auth/providerSelection.js';
 
 interface AetherAuthOptions {
   region?: string;
@@ -45,7 +48,6 @@ interface MergedSettingsWithCodingPlan {
   model?: {
     name?: string;
   };
-  modelProviders?: Record<string, ModelConfig[]>;
   env?: Record<string, string>;
 }
 
@@ -217,15 +219,19 @@ async function handleCodePlanAuth(
       envKey: CODING_PLAN_ENV_KEY,
     }));
 
-    // Get existing configs
+    // Get existing configs from providers
+    const providers = settings.merged.providers as
+      | Record<string, unknown>
+      | undefined;
+    const modelProvidersConfig = buildModelProvidersConfigFromProviderRegistry(
+      providers as any,
+    );
     const existingConfigs =
-      (settings.merged.modelProviders as Record<string, ModelConfig[]>)?.[
-        AuthType.USE_OPENAI
-      ] || [];
+      modelProvidersConfig?.[AuthType.USE_OPENAI] || [];
 
     // Filter out all existing Coding Plan configs (mutually exclusive)
     const nonCodingPlanConfigs = existingConfigs.filter(
-      (existing) => !isCodingPlanConfig(existing.baseUrl, existing.envKey),
+      (existing: ModelConfig) => !isCodingPlanConfig(existing.baseUrl, existing.envKey),
     );
 
     // Add new Coding Plan configs at the beginning

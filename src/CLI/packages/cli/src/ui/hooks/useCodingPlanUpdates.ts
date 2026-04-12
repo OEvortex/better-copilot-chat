@@ -16,6 +16,9 @@ import {
   CODING_PLAN_ENV_KEY,
 } from '../../constants/codingPlan.js';
 import { t } from '../../i18n/index.js';
+import {
+  buildModelProvidersConfigFromProviderRegistry,
+} from '../auth/providerSelection.js';
 
 export interface CodingPlanUpdateRequest {
   prompt: string;
@@ -50,13 +53,14 @@ export function useCodingPlanUpdates(
       try {
         const persistScope = getPersistScopeForModelSelection(settings);
 
-        // Get current configs
-        const currentConfigs =
-          (
-            settings.merged.modelProviders as
-              | Record<string, Array<Record<string, unknown>>>
-              | undefined
-          )?.[AuthType.USE_OPENAI] || [];
+        // Get current providers and convert to modelProviders format
+        const providers = settings.merged.providers as
+          | Record<string, unknown>
+          | undefined;
+        const currentModelProviders = buildModelProvidersConfigFromProviderRegistry(
+          providers as any,
+        );
+        const currentConfigs = currentModelProviders?.[AuthType.USE_OPENAI] || [];
 
         // Filter out all Coding Plan configs (since they are mutually exclusive)
         // Keep only non-Coding-Plan user custom configs
@@ -80,7 +84,7 @@ export function useCodingPlanUpdates(
         // Combine: new Coding Plan configs at the front, user configs preserved
         const updatedConfigs = [
           ...newConfigs,
-          ...(nonCodingPlanConfigs as Array<Record<string, unknown>>),
+          ...(nonCodingPlanConfigs as unknown as Array<Record<string, unknown>>),
         ] as Array<Record<string, unknown>>;
 
         // Record the user's current model before the update
@@ -91,9 +95,7 @@ export function useCodingPlanUpdates(
 
         // Hot-reload model providers configuration first (in-memory only)
         const updatedModelProviders = {
-          ...(settings.merged.modelProviders as
-            | Record<string, unknown>
-            | undefined),
+          ...(currentModelProviders as Record<string, unknown> | undefined),
           [AuthType.USE_OPENAI]: updatedConfigs,
         };
         config.reloadModelProvidersConfig(
@@ -104,12 +106,9 @@ export function useCodingPlanUpdates(
         // This validates the configuration before persisting
         await config.refreshAuth(AuthType.USE_OPENAI);
 
-        // Persist to settings only after successful auth refresh
-        settings.setValue(
-          persistScope,
-          `modelProviders.${AuthType.USE_OPENAI}`,
-          updatedConfigs,
-        );
+        // Note: We don't persist to settings.modelProviders anymore
+        // The Coding Plan configs are managed via the providers system
+        // For now, we just update the version and region metadata
 
         // Update the version (single version field for backward compatibility)
         settings.setValue(persistScope, 'codingPlan.version', version);

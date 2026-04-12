@@ -363,7 +363,7 @@ describe('modelConfigUtils', () => {
       expect(result.generationConfig.enableOpenAILogging).toBe(false);
     });
 
-    it('should find modelProvider from settings when authType and model match', () => {
+    it('should find modelProvider from modelProvidersConfig when authType and model match', () => {
       const argv = { model: 'provider-model' };
       const modelProvider: ProviderModelConfig = {
         id: 'provider-model',
@@ -372,12 +372,11 @@ describe('modelConfigUtils', () => {
           samplingParams: { temperature: 0.8 },
         },
       };
-      const settings = makeMockSettings({
-        modelProviders: {
-          [AuthType.USE_OPENAI]: [modelProvider],
-        },
-      });
+      const settings = makeMockSettings({});
       const selectedAuthType = AuthType.USE_OPENAI;
+      const modelProvidersConfig = {
+        [AuthType.USE_OPENAI]: [modelProvider],
+      };
 
       vi.mocked(resolveModelConfig).mockReturnValue({
         config: {
@@ -393,6 +392,7 @@ describe('modelConfigUtils', () => {
         argv,
         settings,
         selectedAuthType,
+        modelProvidersConfig,
       });
 
       expect(vi.mocked(resolveModelConfig)).toHaveBeenCalledWith(
@@ -402,7 +402,7 @@ describe('modelConfigUtils', () => {
       );
     });
 
-    it('should find modelProvider from settings.model.name when argv.model is not provided', () => {
+    it('should find modelProvider from modelProvidersConfig when argv.model is not provided', () => {
       const argv = {};
       const modelProvider: ProviderModelConfig = {
         id: 'settings-model',
@@ -413,11 +413,11 @@ describe('modelConfigUtils', () => {
       };
       const settings = makeMockSettings({
         model: { name: 'settings-model' },
-        modelProviders: {
-          [AuthType.USE_OPENAI]: [modelProvider],
-        },
       });
       const selectedAuthType = AuthType.USE_OPENAI;
+      const modelProvidersConfig = {
+        [AuthType.USE_OPENAI]: [modelProvider],
+      };
 
       vi.mocked(resolveModelConfig).mockReturnValue({
         config: {
@@ -433,6 +433,7 @@ describe('modelConfigUtils', () => {
         argv,
         settings,
         selectedAuthType,
+        modelProvidersConfig,
       });
 
       expect(vi.mocked(resolveModelConfig)).toHaveBeenCalledWith(
@@ -444,12 +445,11 @@ describe('modelConfigUtils', () => {
 
     it('should not find modelProvider when authType is undefined', () => {
       const argv = { model: 'test-model' };
-      const settings = makeMockSettings({
-        modelProviders: {
-          [AuthType.USE_OPENAI]: [{ id: 'test-model', name: 'Test Model' }],
-        },
-      });
+      const settings = makeMockSettings({});
       const selectedAuthType = undefined;
+      const modelProvidersConfig = {
+        [AuthType.USE_OPENAI]: [{ id: 'test-model', name: 'Test Model' }],
+      };
 
       vi.mocked(resolveModelConfig).mockReturnValue({
         config: {
@@ -465,6 +465,7 @@ describe('modelConfigUtils', () => {
         argv,
         settings,
         selectedAuthType,
+        modelProvidersConfig,
       });
 
       expect(vi.mocked(resolveModelConfig)).toHaveBeenCalledWith(
@@ -474,29 +475,29 @@ describe('modelConfigUtils', () => {
       );
     });
 
-    it('should not find modelProvider when modelProviders is not an array', () => {
+    it('should not find modelProvider when modelProvidersConfig is not an array', () => {
       const argv = { model: 'test-model' };
-      const settings = makeMockSettings({
-        modelProviders: {
-          [AuthType.USE_OPENAI]: null as unknown as ProviderModelConfig[],
-        },
-      });
+      const settings = makeMockSettings({});
       const selectedAuthType = AuthType.USE_OPENAI;
+      const modelProvidersConfig = {
+        [AuthType.USE_OPENAI]: null as unknown as ProviderModelConfig[],
+      };
 
       vi.mocked(resolveModelConfig).mockReturnValue({
         config: {
           model: 'test-model',
           apiKey: '',
           baseUrl: '',
-        },
-        sources: {},
-        warnings: [],
-      });
+          sources: {},
+          warnings: [],
+        });
+    });
 
       resolveCliGenerationConfig({
         argv,
         settings,
         selectedAuthType,
+        modelProvidersConfig,
       });
 
       expect(vi.mocked(resolveModelConfig)).toHaveBeenCalledWith(

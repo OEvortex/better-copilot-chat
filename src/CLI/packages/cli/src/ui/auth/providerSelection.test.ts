@@ -21,13 +21,13 @@ describe('providerSelection', () => {
             supportsApiKey: true,
             apiKeyTemplate: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
             openai: {
-                baseUrl: 'https://api.apertis.ai/v1',
+                baseUrl: 'https://api.apertis.ai/v1'
             },
             anthropic: {
-                baseUrl: 'https://api.apertis.ai',
+                baseUrl: 'https://api.apertis.ai'
             },
             responses: {
-                baseUrl: 'https://api.apertis.ai/v1',
+                baseUrl: 'https://api.apertis.ai/v1'
             },
             openModelEndpoint: false,
             sdkMode: 'openai',
@@ -36,10 +36,10 @@ describe('providerSelection', () => {
             modelParser: {
                 arrayPath: 'data',
                 descriptionField: 'id',
-                cooldownMinutes: 10,
+                cooldownMinutes: 10
             },
             baseUrl: 'https://override.example/v1',
-            apiKey: 'test-api-key',
+            apiKey: 'test-api-key'
         });
     });
 
@@ -53,8 +53,24 @@ describe('providerSelection', () => {
             sdkMode: 'openai',
             baseUrl: 'https://api.apertis.ai/v1',
             fetchModels: true,
-            modelsEndpoint: '/models',
+            modelsEndpoint: '/models'
         });
+    });
+
+    it('uses the static mistral model list when fetchModels is false', () => {
+        const modelProviders = buildProviderModelProvidersConfig('mistral');
+
+        expect(modelProviders?.[AuthType.USE_OPENAI]).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    id: 'devstral-small-latest',
+                    name: 'Devstral Small 2',
+                    provider: 'mistral',
+                    baseUrl: 'https://api.mistral.ai/v1',
+                    fetchModels: false
+                })
+            ])
+        );
     });
 
     it('returns undefined for a missing or blank stored provider apiKey', () => {
@@ -66,7 +82,7 @@ describe('providerSelection', () => {
                             displayName: 'Apertis AI',
                             family: 'Apertis AI',
                             apiKey: '   '
-                        },
+                        }
                     }
                 }
             })
@@ -80,7 +96,7 @@ describe('providerSelection', () => {
                             displayName: 'Apertis AI',
                             family: 'Apertis AI',
                             apiKey: 'saved-api-key'
-                        },
+                        }
                     }
                 }
             })

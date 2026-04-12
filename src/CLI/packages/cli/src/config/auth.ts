@@ -7,11 +7,13 @@
 import {
   AuthType,
   type Config,
-  type ModelProvidersConfig,
   type ProviderModelConfig,
 } from '@aether/aether-core';
 import { loadEnvironment, loadSettings, type Settings } from './settings.js';
 import { t } from '../i18n/index.js';
+import {
+  buildModelProvidersConfigFromProviderRegistry,
+} from '../ui/auth/providerSelection.js';
 
 /**
  * Default environment variable names for each auth type
@@ -24,18 +26,27 @@ const DEFAULT_ENV_KEYS: Record<string, string> = {
 };
 
 /**
- * Find model configuration from modelProviders by authType and modelId
+ * Find model configuration from providers by authType and modelId
  */
 function findModelConfig(
-  modelProviders: ModelProvidersConfig | undefined,
+  providers: Record<string, unknown> | undefined,
   authType: string,
   modelId: string | undefined,
 ): ProviderModelConfig | undefined {
-  if (!modelProviders || !modelId) {
+  if (!providers || !modelId) {
     return undefined;
   }
 
-  const models = modelProviders[authType];
+  // Convert providers to ModelProvidersConfig format
+  const modelProvidersConfig = buildModelProvidersConfigFromProviderRegistry(
+    providers as any,
+  );
+
+  if (!modelProvidersConfig) {
+    return undefined;
+  }
+
+  const models = modelProvidersConfig[authType];
   if (!Array.isArray(models)) {
     return undefined;
   }
@@ -45,7 +56,7 @@ function findModelConfig(
 
 /**
  * Check if API key is available for the given auth type and model configuration.
- * Prioritizes custom envKey from modelProviders over default environment variables.
+ * Prioritizes custom envKey from providers over default environment variables.
  */
 function hasApiKeyForAuth(
   authType: string,
@@ -56,16 +67,14 @@ function hasApiKeyForAuth(
   checkedEnvKey: string | undefined;
   isExplicitEnvKey: boolean;
 } {
-  const modelProviders = settings.modelProviders as
-    | ModelProvidersConfig
-    | undefined;
+  const providers = settings.providers as Record<string, unknown> | undefined;
 
   // Use config.getModelsConfig().getModel() if available for accurate model ID resolution
   // that accounts for CLI args, env vars, and settings. Fall back to settings.model.name.
   const modelId = config?.getModelsConfig().getModel() ?? settings.model?.name;
 
-  // Try to find model-specific envKey from modelProviders
-  const modelConfig = findModelConfig(modelProviders, authType, modelId);
+  // Try to find model-specific envKey from providers
+  const modelConfig = findModelConfig(providers, authType, modelId);
   if (modelConfig?.envKey) {
     // Explicit envKey configured - only check this env var, no apiKey fallback
     const hasKey = !!process.env[modelConfig.envKey];
@@ -180,18 +189,16 @@ export function validateAuthMethod(
       return apiKeyError;
     }
 
-    // Check baseUrl - can come from modelProviders or environment
-    const modelProviders = settings.merged.modelProviders as
-      | ModelProvidersConfig
-      | undefined;
+    // Check baseUrl - can come from providers or environment
+    const providers = settings.merged.providers as Record<string, unknown> | undefined;
     // Use config.getModelsConfig().getModel() if available for accurate model ID
     const modelId =
       config?.getModelsConfig().getModel() ?? settings.merged.model?.name;
-    const modelConfig = findModelConfig(modelProviders, authMethod, modelId);
+    const modelConfig = findModelConfig(providers, authMethod, modelId);
 
     if (modelConfig && !modelConfig.baseUrl) {
       return t(
-        'Anthropic provider missing required baseUrl in modelProviders[].baseUrl.',
+        'Anthropic provider missing required baseUrl in providers[].baseUrl.',
       );
     }
     if (!modelConfig && !process.env['ANTHROPIC_BASE_URL']) {

@@ -52,13 +52,12 @@ export class StrictMissingCredentialsError extends ModelConfigError {
     model: string | undefined,
     envKey?: string,
   ) {
-    const providerKey = authType || '(unknown)';
     const modelName = model || '(unknown)';
     super(
-      `Missing credentials for modelProviders model '${modelName}'. ` +
+      `Missing credentials for model '${modelName}'. ` +
         (envKey
-          ? `Current configured envKey: '${envKey}'. Set that environment variable, or update modelProviders.${providerKey}[].envKey.`
-          : `Configure modelProviders.${providerKey}[].envKey and set that environment variable.`),
+          ? `Current configured envKey: '${envKey}'. Set that environment variable, or configure the provider in settings.`
+          : `Configure the provider in settings and set the required API key.`),
     );
   }
 }
@@ -68,7 +67,7 @@ export class StrictMissingModelIdError extends ModelConfigError {
 
   constructor(authType: string | undefined) {
     super(
-      `Missing model id for strict modelProviders resolution (authType: ${authType}).`,
+      `Missing model id for strict provider resolution (authType: ${authType}).`,
     );
   }
 }
@@ -110,8 +109,8 @@ export class MissingBaseUrlError extends ModelConfigError {
     model: string | undefined;
   }) {
     super(
-      `Missing baseUrl for modelProviders model '${params.model || '(unknown)'}'. ` +
-        `Configure modelProviders.${params.authType || '(unknown)'}[].baseUrl.`,
+      `Missing baseUrl for model '${params.model || '(unknown)'}'. ` +
+        `Configure the provider in settings with the correct baseUrl.`,
     );
   }
 }

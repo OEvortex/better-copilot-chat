@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import process from 'node:process';
-
 import { AuthType } from '../core/contentGenerator.js';
 import type { ContentGeneratorConfig } from '../core/contentGenerator.js';
 import type { ContentGeneratorConfigSources } from '../core/contentGenerator.js';
@@ -733,26 +731,24 @@ export class ModelsConfig {
       this._generationConfig.apiKeyEnvKey = undefined;
       delete this.generationConfigSources['apiKeyEnvKey'];
     } else {
-      this._generationConfig.apiKey = undefined;
+      // Use apiKey from model config if available (inherited from provider)
+      if (model.apiKey) {
+        this._generationConfig.apiKey = model.apiKey;
+        this.generationConfigSources['apiKey'] = {
+          kind: 'modelProviders',
+          authType: model.authType,
+          modelId: model.id,
+          detail: 'apiKey',
+        };
+      } else {
+        this._generationConfig.apiKey = undefined;
+      }
       this._generationConfig.apiKeyEnvKey = undefined;
     }
 
-    // Read API key from environment variable if envKey is specified
+    // Note: envKey is stored for reference but we no longer read from environment variables
+    // All credentials must come from settings/providers configuration
     if (model.envKey !== undefined) {
-      const apiKey = process.env[model.envKey];
-      if (apiKey) {
-        this._generationConfig.apiKey = apiKey;
-        this.generationConfigSources['apiKey'] = {
-          kind: 'env',
-          envKey: model.envKey,
-          via: {
-            kind: 'modelProviders',
-            authType: model.authType,
-            modelId: model.id,
-            detail: 'envKey',
-          },
-        };
-      }
       this._generationConfig.apiKeyEnvKey = model.envKey;
       this.generationConfigSources['apiKeyEnvKey'] = {
         kind: 'modelProviders',

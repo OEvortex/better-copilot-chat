@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="5" failures="0" errors="0" time="0.0138457">
-    <testsuite name="src/ui/auth/providerSelection.test.ts" timestamp="2026-04-12T07:52:37.906Z" hostname="VORTEX" tests="5" failures="0" errors="0" skipped="0" time="0.0138457">
-        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; builds a stored provider config that preserves the provider catalog shape" time="0.0041772">
+<testsuites name="vitest tests" tests="6" failures="0" errors="0" time="0.0320181">
+    <testsuite name="src/ui/auth/providerSelection.test.ts" timestamp="2026-04-12T08:46:39.326Z" hostname="VORTEX" tests="6" failures="0" errors="0" skipped="0" time="0.0320181">
+        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; builds a stored provider config that preserves the provider catalog shape" time="0.0100082">
         </testcase>
-        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; keeps runtime model-provider generation keyed by auth type" time="0.0029287">
+        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; keeps runtime model-provider generation keyed by auth type" time="0.0081213">
         </testcase>
-        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; returns undefined for a missing or blank stored provider apiKey" time="0.0016867">
+        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; uses the static mistral model list when fetchModels is false" time="0.0035728">
         </testcase>
-        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; prompts for api key when provider supports keys but none is stored" time="0.001132">
+        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; returns undefined for a missing or blank stored provider apiKey" time="0.002179">
         </testcase>
-        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; prompts for api key for NVIDIA NIM when none is stored" time="0.000705">
+        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; prompts for api key when provider supports keys but none is stored" time="0.0012756">
+        </testcase>
+        <testcase classname="src/ui/auth/providerSelection.test.ts" name="providerSelection &gt; prompts for api key for NVIDIA NIM when none is stored" time="0.0007189">
         </testcase>
     </testsuite>
 </testsuites>

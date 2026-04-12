@@ -19,7 +19,6 @@ import { DescriptiveRadioButtonSelect } from '../components/shared/DescriptiveRa
 import { TextInput } from '../components/shared/TextInput.js';
 import { useSettings } from '../contexts/SettingsContext.js';
 import {
-  buildProviderModelProvidersConfig,
   getProviderAuthType,
   getProviderBaseUrl,
     getStoredProviderApiKey,
@@ -95,25 +94,17 @@ export function AuthDialog(): React.JSX.Element {
       return;
     }
 
-    const authType = getProviderAuthType(value);
-    const providerModelProviders = buildProviderModelProvidersConfig(value);
+      const authType = getProviderAuthType(value);
       const shouldPromptForApiKey = shouldPromptForProviderApiKey(value, settings);
       const storedApiKey = getStoredProviderApiKey(value, settings);
 
       if (!shouldPromptForApiKey) {
-        const scope = getPersistScopeForModelSelection(settings);
-        settings.setValue(scope, 'security.auth.selectedProvider', value);
-        if (providerModelProviders) {
-          settings.setValue(
-              scope,
-              `modelProviders.${authType}`,
-              providerModelProviders[authType]
-          );
-      }
+          const scope = getPersistScopeForModelSelection(settings);
+          settings.setValue(scope, 'security.auth.selectedProvider', value);
 
       await handleAuthSelect(authType, {
         providerId: value,
-          apiKey: storedApiKey
+          apiKey: storedApiKey,
       });
       return;
     }
